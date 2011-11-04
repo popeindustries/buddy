@@ -1,0 +1,15 @@
+{
+  "name": "builder",
+  "description": "Builder dependencies",
+  "version": "0.2.1",
+  "author": "Alexander Pope <pope@apt.no>",
+  "dependencies": {
+    "coffee-script": "1.1.x",
+    "growl": "1.1.x",
+    "stylus": "0.x.x",
+    "uglify-js": "1.1.x",
+    "underscore": "1.1.x",
+    "commander": "0.x.x"
+  },
+  "engine": "node >= 0.5.10"
+}
