@@ -1,6 +1,6 @@
 {
   "name": "builder",
-  "description": "Builder dependencies",
+  "description": "Tooling framework for compiling, concatenating, and deploying coffeescript/js and stylus/less/css projects.",
   "version": "0.3.0",
   "author": "Alexander Pope <alexander.pope@gmail.com>",
   "dependencies": {
@@ -12,5 +12,18 @@
     "underscore": "1.1.x",
     "commander": "0.x.x"
   },
-  "engine": "node >= 0.5.10"
+  "devDependencies": {
+    "nodeunit": ">=0.6.2"
+  },
+  "directories" : {
+    "lib" : "./lib"
+  },
+  "main" : "./index",
+  "bin": {
+    "build": "./bin/build"
+  },
+  "scripts": {
+    "test": "nodeunit test"
+  },
+  "engine": "node >= 0.6.0"
 }

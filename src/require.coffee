@@ -1,6 +1,6 @@
 ###
-CommonJS-based module framework for the browser.
-@see https://github.com/stephank/villain/blob/master/src/util/brequire.coffee
+  CommonJS inspired module framework for the browser.
+  @see https://github.com/stephank/villain/blob/master/src/util/brequire.coffee
 ###
 
 # Load or return cached version of requested module

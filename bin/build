@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+program = require('commander');
+builder = require('../');
+
+program
+ .version('0.3.0')
+ .option('-c, --compress', 'compress output for production deployment')
+ .option('-b, --bare', 'exclude the module loading code from all concatenated targets');
+ 
+program
+ .command('compile [config]')
+ .description('compile js and css sources')
+ .action(function(config){
+   config = config || '../config.json';
+   builder.compile(config);
+ });
+ 
+program
+ .command('watch [config]')
+ .description('watch js and css source files and compile changes')
+ .action(function(config){
+   config = config || '../config.json';
+ });
+ 
+program
+ .command('deploy [config]')
+ .description('compile compressed js and css sources')
+ .action(function(config){
+   config = config || '../config.json';
+ });
+
+program.parse(process.argv);
