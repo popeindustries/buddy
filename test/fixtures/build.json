@@ -1,0 +1,21 @@
+{
+	"base": "",
+	"js": {
+		"sources": ["some/folder"],
+		"targets": [
+			{
+				"in": "some/file/or/folder",
+				"out": "some/file/or/folder"
+			}
+		]
+	},
+	"css": {
+		"sources": ["some/folder"],
+		"targets": [
+			{
+				"in": "some/file/or/folder",
+				"out": "some/file/or/folder"
+			}
+		]
+	}
+}
