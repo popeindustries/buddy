@@ -1,9 +1,12 @@
-exports.RED = 31
-exports.GREEN = 32
-exports.GREY = 90
+module.exports =
+	RED: 31
+	GREEN: 32
+	GREY: 90
+	
+	silent: false
 
-exports.out = (string, indentLevel = 1) ->
-	console.log "#{(new Array(indentLevel)).join('  ')}" + string
+	out: (string, indentLevel = 1) ->
+		console.log("#{(new Array(indentLevel)).join('  ')}" + string) unless @silent
 
-exports.colour = (string, colourCode) ->
-	return "\033[#{colourCode}m#{string}\033[0m"
+	colour: (string, colourCode) ->
+		return "\033[#{colourCode}m#{string}\033[0m"
