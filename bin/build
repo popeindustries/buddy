@@ -9,10 +9,10 @@ program
 	.option('-b, --bare', 'exclude the module loading code from all concatenated targets');
  
 program
-	.command('compile')
+	.command('compile [config]')
 	.description('compile js and css sources')
-	.action(function(){
-		builder.compile();
+	.action(function(config){
+		builder.compile(config);
 });
 
 program

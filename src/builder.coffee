@@ -19,6 +19,10 @@ CONFIG = 'build.json'
 initialized = false
 
 module.exports = 
+	RE_JS_SRC_EXT: /\.coffee|\.js$/
+	RE_CSS_SRC_EXT: /\.styl|\.less$/
+	RE_IGNORE_FILE: /^[_|\.]|[-|\.]min\./
+	RE_BUILT_HEADER: /^\/\*BUILT/g
 	config: null
 	base: null
 	jsSources:
@@ -32,24 +36,48 @@ module.exports =
 	jsBuilds: null
 	cssBuilds: null
 
-	compile: (configuration) ->
-		@_initialize(configuration)
+	compile: (configPath) ->
+		@_initialize(configPath)
 
 	watch: ->
 
 	deploy: ->
 
-	_loadConfig: ->
-		# Find the first instance of the CONFIG file based on the current working directory.
-		while (true)
-			dir = if dir? then path.resolve(dir, '../') else process.cwd()
-			configPath = path.join(dir, CONFIG)
-			break if path.existsSync(configPath)
-			# Exit if we reach the volume root without finding our file
-			if dir is '/'
-				term.out "#{term.colour('warning', term.RED)} #{term.colour(CONFIG, term.GREY)} not found on this path", 2
-				term.out "See #{term.colour('--help', term.GREY)} for more info", 3
+	_initialize: (configPath) ->
+		unless initialized
+			# Load configuration file
+			if @_loadConfig(configPath)
+				if @config.js and @config.js.sources and @config.js.sources.length and @config.js.targets and @config.js.targets.length
+					# Generate source cache
+					@_parseSourceFolder(path.resolve(@base, source)) for source in @config.js.sources
+					# Generate builds
+					# jsBuilds = ((new JSBuild(target.in, target.out, target.nodejs)) for target in config.js.targets)
+				if @config.css and @config.css.sources and @config.css.sources.length and @config.css.targets and @config.css.targets.length
+					# Generate source cache
+					@_parseSourceFolder(path.resolve(@base, source)) for source in @config.css.sources
+					# Generate builds
+					# jsBuilds = ((new JSBuild(target.in, target.out, target.nodejs)) for target in config.js.targets)
+			
+		initialized = true
+	
+	_loadConfig: (configPath) ->
+		if configPath
+			# Check that the path is valid
+			configPath = path.resolve configPath
+			unless path.existsSync configPath
+				term.out "#{term.colour('warning', term.RED)} #{term.colour(path.basename(configPath), term.GREY)} not found in #{term.colour(path.dirname(configPath), term.GREY)}", 2
 				return false
+		else
+			# Find the first instance of the CONFIG file based on the current working directory.
+			while (true)
+				dir = if dir? then path.resolve(dir, '../') else process.cwd()
+				configPath = path.join(dir, CONFIG)
+				break if path.existsSync(configPath)
+				# Exit if we reach the volume root without finding our file
+				if dir is '/'
+					term.out "#{term.colour('warning', term.RED)} #{term.colour(CONFIG, term.GREY)} not found on this path", 2
+					term.out "See #{term.colour('--help', term.GREY)} for more info", 3
+					return false
 		
 		# Read and parse config settings
 		term.out "Loading config file #{term.colour(configPath, term.GREY)}", 2
@@ -60,56 +88,40 @@ module.exports =
 			return false
 		
 		# Store the base directory
-		@base = dir
-		initialized = true
-		return initialized
+		@base = path.dirname configPath
+		return true
 	
-	_initializeJSBuilds: ->
-		# Prepare js builds
-		if @config.js and @config.js.sources and @config.js.sources.length and @config.js.targets and @config.js.targets.length
-			# Generate source cache
-			@_parseSourceContents(path.resolve(@base, source)) for source in @config.js.sources
-			# Generate builds
-			# jsBuilds = ((new JSBuild(target.in, target.out, target.nodejs)) for target in config.js.targets)
+	_parseSourceFolder: (dir) ->
+		for item in fs.readdirSync dir
+			unless item.match @RE_IGNORE_FILE
+				itempath = path.resolve dir, item
+				# Recurse child directory
+				@_parseSourceFolder(itempath) if fs.statSync(itempath).isDirectory()
+				
+				if f = @_fileFactory(itempath)
+					# JS source file
+					if f instanceof file.JSFile
+						@jsSources.byPath[f.filepath] = f
+						# jsSources.byName[f.name] = f
+						# jsSources.byModule[f.module] = f if f.module
+						@jsSources.count++
+					# CSS source file
+					else
+						@cssSource.byPath[f.filepath] = f
+						@cssSource.count++
 	
-	_parseSourceContents: (dir) ->
-		log dir
-		for filename in fs.readdirSync dir
-			filepath = path.resolve dir, filename
-			name = filename.replace(path.extname(filename), '')
-			log name, filename, filepath
-	# base ||= if dir.charAt(dir.length - 1) isnt '/' then "#{dir}/" else dir
-	# for filename in fs.readdirSync dir
-	# 	filepath = path.join dir, filename
-	# 	name = (filepath.replace(base, '')).replace path.extname(filename), ''
-	# 	# JS source file
-	# 	if filename.match RE_JS_SRC_EXT
-	# 		if name of jsSources.byName
-	# 			cache?.push jsSources.byName[name]
-	# 		else
-	# 			# Parse contents unless it's an ignored file
-	# 			contents = fs.readFileSync(filepath, 'utf8') unless filename.match RE_IGNORE
-	# 			# Ignore files with 'built' header
-	# 			unless contents.match RE_BUILT
-	# 				# Escape js contents for the coffeescript compiler
-	# 				contents = "`#{contents}`" if filename.match RE_JS_EXT
-	# 				# Create and store File object
-	# 				file = new JSFile filepath, filename, name, contents, production
-	# 				jsSources.byPath[filepath] = file
-	# 				jsSources.byName[name] = file
-	# 				jsSources.byModule[file.module] = file if file.module
-	# 				jsSources.count++
-	# 	# CSS source file
-	# 	else if filename.match RE_STYLUS_EXT
-	# 		if filepath of cssSources.byPath
-	# 			cache?.push cssSources.byPath[filepath]
-	# 		else
-	# 			# Parse contents unless it's an ignored file
-	# 			contents = fs.readFileSync(filepath, 'utf8') unless filename.match RE_IGNORE
-	# 			# Create and store File object
-	# 			file = new CSSFile filepath, filename, name, contents
-	# 			cssSources.byPath[filepath] = file
-	# 			cssSources.count++
-	# 	# Directory
-	# 	else if fs.statSync(filepath).isDirectory() and !(filename.match(RE_IGNORE))
-	# 		parseSourceContents filepath, base, cache
+	_fileFactory: (filepath) ->
+		# Create JS file instance
+		if filepath.match @RE_JS_SRC_EXT
+			# Skip compiled files
+			contents = fs.readFileSync(filepath, 'utf8')
+			return null if contents.match @RE_BUILT_HEADER
+			# Create and store File object
+			return new file.JSFile filepath, contents
+			
+		# Create CSS file instance
+		else if filepath.match @RE_CSS_SRC_EXT
+			return new file.CSSFile filepath
+		
+		else return null
+	
