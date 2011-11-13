@@ -35,9 +35,8 @@ require.bind = (path) ->
 
 # Module definition function
 # fn signature should be of type (module, exports, require)
-require.define = (path, fn) ->
+require.module = (path, fn) ->
 	require.modules[path] = fn
 	
 # Exports
 window.require = require
-window.define = require.define
