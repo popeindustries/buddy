@@ -1,4 +1,4 @@
-module.exports = class Nested
+module.exports = class ClassCamelCase
 	
 	constructor: ->
 		@someVar = 'hey'

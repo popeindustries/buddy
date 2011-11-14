@@ -89,16 +89,18 @@ module.exports =
 		
 		# Store the base directory
 		@base = path.dirname configPath
+
 		return true
 	
-	_parseSourceFolder: (dir) ->
+	_parseSourceFolder: (dir, base) ->
+		base ?= dir
 		for item in fs.readdirSync dir
 			unless item.match @RE_IGNORE_FILE
 				itempath = path.resolve dir, item
 				# Recurse child directory
-				@_parseSourceFolder(itempath) if fs.statSync(itempath).isDirectory()
+				@_parseSourceFolder(itempath, base) if fs.statSync(itempath).isDirectory()
 				
-				if f = @_fileFactory(itempath)
+				if f = @_fileFactory(itempath, base)
 					# JS source file
 					if f instanceof file.JSFile
 						@jsSources.byPath[f.filepath] = f
@@ -110,18 +112,18 @@ module.exports =
 						@cssSource.byPath[f.filepath] = f
 						@cssSource.count++
 	
-	_fileFactory: (filepath) ->
+	_fileFactory: (filepath, base) ->
 		# Create JS file instance
 		if filepath.match @RE_JS_SRC_EXT
 			# Skip compiled files
 			contents = fs.readFileSync(filepath, 'utf8')
 			return null if contents.match @RE_BUILT_HEADER
 			# Create and store File object
-			return new file.JSFile filepath, contents
+			return new file.JSFile filepath, base, contents
 			
 		# Create CSS file instance
 		else if filepath.match @RE_CSS_SRC_EXT
-			return new file.CSSFile filepath
+			return new file.CSSFile filepath, base
 		
 		else return null
 	

@@ -96,7 +96,7 @@ vows.describe('builder/initialization')
 					@length = builder.jsSources.count
 					builder._parseSourceFolder path.resolve(__dirname, 'fixtures/project/src/coffee')
 				'increases the source cache size by the number of valid files': ->
-					assert.equal builder.jsSources.count - @length, 2
+					assert.equal builder.jsSources.count - @length, 5
 				'skips ignored files': ->
 					assert.isUndefined builder.jsSources[path.resolve(__dirname, 'fixtures/project/src/coffee/ignored/_ignored.coffee')]
 	.export(module)
