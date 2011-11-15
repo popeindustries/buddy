@@ -11,7 +11,7 @@ loadConfig = (workingDir, configPath) ->
 	process.chdir(workingDir)
 	builder._loadConfig(configPath)
 
-vows.describe('builder/regex')
+vows.describe('builder/matching')
 	.addBatch
 		'a file':
 			'is a JS file':

@@ -3,14 +3,6 @@ path = require 'path'
 {log} = console
 
 exports.File = class File
-	RE_COFFEE_EXT: /\.coffee$/
-	RE_JS_EXT: /\.js$/
-	RE_STYLUS_EXT: /\.styl$/
-	RE_LESS_EXT: /\.less$/
-	RE_INDENT: /(^\t|^ +)\w/m
-	RE_LINE_BEGIN: /^/gm
-	RE_UPPERCASE: /[A-Z]/
-	
 	base: null
 
 	constructor: (@filepath, @base) ->
@@ -24,10 +16,18 @@ exports.File = class File
 	
 
 exports.JSFile = class JSFile extends File
+	RE_COFFEE_EXT: /\.coffee$/
+	RE_JS_EXT: /\.js$/
+	RE_INDENT: /(^\t|^ +)\S/m
+	RE_LINE_BEGIN: /^/gm
+	RE_UPPERCASE: /[A-Z]/
+	RE_REQUIRE: /^(?=.*?require\s*\(?\s*['|"]([^'"]*))(?:(?!#|(?:\/\/)).)*$/gm
+	
 	constructor: (filepath, base, contents) ->
 		super filepath, base
 		@module = @_getModuleName()
 		@updateContents contents or fs.readFileSync(@filepath, 'utf8')
+		@dependencies = @_getModuleDependencies()
 	
 	updateContents: (contents) ->
 		@contents = contents
@@ -58,8 +58,25 @@ exports.JSFile = class JSFile extends File
 			module = module.replace(@name, letters.join().replace(/,/g, ''))
 		module
 	
+	_getModuleDependencies: ->
+		deps = []
+		while match = @RE_REQUIRE.exec @contents
+			dep = match[1]
+			parts = dep.split '/'
+			# Resolve relative path
+			if dep.charAt(0) is '.'
+				parts = @name.split '/'
+				parts.pop()
+				for part in dep.split '/'
+					if part is '..' then parts.pop()
+					else unless part is '.' then parts.push(part)
+			deps.push parts.join '/'
+		deps
 
 exports.CSSFile = class CSSFile extends File
+	RE_STYLUS_EXT: /\.styl$/
+	RE_LESS_EXT: /\.less$/
+	
 	constructor: (filepath, base) ->
 		super filepath, base
 		@updateContents fs.readFileSync(@filepath, 'utf8')
