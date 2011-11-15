@@ -3,8 +3,6 @@ path = require 'path'
 {log} = console
 
 exports.File = class File
-	base: null
-
 	constructor: (@filepath, @base) ->
 		@filename = path.basename @filepath
 		@name = @filename.replace(path.extname(@filename), '')

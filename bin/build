@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var program = require('commander'),
-	builder = require('../lib/builder');
+	Builder = require('../lib/builder');
 
 program
 	.version('0.3.0')
@@ -12,21 +12,21 @@ program
 	.command('compile [config]')
 	.description('compile js and css sources')
 	.action(function(config){
-		builder.compile(config);
+		new Builder().compile(config);
 });
 
 program
-	.command('watch')
+	.command('watch [config]')
 	.description('watch js and css source files and compile changes')
 	.action(function(){
-		builder.watch();
+		new Builder().watch(config);
 });
  
 program
-	.command('deploy')
+	.command('deploy [config]')
 	.description('compile compressed js and css sources')
 	.action(function(){
-		builder.deploy();
+		new Builder(config).deploy(config);
 });
 
 program.parse(process.argv);

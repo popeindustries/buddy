@@ -1,19 +1,22 @@
 {
 	"js": {
-		"sources": ["some/folder"],
+		"sources": ["src/coffee", "src/libs"],
 		"targets": [
 			{
-				"in": "some/file/or/folder",
-				"out": "some/file/or/folder"
-			}
-		]
-	},
-	"css": {
-		"sources": ["some/folder"],
-		"targets": [
+				"in": "src/coffee",
+				"out": "js"
+			},
 			{
-				"in": "some/file/or/folder",
-				"out": "some/file/or/folder"
+				"in": "src/coffee/main.coffee",
+				"out": "js/main.js"
+			},
+			{
+				"in": "src/coffee/main.coffee",
+				"out": "js"
+			},
+			{
+				"in": "src/coffee",
+				"out": "js/main.js"
 			}
 		]
 	}

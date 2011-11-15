@@ -1,12 +1,12 @@
 path = require 'path'
 assert = require 'assert'
 vows = require 'vows'
-builder = require '../lib/builder'
+Builder = require '../lib/builder'
 term = require '../lib/terminal'
 file = require '../lib/file'
 coffee = require 'coffee-script'
 
-term.silent = true
+# term.silent = true
 
 vows.describe('file/matching')
 	.addBatch
@@ -39,7 +39,7 @@ vows.describe('file/matching')
 vows.describe('file/instantiation')
 	.addBatch
 		'a coffeescript JSFile instance':
-			topic: builder._loadConfig path.resolve(__dirname, 'fixtures/project')
+			topic: Builder::_loadConfig path.resolve(__dirname, 'fixtures/project')
 			'with relative path of "other/Class.coffee"':
 				topic: new file.JSFile path.resolve(__dirname, 'fixtures/project/src/coffee/other/Class.coffee'), path.resolve(__dirname, 'fixtures/project/src/coffee')
 				'should have a module name of "other/class"': (jsFile) ->
