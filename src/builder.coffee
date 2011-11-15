@@ -139,10 +139,11 @@ module.exports = class Builder
 	
 	_targetFactory: (input, output, type) ->
 		inputpath = path.resolve @base, input
-		outputpath = path.resolve @base, ouput
+		outputpath = path.resolve @base, output
 		# Check that input is included in sources
-		for location in @[type + 'Sources'].location
-			inSources = path.dirname(inputpath).test location
+		for location in @[type + 'Sources'].locations
+			dir = if fs.statSync(inputpath).isDirectory() then inputpath else path.dirname(inputpath)
+			inSources = dir.indexOf(location) >= 0
 			break if inSources
 		# Abort if input isn't in sources
 		unless inSources
@@ -153,5 +154,4 @@ module.exports = class Builder
 			term.out "#{term.colour('ERROR [invalid]', term.RED)} a file (#{term.colour(output, term.GREY)}) is not a valid output target for a directory (#{term.colour(input, term.GREY)}) input target", 2
 			return null
 		return new target[type.toUpperCase() + 'Target'] inputpath, outputpath
-	
 	

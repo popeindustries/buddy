@@ -6,8 +6,6 @@ term = require '../lib/terminal'
 file = require '../lib/file'
 coffee = require 'coffee-script'
 
-# term.silent = true
-
 vows.describe('file/matching')
 	.addBatch
 		'JS file content':

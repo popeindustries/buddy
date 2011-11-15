@@ -4,8 +4,9 @@ vows = require 'vows'
 Builder = require '../lib/builder'
 term = require '../lib/terminal'
 file = require '../lib/file'
+target = require '../lib/target'
 
-# term.silent = true
+term.silent = true
 
 loadConfig = (workingDir, configPath) ->
 	process.chdir(workingDir)
@@ -40,69 +41,90 @@ vows.describe('builder/matching')
 vows.describe('builder/configuration')
 	.addBatch
 		'loading config JSON file':
-			'from valid working directory':
+			'from a valid working directory':
 				topic: ->
 					loadConfig(path.resolve(__dirname, 'fixtures/project'))
-				'returns true': (result) ->
+				'should return true': (result) ->
 					assert.isTrue result
-			'from valid nested working directory':
+			'from a valid nested working directory':
 				topic: ->
 					loadConfig(path.resolve(__dirname, 'fixtures/project/src/coffee'))
-				'returns true': (result) ->
+				'should return true': (result) ->
 					assert.isTrue result
-			'from invalid working directory':
+			'from an invalid working directory':
 				topic: ->
 					loadConfig(path.resolve(__dirname, '../../'))
-				'returns false': (result) ->
+				'should return false': (result) ->
 					assert.isFalse result
-			'with invalid format':
+			'with a invalid format':
 				topic: ->
 					loadConfig(path.resolve(__dirname, 'fixtures/bad-json'))
-				'returns false': (result) ->
+				'should return false': (result) ->
 					assert.isFalse result
-			'with valid file path':
+			'with a valid file path':
 				topic: ->
 					loadConfig(path.resolve(__dirname), 'fixtures/project/build.json')
-				'returns true': (result) ->
+				'should return true': (result) ->
 					assert.isTrue result
-			'with valid directory path':
+			'with a valid directory path':
 				topic: ->
 					loadConfig(path.resolve(__dirname), 'fixtures/project')
-				'returns true': (result) ->
+				'should return true': (result) ->
 					assert.isTrue result
-			'with invalid path':
+			'with an invalid path':
 				topic: ->
 					loadConfig(path.resolve(__dirname), 'fixtures/js/build.json')
-				'returns false': (result) ->
+				'should return false': (result) ->
 					assert.isFalse result
 	.export(module)
 
-vows.describe('builder/initialization')
+vows.describe('builder/initialization/source')
 	.addBatch
 		'parsing a source file':
-			'with valid path':
+			'with a valid path':
 				topic: ->
-					@coffeFile = path.resolve(__dirname, 'fixtures/project/src/coffee/main.coffee')
-					Builder::_fileFactory @coffeFile
-				'returns a File instance': (result) ->
+					Builder::_fileFactory path.resolve(__dirname, 'fixtures/project/src/coffee/main.coffee')
+				'should return a File instance': (result) ->
 					assert.instanceOf result, file.JSFile
-				'with the correct filename': (result) ->
-					assert.equal @coffeFile, result.filepath
-			'that has been built':
+			'that has already been built':
 				topic: ->
 					Builder::_fileFactory path.resolve(__dirname, 'fixtures/project/js/main.js')
-				'is ignored and returns nothing': (result) ->
+				'should return "null"': (result) ->
 					assert.isNull result
 	.addBatch
 		'parsing a source directory':
 			'containing nested source files':
 				topic: ->
 					builder = new Builder
-					@length = builder.jsSources.count
 					builder._parseSourceFolder path.resolve(__dirname, 'fixtures/project/src/coffee'), null, builder.jsSources
 					builder
-				'increases the source cache size by the number of valid files': (builder) ->
-					assert.equal builder.jsSources.count - @length, 5
-				'skips ignored files': (builder) ->
+				'should increase the source cache size by the number of valid files': (builder) ->
+					assert.equal builder.jsSources.count, 5
+				'should skip ignored files': (builder) ->
 					assert.isUndefined builder.jsSources[path.resolve(__dirname, 'fixtures/project/src/coffee/ignored/_ignored.coffee')]
+	.export(module)
+	
+vows.describe('builder/initialization/target')
+	.addBatch
+		'parsing a build target':
+			topic: ->
+				builder = new Builder
+				builder.base = path.resolve(__dirname, 'fixtures/project')
+				builder._parseSourceFolder path.resolve(builder.base, 'src/coffee/other'), null, builder.jsSources
+				builder
+			'with an input file that is not found on the source path':
+				topic: (builder) ->
+					builder._targetFactory 'src/coffee/main.coffee', 'js/main.js', builder.JS
+				'should return "null"': (result) ->
+					assert.isNull result
+			'with a directory input and a file output':
+				topic: (builder) ->
+					builder._targetFactory 'src/coffee/other', 'js/main.js', builder.JS
+				'should return "null"': (result) ->
+					assert.isNull result
+			'with a valid input and output':
+				topic: (builder) ->
+					builder._targetFactory 'src/coffee/other/Class.coffee', 'js/Class.js', builder.JS
+				'should return a Target instance': (result) ->
+					assert.instanceOf result, target.JSTarget
 	.export(module)
