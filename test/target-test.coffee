@@ -6,5 +6,5 @@ term = require '../lib/terminal'
 file = require '../lib/file'
 target = require '../lib/target'
 
-term.silent = true
+# term.silent = true
 

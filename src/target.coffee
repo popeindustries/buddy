@@ -1,7 +1,12 @@
+fs = require 'fs'
+path = require 'path'
+term = require './terminal'
 {log} = console
 
 exports.Target = class Target
 	constructor: (@input, @output) ->
+		if fs.statSync(@input).isDirectory() and fs.statSync(@output).isFile()
+			term.out "#{term.colour('warning', term.RED)} ", 2
 	
 	_parseInputs: (input) ->
 		
