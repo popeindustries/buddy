@@ -1,7 +1,8 @@
 module.exports =
-	RED: 31
-	GREEN: 32
-	GREY: 90
+	RED: '0;31'
+	YELLOW: '1;33'
+	GREEN: '0;32'
+	GREY: '0;90'
 	
 	silent: false
 
