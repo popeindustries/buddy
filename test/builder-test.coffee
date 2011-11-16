@@ -6,7 +6,7 @@ term = require '../lib/terminal'
 file = require '../lib/file'
 target = require '../lib/target'
 
-term.silent = true
+# term.silent = true
 
 loadConfig = (workingDir, configPath) ->
 	process.chdir(workingDir)
@@ -115,6 +115,11 @@ vows.describe('builder/initialization/target')
 			'with an input file that is not found on the source path':
 				topic: (builder) ->
 					builder._targetFactory 'src/coffee/main.coffee', 'js/main.js', builder.JS
+				'should return "null"': (result) ->
+					assert.isNull result
+			'with an input file that doesn`t exist`':
+				topic: (builder) ->
+					builder._targetFactory 'src/coffee/other/main.coffee', 'js/main.js', builder.JS
 				'should return "null"': (result) ->
 					assert.isNull result
 			'with a directory input and a file output':

@@ -1,21 +1,9 @@
 {
 	"js": {
-		"sources": ["src/coffee", "src/libs"],
+		"sources": ["src/coffee"],
 		"targets": [
 			{
-				"in": "src/coffee",
-				"out": "js"
-			},
-			{
 				"in": "src/coffee/main.coffee",
-				"out": "js/main.js"
-			},
-			{
-				"in": "src/coffee/main.coffee",
-				"out": "js"
-			},
-			{
-				"in": "src/coffee",
 				"out": "js/main.js"
 			}
 		]

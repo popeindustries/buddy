@@ -1,47 +1,126 @@
 fs = require 'fs'
 path = require 'path'
 term = require './terminal'
+coffee = require 'coffee-script'
+stylus = require 'stylus'
+# less = require 'less'
+uglify = require 'uglify-js'
+growl = require 'growl'
 {log} = console
 
 exports.Target = class Target
-	constructor: (@input, @output) ->
-		if fs.statSync(@input).isDirectory() and fs.statSync(@output).isFile()
-			term.out "#{term.colour('warning', term.RED)} ", 2
+	constructor: (@input, @output, @sourceCache) ->
+		@sources = []
+		@_parseInputs @input
+	
+	run: (mini, bare) ->
+		if @sources.length
+			term.out "Building #{term.colour(path.basename(@input), term.GREY)} to #{term.colour(path.basename(@output), term.GREY)}", 2
+			@_build(mini, bare)
+		else
+			term.out "#{term.colour('WARN [empty]', term.YELLOW)} no sources to build in #{term.colour(@input, term.GREY)}", 2
 	
 	_parseInputs: (input) ->
-		
-		
-		# # Source is file
-		# if source.match @fileMatch
-		# 	if file = @lookupSources.byPath[source]
-		# 		# Add file if not ignored
-		# 		@_addSource file unless file.filename.match(RE_IGNORE)
-		# 	else
-		# 		log "        #{stdoutColourize('warning', STDOUT_RED)} source #{stdoutColourize(source, STDOUT_GREY)} not found in sources"
-		# # Source is directory
-		# else
-		# 	# Match the base path from defined source directories
-		# 	base = (src for src in @configSources when src.indexOf(source) isnt -1)
-		# 	if base.length
-		# 		base = base[0]
-		# 		base = if base.charAt(base.length - 1) isnt '/' then "#{base}/" else base
-		# 		files = []
-		# 		parseSourceContents source, base, files
-		# 		# Add files when not ignored
-		# 		@_addSource(file) for file in files when not file.filename.match(RE_IGNORE)
-		# 	else
-		# 		log "        #{stdoutColourize('warning', STDOUT_RED)} source #{stdoutColourize(source, STDOUT_GREY)} not found in sources"
-		# return 
+		# Add files from source cache
+		if fs.statSync(input).isFile()
+			if file = @sourceCache.byPath[input]
+				@_addInput file
+			else
+				term.out "#{term.colour('WARN [not found]', term.YELLOW)} #{term.colour(@input, term.GREY)} not found in sources", 2
+		# Recurse child directories
+		else
+			@_parseInput(item) for item in fs.readdirSync input
+	
+	_makeDirectory: (filepath) ->
+		dir = path.dirname filepath
+		unless path.existsSync dir
+			fs.mkdirSync dir, 0777
+	
+	_displayNotification: (message = '') ->
+		options =
+			title: 'BUILDER'
+		try growl.notify message, options
+	
 
 exports.JSTarget = class JSTarget extends Target
-	sources: []
+	BUILT_HEADER: '/*BUILT '
+	REQUIRE: 'require.js'
 	
-	constructor: (input, output) ->
-		super input, output
+	constructor: (input, output, sourceCache) ->
+		super input, output, sourceCache
+		# Concatenate output if input is a single file
+		@concatenate = fs.statSync(@input).isFile()
+		# Resolve output file name for file>folder target
+		if @concatenate and not path.extname(@output).length
+			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), '.js')
+	
+	_addInput: (file) ->
+		# First add dependencies
+		if file.dependencies.length
+			for dependency in file.dependencies
+				if dep = @sourceCache.byModule[dependency] or @sourceCache.byModule["#{dependency}/index"]
+					@_addInput dep
+				else
+					term.out "#{term.colour('ERROR [not found]', term.RED)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(@module, term.GREY)} not found", 4
+		# Add source if not already added
+		# TODO: add support for flagging across targets
+		@sources.push(file) if file not in @sources
+	
+	_build: (mini, bare) ->
+		# Concatenate source and compile
+		if @concatenate
+			contents = []
+			contents.push "`#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}`" unless (bare or @nodejs)
+			contents.push(file.contents) for file in @sources
+			compiled = @_compile contents.join('\n\n'), @input, true
+			return null unless compiled
+			# Add header
+			compiled = "#{@BUILT_HEADER}#{new Date().toString()}*/\n#{compiled}"
+			term.out "#{term.colour('COMPILED', term.GREEN)} #{term.colour(@input, term.GREY)}", 4
+			if mini then @_minify(@output, compiled) else fs.writeFileSync(@output, compiled, 'utf8')
+		else
+			for file in @sources
+				filepath = path.join(@output, file.name) + '.js'
+				# Create directory if missing
+				@_makeDirectory filepath
+				# Compile file contents
+				if file.compile
+					compiled = @_compile file.contents, filepath, @nodejs
+					return null unless compiled
+					fs.writeFileSync filepath, compiled, 'utf8'
+					term.out "#{term.colour('COMPILED', term.GREEN)} #{term.colour(filepath, term.GREY)}", 4
+	
+	_compile: (contents, name, bare) ->
+		try
+			opts = if bare then {bare: true} else {}
+			compiled = coffee.compile contents, opts
+			return compiled
+		catch error
+			term.out "#{term.colour('ERROR [compile]', term.RED)} compiling #{term.colour(name, term.GREY)}: #{error}", 4
+			@_displayNotification "error compiling #{name}: #{error}"
+			return null
+	
+	_minify = (file, contents) ->
+		term.out "Minifying #{term.colour(file, term.GREY)}", 2
+		jsp = uglify.parser
+		pro = uglify.uglify
+		# Compress
+		ast = jsp.parse contents
+		ast = pro.ast_mangle ast
+		ast = pro.ast_squeeze ast
+		compressed = pro.gen_code ast
+		# Write file
+		fs.writeFileSync file, compressed
+		term.out "#{term.colour('MINIFIED', term.GREEN)} #{term.colour(file, term.GREY)}", 4
 	
 
 exports.CSSTarget = class CSSTarget extends Target
-	sources: []
+	constructor: (input, output, sourceCache) ->
 	
-	constructor: () ->
+	_addInput: (file) ->
+		# Add source if not already added
+		@sources.push(file) if file not in @sources
+	
+	_build: (mini, bare) ->
+		
 	

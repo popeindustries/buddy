@@ -1,4 +1,6 @@
-module.exports = class ClassCamelCase
+Class = require './class'
+	
+module.exports = class ClassCamelCase extends Class
 	
 	constructor: ->
 		@someVar = 'hey'

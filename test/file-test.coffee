@@ -2,7 +2,6 @@ path = require 'path'
 assert = require 'assert'
 vows = require 'vows'
 Builder = require '../lib/builder'
-term = require '../lib/terminal'
 file = require '../lib/file'
 coffee = require 'coffee-script'
 
@@ -19,7 +18,7 @@ vows.describe('file/matching')
 					'''
 			'with significant tabbed whitespace':
 				'should have an indent type of "tab"': (contents) ->
-					assert.equal contents.match(file.JSFile::RE_INDENT)[1], '\t'
+					assert.equal contents.match(file.JSFile::RE_INDENT_WHITESPACE)[1], '\t'
 			'with require statements':
 				topic: () ->
 					modules = []
@@ -50,10 +49,10 @@ vows.describe('file/instantiation')
 				topic: ->
 					new file.JSFile path.resolve(__dirname, 'fixtures/project/src/coffee/nested/nested.coffee'), path.resolve(__dirname, 'fixtures/project/src/coffee')
 				'that should compile without error': (jsFile) ->
-					assert.doesNotThrow (-> coffee.compile(jsFile.contentsModule, {bare:true})), Error
+					assert.doesNotThrow (-> coffee.compile(jsFile.contents, {bare:true})), Error
 			'with spaces has a module wrapper':
 				topic: ->
 					new file.JSFile path.resolve(__dirname, 'fixtures/project/src/coffee/other/spaces.coffee'), path.resolve(__dirname, 'fixtures/project/src/coffee')
 				'that should compile without error': (jsFile) ->
-					assert.doesNotThrow (-> coffee.compile(jsFile.contentsModule, {bare:true})), Error
+					assert.doesNotThrow (-> coffee.compile(jsFile.contents, {bare:true})), Error
 	.export(module)

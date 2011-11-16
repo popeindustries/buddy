@@ -15,7 +15,6 @@ term = require './terminal'
 
 CONFIG = 'build.json'
 
-
 module.exports = class Builder
 	JS: 'js'
 	CSS: 'css'
@@ -30,6 +29,7 @@ module.exports = class Builder
 		@jsSources =
 			locations: []
 			byPath: {}
+			byModule: {}
 			count: 0
 		@cssSources =
 			locations: []
@@ -40,6 +40,11 @@ module.exports = class Builder
 	
 	compile: (configpath) ->
 		@_initialize configpath
+		for type in [@JS, @CSS]
+			if @[type + 'Targets'].length
+				target.run(false, false) for target in @[type + 'Targets']
+			else
+				term.out "#{term.colour('WARN [empty]', term.YELLOW)} no #{type} build targets specified", 2
 	
 	watch: (configpath) ->
 		@_initialize configpath
@@ -51,19 +56,14 @@ module.exports = class Builder
 		unless @initialized
 			# Load configuration file
 			if @_loadConfig(configpath)
-				if @_validBuildType @JS
-					# Generate source cache
-					@_parseSourceFolder(path.resolve(@base, source), null, @jsSources) for source in @config.js.sources
-					# Generate build targets
-					for item in config.js.targets
-						if target = @_targetFactory(target.in, target.out, @JS)
-							@jsTargets.push target
-				if @_validBuildType @CSS
-					# Generate source cache
-					@_parseSourceFolder(path.resolve(@base, source), null, @cssSources) for source in @config.css.sources
-					# Generate builds
-					# jsBuilds = ((new JSBuild(target.in, target.out)) for target in config.js.targets)
-			
+				for type in [@JS, @CSS]
+					if @_validBuildType type
+						# Generate source cache
+						@_parseSourceFolder(path.resolve(@base, source), null, @[type + 'Sources']) for source in @config[type].sources
+						# Generate build targets
+						for item in @config[type].targets
+							if target = @_targetFactory(item.in, item.out, type)
+								@[type + 'Targets'].push target
 		@initialized = true
 	
 	_loadConfig: (configpath) ->
@@ -105,21 +105,22 @@ module.exports = class Builder
 	_validBuildType: (type) ->
 			@config[type] and @config[type].sources and @config[type].sources.length and @config[type].targets and @config[type].targets.length
 	
-	_parseSourceFolder: (dir, base, cache) ->
-		if base is null
-			# Set base directory for module package creation
-			base = dir
+	_parseSourceFolder: (dir, root, cache) ->
+		if root is null
+			# Store root directory for File module package resolution
+			root = dir
 			cache.locations.push dir
 		for item in fs.readdirSync dir
 			# Skip ignored files
 			unless item.match @RE_IGNORE_FILE
 				itempath = path.resolve dir, item
 				# Recurse child directory
-				@_parseSourceFolder(itempath, base, cache) if fs.statSync(itempath).isDirectory()
+				@_parseSourceFolder(itempath, root, cache) if fs.statSync(itempath).isDirectory()
 				
 				# Store File objects in cache
-				if f = @_fileFactory(itempath, base)
+				if f = @_fileFactory(itempath, root)
 					cache.byPath[f.filepath] = f
+					cache.byModule[f.module] = f if f.module?
 					cache.count++
 	
 	_fileFactory: (filepath, base) ->
@@ -140,6 +141,10 @@ module.exports = class Builder
 	_targetFactory: (input, output, type) ->
 		inputpath = path.resolve @base, input
 		outputpath = path.resolve @base, output
+		# Check that the input exists
+		unless path.existsSync(inputpath)
+			term.out "#{term.colour('ERROR [not found]', term.RED)} #{term.colour(input, term.GREY)} not found", 2
+			return null
 		# Check that input is included in sources
 		for location in @[type + 'Sources'].locations
 			dir = if fs.statSync(inputpath).isDirectory() then inputpath else path.dirname(inputpath)
@@ -147,11 +152,11 @@ module.exports = class Builder
 			break if inSources
 		# Abort if input isn't in sources
 		unless inSources
-			term.out "#{term.colour('ERROR [not found]', term.RED)} #{term.colour(input, term.GREY)} not found in sources", 2
+			term.out "#{term.colour('ERROR [not found]', term.RED)} #{term.colour(input, term.GREY)} not found in source path", 2
 			return null
 		# Abort if input is directory and output is file
-		if fs.statSync(inputpath).isDirectory() and fs.statSync(outputpath).isFile()
+		if fs.statSync(inputpath).isDirectory() and path.extname(outputpath).length
 			term.out "#{term.colour('ERROR [invalid]', term.RED)} a file (#{term.colour(output, term.GREY)}) is not a valid output target for a directory (#{term.colour(input, term.GREY)}) input target", 2
 			return null
-		return new target[type.toUpperCase() + 'Target'] inputpath, outputpath
+		return new target[type.toUpperCase() + 'Target'] inputpath, outputpath, @[type + 'Sources']
 	
