@@ -23,7 +23,7 @@
     "build": "./bin/build"
   },
   "scripts": {
-    "test": "vows test/* --spec"
+    "test": "vows --spec"
   },
   "engine": "node >= 0.6.0"
 }
