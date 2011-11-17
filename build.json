@@ -1,5 +1,5 @@
 {
-	"base": "../",
+	"version": "0.3.0",
 	"js": {
 		"sources": ["some/folder"],
 		"targets": [
