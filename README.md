@@ -20,9 +20,9 @@ $ build --help
 
 ### Setup
 
-The only requirement for adding Builder support to a project is the presence of a 'build.json' file:
+The only requirement for adding Builder support to a project is the presence of a **build.json** file:
 
-```
+```json
 {
 	"version": "0.3.0",
 	"js": {
@@ -55,10 +55,11 @@ The only requirement for adding Builder support to a project is the presence of 
 ```
 
 For each build type (js/css), you begin by specifying source paths from which your build targets are referenced.
-Each build target should specify an input and corresponding output file or folder. Targets are run in sequence enabling you to chain builds together.
+Each build target should specify an input and corresponding output file or folder. 
+Targets are run in sequence enabling you to chain builds together.
 As an example, you could compile a library, then reference some library files in your project:
 
-```
+```json
 "js": {
 	"sources": ["lib/src/coffee", "lib/js", "src"],
 	"targets": [
@@ -73,6 +74,38 @@ As an example, you could compile a library, then reference some library files in
 	]
 }
 ```
+
+### Modules
+
+Builder wraps each coffee-script/js file in a module declaration based on the file location. 
+Dependencies (and concatenation order) are determined by the use of *require* statements:
+
+```javascript
+var lib = require('my/lib');
+lib.doSomething();
+```
+
+Specifying a module's public behaviour is achieved by decorating an *exports* object:
+
+```javascript
+var myModuleVar = 'my module';
+exports.myModuleMethod = function() { 
+	return myModuleVar;
+};
+```
+
+or overwriting the *exports* object completely:
+
+```javascript
+module.exports = MyModule = function() {
+	this.myVar = 'my instance var';
+};
+MyModule.prototype.myMethod = function() {
+	return this.myVar;
+};
+```
+
+See [node.js modules](http://nodejs.org/docs/v0.6.0/api/modules.html) for more info.
 
 ## License 
 
