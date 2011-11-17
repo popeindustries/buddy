@@ -115,6 +115,7 @@ module.exports = MyModule;
 Each module is provided with a ***module***, ***exports***, and ***require*** reference.
 
 When *require*-ing a module, keep in mind that the module id is resolved based on the following rules:
+
  - packages begin at the root folder specified in build.json > js > sources
  - uppercase filenames are converted to lowercase module ids: 
 ```
