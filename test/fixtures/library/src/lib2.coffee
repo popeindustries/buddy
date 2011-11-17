@@ -1,0 +1,1 @@
+exports.id 'lib2'
