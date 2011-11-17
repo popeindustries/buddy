@@ -8,7 +8,7 @@ stylus = require 'stylus'
 uglify = require 'uglify-js'
 _ = require 'underscore'
 growl = require 'growl'
-{log} = console
+{log, trace} = console
 target = require './target'
 file = require './file'
 term = require './terminal'
@@ -44,13 +44,19 @@ module.exports = class Builder
 			if @[type + 'Targets'].length
 				target.run(false, false) for target in @[type + 'Targets']
 			else
-				term.out "#{term.colour('WARN [empty]', term.YELLOW)} no #{type} build targets specified", 2
+				term.out "#{term.colour('WARN [empty]', term.YELLOW)} no #{type} build targets specified", 4
 	
 	watch: (configpath) ->
-		@_initialize configpath
+		return unless fs.watch
+		@compile configpath
+		that = @
+		for type in [@JS, @CSS]
+			if @[type + 'Sources'].count
+				term.out "Watching for changes in #{term.colour('['+@config[type].sources.join(', ')+']', term.GREY)}...", 2
+				@_watchFile(file) for path, file of @[type + 'Sources'].byPath
 	
 	deploy: (configpath) ->
-		@_initialize configpath
+		@compile configpath
 	
 	_initialize: (configpath) ->
 		unless @initialized
@@ -159,4 +165,20 @@ module.exports = class Builder
 			term.out "#{term.colour('ERROR [invalid]', term.RED)} a file (#{term.colour(output, term.GREY)}) is not a valid output target for a directory (#{term.colour(input, term.GREY)}) input target", 2
 			return null
 		return new target[type.toUpperCase() + 'Target'] inputpath, outputpath, @[type + 'Sources']
+	
+	_watchFile: (file) ->
+		stat = fs.statSync file.filepath
+		file.lastChange = +stat.mtime
+		file.lastSize = stat.size
+		watcher = fs.watch file.filepath, (event) =>
+			if event is 'change'
+				nstat = fs.statSync file.filepath
+				last = +nstat.mtime
+				size = nstat.size
+				if size isnt file.lastSize and last isnt file.lastChange
+					file.lastChange = last
+					file.lastSize = size
+					term.out "[#{new Date().toLocaleTimeString()}] change detected in #{term.colour(file.filename, term.GREY)}", 2
+					file.updateContents(fs.readFileSync(file.filepath, 'utf8'))
+					@compile()
 	
