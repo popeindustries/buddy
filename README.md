@@ -116,7 +116,10 @@ Each module is provided with a ***module***, ***exports***, and ***require*** re
 
 When *require*-ing a module, keep in mind that the module id is resolved based on the following rules:
 
- - packages begin at the root folder specified in build.json > js > sources
+ - packages begin at the root folder specified in build.json > js > sources:
+```
+'Users/alex/project/src/package/main.js' > 'package/main'
+```
  - uppercase filenames are converted to lowercase module ids: 
 ```
 'my/package/Class.js' > 'my/package/class'
