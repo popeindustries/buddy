@@ -49,10 +49,10 @@ vows.describe('file/instantiation')
 				topic: ->
 					new file.JSFile path.resolve(__dirname, 'fixtures/project/src/coffee/nested/nested.coffee'), path.resolve(__dirname, 'fixtures/project/src/coffee')
 				'that should compile without error': (jsFile) ->
-					assert.doesNotThrow (-> coffee.compile(jsFile.contents, {bare:true})), Error
+					assert.doesNotThrow (-> coffee.compile(jsFile.contentsModule)), Error
 			'with spaces has a module wrapper':
 				topic: ->
 					new file.JSFile path.resolve(__dirname, 'fixtures/project/src/coffee/other/spaces.coffee'), path.resolve(__dirname, 'fixtures/project/src/coffee')
 				'that should compile without error': (jsFile) ->
-					assert.doesNotThrow (-> coffee.compile(jsFile.contents, {bare:true})), Error
+					assert.doesNotThrow (-> coffee.compile(jsFile.contentsModule)), Error
 	.export(module)

@@ -6,7 +6,7 @@ term = require '../lib/terminal'
 file = require '../lib/file'
 target = require '../lib/target'
 
-# term.silent = true
+term.silent = true
 
 loadConfig = (workingDir, configPath) ->
 	process.chdir(workingDir)

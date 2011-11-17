@@ -1,4 +1,4 @@
-/*BUILT Thu Nov 17 2011 13:13:56 GMT+0100 (CET)*/
+/*BUILT Thu Nov 17 2011 15:32:00 GMT+0100 (CET)*/
 
 
 (function() {
@@ -56,9 +56,27 @@ require.module('nested/nested', function(module, exports, require) {
   })();
 });
 
+require.module('other/class', function(module, exports, require) {
+  var Class;
+  return module.exports = Class = (function() {
+
+    function Class() {
+      this.someVar = 'hey';
+    }
+
+    Class.prototype.someFunc = function() {
+      return console.log(this.someVar);
+    };
+
+    return Class;
+
+  })();
+});
+
 require.module('main', function(module, exports, require) {
-  var Nested, item, nested, _i, _len, _ref, _results;
+  var Class, Nested, item, nested, _i, _len, _ref, _results;
   Nested = require('./nested/nested');
+  Class = require('./other/class');
   nested = new Nested;
   _ref = [1, 2, 3, 4, 5];
   _results = [];
