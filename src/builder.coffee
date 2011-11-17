@@ -1,4 +1,5 @@
 # TODO: protect against source folder as out target during watch routine
+# TODO: add version checking if present in config
 
 fs = require 'fs'
 path = require 'path'
@@ -38,27 +39,7 @@ module.exports = class Builder
 		@jsTargets = []
 		@cssTargets = []
 	
-	compile: (configpath) ->
-		@_initialize configpath
-		for type in [@JS, @CSS]
-			if @[type + 'Targets'].length
-				target.run(false, false) for target in @[type + 'Targets']
-			else
-				term.out "#{term.colour('WARN [empty]', term.YELLOW)} no #{type} build targets specified", 4
-	
-	watch: (configpath) ->
-		return unless fs.watch
-		@compile configpath
-		that = @
-		for type in [@JS, @CSS]
-			if @[type + 'Sources'].count
-				term.out "Watching for changes in #{term.colour('['+@config[type].sources.join(', ')+']', term.GREY)}...", 2
-				@_watchFile(file) for path, file of @[type + 'Sources'].byPath
-	
-	deploy: (configpath) ->
-		@compile configpath
-	
-	_initialize: (configpath) ->
+	initialize: (configpath) ->
 		unless @initialized
 			# Load configuration file
 			if @_loadConfig(configpath)
@@ -71,6 +52,23 @@ module.exports = class Builder
 							if target = @_targetFactory(item.in, item.out, type)
 								@[type + 'Targets'].push target
 		@initialized = true
+		return @
+	
+	compile: (compress, bare) ->
+		for type in [@JS, @CSS]
+			if @[type + 'Targets'].length
+				target.run(compress, bare) for target in @[type + 'Targets']
+	
+	watch: (compress, bare) ->
+		return unless fs.watch
+		@compile compress, bare
+		for type in [@JS, @CSS]
+			if @[type + 'Sources'].count
+				term.out "watching for changes in #{term.colour('['+@config[type].sources.join(', ')+']', term.GREY)}...", 2
+				@_watchFile(file, compress, bare) for path, file of @[type + 'Sources'].byPath
+	
+	deploy: ->
+		@compile()
 	
 	_loadConfig: (configpath) ->
 		if configpath
@@ -82,7 +80,7 @@ module.exports = class Builder
 					configpath = path.join(configpath, CONFIG)
 					exists = path.existsSync(configpath)
 			unless exists
-				term.out "#{term.colour('ERROR [file not found]', term.RED)} #{term.colour(path.basename(configpath), term.GREY)} not found in #{term.colour(path.dirname(configpath), term.GREY)}", 2
+				term.out "#{term.colour('error', term.RED)} #{term.colour(path.basename(configpath), term.GREY)} not found in #{term.colour(path.dirname(configpath), term.GREY)}", 2
 				return false
 		else
 			# Find the first instance of a CONFIG file based on the current working directory.
@@ -92,15 +90,15 @@ module.exports = class Builder
 				break if path.existsSync(configpath)
 				# Exit if we reach the volume root without finding our file
 				if dir is '/'
-					term.out "#{term.colour('ERROR [file not found]', term.RED)} #{term.colour(CONFIG, term.GREY)} not found on this path", 2
+					term.out "#{term.colour('error', term.RED)} #{term.colour(CONFIG, term.GREY)} not found on this path", 2
 					return false
 		
 		# Read and parse config settings
-		term.out "Loading config file #{term.colour(configpath, term.GREY)}", 2
+		term.out "loading config #{term.colour(configpath, term.GREY)}", 2
 		try
 			@config = JSON.parse(fs.readFileSync(configpath, 'utf8'))
 		catch e
-			term.out "#{term.colour('ERROR [JSON]', term.RED)} error parsing #{term.colour(configpath, term.GREY)}", 2
+			term.out "#{term.colour('error', term.RED)} error parsing #{term.colour(configpath, term.GREY)}", 2
 			return false
 		
 		# Store the base directory
@@ -149,7 +147,7 @@ module.exports = class Builder
 		outputpath = path.resolve @base, output
 		# Check that the input exists
 		unless path.existsSync(inputpath)
-			term.out "#{term.colour('ERROR [not found]', term.RED)} #{term.colour(input, term.GREY)} not found", 2
+			term.out "#{term.colour('error', term.RED)} #{term.colour(input, term.GREY)} not found", 2
 			return null
 		# Check that input is included in sources
 		for location in @[type + 'Sources'].locations
@@ -158,27 +156,36 @@ module.exports = class Builder
 			break if inSources
 		# Abort if input isn't in sources
 		unless inSources
-			term.out "#{term.colour('ERROR [not found]', term.RED)} #{term.colour(input, term.GREY)} not found in source path", 2
+			term.out "#{term.colour('error', term.RED)} #{term.colour(input, term.GREY)} not found in source path", 2
 			return null
 		# Abort if input is directory and output is file
 		if fs.statSync(inputpath).isDirectory() and path.extname(outputpath).length
-			term.out "#{term.colour('ERROR [invalid]', term.RED)} a file (#{term.colour(output, term.GREY)}) is not a valid output target for a directory (#{term.colour(input, term.GREY)}) input target", 2
+			term.out "#{term.colour('error', term.RED)} a file (#{term.colour(output, term.GREY)}) is not a valid output target for a directory (#{term.colour(input, term.GREY)}) input target", 2
 			return null
 		return new target[type.toUpperCase() + 'Target'] inputpath, outputpath, @[type + 'Sources']
 	
-	_watchFile: (file) ->
+	_watchFile: (file, compress, bare) ->
+		# Store initial time and size
 		stat = fs.statSync file.filepath
 		file.lastChange = +stat.mtime
 		file.lastSize = stat.size
-		watcher = fs.watch file.filepath, (event) =>
+		watcher = fs.watch file.filepath, callback = (event) =>
+			# Clear old and create new on rename
+			# if event is 'rename'
+			# 	watcher.close()
+			# 	try	 # if source no longer exists, never mind
+			# 		watcher = fs.watch file.filepath, callback
 			if event is 'change'
+				# Compare time and size
 				nstat = fs.statSync file.filepath
 				last = +nstat.mtime
 				size = nstat.size
 				if size isnt file.lastSize and last isnt file.lastChange
+					# Store new time and size
 					file.lastChange = last
 					file.lastSize = size
-					term.out "[#{new Date().toLocaleTimeString()}] change detected in #{term.colour(file.filename, term.GREY)}", 2
+					term.out "[#{new Date().toLocaleTimeString()}] change detected in #{term.colour(file.filename, term.GREY)}", 0
+					# Update contents
 					file.updateContents(fs.readFileSync(file.filepath, 'utf8'))
-					@compile()
+					@compile(compress, bare)
 	

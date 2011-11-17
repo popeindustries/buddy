@@ -7,6 +7,7 @@ exports.File = class File
 		@filename = path.basename @filepath
 		@name = @filename.replace(path.extname(@filename), '')
 		@contents = null
+		@contentsModule = null
 		@compile = false
 		@lastChange = null
 		@lastSize = null
@@ -22,7 +23,7 @@ exports.JSFile = class JSFile extends File
 	RE_LINE_BEGIN: /^/gm
 	RE_UPPERCASE: /[A-Z]/
 	RE_REQUIRE: /^(?=.*?require\s*\(?\s*['|"]([^'"]*))(?:(?!#|(?:\/\/)).)*$/gm
-	RE_MODULE: /(?:^|[^\w\$_.])require\.module\s*\(?\s*['|"]([^'"]*)/ # TODO: make this a more restrictive match to ensure correct signature
+	RE_MODULE: /^(?:require\.)?module\s*\(?\s*['|"].+module, ?exports, ?require\s*\)/m
 	
 	constructor: (filepath, base, contents) ->
 		super filepath, base
@@ -32,27 +33,27 @@ exports.JSFile = class JSFile extends File
 		@dependencies = @_getModuleDependencies()
 	
 	updateContents: (contents) ->
+		# Escape js contents for the coffeescript compiler
+		@contents = if @compile then contents else "`#{contents}`"
 		# Wrap content in module definition
 		unless @RE_MODULE.test contents
 			if @compile
 				# Find the currently used indent style
-				indent = contents.match(@RE_INDENT_WHITESPACE)[1] or '\t'
-				@contents = 
+				indent = contents.match(@RE_INDENT_WHITESPACE)?[1] or '\t'
+				@contentsModule = 
 					"""
 					require.module '#{@module}', (module, exports, require) ->
 					#{contents.replace(@RE_LINE_BEGIN, indent)}
 					"""
 			else
-				# Escape js contents for the coffeescript compiler
-				@contents =
+				@contentsModule =
 					"""
-						`require.module('#{@module}', function(module, exports, require) {
-						#{contents}
-						});`
+					`require.module('#{@module}', function(module, exports, require) {
+					#{contents}
+					});`
 					"""
-		# Already a module
 		else
-			@contents = if @compile then contetents else "`#{contents}`"
+			@contentsModule = @contents
 	
 	_getModuleName: ->
 		module = path.relative(@base, @filepath).replace(path.extname(@filename), '')

@@ -2,8 +2,7 @@ fs = require 'fs'
 path = require 'path'
 term = require './terminal'
 coffee = require 'coffee-script'
-stylus = require 'stylus'
-# less = require 'less'
+less = require 'less'
 uglify = require 'uglify-js'
 growl = require 'growl'
 {log} = console
@@ -15,10 +14,10 @@ exports.Target = class Target
 	
 	run: (mini, bare) ->
 		if @sources.length
-			term.out "Building #{term.colour(path.basename(@input), term.GREY)} to #{term.colour(path.basename(@output), term.GREY)}", 2
+			term.out "building #{term.colour(path.basename(@input), term.GREY)} to #{term.colour(path.basename(@output), term.GREY)}", 2
 			@_build(mini, bare)
 		else
-			term.out "#{term.colour('WARN [empty]', term.YELLOW)} no sources to build in #{term.colour(@input, term.GREY)}", 2
+			term.out "#{term.colour('warning', term.YELLOW)} no sources to build in #{term.colour(@input, term.GREY)}", 2
 	
 	_parseInputs: (input) ->
 		# Add files from source cache
@@ -26,10 +25,10 @@ exports.Target = class Target
 			if file = @sourceCache.byPath[input]
 				@_addInput file
 			else
-				term.out "#{term.colour('WARN [not found]', term.YELLOW)} #{term.colour(@input, term.GREY)} not found in sources", 2
+				term.out "#{term.colour('warning', term.YELLOW)} #{term.colour(@input, term.GREY)} not found in sources", 2
 		# Recurse child directories
 		else
-			@_parseInput(item) for item in fs.readdirSync input
+			@_parseInputs(path.join(input, item)) for item in fs.readdirSync input
 	
 	_makeDirectory: (filepath) ->
 		dir = path.dirname filepath
@@ -61,7 +60,7 @@ exports.JSTarget = class JSTarget extends Target
 				if dep = @sourceCache.byModule[dependency] or @sourceCache.byModule["#{dependency}/index"]
 					@_addInput dep
 				else
-					term.out "#{term.colour('ERROR [not found]', term.RED)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(@module, term.GREY)} not found", 4
+					term.out "#{term.colour('error', term.RED)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(@module, term.GREY)} not found", 4
 		# Add source if not already added
 		# TODO: add support for flagging across targets
 		@sources.push(file) if file not in @sources
@@ -70,13 +69,14 @@ exports.JSTarget = class JSTarget extends Target
 		# Concatenate source and compile
 		if @concatenate
 			contents = []
-			contents.push "`#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}`" unless (bare or @nodejs)
-			contents.push(file.contents) for file in @sources
-			compiled = @_compile contents.join('\n\n'), @input, true
+			contents.push "`#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}`" unless bare
+			# Always use module contents since concatenation won't work in node.js
+			contents.push(file.contentsModule) for file in @sources
+			compiled = @_compile contents.join('\n\n'), @input
 			return null unless compiled
 			# Add header
-			compiled = "#{@BUILT_HEADER}#{new Date().toString()}*/\n#{compiled}"
-			term.out "#{term.colour('COMPILED', term.GREEN)} #{term.colour(@input, term.GREY)}", 4
+			compiled = @_addHeader(compiled)
+			term.out "#{term.colour('compiled', term.GREEN)} #{term.colour(path.basename(@output), term.GREY)}", 4
 			if mini then @_minify(@output, compiled) else fs.writeFileSync(@output, compiled, 'utf8')
 		else
 			for file in @sources
@@ -85,23 +85,21 @@ exports.JSTarget = class JSTarget extends Target
 				@_makeDirectory filepath
 				# Compile file contents
 				if file.compile
-					compiled = @_compile file.contents, filepath, @nodejs
+					compiled = @_compile (if bare then file.contents else file.contentsModule), filepath
 					return null unless compiled
 					fs.writeFileSync filepath, compiled, 'utf8'
-					term.out "#{term.colour('COMPILED', term.GREEN)} #{term.colour(filepath, term.GREY)}", 4
+					term.out "#{term.colour('compiled', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
 	
-	_compile: (contents, name, bare) ->
+	_compile: (contents, name) ->
 		try
-			opts = if bare then {bare: true} else {}
-			compiled = coffee.compile contents, opts
+			compiled = coffee.compile contents, {bare: true}
 			return compiled
 		catch error
-			term.out "#{term.colour('ERROR [compile]', term.RED)} compiling #{term.colour(name, term.GREY)}: #{error}", 4
+			term.out "#{term.colour('error', term.RED)} compiling #{term.colour(name, term.GREY)}: #{error}", 4
 			@_displayNotification "error compiling #{name}: #{error}"
 			return null
 	
-	_minify = (file, contents) ->
-		term.out "Minifying #{term.colour(file, term.GREY)}", 2
+	_minify: (file, contents) ->
 		jsp = uglify.parser
 		pro = uglify.uglify
 		# Compress
@@ -109,9 +107,12 @@ exports.JSTarget = class JSTarget extends Target
 		ast = pro.ast_mangle ast
 		ast = pro.ast_squeeze ast
 		compressed = pro.gen_code ast
-		# Write file
-		fs.writeFileSync file, compressed
-		term.out "#{term.colour('MINIFIED', term.GREEN)} #{term.colour(file, term.GREY)}", 4
+		# Write file with header
+		fs.writeFileSync file, @_addHeader(compressed)
+		term.out "#{term.colour('minified', term.GREEN)} #{term.colour(path.basename(file), term.GREY)}", 4
+	
+	_addHeader: (content) ->
+		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"
 	
 
 exports.CSSTarget = class CSSTarget extends Target
