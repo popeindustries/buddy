@@ -78,17 +78,21 @@ As an example, you could compile a library, then reference some library files in
 ### Modules
 
 Builder wraps each coffee-script/js file in a module declaration based on the file location. 
-Dependencies (and concatenation order) are determined by the use of *require* statements:
+Dependencies (and concatenation order) are determined by the use of ***require*** statements:
 
 ```javascript
-var lib = require('my/lib');
+var lib = require('./my/lib'); // in current package
+var SomeClass = require('../some_class'); // in parent package
+
 lib.doSomething();
+var something = new SomeClass();
 ```
 
 Specifying a module's public behaviour is achieved by decorating an *exports* object:
 
 ```javascript
 var myModuleVar = 'my module';
+
 exports.myModuleMethod = function() { 
 	return myModuleVar;
 };
@@ -97,15 +101,31 @@ exports.myModuleMethod = function() {
 or overwriting the *exports* object completely:
 
 ```javascript
-module.exports = MyModule = function() {
+var MyModule = function() {
 	this.myVar = 'my instance var';
 };
+
 MyModule.prototype.myMethod = function() {
 	return this.myVar;
 };
+
+module.exports = MyModule;
 ```
 
-See [node.js modules](http://nodejs.org/docs/v0.6.0/api/modules.html) for more info.
+Each module is provided with a ***module***, ***exports***, and ***require*** reference.
+
+When *require*-ing a module, keep in mind that the module id is resolved based on the following rules:
+- packages begin at the root folder specified in build.json > js > sources
+- uppercase filenames are converted to lowercase module ids: 
+```
+'my/package/Class.js' > 'my/package/class'
+```
+- camelcase filenames are converted to lowercase/underscore module ids: 
+```
+'my/package/ClassCamelCase.js' > 'my/package/class_camel_case'
+```
+
+See [node.js modules](http://nodejs.org/docs/v0.6.0/api/modules.html) for more info on modules.
 
 ## License 
 
