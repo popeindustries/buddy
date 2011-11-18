@@ -107,7 +107,7 @@ exports.myModuleMethod = function() {
 or overwriting the *exports* object completely:
 
 ```javascript
-var MyModule = function() {
+function MyModule() {
 	this.myVar = 'my instance var';
 };
 
