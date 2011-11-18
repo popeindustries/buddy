@@ -12,9 +12,13 @@ $ npm -g install git@github.com:popeindustries/builder.git
 
 ```bash
 $ cd path/to/my/project
-$ build compile
+# compile --bare (unwrapped modules) for Node
+$ build -b compile
+# watch for source changes and compile
 $ build watch
+# compile, minify, and strip log statements
 $ build deploy
+# view usage, examples, and options
 $ build --help
 ```
 
