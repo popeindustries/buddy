@@ -4,8 +4,10 @@ Builder is primarily a tooling framework for the compilation of higher order js/
 
 ## Installation
 
+Use the *-g* global flag to make the **build** command available system-wide:
+
 ```bash
-$ npm -g install git@github.com:popeindustries/builder.git
+$ npm -g install git://github.com/popeindustries/builder.git
 ```
 
 ## Usage
@@ -16,7 +18,7 @@ $ cd path/to/my/project
 $ build -b compile
 # watch for source changes and compile
 $ build watch
-# compile, minify, and strip log statements
+# compile and minify for production
 $ build deploy
 # view usage, examples, and options
 $ build --help
