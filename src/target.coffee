@@ -60,7 +60,7 @@ exports.JSTarget = class JSTarget extends Target
 				if dep = @sourceCache.byModule[dependency] or @sourceCache.byModule["#{dependency}/index"]
 					@_addInput dep
 				else
-					term.out "#{term.colour('error', term.RED)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(@module, term.GREY)} not found", 4
+					term.out "#{term.colour('warning', term.YELLOW)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(file.module, term.GREY)} not found", 4
 		# Add source if not already added
 		# TODO: add support for flagging across targets
 		@sources.push(file) if file not in @sources

@@ -24,6 +24,7 @@ exports.JSFile = class JSFile extends File
 	RE_UPPERCASE: /[A-Z]/
 	RE_REQUIRE: /^(?=.*?require\s*\(?\s*['|"]([^'"]*))(?:(?!#|(?:\/\/)).)*$/gm
 	RE_MODULE: /^(?:require\.)?module\s*\(?\s*['|"].+module, ?exports, ?require\s*\)/m
+	RE_WIN_SEPARATOR: /\\\\?/g
 	
 	constructor: (filepath, base, contents) ->
 		super filepath, base
@@ -63,8 +64,8 @@ exports.JSFile = class JSFile extends File
 				if @RE_UPPERCASE.test letter
 					letters[i] = (if (i>0) then '_' else '') + letter.toLowerCase()
 			module = module.replace(@name, letters.join().replace(/,/g, ''))
-			# Fix path separator for windows
-			module = module.replace('\\', '/') if process.platform is 'win32'
+		# Fix path separator for windows
+		module = module.replace(@RE_WIN_SEPARATOR, '/') if process.platform is 'win32'
 		module
 	
 	_getModuleDependencies: ->
