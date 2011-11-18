@@ -5,7 +5,7 @@ path = require 'path'
 exports.File = class File
 	constructor: (@filepath, @base) ->
 		@filename = path.basename @filepath
-		@name = @filename.replace(path.extname(@filename), '')
+		@name = @filepath.replace(@base, '').replace(path.extname(@filename), '')
 		@contents = null
 		@contentsModule = null
 		@compile = false
