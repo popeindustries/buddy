@@ -1,5 +1,5 @@
 {
-  "name": "builder",
+  "name": "build",
   "description": "Tooling framework for compiling, concatenating, and deploying coffeescript/js and stylus/less/css projects.",
   "version": "0.3.0",
   "author": "Alexander Pope <alexander.pope@gmail.com>",
