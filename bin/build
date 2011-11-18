@@ -26,7 +26,7 @@ program
 	.command('deploy [config]')
 	.description('compile compressed js and css sources')
 	.action(function(config){
-		new Builder().initialize(config).debug();
+		new Builder().initialize(config).deploy(program.bare);
 });
 
 program
