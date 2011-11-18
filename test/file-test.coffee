@@ -7,30 +7,30 @@ coffee = require 'coffee-script'
 
 vows.describe('file/matching')
 	.addBatch
-		'JS file content':
-			topic: ->
-				@contents =
-					'''
-					module = require 'module'
-						indented line
-							another indented line
-							a nested require('another_module')
-					'''
-			'with significant tabbed whitespace':
-				'should have an indent type of "tab"': (contents) ->
-					assert.equal contents.match(file.JSFile::RE_INDENT_WHITESPACE)[1], '\t'
-			'with require statements':
-				topic: () ->
-					modules = []
-					while match = file.JSFile::RE_REQUIRE.exec @contents
-						modules.push match[1]
-					modules
-				'should match the correct number of statements': (modules) ->
-					assert.equal modules.length, 2
-				'should match the correct module names': (modules) ->
-					assert.include modules, 'module'
-					assert.include modules, 'another_module'
-				
+		'JSFile':
+			'content':
+				topic: ->
+					@contents =
+						'''
+						module = require 'module'
+							indented line
+								another indented line
+								a nested require('another_module')
+						'''
+				'with significant tabbed whitespace':
+					'should have an indent type of "tab"': (contents) ->
+						assert.equal contents.match(file.JSFile::RE_INDENT_WHITESPACE)[1], '\t'
+				'with require statements':
+					topic: () ->
+						modules = []
+						while match = file.JSFile::RE_REQUIRE.exec @contents
+							modules.push match[1]
+						modules
+					'should match the correct number of statements': (modules) ->
+						assert.equal modules.length, 2
+					'should match the correct module names': (modules) ->
+						assert.include modules, 'module'
+						assert.include modules, 'another_module'
 	.export(module)
 
 vows.describe('file/instantiation')

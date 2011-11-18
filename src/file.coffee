@@ -5,7 +5,7 @@ path = require 'path'
 exports.File = class File
 	constructor: (@filepath, @base) ->
 		@filename = path.basename @filepath
-		@name = @filepath.replace(@base, '').replace(path.extname(@filename), '')
+		@name = path.relative(@base, @filepath).replace(path.extname(@filename), '')
 		@contents = null
 		@contentsModule = null
 		@compile = false
@@ -58,14 +58,14 @@ exports.JSFile = class JSFile extends File
 	
 	_getModuleName: ->
 		module = path.relative(@base, @filepath).replace(path.extname(@filename), '')
+		# Fix path separator for windows
+		module = module.replace(@RE_WIN_SEPARATOR, '/') if process.platform is 'win32'
 		if @RE_UPPERCASE.test @name
 			letters = @name.split ''
 			for letter, i in letters
 				if @RE_UPPERCASE.test letter
-					letters[i] = (if (i>0) then '_' else '') + letter.toLowerCase()
+					letters[i] = (if (i>0 and letters[i-1] isnt '/') then '_' else '') + letter.toLowerCase()
 			module = module.replace(@name, letters.join().replace(/,/g, ''))
-		# Fix path separator for windows
-		module = module.replace(@RE_WIN_SEPARATOR, '/') if process.platform is 'win32'
 		module
 	
 	_getModuleDependencies: ->
@@ -76,7 +76,7 @@ exports.JSFile = class JSFile extends File
 			parts = dep.split '/'
 			# Resolve relative path
 			if dep.charAt(0) is '.'
-				parts = @name.split '/'
+				parts = @module.split '/'
 				parts.pop()
 				for part in dep.split '/'
 					if part is '..' then parts.pop()
