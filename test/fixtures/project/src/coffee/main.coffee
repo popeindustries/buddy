@@ -1,5 +1,5 @@
 Nested = require './nested/nested'
-Class = require './other/class'
+# Class = require './other/class'
 
 nested = new Nested
 

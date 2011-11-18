@@ -31,7 +31,6 @@ exports.JSFile = class JSFile extends File
 		@compile = @RE_COFFEE_EXT.test @filepath
 		@module = @_getModuleName()
 		@updateContents contents or fs.readFileSync(@filepath, 'utf8')
-		@dependencies = @_getModuleDependencies()
 	
 	updateContents: (contents) ->
 		# Escape js contents for the coffeescript compiler
@@ -55,6 +54,7 @@ exports.JSFile = class JSFile extends File
 					"""
 		else
 			@contentsModule = @contents
+		@dependencies = @_getModuleDependencies()
 	
 	_getModuleName: ->
 		module = path.relative(@base, @filepath).replace(path.extname(@filename), '')

@@ -28,6 +28,7 @@ module.exports = class Builder
 	constructor: ->
 		@config = null
 		@base = null
+		@watching = false
 		@jsSources =
 			locations: []
 			byPath: {}
@@ -58,18 +59,19 @@ module.exports = class Builder
 	compile: (compress, bare) ->
 		for type in [@JS, @CSS]
 			if @[type + 'Targets'].length
-				target.run(compress, bare) for target in @[type + 'Targets']
+				target.run(compress, bare, @watching) for target in @[type + 'Targets']
 	
 	watch: (compress, bare) ->
 		return unless fs.watch
+		@watching = true
 		@compile compress, bare
 		for type in [@JS, @CSS]
 			if @[type + 'Sources'].count
 				term.out "watching for changes in #{term.colour('['+@config[type].sources.join(', ')+']', term.GREY)}...", 2
 				@_watchFile(file, compress, bare) for path, file of @[type + 'Sources'].byPath
 	
-	deploy: ->
-		@compile()
+	deploy: (bare) ->
+		@compile(true, bare)
 	
 	_loadConfig: (configpath) ->
 		if configpath

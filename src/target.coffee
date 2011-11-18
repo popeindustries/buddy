@@ -12,8 +12,11 @@ exports.Target = class Target
 		@sources = []
 		@_parseInputs @input
 	
-	run: (mini, bare) ->
+	run: (mini, bare, clean) ->
 		if @sources.length
+			if clean
+				@sources = []
+				@_parseInputs @input
 			term.out "building #{term.colour(path.basename(@input), term.GREY)} to #{term.colour(path.basename(@output), term.GREY)}", 2
 			@_build(mini, bare)
 		else
