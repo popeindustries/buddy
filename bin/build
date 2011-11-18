@@ -29,4 +29,12 @@ program
 		new Builder().initialize(config).debug();
 });
 
+program
+	.command('test')
+	.description('test')
+	.action(function(config){
+		console.log(process.platform);
+		// new Builder().initialize(config).debug();
+});
+
 program.parse(process.argv);

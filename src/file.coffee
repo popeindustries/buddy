@@ -63,6 +63,8 @@ exports.JSFile = class JSFile extends File
 				if @RE_UPPERCASE.test letter
 					letters[i] = (if (i>0) then '_' else '') + letter.toLowerCase()
 			module = module.replace(@name, letters.join().replace(/,/g, ''))
+			# Fix path separator for windows
+			module = module.replace('\\', '/') if process.platform is 'win32'
 		module
 	
 	_getModuleDependencies: ->

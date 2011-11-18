@@ -23,6 +23,7 @@ module.exports = class Builder
 	RE_CSS_SRC_EXT: /\.styl|\.less$/
 	RE_IGNORE_FILE: /^[_|\.]|[-|\.]min\./
 	RE_BUILT_HEADER: /^\/\*BUILT/g
+	RE_ROOT: /^[a-zA-Z]\:\\\\?$|^\/$/
 	
 	constructor: ->
 		@config = null
@@ -89,7 +90,7 @@ module.exports = class Builder
 				configpath = path.join(dir, CONFIG)
 				break if path.existsSync(configpath)
 				# Exit if we reach the volume root without finding our file
-				if dir is '/'
+				if @RE_ROOT.test dir
 					term.out "#{term.colour('error', term.RED)} #{term.colour(CONFIG, term.GREY)} not found on this path", 2
 					return false
 		
