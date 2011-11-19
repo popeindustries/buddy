@@ -5,20 +5,26 @@ coffee = require 'coffee-script'
 less = require 'less'
 uglify = require 'uglify-js'
 growl = require 'growl'
+file = require './file'
 {log} = console
 
 exports.Target = class Target
 	constructor: (@input, @output, @sourceCache) ->
 		@sources = []
+		@compress = false
 		@_parseInputs @input
+		# Resolve output file name for file>folder target
+		if not path.extname(@output).length and fs.statSync(@input).isFile()
+			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), @EXTENSION)
 	
-	run: (mini, bare, clean) ->
+	run: (compress, clean) ->
+		@compress = compress
 		if @sources.length
 			if clean
 				@sources = []
 				@_parseInputs @input
 			term.out "building #{term.colour(path.basename(@input), term.GREY)} to #{term.colour(path.basename(@output), term.GREY)}", 2
-			@_build(mini, bare)
+			@_build()
 		else
 			term.out "#{term.colour('warning', term.YELLOW)} no sources to build in #{term.colour(@input, term.GREY)}", 2
 	
@@ -32,6 +38,11 @@ exports.Target = class Target
 		# Recurse child directories
 		else
 			@_parseInputs(path.join(input, item)) for item in fs.readdirSync input
+	
+	_addInput: (file) ->
+		# Add source if not already added
+		# TODO: add support for flagging across targets
+		@sources.push(file) if file not in @sources
 	
 	_makeDirectory: (filepath) ->
 		dir = path.dirname filepath
@@ -47,14 +58,12 @@ exports.Target = class Target
 exports.JSTarget = class JSTarget extends Target
 	BUILT_HEADER: '/*BUILT '
 	REQUIRE: 'require.js'
-	
-	constructor: (input, output, sourceCache) ->
+	EXTENSION: '.js'
+		
+	constructor: (input, output, sourceCache, @nodejs = false) ->
 		super input, output, sourceCache
 		# Concatenate output if input is a single file
 		@concatenate = fs.statSync(@input).isFile()
-		# Resolve output file name for file>folder target
-		if @concatenate and not path.extname(@output).length
-			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), '.js')
 	
 	_addInput: (file) ->
 		# First add dependencies
@@ -64,45 +73,46 @@ exports.JSTarget = class JSTarget extends Target
 					@_addInput dep
 				else
 					term.out "#{term.colour('warning', term.YELLOW)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(file.module, term.GREY)} not found", 4
-		# Add source if not already added
-		# TODO: add support for flagging across targets
-		@sources.push(file) if file not in @sources
+		# Store
+		super file
 	
-	_build: (mini, bare) ->
+	_build: () ->
 		# Concatenate source and compile
 		if @concatenate
 			contents = []
-			contents.push "`#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}`" unless bare
-			# Always use module contents since concatenation won't work in node.js
+			contents.push "`#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}`" unless @nodejs
+			# Always use module contents since concatenation won't work in node.js anyway
 			contents.push(file.contentsModule) for file in @sources
-			compiled = @_compile contents.join('\n\n'), @input
-			return null unless compiled
-			# Add header
-			compiled = @_addHeader(compiled)
-			term.out "#{term.colour('compiled', term.GREEN)} #{term.colour(path.basename(@output), term.GREY)}", 4
-			if mini then @_minify(@output, compiled) else fs.writeFileSync(@output, compiled, 'utf8')
+			# Concatenate and compile with header
+			return @_compile contents.join('\n\n'), @output, true
+		# Build individual files
 		else
 			for file in @sources
-				filepath = path.join(@output, file.name) + '.js'
-				# Create directory if missing
-				@_makeDirectory filepath
-				# Compile file contents
-				if file.compile
-					compiled = @_compile (if bare then file.contents else file.contentsModule), filepath
-					return null unless compiled
-					fs.writeFileSync filepath, compiled, 'utf8'
-					term.out "#{term.colour('compiled', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
+				filepath = path.join(@output, file.name) + @EXTENSION
+				# Output to file, compressing if necessary
+				# No header in this case since the normal use case is coffee>js compilation
+				content = if @nodejs then file.contents else file.contentsModule
+				if file.compile then @_compile(content, filepath, false) else @_writeFile(content, filepath, false)
 	
-	_compile: (contents, name) ->
+	_compile: (content, filepath, header) ->
 		try
-			compiled = coffee.compile contents, {bare: true}
-			return compiled
+			compiled = coffee.compile content, {bare: true}
+			return if compiled then @_writeFile(compiled, filepath, header) else null
 		catch error
-			term.out "#{term.colour('error', term.RED)} compiling #{term.colour(name, term.GREY)}: #{error}", 4
-			@_displayNotification "error compiling #{name}: #{error}"
+			term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
+			@_displayNotification "error building #{filepath}: #{error}"
 			return null
 	
-	_minify: (file, contents) ->
+	_writeFile: (content, filepath, header) ->
+		# Create directory if missing
+		@_makeDirectory filepath
+		content = "#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}" if header
+		term.out "#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
+		if @compress then @_compress(filepath, content) else fs.writeFileSync(filepath, content, 'utf8')
+		# TODO: catch write error?
+		return true
+	
+	_compress: (filepath, contents) ->
 		jsp = uglify.parser
 		pro = uglify.uglify
 		# Compress
@@ -111,20 +121,42 @@ exports.JSTarget = class JSTarget extends Target
 		ast = pro.ast_squeeze ast
 		compressed = pro.gen_code ast
 		# Write file with header
-		fs.writeFileSync file, @_addHeader(compressed)
-		term.out "#{term.colour('minified', term.GREEN)} #{term.colour(path.basename(file), term.GREY)}", 4
+		fs.writeFileSync filepath, compressed
+		# TODO: make sure multiline comments kept (header)
+		term.out "#{term.colour('compressed', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
 	
 	_addHeader: (content) ->
 		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"
 	
 
 exports.CSSTarget = class CSSTarget extends Target
+	EXTENSION: '.css'
+	
 	constructor: (input, output, sourceCache) ->
+		super input, output, sourceCache
 	
-	_addInput: (file) ->
-		# Add source if not already added
-		@sources.push(file) if file not in @sources
+	_build: ->
+		for file in @sources
+			filepath = path.join(@output, file.name) + @EXTENSION
+			# Create directory if missing
+			@_makeDirectory filepath
+			# Output to file
+			return if file.compile then @_compile(file.contents, filepath, path.extname(file.filepath)) else @_writeFile(file.contents, filepath)
 	
-	_build: (mini, bare) ->
+	_compile: (content, filepath, extension) ->
+		if file.CSSFile::RE_STYLUS_EXT.test extension
+			stylc = stylus(content).set('paths', @sourceCache.concat())
+			stylc.set('compress', true) if @compress
+			stylc.render (error, css) ->
+				if error
+					term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
+					@_displayNotification "error building #{filepath}: #{error}"
+					return null
+				else
+					term.out "#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
+					fs.writeFileSync(filepath, css, 'utf8')
+					return true
+		else if file.CSSFile::RE_LESS_EXT.test extension
+			less
 		
 	
