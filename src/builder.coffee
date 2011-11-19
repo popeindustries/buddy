@@ -19,8 +19,8 @@ CONFIG = 'build.json'
 module.exports = class Builder
 	JS: 'js'
 	CSS: 'css'
-	RE_JS_SRC_EXT: /\.coffee|\.js$/
-	RE_CSS_SRC_EXT: /\.styl|\.less$/
+	RE_JS_SRC_EXT: /\.coffee$|\.js$/
+	RE_CSS_SRC_EXT: /\.styl$|\.less$/
 	RE_IGNORE_FILE: /^[_|\.]|[-|\.]min\./
 	RE_BUILT_HEADER: /^\/\*BUILT/g
 	RE_ROOT: /^[a-zA-Z]\:\\\\?$|^\/$/
@@ -51,27 +51,27 @@ module.exports = class Builder
 						@_parseSourceFolder(path.resolve(@base, source), null, @[type + 'Sources']) for source in @config[type].sources
 						# Generate build targets
 						for item in @config[type].targets
-							if target = @_targetFactory(item.in, item.out, type)
-								@[type + 'Targets'].push target
+							if t = @_targetFactory(type, item)
+								@[type + 'Targets'].push t
 		@initialized = true
 		return @
 	
-	compile: (compress, bare) ->
+	compile: (compress) ->
 		for type in [@JS, @CSS]
 			if @[type + 'Targets'].length
-				target.run(compress, bare, @watching) for target in @[type + 'Targets']
+				t.run(compress, @watching) for t in @[type + 'Targets']
 	
-	watch: (compress, bare) ->
+	watch: (compress) ->
 		return unless fs.watch
 		@watching = true
-		@compile compress, bare
+		@compile compress
 		for type in [@JS, @CSS]
 			if @[type + 'Sources'].count
 				term.out "watching for changes in #{term.colour('['+@config[type].sources.join(', ')+']', term.GREY)}...", 2
-				@_watchFile(file, compress, bare) for path, file of @[type + 'Sources'].byPath
+				@_watchFile(file, compress) for path, file of @[type + 'Sources'].byPath
 	
-	deploy: (bare) ->
-		@compile(true, bare)
+	deploy: ->
+		@compile(true)
 	
 	_loadConfig: (configpath) ->
 		if configpath
@@ -145,12 +145,12 @@ module.exports = class Builder
 		
 		else return null
 	
-	_targetFactory: (input, output, type) ->
-		inputpath = path.resolve @base, input
-		outputpath = path.resolve @base, output
+	_targetFactory: (type, options) ->
+		inputpath = path.resolve @base, options.in
+		outputpath = path.resolve @base, options.out
 		# Check that the input exists
 		unless path.existsSync(inputpath)
-			term.out "#{term.colour('error', term.RED)} #{term.colour(input, term.GREY)} not found", 2
+			term.out "#{term.colour('error', term.RED)} #{term.colour(options.in, term.GREY)} not found in project path", 2
 			return null
 		# Check that input is included in sources
 		for location in @[type + 'Sources'].locations
@@ -159,15 +159,15 @@ module.exports = class Builder
 			break if inSources
 		# Abort if input isn't in sources
 		unless inSources
-			term.out "#{term.colour('error', term.RED)} #{term.colour(input, term.GREY)} not found in source path", 2
+			term.out "#{term.colour('error', term.RED)} #{term.colour(options.in, term.GREY)} not found in source path", 2
 			return null
 		# Abort if input is directory and output is file
 		if fs.statSync(inputpath).isDirectory() and path.extname(outputpath).length
-			term.out "#{term.colour('error', term.RED)} a file (#{term.colour(output, term.GREY)}) is not a valid output target for a directory (#{term.colour(input, term.GREY)}) input target", 2
+			term.out "#{term.colour('error', term.RED)} a file (#{term.colour(options.out, term.GREY)}) is not a valid output target for a directory (#{term.colour(options.in, term.GREY)}) input target", 2
 			return null
-		return new target[type.toUpperCase() + 'Target'] inputpath, outputpath, @[type + 'Sources']
+		return new target[type.toUpperCase() + 'Target'] inputpath, outputpath, @[type + 'Sources'], options.nodejs
 	
-	_watchFile: (file, compress, bare) ->
+	_watchFile: (file, compress) ->
 		# Store initial time and size
 		stat = fs.statSync file.filepath
 		file.lastChange = +stat.mtime
@@ -190,5 +190,6 @@ module.exports = class Builder
 					term.out "[#{new Date().toLocaleTimeString()}] change detected in #{term.colour(file.filename, term.GREY)}", 0
 					# Update contents
 					file.updateContents(fs.readFileSync(file.filepath, 'utf8'))
-					@compile(compress, bare)
+					@compile(compress)
+		
 	
