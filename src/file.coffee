@@ -60,6 +60,7 @@ exports.JSFile = class JSFile extends File
 		module = path.relative(@base, @filepath).replace(path.extname(@filename), '')
 		# Fix path separator for windows
 		module = module.replace(@RE_WIN_SEPARATOR, '/') if process.platform is 'win32'
+		# Convert uppercase letters to lowercase, adding _ where appropriate
 		if @RE_UPPERCASE.test @name
 			letters = @name.split ''
 			for letter, i in letters
@@ -83,12 +84,15 @@ exports.JSFile = class JSFile extends File
 					else unless part is '.' then parts.push(part)
 			deps.push parts.join '/'
 		deps
+	
 
 exports.CSSFile = class CSSFile extends File
+	RE_CSS_SRC_EXT: /\.styl$|\.less$/
 	RE_STYLUS_EXT: /\.styl$/
 	RE_LESS_EXT: /\.less$/
-	
+
 	constructor: (filepath, base) ->
 		super filepath, base
+		@compile = @RE_CSS_SRC_EXT.test(@filepath)
 		@updateContents fs.readFileSync(@filepath, 'utf8')
 	
