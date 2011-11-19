@@ -5,7 +5,8 @@
 		"targets": [
 			{
 				"in": "some/file/or/folder",
-				"out": "some/file/or/folder"
+				"out": "some/file/or/folder",
+				"nodejs": false
 			}
 		]
 	},

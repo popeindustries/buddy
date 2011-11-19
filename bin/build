@@ -5,36 +5,27 @@ var program = require('commander'),
 
 program
 	.version('0.3.0')
-	.option('-c, --compress', 'compress output for production deployment')
-	.option('-b, --bare', 'exclude module wrapping for use with node.js');
+	.option('-c, --compress', 'compress output for production deployment');
  
 program
 	.command('compile [config]')
 	.description('compile js and css sources')
 	.action(function(config){
-		new Builder().initialize(config).compile(program.compress, program.bare);
+		new Builder().initialize(config).compile(program.compress);
 });
 
 program
 	.command('watch [config]')
 	.description('watch js and css source files and compile changes')
 	.action(function(config){
-		new Builder().initialize(config).watch(program.compress, program.bare);
+		new Builder().initialize(config).watch(program.compress);
 });
  
 program
 	.command('deploy [config]')
 	.description('compile compressed js and css sources')
 	.action(function(config){
-		new Builder().initialize(config).deploy(program.bare);
-});
-
-program
-	.command('test')
-	.description('test')
-	.action(function(config){
-		console.log(process.platform);
-		// new Builder().initialize(config).debug();
+		new Builder().initialize(config).deploy();
 });
 
 program.parse(process.argv);
