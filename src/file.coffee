@@ -59,14 +59,16 @@ exports.JSFile = class JSFile extends File
 	_getModuleName: ->
 		module = path.relative(@base, @filepath).replace(path.extname(@filename), '')
 		# Fix path separator for windows
-		module = module.replace(@RE_WIN_SEPARATOR, '/') if process.platform is 'win32'
+		if process.platform is 'win32'
+			module = module.replace(@RE_WIN_SEPARATOR, '/')
 		# Convert uppercase letters to lowercase, adding _ where appropriate
 		if @RE_UPPERCASE.test @name
-			letters = @name.split ''
-			for letter, i in letters
-				if @RE_UPPERCASE.test letter
-					letters[i] = (if (i>0 and letters[i-1] isnt '/') then '_' else '') + letter.toLowerCase()
-			module = module.replace(@name, letters.join().replace(/,/g, ''))
+			letters = Array::map.call module, (l, i, arr) =>
+				if @RE_UPPERCASE.test l
+					return (if (i>0 and arr[i-1] isnt '/') then '_' else '') + l.toLowerCase()
+				else
+					return l
+			module = letters.join().replace(/,/g, '')
 		module
 	
 	_getModuleDependencies: ->
