@@ -106,13 +106,16 @@ exports.JSTarget = class JSTarget extends Target
 	_writeFile: (content, filepath, header) ->
 		# Create directory if missing
 		@_makeDirectory filepath
-		content = "#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}" if header
 		term.out "#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
-		if @compress then @_compress(filepath, content) else fs.writeFileSync(filepath, content, 'utf8')
-		# TODO: catch write error?
+		if @compress
+			@_compress(filepath, content, header)
+		else
+			content = @_addHeader(content) if header
+			fs.writeFileSync(filepath, content, 'utf8')
+			# TODO: catch write error?
 		return true
 	
-	_compress: (filepath, contents) ->
+	_compress: (filepath, contents, header) ->
 		jsp = uglify.parser
 		pro = uglify.uglify
 		# Compress
@@ -121,11 +124,11 @@ exports.JSTarget = class JSTarget extends Target
 		ast = pro.ast_squeeze ast
 		compressed = pro.gen_code ast
 		# Write file with header
+		compressed = @_addHeader(compressed) if header
 		fs.writeFileSync filepath, compressed
-		# TODO: make sure multiline comments kept (header)
 		term.out "#{term.colour('compressed', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
 	
-	_addHeader: (content) ->
+	_addHeader: (content) ->	
 		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"
 	
 
