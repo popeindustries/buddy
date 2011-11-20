@@ -1,6 +1,8 @@
 # Builder
 
-Builder is primarily a tooling framework for the compilation of higher order js/css languages (coffeescript/stylus/less). Additionally, by mimicking the Node.js module workflow, it promotes better code organization, and enables the automatic concatenation of js code for more efficient delivery to the browser.
+Builder is primarily a tooling framework for the compilation of higher order js/css languages (coffeescript/stylus/less). 
+Additionally, by mimicking the Node.js module workflow, it promotes better code organization, 
+and enables the automatic concatenation of js code for more efficient delivery to the browser.
 
 ## Installation
 
@@ -14,8 +16,8 @@ $ npm -g install git://github.com/popeindustries/builder.git
 
 ```bash
 $ cd path/to/my/project
-# compile --bare (unwrapped modules) for Node
-$ build -b compile
+# compile all source files
+$ build compile
 # watch for source changes and compile
 $ build watch
 # compile and minify for production
@@ -30,33 +32,32 @@ The only requirement for adding Builder support to a project is the presence of 
 
 ```json
 {
-	"version": "0.3.0",
-	"js": {
-		"sources": ["a/coffeescript/folder", "a/js/folder"],
-		"targets": [
-			{
-				"in": "a/coffeescript/or/js/file",
-				"out": "a/js/file/or/folder"
-			},
-			{
-				"in": "a/coffeescript/folder",
-				"out": "a/folder"
-			}
-		]
-	},
-	"css": {
-		"sources": ["a/stylus/folder", "a/less/folder"],
-		"targets": [
-			{
-				"in": "a/stylus/or/less/file",
-				"out": "a/css/file/or/folder"
-			},
-			{
-				"in": "a/stylus/or/less/folder",
-				"out": "a/folder"
-			}
-		]
-	}
+  "js": {
+    "sources": ["a/coffeescript/folder", "a/js/folder"],
+    "targets": [
+      {
+        "in": "a/coffeescript/or/js/file",
+        "out": "a/js/file/or/folder"
+      },
+      {
+        "in": "a/coffeescript/folder",
+        "out": "a/folder"
+      }
+    ]
+  },
+  "css": {
+    "sources": ["a/stylus/folder", "a/less/folder"],
+    "targets": [
+      {
+        "in": "a/stylus/or/less/file",
+        "out": "a/css/file/or/folder"
+      },
+      {
+        "in": "a/stylus/or/less/folder",
+        "out": "a/folder"
+      }
+    ]
+  }
 }
 ```
 
@@ -67,17 +68,17 @@ As an example, you could compile a library, then reference some library files in
 
 ```json
 "js": {
-	"sources": ["lib/src/coffee", "lib/js", "src"],
-	"targets": [
-		{
-			"in": "lib/src/coffee",  <--a folder of coffee-script files (including nested folders)
-			"out": "lib/js"          <--a folder of compiled js files
-		},
-		{
-			"in": "src/main.js",  <--the application entry point referencing library dependencies
-			"out": "js/main.js"   <--a concatenation of referenced dependencies
-		}
-	]
+  "sources": ["lib/src/coffee", "lib/js", "src"],
+  "targets": [
+    {
+      "in": "lib/src/coffee",  <--a folder of coffee-script files (including nested folders)
+      "out": "lib/js"          <--a folder of compiled js files
+    },
+    {
+      "in": "src/main.js",  <--the application entry point referencing library dependencies
+      "out": "js/main.js"   <--a concatenation of referenced dependencies
+    }
+  ]
 }
 ```
 
@@ -100,7 +101,7 @@ Specifying a module's public behaviour is achieved by decorating an *exports* ob
 var myModuleVar = 'my module';
 
 exports.myModuleMethod = function() { 
-	return myModuleVar;
+  return myModuleVar;
 };
 ```
 
@@ -108,11 +109,11 @@ or overwriting the *exports* object completely:
 
 ```javascript
 function MyModule() {
-	this.myVar = 'my instance var';
+  this.myVar = 'my instance var';
 };
 
 MyModule.prototype.myMethod = function() {
-	return this.myVar;
+  return this.myVar;
 };
 
 module.exports = MyModule;

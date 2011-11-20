@@ -3,8 +3,48 @@
 var program = require('commander'),
 	Builder = require('../lib/builder');
 
+var config = [
+	'',
+	'  Configuration:',
+	'',
+	'    Build sources and targets are defined in a "build.json" file',
+	'    that should be located in the root of your project directory:',
+	'',
+	'    {',
+	'      "js": {',
+	'        "sources": ["a/coffeescript/folder", "a/js/folder"],',
+	'        "targets": [',
+	'          {',
+	'            "in": "a/coffeescript/or/js/file",',
+	'            "out": "a/js/file/or/folder",',
+	'          },',
+	'          {',
+	'            "in": "a/coffeescript/folder",',
+	'            "out": "a/folder",',
+	'          }',
+	'        ]',
+	'       },',
+	'      "css":',
+	'        "sources": ["a/stylus/folder", "a/less/folder"],',
+	'        "targets": [',
+	'          {',
+	'            "in": "a/stylus/or/less/file",',
+	'            "out": "a/css/file/or/folder",',
+	'          },',
+	'          {',
+	'            "in": "a/stylus/or/less/folder",',
+	'            "out": "a/folder",',
+	'          }',
+	'        ]',
+	'      }',
+	'    }',
+	'',
+	'    Visit https://github.com/popeindustries/builder#readme for more details.'
+].join('\n');
+
 program
 	.version('0.3.0')
+	.usage('[options] <command>')
 	.option('-c, --compress', 'compress output for production deployment');
  
 program
@@ -12,20 +52,24 @@ program
 	.description('compile js and css sources')
 	.action(function(config){
 		new Builder(program.version()).initialize(config).compile(program.compress);
-});
+	});
 
 program
 	.command('watch [config]')
 	.description('watch js and css source files and compile changes')
 	.action(function(config){
 		new Builder(program.version()).initialize(config).watch(program.compress);
-});
+	});
  
 program
 	.command('deploy [config]')
 	.description('compile compressed js and css sources')
 	.action(function(config){
 		new Builder(program.version()).initialize(config).deploy();
+	});
+
+program.on('--help', function(){
+  console.log(config);
 });
 
 program.parse(process.argv);
