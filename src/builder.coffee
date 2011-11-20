@@ -1,14 +1,8 @@
 # TODO: protect against source folder as out target during watch routine
-# TODO: add version checking if present in config
+# TODO: add version checking if present in config?
 
 fs = require 'fs'
 path = require 'path'
-coffee = require 'coffee-script'
-stylus = require 'stylus'
-# less = require 'less'
-uglify = require 'uglify-js'
-_ = require 'underscore'
-growl = require 'growl'
 {log, trace} = console
 target = require './target'
 file = require './file'
@@ -25,7 +19,7 @@ module.exports = class Builder
 	RE_BUILT_HEADER: /^\/\*BUILT/g
 	RE_ROOT: /^[a-zA-Z]\:\\\\?$|^\/$/
 	
-	constructor: ->
+	constructor: (version) ->
 		@config = null
 		@base = null
 		@watching = false

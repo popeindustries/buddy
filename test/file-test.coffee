@@ -36,23 +36,23 @@ vows.describe('file/matching')
 vows.describe('file/instantiation')
 	.addBatch
 		'a coffeescript JSFile instance':
-			topic: Builder::_loadConfig path.resolve(__dirname, 'fixtures/project')
-			'with relative path of "other/Class.coffee"':
-				topic: new file.JSFile path.resolve(__dirname, 'fixtures/project/src/coffee/other/Class.coffee'), path.resolve(__dirname, 'fixtures/project/src/coffee')
-				'should have a module name of "other/class"': (jsFile) ->
-					assert.equal jsFile.module, 'other/class'
-			'with relative path of "other/ClassCamelCase.coffee"':
-				topic: new file.JSFile path.resolve(__dirname, 'fixtures/project/src/coffee/other/ClassCamelCase.coffee'), path.resolve(__dirname, 'fixtures/project/src/coffee')
-				'should have a module name of "other/class_camel_case"': (jsFile) ->
-					assert.equal jsFile.module, 'other/class_camel_case'
+			topic: Builder::_loadConfig path.resolve(__dirname, 'fixtures/file')
+			'with relative path of "package/Class.coffee"':
+				topic: new file.JSFile path.resolve(__dirname, 'fixtures/file/src/package/Class.coffee'), path.resolve(__dirname, 'fixtures/file/src')
+				'should have a module name of "package/class"': (jsFile) ->
+					assert.equal jsFile.module, 'package/class'
+			'with relative path of "package/ClassCamelCase.coffee"':
+				topic: new file.JSFile path.resolve(__dirname, 'fixtures/file/src/package/ClassCamelCase.coffee'), path.resolve(__dirname, 'fixtures/file/src')
+				'should have a module name of "package/class_camel_case"': (jsFile) ->
+					assert.equal jsFile.module, 'package/class_camel_case'
 			'with tabs has a module wrapper':
 				topic: ->
-					new file.JSFile path.resolve(__dirname, 'fixtures/project/src/coffee/nested/nested.coffee'), path.resolve(__dirname, 'fixtures/project/src/coffee')
+					new file.JSFile path.resolve(__dirname, 'fixtures/file/src/package/Class.coffee'), path.resolve(__dirname, 'fixtures/file/src')
 				'that should compile without error': (jsFile) ->
 					assert.doesNotThrow (-> coffee.compile(jsFile.contentsModule)), Error
 			'with spaces has a module wrapper':
 				topic: ->
-					new file.JSFile path.resolve(__dirname, 'fixtures/project/src/coffee/other/spaces.coffee'), path.resolve(__dirname, 'fixtures/project/src/coffee')
+					new file.JSFile path.resolve(__dirname, 'fixtures/file/src/package/spaces.coffee'), path.resolve(__dirname, 'fixtures/project/src')
 				'that should compile without error': (jsFile) ->
 					assert.doesNotThrow (-> coffee.compile(jsFile.contentsModule)), Error
 	.export(module)

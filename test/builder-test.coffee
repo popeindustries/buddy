@@ -62,12 +62,12 @@ vows.describe('builder/configuration')
 		'loading config JSON file':
 			'from a valid working directory':
 				topic: ->
-					loadConfig(path.resolve(__dirname, 'fixtures/project'))
+					loadConfig(path.resolve(__dirname, 'fixtures/config'))
 				'should return true': (result) ->
 					assert.isTrue result
 			'from a valid nested working directory':
 				topic: ->
-					loadConfig(path.resolve(__dirname, 'fixtures/project/src/coffee'))
+					loadConfig(path.resolve(__dirname, 'fixtures/config/nested'))
 				'should return true': (result) ->
 					assert.isTrue result
 			'from an invalid working directory':
@@ -75,24 +75,24 @@ vows.describe('builder/configuration')
 					loadConfig(path.resolve(__dirname, '../../'))
 				'should return false': (result) ->
 					assert.isFalse result
-			'with a invalid format':
+			'with an invalid format':
 				topic: ->
-					loadConfig(path.resolve(__dirname, 'fixtures/bad-json'))
+					loadConfig(path.resolve(__dirname, 'fixtures/config'), 'build_bad.json')
 				'should return false': (result) ->
 					assert.isFalse result
 			'with a valid file path':
 				topic: ->
-					loadConfig(path.resolve(__dirname), 'fixtures/project/build.json')
+					loadConfig(path.resolve(__dirname), 'fixtures/config/build.json')
 				'should return true': (result) ->
 					assert.isTrue result
 			'with a valid directory path':
 				topic: ->
-					loadConfig(path.resolve(__dirname), 'fixtures/project')
+					loadConfig(path.resolve(__dirname), 'fixtures/config')
 				'should return true': (result) ->
 					assert.isTrue result
 			'with an invalid path':
 				topic: ->
-					loadConfig(path.resolve(__dirname), 'fixtures/js/build.json')
+					loadConfig(path.resolve(__dirname), 'fixtures/config/build_none.json')
 				'should return false': (result) ->
 					assert.isFalse result
 	.export(module)
@@ -102,12 +102,12 @@ vows.describe('builder/initialization/source')
 		'parsing a source file':
 			'with a valid path':
 				topic: ->
-					Builder::_fileFactory path.resolve(__dirname, 'fixtures/project/src/coffee/main.coffee')
+					Builder::_fileFactory path.resolve(__dirname, 'fixtures/init/source/src/main.coffee')
 				'should return a File instance': (result) ->
 					assert.instanceOf result, file.JSFile
 			'that has already been built':
 				topic: ->
-					Builder::_fileFactory path.resolve(__dirname, 'fixtures/main.js')
+					Builder::_fileFactory path.resolve(__dirname, 'fixtures/init/source/js/main.js')
 				'should return "null"': (result) ->
 					assert.isNull result
 	.addBatch
@@ -115,12 +115,12 @@ vows.describe('builder/initialization/source')
 			'containing nested source files':
 				topic: ->
 					builder = new Builder
-					builder._parseSourceFolder path.resolve(__dirname, 'fixtures/project/src/coffee'), null, builder.jsSources
+					builder._parseSourceFolder path.resolve(__dirname, 'fixtures/init/source/src'), null, builder.jsSources
 					builder
 				'should increase the source cache size by the number of valid files': (builder) ->
-					assert.equal builder.jsSources.count, 6
+					assert.equal builder.jsSources.count, 4
 				'should skip ignored files': (builder) ->
-					assert.isUndefined builder.jsSources[path.resolve(__dirname, 'fixtures/project/src/coffee/ignored/_ignored.coffee')]
+					assert.isUndefined builder.jsSources[path.resolve(__dirname, 'fixtures/init/source/src/_ignored.coffee')]
 	.export(module)
 	
 vows.describe('builder/initialization/target')
@@ -128,27 +128,27 @@ vows.describe('builder/initialization/target')
 		'parsing a build target':
 			topic: ->
 				builder = new Builder
-				builder.base = path.resolve(__dirname, 'fixtures/project')
-				builder._parseSourceFolder path.resolve(builder.base, 'src/coffee/other'), null, builder.jsSources
+				builder.base = path.resolve(__dirname, 'fixtures/init/target')
+				builder._parseSourceFolder path.resolve(builder.base, 'src/nested'), null, builder.jsSources
 				builder
 			'with an input file that is not found on the source path':
 				topic: (builder) ->
-					builder._targetFactory builder.JS, {in: 'src/coffee/main.coffee', out: 'js/main.js'}
+					builder._targetFactory builder.JS, {in: 'src/main.coffee', out: 'js/main.js'}
 				'should return "null"': (result) ->
 					assert.isNull result
 			'with an input file that doesn`t exist`':
 				topic: (builder) ->
-					builder._targetFactory builder.JS, {in: 'src/coffee/other/main.coffee', out: 'js/main.js'}
+					builder._targetFactory builder.JS, {in: 'src/nested/main.coffee', out: 'js/main.js'}
 				'should return "null"': (result) ->
 					assert.isNull result
 			'with a directory input and a file output':
 				topic: (builder) ->
-					builder._targetFactory builder.JS, {in: 'src/coffee/other', out: 'js/main.js'}
+					builder._targetFactory builder.JS, {in: 'src/nested', out: 'js/main.js'}
 				'should return "null"': (result) ->
 					assert.isNull result
 			'with a valid input and output':
 				topic: (builder) ->
-					builder._targetFactory builder.JS, {in: 'src/coffee/other/Class.coffee', out: 'js/Class.js'}
+					builder._targetFactory builder.JS, {in: 'src/nested/Class.coffee', out: 'js/Class.js'}
 				'should return a Target instance': (result) ->
 					assert.instanceOf result, target.JSTarget
 	.export(module)
@@ -157,7 +157,7 @@ vows.describe('builder/compile')
 	.addBatch
 		'compiling a project target':
 			topic: ->
-				process.chdir(path.resolve(__dirname, 'fixtures/project'))
+				process.chdir(path.resolve(__dirname, 'fixtures/compile/project'))
 				null
 			'with a single file':
 				topic: ->
@@ -167,13 +167,13 @@ vows.describe('builder/compile')
 					builder.compile()
 					builder
 				'should build 1 file': (builder) ->
-					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'js/other/Class.js'))
+					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'js/package/Class.js'))
 					clearOutput(builder)
 	.addBatch
 		'compiling a project target':
 			'with a single file requiring 1 dependency':
 				topic: ->
-					@output = path.resolve(process.cwd(), 'js/other/ClassCamelCase.js')
+					@output = path.resolve(process.cwd(), 'js/package/ClassCamelCase.js')
 					builder = new Builder
 					builder.initialize('build_single-file-with-dependency.json')
 					clearOutput(builder)
@@ -183,9 +183,9 @@ vows.describe('builder/compile')
 					assert.isTrue path.existsSync(@output)
 				'should contain 2 modules': (builder) ->
 					contents = fs.readFileSync(@output, 'utf8')
-					assert.include contents, "module('other/class'"
-					assert.include contents, "module('other/class_camel_case'"
-					# clearOutput(builder)
+					assert.include contents, "module('package/class'"
+					assert.include contents, "module('package/class_camel_case'"
+					clearOutput(builder)
 	.addBatch
 		'compiling a project target':
 			'with a single file containing a module wrapper':
@@ -204,7 +204,7 @@ vows.describe('builder/compile')
 	.addBatch
 		'compiling a library target':
 			topic: ->
-				process.chdir(path.resolve(__dirname, 'fixtures/library'))
+				process.chdir(path.resolve(__dirname, 'fixtures/compile/library'))
 				null
 			'with a folder containing 3 files':
 				topic: ->

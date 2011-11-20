@@ -1,4 +1,4 @@
-/*BUILT Sun Nov 20 2011 12:24:43 GMT+0100 (CET)*/
+/*BUILT Sun Nov 20 2011 12:33:00 GMT+0100 (CET)*/
 
 
 (function() {
@@ -39,41 +39,37 @@
 })();
 ;
 
-var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+require.module('nested/nested', function(module, exports, require) {
+  var Nested;
+  return module.exports = Nested = (function() {
 
-require.module('other/class', function(module, exports, require) {
-  var Class;
-  return module.exports = Class = (function() {
-
-    function Class() {
+    function Nested() {
       this.someVar = 'hey';
     }
 
-    Class.prototype.someFunc = function() {
+    Nested.prototype.someFunc = function() {
       return console.log(this.someVar);
     };
 
-    return Class;
+    return Nested;
 
   })();
 });
 
-require.module('other/class_camel_case', function(module, exports, require) {
-  var Class, ClassCamelCase;
-  Class = require('./class');
-  return module.exports = ClassCamelCase = (function() {
-
-    __extends(ClassCamelCase, Class);
-
-    function ClassCamelCase() {
-      this.someVar = 'hey';
+require.module('main', function(module, exports, require) {
+  var Nested, item, nested, _i, _len, _ref, _results;
+  Nested = require('./nested/nested');
+  nested = new Nested;
+  _ref = [1, 2, 3, 4, 5];
+  _results = [];
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    item = _ref[_i];
+    item++;
+    if (item > 2) {
+      _results.push(console.log('item is really big', item));
+    } else {
+      _results.push(void 0);
     }
-
-    ClassCamelCase.prototype.someFunc = function() {
-      return console.log(this.someVar);
-    };
-
-    return ClassCamelCase;
-
-  })();
+  }
+  return _results;
 });

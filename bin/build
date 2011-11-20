@@ -11,21 +11,21 @@ program
 	.command('compile [config]')
 	.description('compile js and css sources')
 	.action(function(config){
-		new Builder().initialize(config).compile(program.compress);
+		new Builder(program.version()).initialize(config).compile(program.compress);
 });
 
 program
 	.command('watch [config]')
 	.description('watch js and css source files and compile changes')
 	.action(function(config){
-		new Builder().initialize(config).watch(program.compress);
+		new Builder(program.version()).initialize(config).watch(program.compress);
 });
  
 program
 	.command('deploy [config]')
 	.description('compile compressed js and css sources')
 	.action(function(config){
-		new Builder().initialize(config).deploy();
+		new Builder(program.version()).initialize(config).deploy();
 });
 
 program.parse(process.argv);

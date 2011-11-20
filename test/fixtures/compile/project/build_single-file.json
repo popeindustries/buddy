@@ -3,8 +3,8 @@
 		"sources": ["src/coffee"],
 		"targets": [
 			{
-				"in": "src/coffee/other/Class.coffee",
-				"out": "js/other"
+				"in": "src/coffee/package/Class.coffee",
+				"out": "js/package"
 			}
 		]
 	}

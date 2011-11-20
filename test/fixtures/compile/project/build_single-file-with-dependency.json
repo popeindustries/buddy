@@ -1,0 +1,11 @@
+{
+	"js": {
+		"sources": ["src/coffee"],
+		"targets": [
+			{
+				"in": "src/coffee/package/ClassCamelCase.coffee",
+				"out": "js/package"
+			}
+		]
+	}
+}
