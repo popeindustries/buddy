@@ -26,7 +26,7 @@ $ build deploy
 $ build --help
 ```
 
-### Setup
+### Configuration
 
 The only requirement for adding Builder support to a project is the presence of a **build.json** file:
 
