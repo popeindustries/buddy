@@ -1,7 +1,6 @@
-Nested = require './nested/nested'
-# Class = require './other/class'
+ClassCamelCase = require './package/class_camel_case'
 
-nested = new Nested
+ccc = new ClassCamelCase
 
 for item in [1,2,3,4,5]
 	item++

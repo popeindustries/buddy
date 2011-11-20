@@ -7,19 +7,20 @@ term = require '../lib/terminal'
 file = require '../lib/file'
 target = require '../lib/target'
 
-term.silent = true
+# term.silent = true
 
 loadConfig = (workingDir, configPath) ->
 	process.chdir(workingDir)
 	new Builder()._loadConfig(configPath)
 
 clearOutput = (builder) ->
-	for target in builder.jsTargets
-		if path.existsSync(target.output)
-			if fs.statSync(target.output).isFile()
-				fs.unlinkSync(target.output)
-			else
-				fs.unlinkSync(file) for file in gatherFiles(target.output)
+	for type in [builder.JS, builder.CSS]
+		for target in builder[type+'Targets']
+			if path.existsSync(target.output)
+				if fs.statSync(target.output).isFile()
+					fs.unlinkSync(target.output)
+				else
+					fs.unlinkSync(file) for file in gatherFiles(target.output)
 
 gatherFiles = (dir, files) ->
 	files ||= []
@@ -155,23 +156,23 @@ vows.describe('builder/initialization/target')
 
 vows.describe('builder/compile')
 	.addBatch
-		'compiling a project target':
+		'compiling a file target':
 			topic: ->
 				process.chdir(path.resolve(__dirname, 'fixtures/compile/project'))
 				null
-			'with a single file':
+			'with a single coffee file':
 				topic: ->
 					builder = new Builder
 					builder.initialize('build_single-file.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
-				'should build 1 file': (builder) ->
+				'should build 1 js file': (builder) ->
 					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'js/package/Class.js'))
 					clearOutput(builder)
 	.addBatch
-		'compiling a project target':
-			'with a single file requiring 1 dependency':
+		'compiling a file target':
+			'with a single coffee file requiring 1 dependency':
 				topic: ->
 					@output = path.resolve(process.cwd(), 'js/package/ClassCamelCase.js')
 					builder = new Builder
@@ -179,7 +180,7 @@ vows.describe('builder/compile')
 					clearOutput(builder)
 					builder.compile()
 					builder
-				'should build 1 file': (builder) ->
+				'should build 1 js file': (builder) ->
 					assert.isTrue path.existsSync(@output)
 				'should contain 2 modules': (builder) ->
 					contents = fs.readFileSync(@output, 'utf8')
@@ -187,8 +188,8 @@ vows.describe('builder/compile')
 					assert.include contents, "module('package/class_camel_case'"
 					clearOutput(builder)
 	.addBatch
-		'compiling a project target':
-			'with a single file containing a module wrapper':
+		'compiling a file target':
+			'with a single coffee file containing a module wrapper':
 				topic: ->
 					@output = path.resolve(process.cwd(), 'js/wrapped.js')
 					builder = new Builder
@@ -196,17 +197,29 @@ vows.describe('builder/compile')
 					clearOutput(builder)
 					builder.compile()
 					builder
-				'should not wrap the built file': (builder) ->
+				'should build 1 js file': (builder) ->
 					contents = fs.readFileSync(@output, 'utf8')
 					match = contents.match /require.module\('wrapped'/gm
 					assert.equal match.length, 1
 					clearOutput(builder)
 	.addBatch
-		'compiling a library target':
+		'compiling a file target':
+			'with a single stylus file':
+				topic: ->
+					builder = new Builder
+					builder.initialize('build_single-styl-file.json')
+					clearOutput(builder)
+					builder.compile()
+					builder
+				'should build 1 css file': (builder) ->
+					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'css/main.css'))
+					clearOutput(builder)
+	.addBatch
+		'compiling a folder target':
 			topic: ->
 				process.chdir(path.resolve(__dirname, 'fixtures/compile/library'))
 				null
-			'with a folder containing 3 files':
+			'containing 3 coffee files':
 				topic: ->
 					builder = new Builder
 					builder.initialize('build.json')
@@ -217,8 +230,8 @@ vows.describe('builder/compile')
 					assert.equal gatherFiles(builder.jsTargets[0].output).length, 3
 					clearOutput(builder)
 	.addBatch
-		'compiling a library target':
-			'with the "nodejs" flag set':
+		'compiling a folder target':
+			'containing 3 coffee files and the "nodejs" flag set':
 				topic: ->
 					builder = new Builder
 					builder.initialize('build-nodejs.json')
@@ -229,5 +242,34 @@ vows.describe('builder/compile')
 					files = gatherFiles(builder.jsTargets[0].output)
 					for file in files
 						assert.isTrue fs.readFileSync(file, 'utf8').indexOf('require.modules') is -1
+					clearOutput(builder)
+	.addBatch
+		'compiling a folder target':
+			'containing 2 stylus files':
+				topic: ->
+					builder = new Builder
+					builder.initialize('build_styl.json')
+					clearOutput(builder)
+					builder.compile()
+					builder
+				'should build 2 css files': (builder) ->
+					assert.equal gatherFiles(builder.cssTargets[0].output).length, 2
+					clearOutput(builder)
+	.addBatch
+		'compiling a project':
+			topic: ->
+				process.chdir(path.resolve(__dirname, 'fixtures/compile/project'))
+				null
+			'with a single coffee file and a stylus folder':
+				topic: ->
+					builder = new Builder
+					builder.initialize('build.json')
+					clearOutput(builder)
+					builder.compile()
+					builder
+				'should build 1 concatenated js file': (builder) ->
+					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'js/main.js'))
+				'should build 2 css files': (builder) ->
+					assert.equal gatherFiles(builder.cssTargets[0].output).length, 2
 					clearOutput(builder)
 	.export(module)

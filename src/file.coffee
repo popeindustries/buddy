@@ -87,12 +87,12 @@ exports.JSFile = class JSFile extends File
 	
 
 exports.CSSFile = class CSSFile extends File
-	RE_CSS_SRC_EXT: /\.styl$|\.less$/
 	RE_STYLUS_EXT: /\.styl$/
 	RE_LESS_EXT: /\.less$/
 
 	constructor: (filepath, base) ->
 		super filepath, base
-		@compile = @RE_CSS_SRC_EXT.test(@filepath)
+		# Only compileable sources are valid
+		@compile = true
 		@updateContents fs.readFileSync(@filepath, 'utf8')
 	

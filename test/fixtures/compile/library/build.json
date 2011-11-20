@@ -1,9 +1,9 @@
 {
 	"js": {
-		"sources": ["src"],
+		"sources": ["src/coffee"],
 		"targets": [
 			{
-				"in": "src",
+				"in": "src/coffee",
 				"out": "js"
 			}
 		]

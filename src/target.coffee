@@ -2,6 +2,7 @@ fs = require 'fs'
 path = require 'path'
 term = require './terminal'
 coffee = require 'coffee-script'
+stylus = require 'stylus'
 less = require 'less'
 uglify = require 'uglify-js'
 growl = require 'growl'
@@ -12,6 +13,8 @@ exports.Target = class Target
 	constructor: (@input, @output, @sourceCache) ->
 		@sources = []
 		@compress = false
+		# Batch output if input is a folder
+		@batch = fs.statSync(@input).isDirectory()
 		@_parseInputs @input
 		# Resolve output file name for file>folder target
 		if not path.extname(@output).length and fs.statSync(@input).isFile()
@@ -31,10 +34,7 @@ exports.Target = class Target
 	_parseInputs: (input) ->
 		# Add files from source cache
 		if fs.statSync(input).isFile()
-			if file = @sourceCache.byPath[input]
-				@_addInput file
-			else
-				term.out "#{term.colour('warning', term.YELLOW)} #{term.colour(@input, term.GREY)} not found in sources", 2
+			@_addInput(f) if f = @sourceCache.byPath[input]
 		# Recurse child directories
 		else
 			@_parseInputs(path.join(input, item)) for item in fs.readdirSync input
@@ -62,8 +62,6 @@ exports.JSTarget = class JSTarget extends Target
 		
 	constructor: (input, output, sourceCache, @nodejs = false) ->
 		super input, output, sourceCache
-		# Concatenate output if input is a single file
-		@concatenate = fs.statSync(@input).isFile()
 	
 	_addInput: (file) ->
 		# First add dependencies
@@ -77,22 +75,24 @@ exports.JSTarget = class JSTarget extends Target
 		super file
 	
 	_build: () ->
+		# Build individual files
+		if @batch
+			for f in @sources
+				# Resolve output name
+				filepath = path.join(@output, f.name) + @EXTENSION
+				# Output to file, compressing if necessary
+				# No header in this case since the normal use case is coffee>js compilation
+				content = if @nodejs then f.contents else f.contentsModule
+				if f.compile then @_compile(content, filepath, false) else @_writeFile(content, filepath, false)
+			true
 		# Concatenate source and compile
-		if @concatenate
+		else
 			contents = []
 			contents.push "`#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}`" unless @nodejs
 			# Always use module contents since concatenation won't work in node.js anyway
-			contents.push(file.contentsModule) for file in @sources
+			contents.push(f.contentsModule) for f in @sources
 			# Concatenate and compile with header
 			return @_compile contents.join('\n\n'), @output, true
-		# Build individual files
-		else
-			for file in @sources
-				filepath = path.join(@output, file.name) + @EXTENSION
-				# Output to file, compressing if necessary
-				# No header in this case since the normal use case is coffee>js compilation
-				content = if @nodejs then file.contents else file.contentsModule
-				if file.compile then @_compile(content, filepath, false) else @_writeFile(content, filepath, false)
 	
 	_compile: (content, filepath, header) ->
 		try
@@ -136,27 +136,36 @@ exports.CSSTarget = class CSSTarget extends Target
 		super input, output, sourceCache
 	
 	_build: ->
-		for file in @sources
-			filepath = path.join(@output, file.name) + @EXTENSION
-			# Create directory if missing
-			@_makeDirectory filepath
-			# Output to file
-			return if file.compile then @_compile(file.contents, filepath, path.extname(file.filepath)) else @_writeFile(file.contents, filepath)
+		if @batch
+			for f in @sources
+				# Resolve output name
+				filepath = path.join(@output, f.name) + @EXTENSION
+				# Output to file, compressing if necessary
+				if f.compile then @_compile(f.contents, filepath, path.extname(f.filepath)) else @_writeFile(f.contents, filepath)
+			true
+		else
+			f = @sources[0]
+			return @_compile(f.contents, @output, path.extname(f.filepath))
 	
 	_compile: (content, filepath, extension) ->
 		if file.CSSFile::RE_STYLUS_EXT.test extension
-			stylc = stylus(content).set('paths', @sourceCache.concat())
+			stylc = stylus(content).set('paths', @sourceCache.locations.concat())
 			stylc.set('compress', true) if @compress
-			stylc.render (error, css) ->
+			stylc.render (error, css) =>
 				if error
 					term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
 					@_displayNotification "error building #{filepath}: #{error}"
 					return null
 				else
-					term.out "#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
-					fs.writeFileSync(filepath, css, 'utf8')
-					return true
+					return @_writeFile css, filepath
 		else if file.CSSFile::RE_LESS_EXT.test extension
 			less
 		
+	_writeFile: (content, filepath) ->
+		# Create directory if missing
+		@_makeDirectory filepath
+		term.out "#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
+		fs.writeFileSync(filepath, content, 'utf8')
+		# TODO: catch write error?
+		return true
 	
