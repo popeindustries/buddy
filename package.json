@@ -1,9 +1,8 @@
 {
   "name": "build",
-  "description": "A tooling framework for the compilation of higher order js/css languages (coffeescript/stylus/less).",
+  "description": "Tooling framework for compiling, concatenating, and deploying coffeescript/js and stylus/less/css projects.",
   "version": "0.3.0",
   "author": "Alexander Pope <alexander.pope@gmail.com>",
-  "keywords": ["javascript", "coffeescript", "styus", "less"],
   "dependencies": {
     "coffee-script": "1.1.x",
     "growl": "1.1.x",
@@ -26,9 +25,5 @@
   "scripts": {
     "test": "vows --spec"
   },
-  "engine": "node >= 0.6.0",
-  "repository":   {
-    "type": "git",
-    "url": "git://github.com/popeindustries/builder.git"
-  },
+  "engine": "node >= 0.6.0"
 }
