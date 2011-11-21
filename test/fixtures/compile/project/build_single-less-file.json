@@ -1,0 +1,11 @@
+{
+	"css": {
+		"sources": ["src/less"],
+		"targets": [
+			{
+				"in": "src/less/main.less",
+				"out": "css/main.css"
+			}
+		]
+	}
+}

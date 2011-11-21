@@ -215,6 +215,18 @@ vows.describe('builder/compile')
 					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'css/main.css'))
 					clearOutput(builder)
 	.addBatch
+		'compiling a file target':
+			'with a single less file':
+				topic: ->
+					builder = new Builder
+					builder.initialize('build_single-less-file.json')
+					clearOutput(builder)
+					builder.compile()
+					builder
+				'should build 1 css file': (builder) ->
+					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'css/main.css'))
+					clearOutput(builder)
+	.addBatch
 		'compiling a folder target':
 			topic: ->
 				process.chdir(path.resolve(__dirname, 'fixtures/compile/library'))

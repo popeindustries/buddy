@@ -161,9 +161,18 @@ exports.CSSTarget = class CSSTarget extends Target
 					return null
 				else
 					return @_writeFile css, filepath
+			
 		else if file.CSSFile::RE_LESS_EXT.test extension
-			less
-		
+			parser = new less.Parser {paths: @sourceCache.locations.concat()}
+			parser.parse content, (error, tree) =>
+				if error
+					term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
+					@_displayNotification "error building #{filepath}: #{error}"
+					return null
+				else
+					return @_writeFile tree.toCSS({compress: @compress}), filepath
+			
+	
 	_writeFile: (content, filepath) ->
 		# Create directory if missing
 		@_makeDirectory filepath
