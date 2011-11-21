@@ -7,7 +7,7 @@ var config = [
 	'',
 	'  Configuration:',
 	'',
-	'    Build sources and targets are defined in a "build.json" file',
+	'    Build sources and targets are defined in a "buddy.json" config file',
 	'    that should be located in the root of your project directory:',
 	'',
 	'    {',
@@ -39,12 +39,12 @@ var config = [
 	'      }',
 	'    }',
 	'',
-	'    Visit https://github.com/popeindustries/builder#readme for more details.'
+	'    Visit https://github.com/popeindustries/buddy#readme for more details.'
 ].join('\n');
 
 program
 	.version('0.3.0')
-	.usage('[options] <command> [path/to/build.json]>')
+	.usage('[options] <command> [path/to/buddy.json]>')
 	.option('-c, --compress', 'compress output for production deployment');
  
 program

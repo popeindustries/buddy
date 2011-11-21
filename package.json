@@ -21,7 +21,7 @@
 	},
   "main": "./index",
   "bin": {
-		"build": "./bin/buddy"
+		"buddy": "./bin/buddy"
 	},
   "scripts": {
 		"test": "vows --spec"
