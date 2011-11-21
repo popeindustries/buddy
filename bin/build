@@ -44,7 +44,7 @@ var config = [
 
 program
 	.version('0.3.0')
-	.usage('[options] <command>')
+	.usage('[options] <command> [path/to/build.json]>')
 	.option('-c, --compress', 'compress output for production deployment');
  
 program
