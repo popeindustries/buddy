@@ -14,21 +14,21 @@
     "commander": "0.x.x"
   },
   "devDependencies": {
-    "vows": ">=0.5.13"
-  },
-  "directories" : {
-    "lib" : "./lib"
-  },
-  "main" : "./index",
+		"vows": ">=0.5.13"
+	},
+  "directories": {
+		"lib": "./lib"
+	},
+  "main": "./index",
   "bin": {
-    "build": "./bin/build"
-  },
+		"build": "./bin/build"
+	},
   "scripts": {
-    "test": "vows --spec"
-  },
+		"test": "vows --spec"
+	},
   "engine": "node >= 0.6.0",
-  "repository":   {
-    "type": "git",
-    "url": "git://github.com/popeindustries/builder.git"
-  },
+  "repository": {
+		"type": "git",
+		"url": "git://github.com/popeindustries/builder.git"
+	}
 }
