@@ -8,7 +8,7 @@ target = require './target'
 file = require './file'
 term = require './terminal'
 
-CONFIG = 'build.json'
+CONFIG = 'buddy.json'
 
 module.exports = class Builder
 	JS: 'js'

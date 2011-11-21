@@ -1,5 +1,5 @@
 {
-  "name": "build",
+  "name": "buddy",
   "description": "A tooling framework for the compilation of higher order js/css languages (coffeescript/stylus/less).",
   "version": "0.3.0",
   "author": "Alexander Pope <alexander.pope@gmail.com>",
@@ -21,7 +21,7 @@
 	},
   "main": "./index",
   "bin": {
-		"build": "./bin/build"
+		"build": "./bin/buddy"
 	},
   "scripts": {
 		"test": "vows --spec"
@@ -29,6 +29,6 @@
   "engine": "node >= 0.6.0",
   "repository": {
 		"type": "git",
-		"url": "git://github.com/popeindustries/builder.git"
+		"url": "git://github.com/popeindustries/buddy.git"
 	}
 }

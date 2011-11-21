@@ -1,15 +1,15 @@
-# Builder
+# Buddy
 
-Builder is primarily a tooling framework for the compilation of higher order js/css languages (coffeescript/stylus/less). 
-Additionally, by mimicking the Node.js module workflow, it promotes better code organization, 
-and enables the automatic concatenation of js code for more efficient delivery to the browser.
+Buddy is primarily a tooling framework for the compilation of higher order js/css languages (coffeescript/stylus/less). 
+Additionally, by enabling Node.js-style module wrapping and syntax, it promotes better js code organization, 
+and provides automatic concatenation of code for more efficient delivery to the browser.
 
 ## Installation
 
-Use the *-g* global flag to make the **build** command available system-wide:
+Use the *-g* global flag to make the **buddy** command available system-wide:
 
 ```bash
-$ npm -g install git://github.com/popeindustries/builder.git
+$ npm -g install buddy
 ```
 
 ## Usage
@@ -17,18 +17,18 @@ $ npm -g install git://github.com/popeindustries/builder.git
 ```bash
 $ cd path/to/my/project
 # compile all source files
-$ build compile
+$ buddy compile
 # watch for source changes and compile
-$ build watch
+$ buddy watch
 # compile and minify for production
-$ build deploy
+$ buddy deploy
 # view usage, examples, and options
-$ build --help
+$ buddy --help
 ```
 
 ### Configuration
 
-The only requirement for adding Builder support to a project is the presence of a **build.json** file:
+The only requirement for adding Buddy support to a project is the presence of a **buddy.json** file:
 
 ```json
 {
@@ -84,7 +84,7 @@ As an example, you could compile a library, then reference some library files in
 
 ### Modules
 
-Builder wraps each coffee-script/js file in a module declaration based on the file location. 
+Buddy wraps each coffee-script/js file in a module declaration based on the file location. 
 Dependencies (and concatenation order) are determined by the use of ***require*** statements:
 
 ```javascript
@@ -123,7 +123,7 @@ Each module is provided with a ***module***, ***exports***, and ***require*** re
 
 When *require*-ing a module, keep in mind that the module id is resolved based on the following rules:
 
- - packages begin at the root folder specified in build.json > js > sources:
+ - packages begin at the root folder specified in buddy.json > js > sources:
 ```
 'Users/alex/project/src/package/main.js' > 'package/main'
 ```

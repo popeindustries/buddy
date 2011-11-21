@@ -78,12 +78,12 @@ vows.describe('builder/configuration')
 					assert.isFalse result
 			'with an invalid format':
 				topic: ->
-					loadConfig(path.resolve(__dirname, 'fixtures/config'), 'build_bad.json')
+					loadConfig(path.resolve(__dirname, 'fixtures/config'), 'buddy_bad.json')
 				'should return false': (result) ->
 					assert.isFalse result
 			'with a valid file path':
 				topic: ->
-					loadConfig(path.resolve(__dirname), 'fixtures/config/build.json')
+					loadConfig(path.resolve(__dirname), 'fixtures/config/buddy.json')
 				'should return true': (result) ->
 					assert.isTrue result
 			'with a valid directory path':
@@ -93,7 +93,7 @@ vows.describe('builder/configuration')
 					assert.isTrue result
 			'with an invalid path':
 				topic: ->
-					loadConfig(path.resolve(__dirname), 'fixtures/config/build_none.json')
+					loadConfig(path.resolve(__dirname), 'fixtures/config/buddy_none.json')
 				'should return false': (result) ->
 					assert.isFalse result
 	.export(module)
@@ -163,7 +163,7 @@ vows.describe('builder/compile')
 			'with a single coffee file':
 				topic: ->
 					builder = new Builder
-					builder.initialize('build_single-file.json')
+					builder.initialize('buddy_single-file.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
@@ -176,7 +176,7 @@ vows.describe('builder/compile')
 				topic: ->
 					@output = path.resolve(process.cwd(), 'js/package/ClassCamelCase.js')
 					builder = new Builder
-					builder.initialize('build_single-file-with-dependency.json')
+					builder.initialize('buddy_single-file-with-dependency.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
@@ -193,7 +193,7 @@ vows.describe('builder/compile')
 				topic: ->
 					@output = path.resolve(process.cwd(), 'js/wrapped.js')
 					builder = new Builder
-					builder.initialize('build_single-file-with-wrapper.json')
+					builder.initialize('buddy_single-file-with-wrapper.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
@@ -207,7 +207,7 @@ vows.describe('builder/compile')
 			'with a single stylus file':
 				topic: ->
 					builder = new Builder
-					builder.initialize('build_single-styl-file.json')
+					builder.initialize('buddy_single-styl-file.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
@@ -219,7 +219,7 @@ vows.describe('builder/compile')
 			'with a single less file':
 				topic: ->
 					builder = new Builder
-					builder.initialize('build_single-less-file.json')
+					builder.initialize('buddy_single-less-file.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
@@ -234,7 +234,7 @@ vows.describe('builder/compile')
 			'containing 3 coffee files':
 				topic: ->
 					builder = new Builder
-					builder.initialize('build.json')
+					builder.initialize('buddy.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
@@ -246,7 +246,7 @@ vows.describe('builder/compile')
 			'containing 3 coffee files and the "nodejs" flag set':
 				topic: ->
 					builder = new Builder
-					builder.initialize('build-nodejs.json')
+					builder.initialize('buddy-nodejs.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
@@ -260,7 +260,7 @@ vows.describe('builder/compile')
 			'containing 2 stylus files':
 				topic: ->
 					builder = new Builder
-					builder.initialize('build_styl.json')
+					builder.initialize('buddy_styl.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
@@ -275,7 +275,7 @@ vows.describe('builder/compile')
 			'with a single coffee file and a stylus folder':
 				topic: ->
 					builder = new Builder
-					builder.initialize('build.json')
+					builder.initialize('buddy.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
