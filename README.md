@@ -1,6 +1,6 @@
 # Buddy
 
-Buddy is primarily a tooling framework for the compilation of higher order js/css languages (coffeescript/stylus/less). 
+Buddy is primarily a build framework for the compilation of higher order js/css languages (coffeescript/stylus/less). 
 Additionally, by enabling Node.js-style module wrapping and syntax, it promotes better js code organization, 
 and provides automatic concatenation of code for more efficient delivery to the browser.
 
