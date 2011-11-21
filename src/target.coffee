@@ -49,10 +49,11 @@ exports.Target = class Target
 		unless path.existsSync dir
 			fs.mkdirSync dir, 0777
 	
-	_displayNotification: (message = '') ->
+	_notifyError: (filepath, error) ->
+		term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
 		options =
 			title: 'BUILDER'
-		try growl.notify message, options
+		try growl.notify "error building #{filepath}: #{error}", options
 	
 
 exports.JSTarget = class JSTarget extends Target
@@ -99,8 +100,7 @@ exports.JSTarget = class JSTarget extends Target
 			compiled = coffee.compile content, {bare: true}
 			return if compiled then @_writeFile(compiled, filepath, header) else null
 		catch error
-			term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
-			@_displayNotification "error building #{filepath}: #{error}"
+			@_notifyError(filepath, error)
 			return null
 	
 	_writeFile: (content, filepath, header) ->
@@ -156,8 +156,7 @@ exports.CSSTarget = class CSSTarget extends Target
 			stylc.set('compress', true) if @compress
 			stylc.render (error, css) =>
 				if error
-					term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
-					@_displayNotification "error building #{filepath}: #{error}"
+					@_notifyError(filepath, error)
 					return null
 				else
 					return @_writeFile css, filepath
@@ -166,8 +165,7 @@ exports.CSSTarget = class CSSTarget extends Target
 			parser = new less.Parser {paths: @sourceCache.locations.concat()}
 			parser.parse content, (error, tree) =>
 				if error
-					term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
-					@_displayNotification "error building #{filepath}: #{error}"
+					@_notifyError(filepath, error)
 					return null
 				else
 					return @_writeFile tree.toCSS({compress: @compress}), filepath
