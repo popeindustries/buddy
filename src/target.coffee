@@ -51,9 +51,7 @@ exports.Target = class Target
 	
 	_notifyError: (filepath, error) ->
 		term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
-		options =
-			title: 'BUILDER'
-		try growl.notify "error building #{filepath}: #{error}", options
+		try growl.notify "error building #{filepath}: #{error}", {title: 'BUDDY'}
 	
 
 exports.JSTarget = class JSTarget extends Target
