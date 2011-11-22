@@ -26,7 +26,9 @@
   "scripts": {
 		"test": "vows --spec"
 	},
-  "engine": "node >= 0.6.0",
+  "engines": {
+    "node": ">=0.6.0"
+  },
   "repository": {
 		"type": "git",
 		"url": "git://github.com/popeindustries/buddy.git"
