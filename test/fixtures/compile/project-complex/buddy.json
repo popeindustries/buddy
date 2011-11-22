@@ -1,0 +1,22 @@
+{
+	"js": {
+		"sources": ["src/coffee"],
+		"targets": [
+			{
+				"in": "src/coffee/main.coffee",
+				"out": "js",
+				"targets": [
+					{
+						"in": "src/coffee/section/someSection.coffee",
+						"out": "js/section"
+					}
+				]
+			},
+			{
+				"in": "src/coffee/section/someSection.coffee",
+				"out": "js/section",
+				"nodejs": true
+			}
+		]
+	}
+}

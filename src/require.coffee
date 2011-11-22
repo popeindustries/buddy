@@ -36,4 +36,6 @@
 	
 	# Exports
 	window.require = require
+	# Backwards compatible with earlier module code
+	window.module = require.module
 )()

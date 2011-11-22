@@ -51,8 +51,8 @@ module.exports = class Builder
 		@initialized = true
 		return @
 	
-	compile: (compress, targets = [@JS, @CSS]) ->
-		for type in targets
+	compile: (compress, types = [@JS, @CSS]) ->
+		for type in types
 			if @[type + 'Targets'].length
 				t.run(compress, @watching) for t in @[type + 'Targets']
 	

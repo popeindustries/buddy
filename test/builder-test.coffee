@@ -284,4 +284,20 @@ vows.describe('builder/compile')
 				'should build 2 css files': (builder) ->
 					assert.equal gatherFiles(builder.cssTargets[0].output).length, 2
 					clearOutput(builder)
+	.addBatch
+		'compiling a project':
+			topic: ->
+				process.chdir(path.resolve(__dirname, 'fixtures/compile/project-complex'))
+				null
+			'with 2 js targets sharing assets':
+				topic: ->
+					builder = new Builder
+					builder.initialize('buddy.json')
+					clearOutput(builder)
+					builder.compile()
+					builder
+				'should build 2 concatenated js files': (builder) ->
+					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'js/main.js'))
+					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'js/section/someSection.js'))
+					# clearOutput(builder)
 	.export(module)
