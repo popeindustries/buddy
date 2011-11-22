@@ -3,14 +3,13 @@ path = require 'path'
 {log} = console
 
 exports.File = class File
-	constructor: (@filepath, @base) ->
+	constructor: (@type, @filepath, @base) ->
 		@filename = path.basename @filepath
 		@name = path.relative(@base, @filepath).replace(path.extname(@filename), '')
 		@contents = null
 		@contentsModule = null
 		@compile = false
 		@lastChange = null
-		@lastSize = null
 	
 	updateContents: (contents) ->
 		@contents = contents
@@ -26,8 +25,8 @@ exports.JSFile = class JSFile extends File
 	RE_MODULE: /^(?:require\.)?module\s*\(?\s*['|"].+module, ?exports, ?require\s*\)/m
 	RE_WIN_SEPARATOR: /\\\\?/g
 	
-	constructor: (filepath, base, contents) ->
-		super filepath, base
+	constructor: (type, filepath, base, contents) ->
+		super type, filepath, base
 		@compile = @RE_COFFEE_EXT.test @filepath
 		@module = @_getModuleName()
 		@updateContents contents or fs.readFileSync(@filepath, 'utf8')
@@ -92,8 +91,8 @@ exports.CSSFile = class CSSFile extends File
 	RE_STYLUS_EXT: /\.styl$/
 	RE_LESS_EXT: /\.less$/
 
-	constructor: (filepath, base) ->
-		super filepath, base
+	constructor: (type, filepath, base) ->
+		super type, filepath, base
 		# Only compileable sources are valid
 		@compile = true
 		@updateContents fs.readFileSync(@filepath, 'utf8')

@@ -1,5 +1,6 @@
 # TODO: protect against source folder as out target during watch routine
 # TODO: add version checking if present in config?
+# TODO: only compile the target type matching watch file type on watch trigger
 
 fs = require 'fs'
 path = require 'path'
@@ -50,8 +51,8 @@ module.exports = class Builder
 		@initialized = true
 		return @
 	
-	compile: (compress) ->
-		for type in [@JS, @CSS]
+	compile: (compress, targets = [@JS, @CSS]) ->
+		for type in targets
 			if @[type + 'Targets'].length
 				t.run(compress, @watching) for t in @[type + 'Targets']
 	
@@ -131,11 +132,11 @@ module.exports = class Builder
 			contents = fs.readFileSync(filepath, 'utf8')
 			return null if contents.match @RE_BUILT_HEADER
 			# Create and store File object
-			return new file.JSFile filepath, base, contents
+			return new file.JSFile @JS, filepath, base, contents
 			
 		# Create CSS file instance
 		else if filepath.match @RE_CSS_SRC_EXT
-			return new file.CSSFile filepath, base
+			return new file.CSSFile @CSS, filepath, base
 		
 		else return null
 	
@@ -173,17 +174,16 @@ module.exports = class Builder
 			# 	try	 # if source no longer exists, never mind
 			# 		watcher = fs.watch file.filepath, callback
 			if event is 'change'
-				# Compare time and size
+				# Compare time to the last second
+				# This should prevent double watch execusion bug
 				nstat = fs.statSync file.filepath
-				last = +nstat.mtime
-				size = nstat.size
-				if size isnt file.lastSize and last isnt file.lastChange
-					# Store new time and size
+				last = +nstat.mtime / 1000
+				if last isnt file.lastChange
+					# Store new time
 					file.lastChange = last
-					file.lastSize = size
 					term.out "[#{new Date().toLocaleTimeString()}] change detected in #{term.colour(file.filename, term.GREY)}", 0
 					# Update contents
 					file.updateContents(fs.readFileSync(file.filepath, 'utf8'))
-					@compile(compress)
+					@compile(compress, [file.type])
 		
 	
