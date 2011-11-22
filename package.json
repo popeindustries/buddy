@@ -10,7 +10,6 @@
     "stylus": "0.x.x",
     "less": "1.x.x",
     "uglify-js": "1.1.x",
-    "underscore": "1.1.x",
     "commander": "0.x.x"
   },
   "devDependencies": {
