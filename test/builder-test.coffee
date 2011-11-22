@@ -299,5 +299,5 @@ vows.describe('builder/compile')
 				'should build 2 concatenated js files': (builder) ->
 					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'js/main.js'))
 					assert.isTrue path.existsSync(path.resolve(process.cwd(), 'js/section/someSection.js'))
-					# clearOutput(builder)
+					clearOutput(builder)
 	.export(module)
