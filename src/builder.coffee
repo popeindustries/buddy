@@ -1,6 +1,5 @@
 # TODO: protect against source folder as out target during watch routine
 # TODO: add version checking if present in config?
-# TODO: only compile the target type matching watch file type on watch trigger
 
 fs = require 'fs'
 path = require 'path'

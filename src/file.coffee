@@ -29,31 +29,40 @@ exports.JSFile = class JSFile extends File
 		super type, filepath, base
 		@compile = @RE_COFFEE_EXT.test @filepath
 		@module = @_getModuleName()
+		# Build target entry point flag
+		@main = false
 		@updateContents contents or fs.readFileSync(@filepath, 'utf8')
 	
 	updateContents: (contents) ->
-		# Escape js contents for the coffeescript compiler
+		# Escape js content for the coffeescript compiler
 		@contents = if @compile then contents else "`#{contents}`"
-		# Wrap content in module definition
-		unless @RE_MODULE.test contents
+		@dependencies = @_getModuleDependencies()
+	
+	wrap: ->
+		contents = @contents
+		# Wrap content in module definition if it doesn't already have a wrapper
+		unless @RE_MODULE.test @contents
 			if @compile
 				# Find the currently used indent style
 				indent = contents.match(@RE_INDENT_WHITESPACE)?[1] or '\t'
-				@contentsModule = 
+				contents = 
 					"""
 					require.module '#{@module}', (module, exports, require) ->
 					#{contents.replace(@RE_LINE_BEGIN, indent)}
+					
+					#{if @main then "require('" + @module + "')" else ''}
 					"""
 			else
-				@contentsModule =
+				contents =
 					"""
 					`require.module('#{@module}', function(module, exports, require) {
 					#{contents}
-					});`
+					});
+					
+					#{if @main then "require('" + @module + "');" else ''}`
 					"""
-		else
-			@contentsModule = @contents
-		@dependencies = @_getModuleDependencies()
+		contents
+	
 	
 	_getModuleName: ->
 		module = path.relative(@base, @filepath).replace(path.extname(@filename), '')

@@ -61,6 +61,8 @@ exports.JSTarget = class JSTarget extends Target
 		
 	constructor: (input, output, sourceCache, @nodejs = false) ->
 		super input, output, sourceCache
+		# Treat nodejs targets as batch targets since concatenation does not apply
+		@batch = true if @nodejs
 	
 	_addInput: (file) ->
 		# First add dependencies
@@ -70,6 +72,8 @@ exports.JSTarget = class JSTarget extends Target
 					@_addInput dep
 				else
 					term.out "#{term.colour('warning', term.YELLOW)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(file.module, term.GREY)} not found", 4
+		# Flag file as entry point so we don't module wrap
+		file.main = true if file.filepath is @input and not @batch
 		# Store
 		super file
 	
@@ -78,10 +82,10 @@ exports.JSTarget = class JSTarget extends Target
 		if @batch
 			for f in @sources
 				# Resolve output name
-				filepath = path.join(@output, f.name) + @EXTENSION
+				filepath = if path.extname(@output).length then @output else path.join(@output, f.name) + @EXTENSION 
+				# No header in this case since no concatenation
 				# Output to file, compressing if necessary
-				# No header in this case since the normal use case is coffee>js compilation
-				content = if @nodejs then f.contents else f.contentsModule
+				content = if @nodejs then f.contents else f.wrap()
 				if f.compile then @_compile(content, filepath, false) else @_writeFile(content, filepath, false)
 			true
 		# Concatenate source and compile
@@ -89,7 +93,7 @@ exports.JSTarget = class JSTarget extends Target
 			contents = []
 			contents.push "`#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}`" unless @nodejs
 			# Always use module contents since concatenation won't work in node.js anyway
-			contents.push(f.contentsModule) for f in @sources
+			contents.push(f.wrap()) for f in @sources
 			# Concatenate and compile with header
 			return @_compile contents.join('\n\n'), @output, true
 	
@@ -167,7 +171,6 @@ exports.CSSTarget = class CSSTarget extends Target
 					return null
 				else
 					return @_writeFile tree.toCSS({compress: @compress}), filepath
-			
 	
 	_writeFile: (content, filepath) ->
 		# Create directory if missing
