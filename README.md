@@ -1,7 +1,7 @@
 # Buddy
 
 Buddy is primarily a build framework for the compilation of higher order js/css languages (coffeescript/stylus/less). 
-Additionally, however, by using Node.js-style module wrapping and syntax, Buddy helps you write the same style of code for server and client.
+Additionally, by using Node.js-style module wrapping and syntax, Buddy helps you write the same style of code for server and client.
 This modular approach promotes better js code organization, and allows for automatic concatenation (and optional minification) of code for more efficient delivery to the browser. 
 
 ## Installation
@@ -18,6 +18,8 @@ $ npm -g install buddy
 $ cd path/to/my/project
 # compile all source files
 $ buddy compile
+# compile and minify all source files
+$ buddy -c compile
 # watch for source changes and compile
 $ buddy watch
 # compile and minify for production
@@ -70,7 +72,7 @@ The only requirement for adding Buddy support to a project is the presence of a 
 
 ## Concepts
 
-**Project Root**: The directory from which all paths are resolved to. Determined by location of the *buddy.json* config file.
+**Project Root**: The directory from which all paths resolve to. Determined by location of the *buddy.json* config file.
 
 **Sources**: An array of directories from which all referenced files are retrieved from. 
 A js module's package name is constructed starting from it's source directory.
@@ -81,24 +83,26 @@ A js target can also have nested child targets, ensuring that dependencies are n
 
 **Target parameters**:
 
--*in*: file or directory to build. If js/coffee file, all dependencies referenced will be concatenated together for output (mixed js/coffee sources are possible).
-If directory, all coffee/stylus/less files will be compiled and output to individual js/css files. Paths are relative to one of the source directories listed in *sources*.
+- *in*: file or directory to build. If js/coffee file, all dependencies referenced will be concatenated together for output (mixed js/coffee sources are possible).
+If directory, all coffee/stylus/less files will be compiled and output to individual js/css files.
 
--*out*: file or directory to output to. Paths are relative to one of the source directories listed in *sources*.
+- *out*: file or directory to output to.
 
--*targets*: a nested target that prevents the duplication of js source code with it's parent target.
+- *targets*: a nested target that prevents the duplication of js source code with it's parent target.
 
--*nodejs*: a flag to prevent coffee files from being wrapped with a module declaration. 
+- *nodejs*: a flag to prevent coffee files from being wrapped with a module declaration. 
 
-**Modules**: Each coffee-script/js file is wrapped in a module declaration based on the file location. 
+**Modules**: Each coffee/js file is wrapped in a module declaration based on the file's location. 
 Dependencies (and concatenation order) are determined by the use of ***require*** statements:
 
 ```javascript
 var lib = require('./my/lib'); // in current package
 var SomeClass = require('../some_class'); // in parent package
+var util = require('utils/util'); // from root package
 
 lib.doSomething();
 var something = new SomeClass();
+util.log('hey');
 ```
 
 Specifying a module's public behaviour is achieved by decorating an *exports* object:
@@ -176,7 +180,7 @@ Compile a site with an additional widget using shared sources:
       "targets": [
         {
           "in": "src/coffee/widget.coffee",  <--references some of the same sources as main.coffee
-          "out": "js"                        <--includes only referenced sources that are not included main.js
+          "out": "js"                        <--includes only referenced sources not in main.js
         }
       ]
     }
