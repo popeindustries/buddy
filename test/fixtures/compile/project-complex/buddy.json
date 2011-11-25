@@ -8,14 +8,13 @@
 				"targets": [
 					{
 						"in": "src/coffee/section/someSection.coffee",
-						"out": "js/section"
+						"out": "js/section.js"
 					}
 				]
 			},
 			{
 				"in": "src/coffee/section/someSection.coffee",
-				"out": "js/section",
-				"nodejs": true
+				"out": "js/section/"
 			}
 		]
 	}

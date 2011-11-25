@@ -1,3 +1,5 @@
+# TODO: catch write errors?
+
 fs = require 'fs'
 path = require 'path'
 term = require './terminal'
@@ -10,38 +12,41 @@ file = require './file'
 {log} = console
 
 exports.Target = class Target
-	constructor: (@input, @output, @sourceCache) ->
+	constructor: (@input, @output, @cache) ->
 		@sources = []
 		@compress = false
 		# Batch output if input is a folder
 		@batch = fs.statSync(@input).isDirectory()
-		@_parseInputs @input
 		# Resolve output file name for file>folder target
 		if not path.extname(@output).length and fs.statSync(@input).isFile()
 			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), @EXTENSION)
+			
+		@_parseSources @input
 	
 	run: (compress, clean) ->
 		@compress = compress
 		if @sources.length
 			if clean
 				@sources = []
-				@_parseInputs @input
+				@_parseSources @input
 			term.out "building #{term.colour(path.basename(@input), term.GREY)} to #{term.colour(path.basename(@output), term.GREY)}", 2
 			@_build()
 		else
 			term.out "#{term.colour('warning', term.YELLOW)} no sources to build in #{term.colour(@input, term.GREY)}", 2
 	
-	_parseInputs: (input) ->
+	hasSource: (file) ->
+		file in @sources
+	
+	_parseSources: (input) ->
 		# Add files from source cache
 		if fs.statSync(input).isFile()
-			@_addInput(f) if f = @sourceCache.byPath[input]
+			@_addSource(f) if f = @cache.byPath[input]
 		# Recurse child directories
 		else
-			@_parseInputs(path.join(input, item)) for item in fs.readdirSync input
+			@_parseSources(path.join(input, item)) for item in fs.readdirSync input
 	
-	_addInput: (file) ->
+	_addSource: (file) ->
 		# Add source if not already added
-		# TODO: add support for flagging across targets
 		@sources.push(file) if file not in @sources
 	
 	_makeDirectory: (filepath) ->
@@ -59,20 +64,22 @@ exports.JSTarget = class JSTarget extends Target
 	REQUIRE: 'require.js'
 	EXTENSION: '.js'
 		
-	constructor: (input, output, sourceCache, @nodejs = false) ->
-		super input, output, sourceCache
+	constructor: (input, output, cache, @nodejs = false, @parentTarget = null) ->
+		super input, output, cache
 		# Treat nodejs targets as batch targets since concatenation does not apply
 		@batch = true if @nodejs
 	
-	_addInput: (file) ->
+	_addSource: (file) ->
+		# If this target has a parent, make sure we don't duplicate sources
+		return if @parentTarget?.hasSource(file)
 		# First add dependencies
 		if file.dependencies.length
 			for dependency in file.dependencies
-				if dep = @sourceCache.byModule[dependency] or @sourceCache.byModule["#{dependency}/index"]
-					@_addInput dep
+				if dep = @cache.byModule[dependency] or @cache.byModule["#{dependency}/index"]
+					@_addSource dep
 				else
 					term.out "#{term.colour('warning', term.YELLOW)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(file.module, term.GREY)} not found", 4
-		# Flag file as entry point so we don't module wrap
+		# Flag file as entry point
 		file.main = true if file.filepath is @input and not @batch
 		# Store
 		super file
@@ -91,7 +98,8 @@ exports.JSTarget = class JSTarget extends Target
 		# Concatenate source and compile
 		else
 			contents = []
-			contents.push "`#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}`" unless @nodejs
+			# Add require source unless this target is a child target or we are compiling for node
+			contents.push "`#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}`" unless @nodejs or @parentTarget
 			# Always use module contents since concatenation won't work in node.js anyway
 			contents.push(f.wrap()) for f in @sources
 			# Concatenate and compile with header
@@ -114,7 +122,6 @@ exports.JSTarget = class JSTarget extends Target
 		else
 			content = @_addHeader(content) if header
 			fs.writeFileSync(filepath, content, 'utf8')
-			# TODO: catch write error?
 		return true
 	
 	_compress: (filepath, contents, header) ->
@@ -137,8 +144,8 @@ exports.JSTarget = class JSTarget extends Target
 exports.CSSTarget = class CSSTarget extends Target
 	EXTENSION: '.css'
 	
-	constructor: (input, output, sourceCache) ->
-		super input, output, sourceCache
+	constructor: (input, output, cache) ->
+		super input, output, cache
 	
 	_build: ->
 		if @batch
@@ -154,7 +161,7 @@ exports.CSSTarget = class CSSTarget extends Target
 	
 	_compile: (content, filepath, extension) ->
 		if file.CSSFile::RE_STYLUS_EXT.test extension
-			stylc = stylus(content).set('paths', @sourceCache.locations.concat())
+			stylc = stylus(content).set('paths', @cache.locations.concat())
 			stylc.set('compress', true) if @compress
 			stylc.render (error, css) =>
 				if error
@@ -164,7 +171,7 @@ exports.CSSTarget = class CSSTarget extends Target
 					return @_writeFile css, filepath
 			
 		else if file.CSSFile::RE_LESS_EXT.test extension
-			parser = new less.Parser {paths: @sourceCache.locations.concat()}
+			parser = new less.Parser {paths: @cache.locations.concat()}
 			parser.parse content, (error, tree) =>
 				if error
 					@_notifyError(filepath, error)
@@ -177,6 +184,5 @@ exports.CSSTarget = class CSSTarget extends Target
 		@_makeDirectory filepath
 		term.out "#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
 		fs.writeFileSync(filepath, content, 'utf8')
-		# TODO: catch write error?
 		return true
 	

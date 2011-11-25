@@ -44,9 +44,7 @@ module.exports = class Builder
 						# Generate source cache
 						@_parseSourceFolder(path.resolve(@base, source), null, @[type + 'Sources']) for source in @config[type].sources
 						# Generate build targets
-						for item in @config[type].targets
-							if t = @_targetFactory(type, item)
-								@[type + 'Targets'].push t
+						@_parseTargets(@config[type].targets, type)
 		@initialized = true
 		return @
 	
@@ -124,6 +122,14 @@ module.exports = class Builder
 					cache.byModule[f.module] = f if f.module?
 					cache.count++
 	
+	_parseTargets: (targets, type, parentTarget = null) ->
+		for item in targets
+			item.parent = parentTarget
+			if t = @_targetFactory(type, item)
+				@[type + 'Targets'].push t
+				# Recurse nested child targets
+				@_parseTargets(item.targets, type, t) if item.targets
+	
 	_fileFactory: (filepath, base) ->
 		# Create JS file instance
 		if filepath.match @RE_JS_SRC_EXT
@@ -159,7 +165,7 @@ module.exports = class Builder
 		if fs.statSync(inputpath).isDirectory() and path.extname(outputpath).length
 			term.out "#{term.colour('error', term.RED)} a file (#{term.colour(options.out, term.GREY)}) is not a valid output target for a directory (#{term.colour(options.in, term.GREY)}) input target", 2
 			return null
-		return new target[type.toUpperCase() + 'Target'] inputpath, outputpath, @[type + 'Sources'], options.nodejs
+		return new target[type.toUpperCase() + 'Target'] inputpath, outputpath, @[type + 'Sources'], options.nodejs, options.parent
 	
 	_watchFile: (file, compress) ->
 		# Store initial time and size
