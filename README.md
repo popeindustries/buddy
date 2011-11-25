@@ -1,8 +1,8 @@
 # Buddy
 
 Buddy is primarily a build framework for the compilation of higher order js/css languages (coffeescript/stylus/less). 
-Additionally, by enabling Node.js-style module wrapping and syntax, it promotes better js code organization, 
-and provides automatic concatenation of code for more efficient delivery to the browser.
+Additionally, however, by using Node.js-style module wrapping and syntax, Buddy helps you write the same style of code for server and client.
+This modular approach promotes better js code organization, and allows for automatic concatenation (and optional minification) of code for more efficient delivery to the browser. 
 
 ## Installation
 
@@ -37,11 +37,18 @@ The only requirement for adding Buddy support to a project is the presence of a 
     "targets": [
       {
         "in": "a/coffeescript/or/js/file",
-        "out": "a/js/file/or/folder"
+        "out": "a/js/file/or/folder",
+        "targets": [
+          {
+            "in": "a/coffeescript/or/js/file",
+            "out": "a/js/file/or/folder"
+          }
+        ]
       },
       {
         "in": "a/coffeescript/folder",
-        "out": "a/folder"
+        "out": "a/js/folder",
+        "nodejs": true
       }
     ]
   },
@@ -54,37 +61,36 @@ The only requirement for adding Buddy support to a project is the presence of a 
       },
       {
         "in": "a/stylus/or/less/folder",
-        "out": "a/folder"
+        "out": "a/css/folder"
       }
     ]
   }
 }
 ```
 
-For each build type (js/css), you begin by specifying source paths from which your build targets are referenced.
-Each build target should specify an input and corresponding output file or folder. 
-Targets are run in sequence enabling you to chain builds together.
-As an example, you could compile a library, then reference some library files in your project:
+## Concepts
 
-```json
-"js": {
-  "sources": ["lib/src/coffee", "lib/js", "src"],
-  "targets": [
-    {
-      "in": "lib/src/coffee",  <--a folder of coffee-script files (including nested folders)
-      "out": "lib/js"          <--a folder of compiled js files
-    },
-    {
-      "in": "src/main.js",  <--the application entry point referencing library dependencies
-      "out": "js/main.js"   <--a concatenation of referenced dependencies
-    }
-  ]
-}
-```
+**Project Root**: The directory from which all paths are resolved to. Determined by location of the *buddy.json* config file.
 
-### Modules
+**Sources**: An array of directories from which all referenced files are retrieved from. 
+A js module's package name is constructed starting from it's source directory.
 
-Buddy wraps each coffee-script/js file in a module declaration based on the file location. 
+**Targets**: Objects that specify the input and output files or directories for each build. 
+Targets are built in sequence, allowing builds to be chained together.
+A js target can also have nested child targets, ensuring that dependencies are not duplicated across related builds.
+
+**Target parameters**:
+
+-*in*: file or directory to build. If js/coffee file, all dependencies referenced will be concatenated together for output (mixed js/coffee sources are possible).
+If directory, all coffee/stylus/less files will be compiled and output to individual js/css files. Paths are relative to one of the source directories listed in *sources*.
+
+-*out*: file or directory to output to. Paths are relative to one of the source directories listed in *sources*.
+
+-*targets*: a nested target that prevents the duplication of js source code with it's parent target.
+
+-*nodejs*: a flag to prevent coffee files from being wrapped with a module declaration. 
+
+**Modules**: Each coffee-script/js file is wrapped in a module declaration based on the file location. 
 Dependencies (and concatenation order) are determined by the use of ***require*** statements:
 
 ```javascript
@@ -137,6 +143,46 @@ When *require*-ing a module, keep in mind that the module id is resolved based o
 ```
 
 See [node.js modules](http://nodejs.org/docs/v0.6.0/api/modules.html) for more info on modules.
+
+## Examples
+
+Compile a library, then reference some library files in your project:
+
+```json
+"js": {
+  "sources": ["lib/src/coffee", "lib/js", "src"],
+  "targets": [
+    {
+      "in": "lib/src/coffee",  <--a folder of coffee files (including nested folders)
+      "out": "lib/js"          <--a folder of compiled js files
+    },
+    {
+      "in": "src/main.js",  <--the application entry point referencing library dependencies
+      "out": "js/main.js"   <--a concatenation of referenced dependencies
+    }
+  ]
+}
+```
+
+Compile a site with an additional widget using shared sources:
+
+```json
+"js": {
+  "sources": ["src/coffee"],
+  "targets": [
+    {
+      "in": "src/coffee/main.coffee",  <--the application entry point
+      "out": "js",                     <--includes all referenced sources
+      "targets": [
+        {
+          "in": "src/coffee/widget.coffee",  <--references some of the same sources as main.coffee
+          "out": "js"                        <--includes only referenced sources that are not included main.js
+        }
+      ]
+    }
+  ]
+}
+```
 
 ## License 
 

@@ -1,20 +1,33 @@
 {
 	"js": {
-		"sources": ["some/folder"],
+		"sources": ["a/coffeescript/folder", "a/js/folder"],
 		"targets": [
 			{
-				"in": "some/file/or/folder",
-				"out": "some/file/or/folder",
-				"nodejs": false
+				"in": "a/coffeescript/or/js/file",
+				"out": "a/js/file/or/folder",
+				"targets": [
+					{
+						"in": "a/coffeescript/or/js/file",
+						"out": "a/js/file/or/folder",
+					}
+				]
+			},
+			{
+				"in": "a/coffeescript/folder",
+				"out": "a/js/folder",
 			}
 		]
 	},
 	"css": {
-		"sources": ["some/folder"],
+		"sources": ["a/stylus/folder", "a/less/folder"],
 		"targets": [
 			{
-				"in": "some/file/or/folder",
-				"out": "some/file/or/folder"
+				"in": "a/stylus/or/less/file",
+				"out": "a/css/file/or/folder"
+			},
+			{
+				"in": "a/stylus/or/less/folder",
+				"out": "a/css/folder"
 			}
 		]
 	}

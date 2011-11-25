@@ -20,7 +20,7 @@ var config = [
 	'          },',
 	'          {',
 	'            "in": "a/coffeescript/folder",',
-	'            "out": "a/folder",',
+	'            "out": "a/js/folder",',
 	'          }',
 	'        ]',
 	'       },',
@@ -33,7 +33,7 @@ var config = [
 	'          },',
 	'          {',
 	'            "in": "a/stylus/or/less/folder",',
-	'            "out": "a/folder",',
+	'            "out": "a/css/folder",',
 	'          }',
 	'        ]',
 	'      }',
@@ -43,7 +43,7 @@ var config = [
 ].join('\n');
 
 program
-	.version('0.3.2')
+	.version('0.3.3')
 	.usage('[options] <command> [path/to/buddy.json]>')
 	.option('-c, --compress', 'compress output for production deployment');
  
