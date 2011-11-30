@@ -322,4 +322,24 @@ vows.describe('builder/compile')
 				'should build a child js file that is different than the same file built without a parent target': (builder) ->
 					assert.notEqual fs.readFileSync(path.resolve(process.cwd(), 'js/section.js'), 'utf8'), fs.readFileSync(path.resolve(process.cwd(), 'js/section/someSection.js'), 'utf8')
 					clearOutput(builder)
+	.addBatch
+		'compiling a js project':
+			topic: ->
+				process.chdir(path.resolve(__dirname, 'fixtures/compile/project-js'))
+				null
+			'with a single js file requiring 1 dependency':
+				topic: ->
+					@output = path.resolve(process.cwd(), 'js/main.js')
+					builder = new Builder
+					builder.initialize('buddy.json')
+					clearOutput(builder)
+					builder.compile()
+					builder
+				'should build 1 js file': (builder) ->
+					assert.isTrue path.existsSync(@output)
+				'should contain 1 module': (builder) ->
+					contents = fs.readFileSync(@output, 'utf8')
+					assert.include contents, "module('main'"
+					assert.include contents, "module('package/class_camel_case'"
+					clearOutput(builder)
 	.export(module)
