@@ -1,5 +1,6 @@
 # TODO: protect against source folder as out target during watch routine
 # TODO: add version checking if present in config?
+# TODO: add folder watching to pick up new files (wait for a better node.js implementation)
 
 fs = require 'fs'
 path = require 'path'
