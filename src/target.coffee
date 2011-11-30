@@ -68,6 +68,9 @@ exports.JSTarget = class JSTarget extends Target
 	BUILT_HEADER: '/*BUILT '
 	REQUIRE: 'require.js'
 	EXTENSION: '.js'
+	RE_TABS: /\t/gm
+	RE_DOUBLE_SEMI: /;;/gm
+	RE_HANGING_SEMI: /^\s+;/gm
 		
 	constructor: (input, output, cache, @nodejs = false, @parentTarget = null) ->
 		super input, output, cache
@@ -116,8 +119,8 @@ exports.JSTarget = class JSTarget extends Target
 			# Concatenate and compile
 			content = @_compile(contents.join('\n\n'), @output)
 			if content
-				# Wrap and write file with header
-				@_writeFile(@_wrap(content), @output, true)
+				# Clean, wrap, and write file with header
+				@_writeFile(@_wrap(@_clean(content)), @output, true)
 				return true
 			else
 				return null
@@ -160,6 +163,13 @@ exports.JSTarget = class JSTarget extends Target
 		#{contents.replace(file.JSFile::RE_LINE_BEGIN, '  ')}
 		}).call(this);
 		"""
+	_clean: (contents) ->
+		# Replace tabs with spaces
+		contents = contents.replace(@RE_TABS, '  ')
+		# Remove unwanted semicolons from coffeescript compilation
+		contents = contents.replace(@RE_DOUBLE_SEMI, ';')
+		contents = contents.replace(@RE_HANGING_SEMI, '')
+		contents
 	
 	_addHeader: (content) ->	
 		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"
