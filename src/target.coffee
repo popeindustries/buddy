@@ -52,7 +52,12 @@ exports.Target = class Target
 	_makeDirectory: (filepath) ->
 		dir = path.dirname filepath
 		unless path.existsSync dir
-			fs.mkdirSync dir, 0777
+			try
+				fs.statSync(dir).isDirectory()
+			catch error
+				if error.code is 'ENOENT'
+					@_makeDirectory(dir)
+					fs.mkdirSync dir, 0777
 	
 	_notifyError: (filepath, error) ->
 		term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
