@@ -94,26 +94,38 @@ exports.JSTarget = class JSTarget extends Target
 		if @batch
 			for f in @sources
 				# Resolve output name
-				filepath = if path.extname(@output).length then @output else path.join(@output, f.name) + @EXTENSION 
-				# No header in this case since no concatenation
-				# Output to file, compressing if necessary
-				content = if @nodejs then f.contents else f.wrap()
-				if f.compile then @_compile(content, filepath, false) else @_writeFile(content, filepath, false)
-			true
+				filepath = if path.extname(@output).length then @output else path.join(@output, f.name) + @EXTENSION
+				# Compile
+				content = if f.compile then @_compile(f.contents, filepath) else f.contents
+				if content
+					# Wrap unless for node.js
+					content = f.wrap(content, true, false) unless @nodejs
+					# Output to file, compressing if necessary
+					# No header in this case since no concatenation
+					@_writeFile(content, filepath, false)
+				else
+					return null
+			return true
 		# Concatenate source and compile
 		else
 			contents = []
 			# Add require source unless this target is a child target or we are compiling for node
 			contents.push "`#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}`" unless @nodejs or @parentTarget
 			# Always use module contents since concatenation won't work in node.js anyway
-			contents.push(f.wrap()) for f in @sources
-			# Concatenate and compile with header
-			return @_compile contents.join('\n\n'), @output, true
+			contents.push(f.wrap(f.contents, !f.compile, true)) for f in @sources
+			# Concatenate and compile
+			content = @_compile(contents.join('\n\n'), @output)
+			if content
+				# Wrap and write file with header
+				@_writeFile(@_wrap(content), @output, true)
+				return true
+			else
+				return null
 	
-	_compile: (content, filepath, header) ->
+	_compile: (content, filepath) ->
 		try
-			compiled = coffee.compile content, {bare: true}
-			return if compiled then @_writeFile(compiled, filepath, header) else null
+			# Compile without function wrapper
+			return coffee.compile(content, {bare: true})
 		catch error
 			@_notifyError(filepath, error)
 			return null
@@ -141,6 +153,13 @@ exports.JSTarget = class JSTarget extends Target
 		compressed = @_addHeader(compressed) if header
 		fs.writeFileSync filepath, compressed
 		term.out "#{term.colour('compressed', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
+	
+	_wrap: (contents) ->
+		"""
+		(function () {
+		#{contents.replace(file.JSFile::RE_LINE_BEGIN, '  ')}
+		}).call(this);
+		"""
 	
 	_addHeader: (content) ->	
 		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"

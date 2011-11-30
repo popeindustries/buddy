@@ -7,7 +7,6 @@ exports.File = class File
 		@filename = path.basename @filepath
 		@name = path.relative(@base, @filepath).replace(path.extname(@filename), '')
 		@contents = null
-		@contentsModule = null
 		@compile = false
 		@lastChange = null
 	
@@ -35,16 +34,16 @@ exports.JSFile = class JSFile extends File
 	
 	updateContents: (contents) ->
 		# Escape js content for the coffeescript compiler
-		@contents = if @compile then contents else "`#{contents}`"
+		# @contents = if @compile then contents else "`#{contents}`"
+		@contents = contents
 		@dependencies = @_getModuleDependencies()
 	
-	wrap: ->
-		contents = @contents
+	wrap: (contents, isJS, escape) ->
 		# Wrap content in module definition if it doesn't already have a wrapper
-		unless @RE_MODULE.test @contents
-			if @compile
-				# Find the currently used indent style
-				indent = contents.match(@RE_INDENT_WHITESPACE)?[1] or '\t'
+		unless @RE_MODULE.test contents
+			# Find the currently used indent style
+			indent = contents.match(@RE_INDENT_WHITESPACE)?[1] or '\t'
+			unless isJS
 				contents = 
 					"""
 					require.module '#{@module}', (module, exports, require) ->
@@ -55,14 +54,13 @@ exports.JSFile = class JSFile extends File
 			else
 				contents =
 					"""
-					`require.module('#{@module}', function(module, exports, require) {
-					#{contents}
+					#{if escape then '`' else ''}require.module('#{@module}', function(module, exports, require) {
+					#{contents.replace(@RE_LINE_BEGIN, indent)}
 					});
 					
-					#{if @main then "require('" + @module + "');" else ''}`
+					#{if @main then "require('" + @module + "');" else ''}#{if escape then '`' else ''}
 					"""
 		contents
-	
 	
 	_getModuleName: ->
 		module = path.relative(@base, @filepath).replace(path.extname(@filename), '')
