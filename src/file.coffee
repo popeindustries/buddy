@@ -21,7 +21,7 @@ exports.JSFile = class JSFile extends File
 	RE_LINE_BEGIN: /^/gm
 	RE_UPPERCASE: /[A-Z]/
 	RE_REQUIRE: /^(?=.*?require\s*\(?\s*['|"]([^'"]*))(?:(?!#|(?:\/\/)).)*$/gm
-	RE_MODULE: /^(?:require\.)?module\s*\(?\s*['|"].+module, ?exports, ?require\s*\)/m
+	RE_MODULE: /^(?:require\.)?module\s*\(?\s*['|"].+module, ?exports, ?require\s*\)/gm
 	RE_WIN_SEPARATOR: /\\\\?/g
 	
 	constructor: (type, filepath, base, contents) ->
