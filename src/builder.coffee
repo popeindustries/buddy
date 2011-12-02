@@ -16,7 +16,7 @@ module.exports = class Builder
 	CSS: 'css'
 	RE_JS_SRC_EXT: /\.coffee$|\.js$/
 	RE_CSS_SRC_EXT: /\.styl$|\.less$/
-	RE_IGNORE_FILE: /^[_|\.]|[-|\.]min\./
+	RE_IGNORE_FILE: /^[_|\.]|[-|\.]min\.|svn|~$/
 	RE_BUILT_HEADER: /^\/\*BUILT/g
 	RE_ROOT: /^[a-zA-Z]\:\\\\?$|^\/$/
 	
@@ -175,10 +175,10 @@ module.exports = class Builder
 		file.lastSize = stat.size
 		watcher = fs.watch file.filepath, callback = (event) =>
 			# Clear old and create new on rename
-			# if event is 'rename'
-			# 	watcher.close()
-			# 	try	 # if source no longer exists, never mind
-			# 		watcher = fs.watch file.filepath, callback
+			if event is 'rename'
+				watcher.close()
+				try	 # if source no longer exists, never mind
+					watcher = fs.watch file.filepath, callback
 			if event is 'change'
 				# Compare time to the last second
 				# This should prevent double watch execusion bug

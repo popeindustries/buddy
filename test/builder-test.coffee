@@ -54,6 +54,10 @@ vows.describe('builder/matching')
 					assert.match 'test-min.js', Builder::RE_IGNORE_FILE
 				'if it`s name contains ".min"': ->
 					assert.match 'test.min.js', Builder::RE_IGNORE_FILE
+				'if it`s name contains "svn"': ->
+					assert.match 'svn-cE7836', Builder::RE_IGNORE_FILE
+				'if it`s name ends in "~"': ->
+					assert.match 'temp.js~', Builder::RE_IGNORE_FILE
 				'if it`s contents include a BUILT header': ->
 					assert.match '/*BUILT Tue Nov 01 2011 13:50:57 GMT+0100 (CET)*/', Builder::RE_BUILT_HEADER
 	.export(module)
@@ -356,5 +360,5 @@ vows.describe('builder/compile')
 					contents = fs.readFileSync(@output, 'utf8')
 					assert.include contents, "module('main_wrapped'"
 					assert.include contents, "module('package/prewrapped'"
-					# clearOutput(builder)
+					clearOutput(builder)
 	.export(module)

@@ -38,12 +38,14 @@ exports.Target = class Target
 		file in @sources
 	
 	_parseSources: (input) ->
-		# Add files from source cache
-		if fs.statSync(input).isFile()
-			@_addSource(f) if f = @cache.byPath[input]
-		# Recurse child directories
-		else
-			@_parseSources(path.join(input, item)) for item in fs.readdirSync input
+		# Fix for #1: check that input exists before stat
+		if path.existsSync(input)
+			# Add files from source cache
+			if fs.statSync(input).isFile()
+				@_addSource(f) if f = @cache.byPath[input]
+			else
+				# Recurse child directories
+				@_parseSources(path.join(input, item)) for item in fs.readdirSync(input)
 	
 	_addSource: (file) ->
 		# Add source if not already added
