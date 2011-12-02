@@ -43,7 +43,7 @@ var config = [
 ].join('\n');
 
 program
-	.version('0.3.5')
+	.version('0.3.6')
 	.usage('[options] <command> [path/to/buddy.json]>')
 	.option('-c, --compress', 'compress output for production deployment');
  
