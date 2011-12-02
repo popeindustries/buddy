@@ -16,7 +16,7 @@ module.exports = class Builder
 	CSS: 'css'
 	RE_JS_SRC_EXT: /\.coffee$|\.js$/
 	RE_CSS_SRC_EXT: /\.styl$|\.less$/
-	RE_IGNORE_FILE: /^[_|\.]|[-|\.]min\.|svn|~$/
+	RE_IGNORE_FILE: /^\.|[-|\.]min\.|svn|~$/
 	RE_BUILT_HEADER: /^\/\*BUILT/g
 	RE_ROOT: /^[a-zA-Z]\:\\\\?$|^\/$/
 	

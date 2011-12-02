@@ -12,6 +12,8 @@ file = require './file'
 {log} = console
 
 exports.Target = class Target
+	RE_PARTIAL: /^_/
+	
 	constructor: (@input, @output, @cache) ->
 		@sources = []
 		@compress = false
@@ -48,8 +50,8 @@ exports.Target = class Target
 				@_parseSources(path.join(input, item)) for item in fs.readdirSync(input)
 	
 	_addSource: (file) ->
-		# Add source if not already added
-		@sources.push(file) if file not in @sources
+		# Add source if not already added or not a partial
+		@sources.push(file) if file not in @sources and not @RE_PARTIAL.test(file.filename)
 	
 	_makeDirectory: (filepath) ->
 		dir = path.dirname filepath
@@ -196,6 +198,7 @@ exports.CSSTarget = class CSSTarget extends Target
 			return @_compile(f.contents, @output, path.extname(f.filepath))
 	
 	_compile: (content, filepath, extension) ->
+		# Compile Stylus file
 		if file.CSSFile::RE_STYLUS_EXT.test extension
 			stylc = stylus(content).set('paths', @cache.locations.concat())
 			stylc.set('compress', true) if @compress
@@ -205,7 +208,7 @@ exports.CSSTarget = class CSSTarget extends Target
 					return null
 				else
 					return @_writeFile css, filepath
-			
+		# Compile Less file
 		else if file.CSSFile::RE_LESS_EXT.test extension
 			parser = new less.Parser {paths: @cache.locations.concat()}
 			parser.parse content, (error, tree) =>

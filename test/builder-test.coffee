@@ -46,8 +46,6 @@ vows.describe('builder/matching')
 				'if it ends in ".less"': ->
 					assert.match 'test.less', Builder::RE_CSS_SRC_EXT
 			'is ignored':
-				'if it`s name starts with "_"': ->
-					assert.match '_test.js', Builder::RE_IGNORE_FILE
 				'if it`s name starts with "."': ->
 					assert.match '.test.js', Builder::RE_IGNORE_FILE
 				'if it`s name contains "-min"': ->
@@ -122,10 +120,8 @@ vows.describe('builder/initialization/source')
 					builder = new Builder
 					builder._parseSourceFolder path.resolve(__dirname, 'fixtures/init/source/src'), null, builder.jsSources
 					builder
-				'should increase the source cache size by the number of valid files': (builder) ->
-					assert.equal builder.jsSources.count, 4
-				'should skip ignored files': (builder) ->
-					assert.isUndefined builder.jsSources[path.resolve(__dirname, 'fixtures/init/source/src/_ignored.coffee')]
+				'should increase the source cache size by the number of files': (builder) ->
+					assert.equal builder.jsSources.count, 5
 	.export(module)
 	
 vows.describe('builder/initialization/target')
