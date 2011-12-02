@@ -60,6 +60,9 @@ exports.JSFile = class JSFile extends File
 					
 					#{if @main then "require('" + @module + "');" else ''}#{if escape then '`' else ''}
 					"""
+		else
+			# Be sure to escape if js
+			contents = "`#{contents}`" if isJS and escape
 		contents
 	
 	_getModuleName: ->

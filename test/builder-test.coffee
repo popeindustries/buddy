@@ -337,9 +337,24 @@ vows.describe('builder/compile')
 					builder
 				'should build 1 js file': (builder) ->
 					assert.isTrue path.existsSync(@output)
-				'should contain 1 module': (builder) ->
+				'should contain 2 modules': (builder) ->
 					contents = fs.readFileSync(@output, 'utf8')
 					assert.include contents, "module('main'"
 					assert.include contents, "module('package/class_camel_case'"
 					clearOutput(builder)
+			'with a single js file requiring 1 wrapped dependency':
+				topic: ->
+					@output = path.resolve(process.cwd(), 'js/mainWrapped.js')
+					builder = new Builder
+					builder.initialize('buddy_wrapped.json')
+					clearOutput(builder)
+					builder.compile()
+					builder
+				'should build 1 js file': (builder) ->
+					assert.isTrue path.existsSync(@output)
+				'should contain 2 modules': (builder) ->
+					contents = fs.readFileSync(@output, 'utf8')
+					assert.include contents, "module('main_wrapped'"
+					assert.include contents, "module('package/prewrapped'"
+					# clearOutput(builder)
 	.export(module)
