@@ -1,7 +1,7 @@
 {
   "name": "buddy",
   "description": "A build framework for the compilation of higher order js/css languages (coffeescript/stylus/less).",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": ["javascript", "coffeescript", "styus", "less"],
   "dependencies": {
