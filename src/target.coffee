@@ -104,14 +104,12 @@ exports.JSTarget = class JSTarget extends Target
 				filepath = if path.extname(@output).length then @output else path.join(@output, f.name) + @EXTENSION
 				# Compile
 				content = if f.compile then @_compile(f.contents, filepath) else f.contents
-				if content
+				if content?
 					# Wrap unless for node.js
 					content = f.wrap(content, true, false) unless @nodejs
 					# Output to file, compressing if necessary
 					# No header in this case since no concatenation
 					@_writeFile(content, filepath, false)
-				else
-					return null
 			return true
 		# Concatenate source and compile
 		else
