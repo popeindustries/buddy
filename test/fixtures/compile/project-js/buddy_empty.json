@@ -1,10 +1,10 @@
 {
 	"js": {
-		"sources": ["src"],
+		"sources": ["src/empty"],
 		"targets": [
 			{
-				"in": "src/empty.js",
-				"out": "js"
+				"in": "src/empty",
+				"out": "js/empty"
 			}
 		]
 	}

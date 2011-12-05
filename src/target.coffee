@@ -118,7 +118,7 @@ exports.JSTarget = class JSTarget extends Target
 			contents.push(f.wrap(f.contents, !f.compile, true)) for f in @sources
 			# Concatenate and compile
 			content = @_compile(contents.join('\n\n'), @output)
-			if content
+			if content?
 				# Add require source unless this target is a child target or we are compiling for node
 				content = "#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}\n\n#{content}" unless @nodejs or @parentTarget
 				# Clean, wrap, and write file with header

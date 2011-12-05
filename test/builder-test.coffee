@@ -357,15 +357,14 @@ vows.describe('builder/compile')
 					assert.include contents, "module('main_wrapped'"
 					assert.include contents, "module('package/prewrapped'"
 					clearOutput(builder)
-			'with a single empty js':
+			'with a folder of empty js files':
 				topic: ->
-					@output = path.resolve(process.cwd(), 'js/empty.js')
 					builder = new Builder
 					builder.initialize('buddy_empty.json')
 					clearOutput(builder)
 					builder.compile()
 					builder
-				'should build 1 js file': (builder) ->
-					assert.isTrue path.existsSync(@output)
+				'should build 2 js files': (builder) ->
+					assert.equal gatherFiles(builder.jsTargets[0].output).length, 2
 					clearOutput(builder)
 	.export(module)
