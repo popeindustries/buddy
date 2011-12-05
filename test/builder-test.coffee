@@ -357,4 +357,15 @@ vows.describe('builder/compile')
 					assert.include contents, "module('main_wrapped'"
 					assert.include contents, "module('package/prewrapped'"
 					clearOutput(builder)
+			'with a single empty js':
+				topic: ->
+					@output = path.resolve(process.cwd(), 'js/empty.js')
+					builder = new Builder
+					builder.initialize('buddy_empty.json')
+					clearOutput(builder)
+					builder.compile()
+					builder
+				'should build 1 js file': (builder) ->
+					assert.isTrue path.existsSync(@output)
+					clearOutput(builder)
 	.export(module)
