@@ -13,7 +13,7 @@ file = require './file'
 
 exports.Target = class Target
 	RE_PARTIAL: /^_/
-	
+
 	constructor: (@input, @output, @cache) ->
 		@sources = []
 		@compress = false
@@ -22,9 +22,9 @@ exports.Target = class Target
 		# Resolve output file name for file>folder target
 		if not path.extname(@output).length and fs.statSync(@input).isFile()
 			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), @EXTENSION)
-			
+
 		@_parseSources @input
-	
+
 	run: (compress, clean) ->
 		@compress = compress
 		if @sources.length
@@ -35,10 +35,10 @@ exports.Target = class Target
 			@_build()
 		else
 			term.out "#{term.colour('warning', term.YELLOW)} no sources to build in #{term.colour(@input, term.GREY)}", 2
-	
+
 	hasSource: (file) ->
 		file in @sources
-	
+
 	_parseSources: (input) ->
 		# Fix for #1: check that input exists before stat
 		if path.existsSync(input)
@@ -48,11 +48,11 @@ exports.Target = class Target
 			else
 				# Recurse child directories
 				@_parseSources(path.join(input, item)) for item in fs.readdirSync(input)
-	
+
 	_addSource: (file) ->
 		# Add source if not already added or not a partial
 		@sources.push(file) if file not in @sources and not @RE_PARTIAL.test(file.filename)
-	
+
 	_makeDirectory: (filepath) ->
 		dir = path.dirname filepath
 		unless path.existsSync dir
@@ -62,11 +62,11 @@ exports.Target = class Target
 				if error.code is 'ENOENT'
 					@_makeDirectory(dir)
 					fs.mkdirSync dir, 0777
-	
+
 	_notifyError: (filepath, error) ->
 		term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
 		try growl.notify "error building #{filepath}: #{error}", {title: 'BUDDY'}
-	
+
 
 exports.JSTarget = class JSTarget extends Target
 	BUILT_HEADER: '/*BUILT '
@@ -75,12 +75,12 @@ exports.JSTarget = class JSTarget extends Target
 	RE_TABS: /\t/gm
 	RE_DOUBLE_SEMI: /;;/gm
 	RE_HANGING_SEMI: /^\s+;/gm
-		
+
 	constructor: (input, output, cache, @nodejs = false, @parentTarget = null) ->
 		super input, output, cache
 		# Treat nodejs targets as batch targets since concatenation does not apply
 		@batch = true if @nodejs
-	
+
 	_addSource: (file) ->
 		# If this target has a parent, make sure we don't duplicate sources
 		return if @parentTarget?.hasSource(file)
@@ -95,7 +95,7 @@ exports.JSTarget = class JSTarget extends Target
 		file.main = true if file.filepath is @input and not @batch
 		# Store
 		super file
-	
+
 	_build: () ->
 		# Build individual files
 		if @batch
@@ -126,15 +126,16 @@ exports.JSTarget = class JSTarget extends Target
 				return true
 			else
 				return null
-	
+
 	_compile: (content, filepath) ->
 		try
 			# Compile without function wrapper
 			return coffee.compile(content, {bare: true})
 		catch error
 			@_notifyError(filepath, error)
+			# TODO: output code snippit containing error
 			return null
-	
+
 	_writeFile: (content, filepath, header) ->
 		# Create directory if missing
 		@_makeDirectory filepath
@@ -145,7 +146,7 @@ exports.JSTarget = class JSTarget extends Target
 			content = @_addHeader(content) if header
 			fs.writeFileSync(filepath, content, 'utf8')
 		return true
-	
+
 	_compress: (filepath, contents, header) ->
 		jsp = uglify.parser
 		pro = uglify.uglify
@@ -158,7 +159,7 @@ exports.JSTarget = class JSTarget extends Target
 		compressed = @_addHeader(compressed) if header
 		fs.writeFileSync filepath, compressed
 		term.out "#{term.colour('compressed', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
-	
+
 	_wrap: (contents) ->
 		"""
 		(function () {
@@ -172,17 +173,17 @@ exports.JSTarget = class JSTarget extends Target
 		contents = contents.replace(@RE_DOUBLE_SEMI, ';')
 		contents = contents.replace(@RE_HANGING_SEMI, '')
 		contents
-	
-	_addHeader: (content) ->	
+
+	_addHeader: (content) ->
 		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"
-	
+
 
 exports.CSSTarget = class CSSTarget extends Target
 	EXTENSION: '.css'
-	
+
 	constructor: (input, output, cache) ->
 		super input, output, cache
-	
+
 	_build: ->
 		if @batch
 			for f in @sources
@@ -194,7 +195,7 @@ exports.CSSTarget = class CSSTarget extends Target
 		else
 			f = @sources[0]
 			return @_compile(f.contents, @output, path.extname(f.filepath))
-	
+
 	_compile: (content, filepath, extension) ->
 		# Compile Stylus file
 		if file.CSSFile::RE_STYLUS_EXT.test extension
@@ -215,11 +216,11 @@ exports.CSSTarget = class CSSTarget extends Target
 					return null
 				else
 					return @_writeFile tree.toCSS({compress: @compress}), filepath
-	
+
 	_writeFile: (content, filepath) ->
 		# Create directory if missing
 		@_makeDirectory filepath
 		term.out "#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
 		fs.writeFileSync(filepath, content, 'utf8')
 		return true
-	
+
