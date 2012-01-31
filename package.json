@@ -5,11 +5,11 @@
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": ["javascript", "coffeescript", "styus", "less"],
   "dependencies": {
-    "coffee-script": "1.1.x",
-    "growl": "1.1.x",
+    "coffee-script": "1.x.x",
+    "growl": "1.x.x",
     "stylus": "0.x.x",
     "less": "1.x.x",
-    "uglify-js": "1.1.x",
+    "uglify-js": "1.x.x",
     "commander": "0.x.x"
   },
   "devDependencies": {
