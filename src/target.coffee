@@ -1,14 +1,14 @@
 # TODO: catch write errors?
 
-fs = require 'fs'
-path = require 'path'
-term = require './terminal'
-coffee = require 'coffee-script'
-stylus = require 'stylus'
-less = require 'less'
-uglify = require 'uglify-js'
-growl = require 'growl'
-file = require './file'
+fs = require('fs')
+path = require('path')
+term = require('./terminal')
+coffee = require('coffee-script')
+stylus = require('stylus')
+less = require('less')
+uglify = require('uglify-js')
+growl = require('growl')
+file = require('./file')
 {log} = console
 
 exports.Target = class Target
@@ -23,18 +23,18 @@ exports.Target = class Target
 		if not path.extname(@output).length and fs.statSync(@input).isFile()
 			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), @EXTENSION)
 
-		@_parseSources @input
+		@_parseSources(@input)
 
 	run: (compress, clean) ->
 		@compress = compress
 		if @sources.length
 			if clean
 				@sources = []
-				@_parseSources @input
-			term.out "building #{term.colour(path.basename(@input), term.GREY)} to #{term.colour(path.basename(@output), term.GREY)}", 2
+				@_parseSources(@input)
+			term.out("building #{term.colour(path.basename(@input), term.GREY)} to #{term.colour(path.basename(@output), term.GREY)}", 2)
 			@_build()
 		else
-			term.out "#{term.colour('warning', term.YELLOW)} no sources to build in #{term.colour(@input, term.GREY)}", 2
+			term.out("#{term.colour('warning', term.YELLOW)} no sources to build in #{term.colour(@input, term.GREY)}", 2)
 
 	hasSource: (file) ->
 		file in @sources
@@ -54,18 +54,18 @@ exports.Target = class Target
 		@sources.push(file) if file not in @sources and not @RE_PARTIAL.test(file.filename)
 
 	_makeDirectory: (filepath) ->
-		dir = path.dirname filepath
-		unless path.existsSync dir
+		dir = path.dirname(filepath)
+		unless path.existsSync(dir)
 			try
 				fs.statSync(dir).isDirectory()
 			catch error
 				if error.code is 'ENOENT'
 					@_makeDirectory(dir)
-					fs.mkdirSync dir, 0777
+					fs.mkdirSync(dir, 0777)
 
 	_notifyError: (filepath, error) ->
-		term.out "#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4
-		try growl.notify "error building #{filepath}: #{error}", {title: 'BUDDY'}
+		term.out("#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4)
+		try growl.notify("error building #{filepath}: #{error}", {title: 'BUDDY'})
 
 
 exports.JSTarget = class JSTarget extends Target
@@ -75,9 +75,10 @@ exports.JSTarget = class JSTarget extends Target
 	RE_TABS: /\t/gm
 	RE_DOUBLE_SEMI: /;;/gm
 	RE_HANGING_SEMI: /^\s+;/gm
+	RE_COMPILE_ERROR_LINE: /line\s(\d+)/gi
 
 	constructor: (input, output, cache, @nodejs = false, @parentTarget = null) ->
-		super input, output, cache
+		super(input, output, cache)
 		# Treat nodejs targets as batch targets since concatenation does not apply
 		@batch = true if @nodejs
 
@@ -88,13 +89,13 @@ exports.JSTarget = class JSTarget extends Target
 		if file.dependencies.length
 			for dependency in file.dependencies
 				if dep = @cache.byModule[dependency] or @cache.byModule["#{dependency}/index"]
-					@_addSource dep
+					@_addSource(dep)
 				else
-					term.out "#{term.colour('warning', term.YELLOW)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(file.module, term.GREY)} not found", 4
+					term.out("#{term.colour('warning', term.YELLOW)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(file.module, term.GREY)} not found", 4)
 		# Flag file as entry point
 		file.main = true if file.filepath is @input and not @batch
 		# Store
-		super file
+		super(file)
 
 	_build: () ->
 		# Build individual files
@@ -130,16 +131,40 @@ exports.JSTarget = class JSTarget extends Target
 	_compile: (content, filepath) ->
 		try
 			# Compile without function wrapper
-			return coffee.compile(content, {bare: true})
+			coffee.compile(content, {bare: true})
 		catch error
-			@_notifyError(filepath, error)
-			# TODO: output code snippit containing error
-			return null
-
+			# Parse out error code block
+			if @batch
+				@_notifyError(error, content, filepath)
+			else
+				# Unwind concatenated content
+				for f in @sources
+					# Test each file to find error
+					content = f.wrap(f.contents, !f.compile, true)
+					try
+						coffee.compile(content, {bare: true})
+					catch error
+						@_notifyError(error, content, f.filepath)
+			null
+	
+	_notifyError: (error, content, filepath) ->
+		super(filepath, error)
+		# Parse line number
+		if match = @RE_COMPILE_ERROR_LINE.exec(error)
+			lineNo = +match[1]
+			# Print 5 lines before and after error line
+			lines = content.split('\n')
+			for line, i in lines[lineNo-6..lineNo+5]
+				l = lineNo-5+i
+				if l is lineNo
+					term.out("#{term.colour(' >' + l + ' ' + line, term.RED)}", 4)
+				else
+					term.out("#{term.colour(l + ' ' + line, term.GREY)}", 5)
+	
 	_writeFile: (content, filepath, header) ->
 		# Create directory if missing
-		@_makeDirectory filepath
-		term.out "#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
+		@_makeDirectory(filepath)
+		term.out("#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4)
 		if @compress
 			@_compress(filepath, content, header)
 		else
@@ -151,21 +176,22 @@ exports.JSTarget = class JSTarget extends Target
 		jsp = uglify.parser
 		pro = uglify.uglify
 		# Compress
-		ast = jsp.parse contents
-		ast = pro.ast_mangle ast
-		ast = pro.ast_squeeze ast
-		compressed = pro.gen_code ast
+		ast = jsp.parse(contents)
+		ast = pro.ast_mangle(ast)
+		ast = pro.ast_squeeze(ast)
+		compressed = pro.gen_code(ast)
 		# Write file with header
 		compressed = @_addHeader(compressed) if header
-		fs.writeFileSync filepath, compressed
-		term.out "#{term.colour('compressed', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
-
+		fs.writeFileSync(filepath, compressed)
+		term.out("#{term.colour('compressed', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4)
+	
 	_wrap: (contents) ->
 		"""
 		(function () {
 		#{contents.replace(file.JSFile::RE_LINE_BEGIN, '  ')}
 		}).call(this);
 		"""
+	
 	_clean: (contents) ->
 		# Replace tabs with spaces
 		contents = contents.replace(@RE_TABS, '  ')
@@ -173,7 +199,7 @@ exports.JSTarget = class JSTarget extends Target
 		contents = contents.replace(@RE_DOUBLE_SEMI, ';')
 		contents = contents.replace(@RE_HANGING_SEMI, '')
 		contents
-
+	
 	_addHeader: (content) ->
 		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"
 
@@ -182,7 +208,7 @@ exports.CSSTarget = class CSSTarget extends Target
 	EXTENSION: '.css'
 
 	constructor: (input, output, cache) ->
-		super input, output, cache
+		super(input, output, cache)
 
 	_build: ->
 		if @batch
@@ -198,7 +224,7 @@ exports.CSSTarget = class CSSTarget extends Target
 
 	_compile: (content, filepath, extension) ->
 		# Compile Stylus file
-		if file.CSSFile::RE_STYLUS_EXT.test extension
+		if file.CSSFile::RE_STYLUS_EXT.test(extension)
 			stylc = stylus(content).set('paths', @cache.locations.concat())
 			stylc.set('compress', true) if @compress
 			stylc.render (error, css) =>
@@ -206,21 +232,21 @@ exports.CSSTarget = class CSSTarget extends Target
 					@_notifyError(filepath, error)
 					return null
 				else
-					return @_writeFile css, filepath
+					return @_writeFile(css, filepath)
 		# Compile Less file
-		else if file.CSSFile::RE_LESS_EXT.test extension
+		else if file.CSSFile::RE_LESS_EXT.test(extension)
 			parser = new less.Parser {paths: @cache.locations.concat()}
 			parser.parse content, (error, tree) =>
 				if error
 					@_notifyError(filepath, error)
 					return null
 				else
-					return @_writeFile tree.toCSS({compress: @compress}), filepath
+					return @_writeFile(tree.toCSS({compress: @compress}), filepath)
 
 	_writeFile: (content, filepath) ->
 		# Create directory if missing
-		@_makeDirectory filepath
-		term.out "#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4
+		@_makeDirectory(filepath)
+		term.out("#{term.colour('built', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4)
 		fs.writeFileSync(filepath, content, 'utf8')
 		return true
 
