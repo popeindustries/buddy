@@ -72,6 +72,7 @@ exports.JSTarget = class JSTarget extends Target
 	BUILT_HEADER: '/*BUILT '
 	REQUIRE: 'require.js'
 	EXTENSION: '.js'
+	ERROR_LINE_NUMBER: 4
 	RE_TABS: /\t/gm
 	RE_DOUBLE_SEMI: /;;/gm
 	RE_HANGING_SEMI: /^\s+;/gm
@@ -151,13 +152,15 @@ exports.JSTarget = class JSTarget extends Target
 		super(filepath, error)
 		# Parse line number
 		if match = @RE_COMPILE_ERROR_LINE.exec(error)
-			lineNo = +match[1]
-			# Print 5 lines before and after error line
+			lineNo = +match[1] - 1
+			# Print lines before and after error line
 			lines = content.split('\n')
-			for line, i in lines[lineNo-6..lineNo+5]
-				l = lineNo-5+i
-				if l is lineNo
-					term.out("#{term.colour(' >' + l + ' ' + line, term.RED)}", 4)
+			low = Math.max(lineNo-@ERROR_LINE_NUMBER, 0)
+			high = Math.min(lineNo+@ERROR_LINE_NUMBER, lines.length-1)
+			l = low
+			for line in lines[low..high]
+				if l++ is lineNo
+					term.out("#{term.colour('> ' + l + ' ' + line, term.RED)}", 4)
 				else
 					term.out("#{term.colour(l + ' ' + line, term.GREY)}", 5)
 	
