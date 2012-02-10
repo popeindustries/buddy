@@ -20,7 +20,9 @@ exports.JSFile = class JSFile extends File
 	RE_INDENT_WHITESPACE: /(^\t|^ +)\S/m
 	RE_LINE_BEGIN: /^/gm
 	RE_UPPERCASE: /[A-Z]/
-	RE_REQUIRE: /^(?=.*?require\s*\(?\s*['|"]([^'"]*))(?:(?!#|(?:\/\/)).)*$/gm
+	RE_COMMENT_LINES: /^\s*(?:\/\/|#).+$/gm
+	# RE_REQUIRE: /^(?=.*?require\s*\(?\s*['|"]([^'"]*))(?:(?!#|(?:\/\/)).)*$/gm
+	RE_REQUIRE: /require[\s|\(]['|"](.*?)['|"]/g
 	RE_MODULE: /^(?:require\.)?module\s*\(?\s*['|"].+module, ?exports, ?require\s*\)/gm
 	RE_WIN_SEPARATOR: /\\\\?/g
 	
@@ -83,7 +85,9 @@ exports.JSFile = class JSFile extends File
 	_getModuleDependencies: ->
 		deps = []
 		# Match all uses of 'require' and parse path
-		while match = @RE_REQUIRE.exec @contents
+		# Remove commented lines
+		contents = @contents.replace(@RE_COMMENT_LINES, '')
+		while match = @RE_REQUIRE.exec contents
 			dep = match[1]
 			parts = dep.split '/'
 			# Resolve relative path
