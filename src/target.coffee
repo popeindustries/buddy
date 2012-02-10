@@ -199,8 +199,8 @@ exports.JSTarget = class JSTarget extends Target
 		# Replace tabs with spaces
 		contents = contents.replace(@RE_TABS, '  ')
 		# Remove unwanted semicolons from coffeescript compilation
-		contents = contents.replace(@RE_DOUBLE_SEMI, ';')
-		contents = contents.replace(@RE_HANGING_SEMI, '')
+		# contents = contents.replace(@RE_DOUBLE_SEMI, ';')
+		# contents = contents.replace(@RE_HANGING_SEMI, '')
 		contents
 	
 	_addHeader: (content) ->
