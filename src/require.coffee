@@ -6,7 +6,8 @@
 		# Instantiate the module if it's export object is not yet defined
 		unless m.exports
 			m.exports = {}
-			m.call m.exports, m, m.exports, require.bind(path)
+			m.filename = path
+			m.call(m.exports, m, m.exports, require.bind(path))
 		# Return the export object
 		m.exports
 
