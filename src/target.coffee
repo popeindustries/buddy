@@ -116,9 +116,11 @@ exports.JSTarget = class JSTarget extends Target
 		else
 			contents = []
 			# Always use module contents since concatenation won't work in node.js anyway
-			contents.push(f.wrap(f.contents, !f.compile, true)) for f in @sources
+			# contents.push(f.wrap(f.contents, !f.compile, true)) for f in @sources
+			contents.push(f.wrap((if f.compile then @_compile(f.contents, f.filepath) else f.contents), true, false)) for f in @sources
 			# Concatenate and compile
-			content = @_compile(contents.join('\n\n'), @output)
+			# content = @_compile(contents.join('\n\n'), @output)
+			content = contents.join('\n\n')
 			if content?
 				# Add require source unless this target is a child target or we are compiling for node
 				content = "#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}\n\n#{content}" unless @nodejs or @parentTarget
@@ -134,18 +136,19 @@ exports.JSTarget = class JSTarget extends Target
 			# Compile without function wrapper
 			coffee.compile(content, {bare: true})
 		catch error
+			@_notifyError(error, content, filepath)
 			# Parse out error code block
-			if @batch
-				@_notifyError(error, content, filepath)
-			else
-				# Unwind concatenated content
-				for f in @sources
-					# Test each file to find error
-					content = f.wrap(f.contents, !f.compile, true)
-					try
-						coffee.compile(content, {bare: true})
-					catch error
-						@_notifyError(error, content, f.filepath)
+			# if @batch
+				# @_notifyError(error, content, filepath)
+			# else
+			# 	# Unwind concatenated content
+			# 	for f in @sources
+			# 		# Test each file to find error
+			# 		content = f.wrap(f.contents, !f.compile, true)
+			# 		try
+			# 			coffee.compile(content, {bare: true})
+			# 		catch error
+			# 			@_notifyError(error, content, f.filepath)
 			null
 	
 	_notifyError: (error, content, filepath) ->
