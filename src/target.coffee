@@ -73,9 +73,8 @@ exports.JSTarget = class JSTarget extends Target
 	REQUIRE: 'require.js'
 	EXTENSION: '.js'
 	ERROR_LINE_NUMBER: 4
-	RE_TABS: /\t/gm
-	RE_DOUBLE_SEMI: /;;/gm
-	RE_HANGING_SEMI: /^\s+;/gm
+	# RE_TABS: /\t/gm
+	# RE_BROKEN_REQUIRE: /^\s*r equire/gm
 	RE_COMPILE_ERROR_LINE: /line\s(\d+)/gi
 
 	constructor: (input, output, cache, @nodejs = false, @parentTarget = null) ->
@@ -124,7 +123,8 @@ exports.JSTarget = class JSTarget extends Target
 				# Add require source unless this target is a child target or we are compiling for node
 				content = "#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}\n\n#{content}" unless @nodejs or @parentTarget
 				# Clean, wrap, and write file with header
-				@_writeFile(@_wrap(@_clean(content)), @output, true)
+				# @_writeFile(@_wrap(@_clean(content)), @output, true)
+				@_writeFile(@_wrap(content), @output, true)
 				return true
 			else
 				return null
@@ -197,7 +197,8 @@ exports.JSTarget = class JSTarget extends Target
 	
 	_clean: (contents) ->
 		# Replace tabs with spaces
-		contents = contents.replace(@RE_TABS, '  ')
+		# contents = contents.replace(@RE_TABS, '  ')
+		# contents = contents.replace(@RE_BROKEN_REQUIRE, 'require')
 		# Remove unwanted semicolons from coffeescript compilation
 		# contents = contents.replace(@RE_DOUBLE_SEMI, ';')
 		# contents = contents.replace(@RE_HANGING_SEMI, '')
