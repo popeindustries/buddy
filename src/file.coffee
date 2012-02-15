@@ -1,10 +1,10 @@
-fs = require 'fs'
-path = require 'path'
+fs = require('fs')
+path = require('path')
 {log} = console
 
 exports.File = class File
 	constructor: (@type, @filepath, @base) ->
-		@filename = path.basename @filepath
+		@filename = path.basename(@filepath)
 		@name = path.relative(@base, @filepath).replace(path.extname(@filename), '')
 		@contents = null
 		@compile = false
@@ -28,43 +28,29 @@ exports.JSFile = class JSFile extends File
 	
 	constructor: (type, filepath, base, contents) ->
 		super type, filepath, base
-		@compile = @RE_COFFEE_EXT.test @filepath
+		@compile = @RE_COFFEE_EXT.test(@filepath)
 		@module = @_getModuleName()
 		# Build target entry point flag
 		@main = false
-		@updateContents contents or fs.readFileSync(@filepath, 'utf8')
+		@updateContents(contents) or fs.readFileSync(@filepath, 'utf8')
 	
 	updateContents: (contents) ->
-		# Escape js content for the coffeescript compiler
-		# @contents = if @compile then contents else "`#{contents}`"
 		@contents = contents
 		@dependencies = @_getModuleDependencies()
 	
-	wrap: (contents, isJS, escape) ->
+	wrap: (contents) ->
 		# Wrap content in module definition if it doesn't already have a wrapper
-		unless @RE_MODULE.test contents
+		unless @RE_MODULE.test(contents)
 			# Find the currently used indent style
-			indent = contents.match(@RE_INDENT_WHITESPACE)?[1] or '\t'
-			unless isJS
-				contents = 
+			indent = contents.match(@RE_INDENT_WHITESPACE)?[1] or '  '
+			contents =
 					"""
-					require.module '#{@module}', (module, exports, require) ->
-					#{contents.replace(@RE_LINE_BEGIN, indent)}
-					
-					#{if @main then "require('" + @module + "')" else ''}
-					"""
-			else
-				contents =
-					"""
-					#{if escape then '`' else ''}require.module('#{@module}', function(module, exports, require) {
+					require.module('#{@module}', function(module, exports, require) {
 					#{contents.replace(@RE_LINE_BEGIN, indent)}
 					});
 					
-					#{if @main then "require('" + @module + "');" else ''}#{if escape then '`' else ''}
+					#{if @main then "require('" + @module + "');" else ''}
 					"""
-		else
-			# Be sure to escape if js
-			contents = "`#{contents}`" if isJS and escape
 		contents
 	
 	_getModuleName: ->
@@ -73,9 +59,9 @@ exports.JSFile = class JSFile extends File
 		if process.platform is 'win32'
 			module = module.replace(@RE_WIN_SEPARATOR, '/')
 		# Convert uppercase letters to lowercase, adding _ where appropriate
-		if @RE_UPPERCASE.test @name
+		if @RE_UPPERCASE.test(@name)
 			letters = Array::map.call module, (l, i, arr) =>
-				if @RE_UPPERCASE.test l
+				if @RE_UPPERCASE.test(l)
 					return (if (i>0 and arr[i-1] isnt '/') then '_' else '') + l.toLowerCase()
 				else
 					return l
@@ -87,17 +73,17 @@ exports.JSFile = class JSFile extends File
 		# Match all uses of 'require' and parse path
 		# Remove commented lines
 		contents = @contents.replace(@RE_COMMENT_LINES, '')
-		while match = @RE_REQUIRE.exec contents
+		while match = @RE_REQUIRE.exec(contents)
 			dep = match[1]
-			parts = dep.split '/'
+			parts = dep.split('/')
 			# Resolve relative path
 			if dep.charAt(0) is '.'
-				parts = @module.split '/'
+				parts = @module.split('/')
 				parts.pop()
-				for part in dep.split '/'
+				for part in dep.split('/')
 					if part is '..' then parts.pop()
 					else unless part is '.' then parts.push(part)
-			deps.push parts.join '/'
+			deps.push parts.join('/')
 		deps
 	
 
@@ -106,8 +92,8 @@ exports.CSSFile = class CSSFile extends File
 	RE_LESS_EXT: /\.less$/
 
 	constructor: (type, filepath, base) ->
-		super type, filepath, base
+		super(type, filepath, base)
 		# Only compileable sources are valid
 		@compile = true
-		@updateContents fs.readFileSync(@filepath, 'utf8')
+		@updateContents(fs.readFileSync(@filepath, 'utf8'))
 	
