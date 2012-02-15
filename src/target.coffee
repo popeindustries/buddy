@@ -73,8 +73,7 @@ exports.JSTarget = class JSTarget extends Target
 	REQUIRE: 'require.js'
 	EXTENSION: '.js'
 	ERROR_LINE_NUMBER: 4
-	# RE_TABS: /\t/gm
-	# RE_BROKEN_REQUIRE: /^\s*r equire/gm
+	RE_COFFEE_HELPERS: /^(\s+)(__\w*)\s=\s(.+)(,|;)$/gm
 	RE_COMPILE_ERROR_LINE: /line\s(\d+)/gi
 
 	constructor: (input, output, cache, @nodejs = false, @parentTarget = null) ->
@@ -112,21 +111,20 @@ exports.JSTarget = class JSTarget extends Target
 					# No header in this case since no concatenation
 					@_writeFile(content, filepath, false)
 			return true
-		# Concatenate source and compile
+		# Compile and concatenate sources
 		else
 			contents = []
-			# Always use module contents since concatenation won't work in node.js anyway
-			# contents.push(f.wrap(f.contents, !f.compile, true)) for f in @sources
-			contents.push(f.wrap((if f.compile then @_compile(f.contents, f.filepath) else f.contents), true, false)) for f in @sources
-			# Concatenate and compile
-			# content = @_compile(contents.join('\n\n'), @output)
+			for f in @sources
+				# Compile if necessary
+				c = if f.compile then @_compile(f.contents, f.filepath) else f.contents
+				# Always wrap contents since concatenation won't work in node.js anyway
+				contents.push(f.wrap(c, true, false)) 
 			content = contents.join('\n\n')
 			if content?
 				# Add require source unless this target is a child target or we are compiling for node
 				content = "#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}\n\n#{content}" unless @nodejs or @parentTarget
-				# Clean, wrap, and write file with header
-				# @_writeFile(@_wrap(@_clean(content)), @output, true)
-				@_writeFile(@_wrap(content), @output, true)
+				# Wrap, and write file with header
+				@_writeFile(@_optimizeAndWrap(content), @output, true)
 				return true
 			else
 				return null
@@ -136,37 +134,22 @@ exports.JSTarget = class JSTarget extends Target
 			# Compile without function wrapper
 			coffee.compile(content, {bare: true})
 		catch error
-			@_notifyError(error, content, filepath)
-			# Parse out error code block
-			# if @batch
-				# @_notifyError(error, content, filepath)
-			# else
-			# 	# Unwind concatenated content
-			# 	for f in @sources
-			# 		# Test each file to find error
-			# 		content = f.wrap(f.contents, !f.compile, true)
-			# 		try
-			# 			coffee.compile(content, {bare: true})
-			# 		catch error
-			# 			@_notifyError(error, content, f.filepath)
+			@_notifyError(filepath, error)
+			# Parse line number
+			if match = @RE_COMPILE_ERROR_LINE.exec(error)
+				lineNo = +match[1] - 1
+				# Print lines before and after error line
+				lines = content.split('\n')
+				low = Math.max(lineNo-@ERROR_LINE_NUMBER, 0)
+				high = Math.min(lineNo+@ERROR_LINE_NUMBER, lines.length-1)
+				l = low
+				for line in lines[low..high]
+					if l++ is lineNo
+						term.out("#{term.colour('> ' + l + ' ' + line, term.RED)}", 4)
+					else
+						term.out("#{term.colour(l + ' ' + line, term.GREY)}", 5)
 			null
-	
-	_notifyError: (error, content, filepath) ->
-		super(filepath, error)
-		# Parse line number
-		if match = @RE_COMPILE_ERROR_LINE.exec(error)
-			lineNo = +match[1] - 1
-			# Print lines before and after error line
-			lines = content.split('\n')
-			low = Math.max(lineNo-@ERROR_LINE_NUMBER, 0)
-			high = Math.min(lineNo+@ERROR_LINE_NUMBER, lines.length-1)
-			l = low
-			for line in lines[low..high]
-				if l++ is lineNo
-					term.out("#{term.colour('> ' + l + ' ' + line, term.RED)}", 4)
-				else
-					term.out("#{term.colour(l + ' ' + line, term.GREY)}", 5)
-	
+		
 	_writeFile: (content, filepath, header) ->
 		# Create directory if missing
 		@_makeDirectory(filepath)
@@ -191,21 +174,20 @@ exports.JSTarget = class JSTarget extends Target
 		fs.writeFileSync(filepath, compressed)
 		term.out("#{term.colour('compressed', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4)
 	
-	_wrap: (contents) ->
+	_optimizeAndWrap: (contents) ->
+		# Replace and store all cs global expressions ('__bind', etc)
+		snippets = {}
+		replaceSnippet = (str, p1, p2, p3, p4) ->
+			snippets[p2] = p3.replace('__', '___')
+			"#{p1}#{p2} = _#{p2}#{p4}"
+		contents = contents.replace(@RE_COFFEE_HELPERS, replaceSnippet)
+		# Hoist expressions to top and wrap
 		"""
 		(function () {
+		#{(('  var _' + snippet + ' = ' + expr) for snippet, expr of snippets).join(';\n')};
 		#{contents.replace(file.JSFile::RE_LINE_BEGIN, '  ')}
 		}).call(this);
 		"""
-	
-	_clean: (contents) ->
-		# Replace tabs with spaces
-		# contents = contents.replace(@RE_TABS, '  ')
-		# contents = contents.replace(@RE_BROKEN_REQUIRE, 'require')
-		# Remove unwanted semicolons from coffeescript compilation
-		# contents = contents.replace(@RE_DOUBLE_SEMI, ';')
-		# contents = contents.replace(@RE_HANGING_SEMI, '')
-		contents
 	
 	_addHeader: (content) ->
 		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"
