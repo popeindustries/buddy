@@ -185,9 +185,10 @@ exports.JSTarget = class JSTarget extends Target
 		"""
 		(function () {
 		#{(('  var _' + snippet + ' = ' + expr) for snippet, expr of snippets).join(';\n')};
-		#{contents.replace(file.JSFile::RE_LINE_BEGIN, '  ')}
+		#{contents}
 		}).call(this);
 		"""
+		#{contents.replace(file.JSFile::RE_LINE_BEGIN, '  ')}
 	
 	_addHeader: (content) ->
 		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"
