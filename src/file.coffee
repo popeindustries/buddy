@@ -42,11 +42,11 @@ exports.JSFile = class JSFile extends File
 		# Wrap content in module definition if it doesn't already have a wrapper
 		unless @RE_MODULE.test(contents)
 			# Find the currently used indent style
-			indent = contents.match(@RE_INDENT_WHITESPACE)?[1] or '  '
+			# indent = contents.match(@RE_INDENT_WHITESPACE)?[1] or '  '
 			contents =
 					"""
 					require.module('#{@module}', function(module, exports, require) {
-					#{contents.replace(@RE_LINE_BEGIN, indent)}
+					#{contents}
 					});
 					
 					#{if @main then "require('" + @module + "');" else ''}
