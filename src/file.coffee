@@ -9,10 +9,10 @@ exports.File = class File
 		@contents = null
 		@compile = false
 		@lastChange = null
-	
+
 	updateContents: (contents) ->
 		@contents = contents
-	
+
 
 exports.JSFile = class JSFile extends File
 	RE_COFFEE_EXT: /\.coffee$/
@@ -25,7 +25,7 @@ exports.JSFile = class JSFile extends File
 	RE_REQUIRE: /require[\s|\(]['|"](.*?)['|"]/g
 	RE_MODULE: /^(?:require\.)?module\s*\(?\s*['|"].+module, ?exports, ?require\s*\)/gm
 	RE_WIN_SEPARATOR: /\\\\?/g
-	
+
 	constructor: (type, filepath, base, contents) ->
 		super type, filepath, base
 		@compile = @RE_COFFEE_EXT.test(@filepath)
@@ -33,11 +33,11 @@ exports.JSFile = class JSFile extends File
 		# Build target entry point flag
 		@main = false
 		@updateContents(contents) or fs.readFileSync(@filepath, 'utf8')
-	
+
 	updateContents: (contents) ->
 		@contents = contents
 		@dependencies = @_getModuleDependencies()
-	
+
 	wrap: (contents) ->
 		# Wrap content in module definition if it doesn't already have a wrapper
 		unless @RE_MODULE.test(contents)
@@ -48,11 +48,11 @@ exports.JSFile = class JSFile extends File
 					require.module('#{@module}', function(module, exports, require) {
 					#{contents}
 					});
-					
+
 					#{if @main then "require('" + @module + "');" else ''}
 					"""
 		contents
-	
+
 	_getModuleName: ->
 		module = path.relative(@base, @filepath).replace(path.extname(@filename), '')
 		# Fix path separator for windows
@@ -67,12 +67,12 @@ exports.JSFile = class JSFile extends File
 					return l
 			module = letters.join().replace(/,/g, '')
 		module
-	
+
 	_getModuleDependencies: ->
 		deps = []
-		# Match all uses of 'require' and parse path
 		# Remove commented lines
 		contents = @contents.replace(@RE_COMMENT_LINES, '')
+		# Match all uses of 'require' and parse path
 		while match = @RE_REQUIRE.exec(contents)
 			dep = match[1]
 			parts = dep.split('/')
@@ -85,7 +85,7 @@ exports.JSFile = class JSFile extends File
 					else unless part is '.' then parts.push(part)
 			deps.push parts.join('/')
 		deps
-	
+
 
 exports.CSSFile = class CSSFile extends File
 	RE_STYLUS_EXT: /\.styl$/
@@ -96,4 +96,3 @@ exports.CSSFile = class CSSFile extends File
 		# Only compileable sources are valid
 		@compile = true
 		@updateContents(fs.readFileSync(@filepath, 'utf8'))
-	

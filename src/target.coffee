@@ -81,16 +81,18 @@ exports.JSTarget = class JSTarget extends Target
 		# Treat nodejs targets as batch targets since concatenation does not apply
 		@batch = true if @nodejs
 
-	_addSource: (file) ->
+	_addSource: (file, dependantFile) ->
 		# If this target has a parent, make sure we don't duplicate sources
 		return if @parentTarget?.hasSource(file)
 		# First add dependencies
 		if file.dependencies.length
 			for dependency in file.dependencies
-				if dep = @cache.byModule[dependency] or @cache.byModule["#{dependency}/index"]
-					@_addSource(dep)
-				else
-					term.out("#{term.colour('warning', term.YELLOW)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(file.module, term.GREY)} not found", 4)
+				# Guard against circular dependancy
+				if dependantFile?.module isnt dependency
+					if dep = @cache.byModule[dependency] or @cache.byModule["#{dependency}/index"]
+						@_addSource(dep, file)
+					else
+						term.out("#{term.colour('warning', term.YELLOW)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(file.module, term.GREY)} not found", 4)
 		# Flag file as entry point
 		file.main = true if file.filepath is @input and not @batch
 		# Store
@@ -118,7 +120,7 @@ exports.JSTarget = class JSTarget extends Target
 				# Compile if necessary
 				c = if f.compile then @_compile(f.contents, f.filepath) else f.contents
 				# Always wrap contents since concatenation won't work in node.js anyway
-				contents.push(f.wrap(c, true, false)) 
+				contents.push(f.wrap(c, true, false))
 			content = contents.join('\n\n')
 			if content?
 				# Add require source unless this target is a child target or we are compiling for node
@@ -149,7 +151,7 @@ exports.JSTarget = class JSTarget extends Target
 					else
 						term.out("#{term.colour(l + ' ' + line, term.GREY)}", 5)
 			null
-		
+
 	_writeFile: (content, filepath, header) ->
 		# Create directory if missing
 		@_makeDirectory(filepath)
@@ -173,7 +175,7 @@ exports.JSTarget = class JSTarget extends Target
 		compressed = @_addHeader(compressed) if header
 		fs.writeFileSync(filepath, compressed)
 		term.out("#{term.colour('compressed', term.GREEN)} #{term.colour(path.basename(filepath), term.GREY)}", 4)
-	
+
 	_optimizeAndWrap: (contents) ->
 		# Replace and store all cs global expressions ('__bind', etc)
 		snippets = {}
@@ -189,7 +191,7 @@ exports.JSTarget = class JSTarget extends Target
 		}).call(this);
 		"""
 		#{contents.replace(file.JSFile::RE_LINE_BEGIN, '  ')}
-	
+
 	_addHeader: (content) ->
 		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"
 
