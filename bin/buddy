@@ -43,10 +43,10 @@ var config = [
 ].join('\n');
 
 program
-	.version('0.3.8')
+	.version('0.3.9')
 	.usage('[options] <command> [path/to/buddy.json]>')
 	.option('-c, --compress', 'compress output for production deployment');
- 
+
 program
 	.command('compile [config]')
 	.description('compile js and css sources')
@@ -60,7 +60,7 @@ program
 	.action(function(config){
 		new Builder(program.version()).initialize(config).watch(program.compress);
 	});
- 
+
 program
 	.command('deploy [config]')
 	.description('compile compressed js and css sources')
