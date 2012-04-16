@@ -13,7 +13,8 @@
     "commander": "0.x.x"
   },
   "devDependencies": {
-		"vows": ">=0.5.13"
+    "should": "*",
+		"mocha": "1.x.x"
 	},
   "directories": {
 		"lib": "./lib"
@@ -23,7 +24,7 @@
 		"buddy": "./bin/buddy"
 	},
   "scripts": {
-		"test": "vows --spec"
+		"test": "mocha --compilers coffee:coffee-script --reporter spec --require should"
 	},
   "engines": {
     "node": ">=0.6.0"
