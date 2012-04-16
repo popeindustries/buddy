@@ -12,4 +12,4 @@ module.exports =
 		console.log("#{(new Array(indentLevel)).join('  ')}" + string) unless @silent
 
 	colour: (string, colourCode) ->
-		return if @nocolor then string else "\033[#{colourCode}m#{string}\033[0m"
+		return if @nocolor then string else '\\033[' + colourCode + 'm' + string + '\\033[0m'
