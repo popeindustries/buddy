@@ -17,13 +17,10 @@ exports.File = class File
 exports.JSFile = class JSFile extends File
 	RE_COFFEE_EXT: /\.coffee$/
 	RE_JS_EXT: /\.js$/
-	RE_INDENT_WHITESPACE: /(^\t|^ +)\S/m
-	RE_LINE_BEGIN: /^/gm
 	RE_UPPERCASE: /[A-Z]/
 	RE_COMMENT_LINES: /^\s*(?:\/\/|#).+$/gm
-	# RE_REQUIRE: /^(?=.*?require\s*\(?\s*['|"]([^'"]*))(?:(?!#|(?:\/\/)).)*$/gm
 	RE_REQUIRE: /require[\s|\(]['|"](.*?)['|"]/g
-	RE_MODULE: /^(?:require\.)?module\s*\(?\s*['|"].+module, ?exports, ?require\s*\)/gm
+	RE_MODULE: /^(?:require\.)?module\(\s*['|"].+module, ?exports, ?require\s*\)/g
 	RE_WIN_SEPARATOR: /\\\\?/g
 
 	constructor: (type, filepath, base, contents) ->
@@ -32,17 +29,15 @@ exports.JSFile = class JSFile extends File
 		@module = @_getModuleName()
 		# Build target entry point flag
 		@main = false
-		@updateContents(contents) or fs.readFileSync(@filepath, 'utf8')
+		@updateContents(contents or fs.readFileSync(@filepath, 'utf8'))
 
 	updateContents: (contents) ->
-		@contents = contents
+		super(contents)
 		@dependencies = @_getModuleDependencies()
 
 	wrap: (contents) ->
 		# Wrap content in module definition if it doesn't already have a wrapper
 		unless @RE_MODULE.test(contents)
-			# Find the currently used indent style
-			# indent = contents.match(@RE_INDENT_WHITESPACE)?[1] or '  '
 			contents =
 					"""
 					require.module('#{@module}', function(module, exports, require) {
@@ -54,12 +49,12 @@ exports.JSFile = class JSFile extends File
 		contents
 
 	_getModuleName: ->
-		module = path.relative(@base, @filepath).replace(path.extname(@filename), '')
+		module = @name
 		# Fix path separator for windows
 		if process.platform is 'win32'
 			module = module.replace(@RE_WIN_SEPARATOR, '/')
 		# Convert uppercase letters to lowercase, adding _ where appropriate
-		if @RE_UPPERCASE.test(@name)
+		if @RE_UPPERCASE.test(module)
 			letters = Array::map.call module, (l, i, arr) =>
 				if @RE_UPPERCASE.test(l)
 					return (if (i>0 and arr[i-1] isnt '/') then '_' else '') + l.toLowerCase()

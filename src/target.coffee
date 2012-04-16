@@ -61,7 +61,7 @@ exports.Target = class Target
 			catch error
 				if error.code is 'ENOENT'
 					@_makeDirectory(dir)
-					fs.mkdirSync(dir, 0777)
+					fs.mkdirSync(dir)
 
 	_notifyError: (filepath, error) ->
 		term.out("#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4)
@@ -108,7 +108,7 @@ exports.JSTarget = class JSTarget extends Target
 				content = if f.compile then @_compile(f.contents, filepath) else f.contents
 				if content?
 					# Wrap unless for node.js
-					content = f.wrap(content, true, false) unless @nodejs
+					content = f.wrap(content) unless @nodejs
 					# Output to file, compressing if necessary
 					# No header in this case since no concatenation
 					@_writeFile(content, filepath, false)
@@ -120,7 +120,7 @@ exports.JSTarget = class JSTarget extends Target
 				# Compile if necessary
 				c = if f.compile then @_compile(f.contents, f.filepath) else f.contents
 				# Always wrap contents since concatenation won't work in node.js anyway
-				contents.push(f.wrap(c, true, false))
+				contents.push(f.wrap(c))
 			content = contents.join('\n\n')
 			if content?
 				# Add require source unless this target is a child target or we are compiling for node
