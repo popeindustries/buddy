@@ -18,16 +18,18 @@ exports.File = class File
 exports.JSFile = class JSFile extends File
 	RE_COFFEE_EXT: /\.coffee$/
 	RE_JS_EXT: /\.js$/
-	RE_UPPERCASE: /[A-Z]/
+	RE_UPPERCASE: /[A-Z]/g
 	RE_COMMENT_LINES: /^\s*(?:\/\/|#).+$/gm
 	RE_REQUIRE: /require[\s|\(]['|"](.*?)['|"]/g
-	RE_MODULE: /^(?:require\.)?module\(\s*['|"].+module, ?exports, ?require\s*\)/g
+	# "require.module('name', function(module, exports, require) {"
+	RE_MODULE: /^require\.module\(.+function *\( *module *, *exports *, *require *\) *{/g
 	RE_WIN_SEPARATOR: /\\\\?/g
 
 	constructor: (type, filepath, base, contents) ->
 		super(type, filepath, base)
 		@compile = @RE_COFFEE_EXT.test(@filepath)
 		@module = @_getModuleName()
+		@dependencies = []
 		# Build target entry point flag
 		@main = false
 		@updateContents(contents or fs.readFileSync(@filepath, 'utf8'))
@@ -38,16 +40,16 @@ exports.JSFile = class JSFile extends File
 		@dependencies = @_getModuleDependencies()
 
 	# Wrap compiled content in module definition if it doesn't already have a wrapper
+	# Bootstrap if main entry point
 	wrap: (contents) ->
 		unless @RE_MODULE.test(contents)
 			contents =
-					"""
-					require.module('#{@module}', function(module, exports, require) {
-					#{contents}
-					});
-
-					#{if @main then "require('" + @module + "');" else ''}
-					"""
+				"""
+				require.module('#{@module}', function(module, exports, require) {
+				#{contents}
+				});
+				#{if @main then "require('" + @module + "');" else ''}
+				"""
 		contents
 
 	# Generate module name for this File
