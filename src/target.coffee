@@ -12,7 +12,6 @@ file = require('./file')
 {log} = console
 
 exports.Target = class Target
-	RE_PARTIAL: /^_/
 
 	constructor: (@input, @output, @cache) ->
 		@sources = []
@@ -51,7 +50,7 @@ exports.Target = class Target
 
 	_addSource: (file) ->
 		# Add source if not already added or not a partial
-		@sources.push(file) if file not in @sources and not @RE_PARTIAL.test(file.filename)
+		@sources.push(file) if file not in @sources
 
 	_makeDirectory: (filepath) ->
 		dir = path.dirname(filepath)
