@@ -25,19 +25,20 @@ exports.JSFile = class JSFile extends File
 	RE_WIN_SEPARATOR: /\\\\?/g
 
 	constructor: (type, filepath, base, contents) ->
-		super type, filepath, base
+		super(type, filepath, base)
 		@compile = @RE_COFFEE_EXT.test(@filepath)
 		@module = @_getModuleName()
 		# Build target entry point flag
 		@main = false
 		@updateContents(contents or fs.readFileSync(@filepath, 'utf8'))
 
+	# Store contents and parse dependencies
 	updateContents: (contents) ->
 		super(contents)
 		@dependencies = @_getModuleDependencies()
 
+	# Wrap compiled content in module definition if it doesn't already have a wrapper
 	wrap: (contents) ->
-		# Wrap content in module definition if it doesn't already have a wrapper
 		unless @RE_MODULE.test(contents)
 			contents =
 					"""
@@ -49,6 +50,7 @@ exports.JSFile = class JSFile extends File
 					"""
 		contents
 
+	# Generate module name for this File
 	_getModuleName: ->
 		module = @name
 		# Fix path separator for windows
@@ -64,6 +66,7 @@ exports.JSFile = class JSFile extends File
 			module = letters.join().replace(/,/g, '')
 		module
 
+	# Parse dependencies
 	_getModuleDependencies: ->
 		deps = []
 		# Remove commented lines
@@ -79,7 +82,7 @@ exports.JSFile = class JSFile extends File
 				for part in dep.split('/')
 					if part is '..' then parts.pop()
 					else unless part is '.' then parts.push(part)
-			deps.push parts.join('/')
+			deps.push(parts.join('/'))
 		deps
 
 

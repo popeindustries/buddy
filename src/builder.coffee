@@ -65,6 +65,7 @@ module.exports = class Builder
 				term.out("watching for changes in #{term.colour('['+@config[type].sources.join(', ')+']', term.GREY)}...", 2)
 				@_watchFile(file, compress) for path, file of @[type + 'Sources'].byPath
 
+	# Compile compressed
 	deploy: ->
 		@compile(true)
 
@@ -114,6 +115,7 @@ module.exports = class Builder
 	_validBuildType: (type) ->
 		@config[type]?.sources? and @config[type].sources.length >= 1 and @config[type].targets? and @config[type].targets.length >= 1
 
+	# Recursively cache all valid source files
 	_parseSourceDirectory: (dir, root, cache) ->
 		if root is null
 			# Store root directory for File module package resolution
@@ -132,6 +134,7 @@ module.exports = class Builder
 					cache.byModule[f.module] = f if f.module?
 					cache.count++
 
+	# Generate file instances based on type
 	_fileFactory: (filepath, base) ->
 		# Create JS file instance
 		if filepath.match(@RE_JS_SRC_EXT)
@@ -147,6 +150,7 @@ module.exports = class Builder
 
 		else return null
 
+	# Recursively cache all valid target instances by type
 	_parseTargets: (targets, type, parentTarget = null) ->
 		for item in targets
 			item.parent = parentTarget
@@ -155,6 +159,7 @@ module.exports = class Builder
 				# Recurse nested child targets
 				@_parseTargets(item.targets, type, t) if item.targets
 
+	# Validate and generate target instances based on type
 	_targetFactory: (type, options) ->
 		inputpath = path.resolve(@base, options.in)
 		outputpath = path.resolve(@base, options.out)
