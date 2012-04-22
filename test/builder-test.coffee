@@ -7,80 +7,84 @@ target = require '../lib/target'
 
 term.silent = true
 
-loadConfig = (builder, workingDir, configPath) ->
-	process.chdir(workingDir)
-	builder._loadConfig(builder._locateConfig(configPath))
-
 describe 'Builder', ->
 	describe '[config]', ->
 		beforeEach ->
 			@builder = new Builder()
 
 		describe 'loading config JSON file', ->
+			before ->
+				process.chdir(path.resolve(__dirname, 'fixtures/config'))
 			describe 'from a valid working directory', ->
 				it 'should return true', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config')).should.be.true
-			describe 'from an invalid working directory', ->
-				it 'should return false', ->
-					loadConfig(@builder, path.resolve(__dirname, '../../')).should.be.false
-			describe 'from a valid nested working directory', ->
-				it 'should return true', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config/nested')).should.be.true
-			describe 'with an invalid JSON format', ->
-				it 'should return false', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config'), 'buddy_bad.json').should.be.false
+					@builder._loadConfig(@builder._locateConfig()).should.be.true
 			describe 'with a valid file path', ->
 				it 'should return true', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config'), 'buddy.json').should.be.true
+					@builder._loadConfig(@builder._locateConfig('buddy.json')).should.be.true
+			describe 'with an invalid JSON format', ->
+				it 'should return false', ->
+					@builder._loadConfig(@builder._locateConfig('buddy_bad.json')).should.be.false
 			describe 'with an invalid file path', ->
 				it 'should return false', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config'), 'buddy_none.json').should.be.false
+					@builder._loadConfig(@builder._locateConfig('buddy_none.json')).should.be.false
 			describe 'with a valid directory path', ->
 				it 'should return true', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config')).should.be.true
+					@builder._loadConfig(@builder._locateConfig()).should.be.true
+			describe 'from a valid nested working directory', ->
+				it 'should return true', ->
+					process.chdir(path.resolve(__dirname, 'fixtures/config/nested'))
+					@builder._loadConfig(@builder._locateConfig()).should.be.true
+			describe 'from an invalid working directory', ->
+				it 'should return false', ->
+					process.chdir('/')
+					@builder._loadConfig(@builder._locateConfig()).should.be.false
 
 		describe 'validating build type', ->
+			before ->
+				process.chdir(path.resolve(__dirname, 'fixtures/config'))
 			describe 'with source, source length, target, target length', ->
 				it 'should return true', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config'), 'buddy.json')
+					@builder._loadConfig(@builder._locateConfig('buddy.json'))
 					@builder._validBuildType('js').should.be.true
 			describe 'without source', ->
 				it 'should return false', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config'), 'buddy_invalid_source.json')
+					@builder._loadConfig(@builder._locateConfig('buddy_invalid_source.json'))
 					@builder._validBuildType('js').should.be.false
 			describe 'without source length', ->
 				it 'should return false', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config'), 'buddy_invalid_source_length.json')
+					@builder._loadConfig(@builder._locateConfig('buddy_invalid_source_length.json'))
 					@builder._validBuildType('js').should.be.false
 			describe 'without target', ->
 				it 'should return false', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config'), 'buddy_invalid_target.json')
+					@builder._loadConfig(@builder._locateConfig('buddy_invalid_target.json'))
 					@builder._validBuildType('js').should.be.false
 			describe 'without target length', ->
 				it 'should return false', ->
-					loadConfig(@builder, path.resolve(__dirname, 'fixtures/config'), 'buddy_invalid_target_length.json')
+					@builder._loadConfig(@builder._locateConfig('buddy_invalid_target_length.json'))
 					@builder._validBuildType('js').should.be.false
 
 		describe 'parsing source directory', ->
+			before ->
+				process.chdir(path.resolve(__dirname, 'fixtures/init/source'))
 			describe 'with ignored files and folders', ->
 				it 'should result in a cache count of 0', ->
-					@builder._parseSourceDirectory(path.resolve(__dirname, 'fixtures/init/source/ignored'), null, @builder.jsSources)
+					@builder._parseSourceDirectory(path.resolve('ignored'), null, @builder.jsSources)
 					@builder.jsSources.count.should.equal(0)
 			describe 'with invalid files', ->
 				it 'should result in a cache count of 0', ->
-					@builder._parseSourceDirectory(path.resolve(__dirname, 'fixtures/init/source/invalid'), null, @builder.jsSources)
+					@builder._parseSourceDirectory(path.resolve('invalid'), null, @builder.jsSources)
 					@builder.jsSources.count.should.equal(0)
 			describe 'with a single built file', ->
 				it 'should result in a cache count of 0', ->
-					@builder._parseSourceDirectory(path.resolve(__dirname, 'fixtures/init/source/built'), null, @builder.jsSources)
+					@builder._parseSourceDirectory(path.resolve('built'), null, @builder.jsSources)
 					@builder.jsSources.count.should.equal(0)
 			describe 'with 1 source file', ->
 				it 'should result in a cache count of 1', ->
-					@builder._parseSourceDirectory(path.resolve(__dirname, 'fixtures/init/source/src'), null, @builder.jsSources)
+					@builder._parseSourceDirectory(path.resolve('src'), null, @builder.jsSources)
 					@builder.jsSources.count.should.equal(1)
 			describe 'with 1 source file and 2 nested source files', ->
 				it 'should result in a cache count of 3', ->
-					@builder._parseSourceDirectory(path.resolve(__dirname, 'fixtures/init/source/src-nested'), null, @builder.jsSources)
+					@builder._parseSourceDirectory(path.resolve('src-nested'), null, @builder.jsSources)
 					@builder.jsSources.count.should.equal(3)
 
 		describe 'parsing build target', ->
