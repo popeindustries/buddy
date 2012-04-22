@@ -5,6 +5,7 @@ path = require('path')
 exports.File = class File
 	constructor: (@type, @filepath, @base) ->
 		@filename = path.basename(@filepath)
+		# qualified base name, with path from source root
 		@name = path.relative(@base, @filepath).replace(path.extname(@filename), '')
 		@contents = null
 		@compile = false
