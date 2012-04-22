@@ -1,6 +1,5 @@
 {
 	"js": {
-		"sources": ["src/coffee"],
 		"targets": [
 			{
 				"in": "src/coffee/main.coffee",
