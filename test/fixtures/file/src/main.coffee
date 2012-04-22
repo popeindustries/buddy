@@ -1,9 +1,4 @@
-Nested = require './nested/nested'
-# Class = require './other/class'
+Class = require('./package/class')
+ClassCamelCase = require('./package/class_camel_case')
 
-nested = new Nested
-
-for item in [1,2,3,4,5]
-	item++
-	if item > 2
-		console.log 'item is really big', item
+instance = new Class
