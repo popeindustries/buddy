@@ -16,8 +16,10 @@ module.exports = class Builder
 	CSS: 'css'
 	RE_JS_SRC_EXT: /\.coffee$|\.js$/
 	RE_CSS_SRC_EXT: /\.styl$|\.less$/
-	RE_IGNORE_FILE: /^\.|[-|\.]min\.|svn|~$/
+	#starts with '.' or '_', contains '-min.' or '.min.', contains 'svn', contains '~'
+	RE_IGNORE_FILE: /^[\.|_]|[-|\.]min\.|svn|~$/
 	RE_BUILT_HEADER: /^\/\*BUILT/g
+	# 'c:\\' or 'c:\' or '/'
 	RE_ROOT: /^[a-zA-Z]\:\\\\?$|^\/$/
 
 	constructor: (version) ->
@@ -43,7 +45,7 @@ module.exports = class Builder
 				for type in [@JS, @CSS]
 					if @_validBuildType(type)
 						# Generate source cache
-						@_parseSourceFolder(path.resolve(@base, source), null, @[type + 'Sources']) for source in @config[type].sources
+						@_parseSourceDirectory(path.resolve(@base, source), null, @[type + 'Sources']) for source in @config[type].sources
 						# Generate build targets
 						@_parseTargets(@config[type].targets, type)
 				@initialized = true
@@ -67,7 +69,7 @@ module.exports = class Builder
 		@compile(true)
 
 	# Locate the config file
-	# Walks the directory tree if no file/directory passed
+	# Walks the directory tree if no file/directory specified
 	_locateConfig: (configpath) ->
 		if configpath
 			# Check that the supplied path is valid
@@ -108,11 +110,11 @@ module.exports = class Builder
 		else
 			return false
 
-	# Check that a given build type is described in the config settings
+	# Check that a given build type is properly described in the config settings
 	_validBuildType: (type) ->
-			@config[type] and @config[type].sources and @config[type].sources.length and @config[type].targets and @config[type].targets.length
+		@config[type]?.sources? and @config[type].sources.length >= 1 and @config[type].targets? and @config[type].targets.length >= 1
 
-	_parseSourceFolder: (dir, root, cache) ->
+	_parseSourceDirectory: (dir, root, cache) ->
 		if root is null
 			# Store root directory for File module package resolution
 			root = dir
@@ -122,21 +124,13 @@ module.exports = class Builder
 			unless item.match(@RE_IGNORE_FILE)
 				itempath = path.resolve(dir, item)
 				# Recurse child directory
-				@_parseSourceFolder(itempath, root, cache) if fs.statSync(itempath).isDirectory()
+				@_parseSourceDirectory(itempath, root, cache) if fs.statSync(itempath).isDirectory()
 
 				# Store File objects in cache
 				if f = @_fileFactory(itempath, root)
 					cache.byPath[f.filepath] = f
 					cache.byModule[f.module] = f if f.module?
 					cache.count++
-
-	_parseTargets: (targets, type, parentTarget = null) ->
-		for item in targets
-			item.parent = parentTarget
-			if t = @_targetFactory(type, item)
-				@[type + 'Targets'].push(t)
-				# Recurse nested child targets
-				@_parseTargets(item.targets, type, t) if item.targets
 
 	_fileFactory: (filepath, base) ->
 		# Create JS file instance
@@ -153,19 +147,27 @@ module.exports = class Builder
 
 		else return null
 
+	_parseTargets: (targets, type, parentTarget = null) ->
+		for item in targets
+			item.parent = parentTarget
+			if t = @_targetFactory(type, item)
+				@[type + 'Targets'].push(t)
+				# Recurse nested child targets
+				@_parseTargets(item.targets, type, t) if item.targets
+
 	_targetFactory: (type, options) ->
 		inputpath = path.resolve(@base, options.in)
 		outputpath = path.resolve(@base, options.out)
-		# Check that the input exists
+		# Abort if input doesn't exist
 		unless path.existsSync(inputpath)
 			term.out("#{term.colour('error', term.RED)} #{term.colour(options.in, term.GREY)} not found in project path", 2)
 			return null
-		# Check that input is included in sources
+		# Check that input exists in sources
 		for location in @[type + 'Sources'].locations
 			dir = if fs.statSync(inputpath).isDirectory() then inputpath else path.dirname(inputpath)
 			inSources = dir.indexOf(location) >= 0
 			break if inSources
-		# Abort if input isn't in sources
+		# Abort if input doesn't exist in sources
 		unless inSources
 			term.out("#{term.colour('error', term.RED)} #{term.colour(options.in, term.GREY)} not found in source path", 2)
 			return null
