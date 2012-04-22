@@ -103,5 +103,9 @@ describe 'Builder', ->
 				it 'should result in a target count of 1', ->
 					@builder._parseTargets([{'in': 'main.coffee', 'out': 'main.js'}], 'js')
 					@builder.jsTargets.length.should.equal(1)
+			describe 'with a valid target containing a valid child target', ->
+				it 'should result in a target count of 2', ->
+					@builder._parseTargets([{'in': 'main.coffee', 'out': 'main.js', 'targets':[{'in':'class', 'out':'../js'}]}], 'js')
+					@builder.jsTargets.length.should.equal(2)
 
 
