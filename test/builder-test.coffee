@@ -14,7 +14,7 @@ describe 'Builder', ->
 
 		describe 'loading config JSON file', ->
 			before ->
-				process.chdir(path.resolve(__dirname, 'fixtures/config'))
+				process.chdir(path.resolve(__dirname, 'fixtures/builder/config'))
 			describe 'from a valid working directory', ->
 				it 'should return true', ->
 					@builder._loadConfig(@builder._locateConfig()).should.be.true
@@ -32,7 +32,7 @@ describe 'Builder', ->
 					@builder._loadConfig(@builder._locateConfig()).should.be.true
 			describe 'from a valid nested working directory', ->
 				it 'should return true', ->
-					process.chdir(path.resolve(__dirname, 'fixtures/config/nested'))
+					process.chdir(path.resolve(__dirname, 'fixtures/builder/config/nested'))
 					@builder._loadConfig(@builder._locateConfig()).should.be.true
 			describe 'from an invalid working directory', ->
 				it 'should return false', ->
@@ -41,7 +41,7 @@ describe 'Builder', ->
 
 		describe 'validating build type', ->
 			before ->
-				process.chdir(path.resolve(__dirname, 'fixtures/config'))
+				process.chdir(path.resolve(__dirname, 'fixtures/builder/config'))
 			describe 'with source, source length, target, target length', ->
 				it 'should return true', ->
 					@builder._loadConfig(@builder._locateConfig('buddy.json'))
@@ -65,7 +65,7 @@ describe 'Builder', ->
 
 		describe 'parsing source directory', ->
 			before ->
-				process.chdir(path.resolve(__dirname, 'fixtures/init/source'))
+				process.chdir(path.resolve(__dirname, 'fixtures/builder/init/source'))
 			describe 'with ignored files and folders', ->
 				it 'should result in a cache count of 0', ->
 					@builder._parseSourceDirectory(path.resolve('ignored'), null, @builder.jsSources)
@@ -89,7 +89,7 @@ describe 'Builder', ->
 
 		describe 'parsing build target', ->
 			beforeEach ->
-				@builder.base = path.resolve(__dirname, 'fixtures/init/target')
+				@builder.base = path.resolve(__dirname, 'fixtures/builder/init/target')
 				@builder._parseSourceDirectory(@builder.base, null, @builder.jsSources)
 			describe 'with an input file that doesn`t exist', ->
 				it 'should result in a target count of 0', ->

@@ -21,7 +21,6 @@ exports.Target = class Target
 		# Resolve output file name for file>folder target
 		if not path.extname(@output).length and fs.statSync(@input).isFile()
 			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), @EXTENSION)
-
 		@_parseSources(@input)
 
 	run: (compress, clean) ->
@@ -38,6 +37,7 @@ exports.Target = class Target
 	hasSource: (file) ->
 		file in @sources
 
+	# Recursively add File objects from source cache based on filepath
 	_parseSources: (input) ->
 		# Fix for #1: check that input exists before stat
 		if path.existsSync(input)
@@ -49,9 +49,10 @@ exports.Target = class Target
 				@_parseSources(path.join(input, item)) for item in fs.readdirSync(input)
 
 	_addSource: (file) ->
-		# Add source if not already added or not a partial
+		# Add source if not already added
 		@sources.push(file) if file not in @sources
 
+	# mkdirp
 	_makeDirectory: (filepath) ->
 		dir = path.dirname(filepath)
 		unless path.existsSync(dir)
@@ -62,6 +63,7 @@ exports.Target = class Target
 					@_makeDirectory(dir)
 					fs.mkdirSync(dir)
 
+	# Ouput error to terminal and notify with growl
 	_notifyError: (filepath, error) ->
 		term.out("#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4)
 		try growl.notify("error building #{filepath}: #{error}", {title: 'BUDDY'})
