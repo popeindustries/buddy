@@ -13,6 +13,7 @@
     "commander": "0.x.x"
   },
   "devDependencies": {
+    "rimraf": "*",
     "should": "*",
 		"mocha": "1.x.x"
 	},
