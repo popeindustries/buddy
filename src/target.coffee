@@ -133,10 +133,10 @@ exports.JSTarget = class JSTarget extends Target
 				c = if f.compile then @_compile(f.contents, f.filepath) else f.contents
 				# Always wrap contents since concatenation won't work in node.js anyway
 				contents.push(f.wrap(c))
-			content = contents.join('\n\n')
+			content = contents.join('\n')
 			if content?
 				# Add require source unless this target is a child target or we are compiling for node
-				content = "#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}\n\n#{content}" unless @nodejs or @parentTarget
+				content = "#{fs.readFileSync(path.join(__dirname, @REQUIRE), 'utf8')}\n#{content}" unless @nodejs or @parentTarget
 				# Wrap, and write file with header
 				@_writeFile(@_optimizeAndWrap(content), @output, true)
 				return true
@@ -202,7 +202,6 @@ exports.JSTarget = class JSTarget extends Target
 		#{contents}
 		}).call(this);
 		"""
-		#{contents.replace(file.JSFile::RE_LINE_BEGIN, '  ')}
 
 	_addHeader: (content) ->
 		"#{@BUILT_HEADER}#{new Date().toString()}*/\n#{content}"
