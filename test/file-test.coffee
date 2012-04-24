@@ -7,14 +7,14 @@ describe 'file', ->
 
 	describe 'File Class', ->
 		describe 'an instance', ->
-			describe 'name', ->
+			describe 'name property', ->
 				it 'should match it`s location relative to the base source directory', ->
 					f = new file.File('js', path.resolve('src/package/Class.coffee'), path.resolve('src'))
 					f.name.should.equal('package/Class')
 
 	describe 'JSFile Class', ->
 		describe 'an instance', ->
-			describe 'module name', ->
+			describe 'module property', ->
 				it 'should be lowercase', ->
 					f = new file.JSFile('js', path.resolve('src/package/Class.coffee'), path.resolve('src'))
 					f.module.should.equal('package/class')
@@ -24,11 +24,11 @@ describe 'file', ->
 			describe 'with 2 dependencies', ->
 				it 'should result in a dependency count of 2', ->
 					f = new file.JSFile('js', path.resolve('src/main.coffee'), path.resolve('src'))
-					f.dependencies.length.should.equal(2)
+					f.dependencies.should.have.length(2)
 			describe 'with 1 commented out dependency', ->
 				it 'should result in a dependency count of 0', ->
 					f = new file.JSFile('js', path.resolve('src/package/Class.coffee'), path.resolve('src'))
-					f.dependencies.length.should.equal(0)
+					f.dependencies.should.have.length(0)
 			describe 'wrap()', ->
 				beforeEach ->
 					@f = new file.JSFile('js', path.resolve('src/main.coffee'), path.resolve('src'))
