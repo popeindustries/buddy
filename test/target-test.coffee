@@ -4,6 +4,16 @@ rimraf = require('rimraf')
 Builder = require('../lib/builder')
 target = require('../lib/target')
 
+gatherFiles = (dir, files) ->
+	files ||= []
+	for item in fs.readdirSync(dir)
+		p = path.resolve(dir, item)
+		if fs.statSync(p).isFile()
+			files.push(p)
+		else
+			gatherFiles(p, files)
+	files
+
 describe 'target', ->
 	beforeEach ->
 		process.chdir(path.resolve(__dirname, 'fixtures/target'))
@@ -75,21 +85,101 @@ describe 'target', ->
 			afterEach ->
 				@builder = null
 				rimraf.sync(path.resolve(@path + 'output'))
-			describe 'file target with a single coffee file', ->
-				it 'should build 1 js file', ->
-					@path = 'compile/project/'
-					@builder.initialize(@path + 'buddy_single-file.json')
-					@builder.compile()
-					path.existsSync(path.resolve(@path + '/output/Class.js')).should.be.true
-			describe 'file target with a single coffee file requiring 1 dependency', ->
-				beforeEach ->
-					@path = 'compile/project/'
-					@output = path.resolve(@path + '/output/ClassCamelCase.js')
-					@builder.initialize(@path + 'buddy_single-file-with-dependency.json')
-					@builder.compile()
-				it 'should build 1 js file', ->
-					path.existsSync(@output).should.be.true
-				it 'should contain 2 modules', ->
-					contents = fs.readFileSync(@output, 'utf8')
-					contents.should.include("require.module('package/class'")
-					contents.should.include("require.module('package/class_camel_case'")
+			describe 'file target', ->
+				describe 'with a single coffee file', ->
+					it 'should build 1 js file', ->
+						@path = 'compile/project/'
+						@builder.initialize(@path + 'buddy_single-file.json')
+						@builder.compile()
+						path.existsSync(@builder.jsTargets[0].output).should.be.true
+				describe 'with a single coffee file requiring 1 dependency', ->
+					beforeEach ->
+						@path = 'compile/project/'
+						@builder.initialize(@path + 'buddy_single-file-with-dependency.json')
+						@builder.compile()
+					it 'should build 1 js file', ->
+						path.existsSync(@builder.jsTargets[0].output).should.be.true
+					it 'should contain 2 modules', ->
+						contents = fs.readFileSync(@builder.jsTargets[0].output, 'utf8')
+						contents.should.include("require.module('package/class'")
+						contents.should.include("require.module('package/class_camel_case'")
+				describe 'with a single coffee file containing a module wrapper', ->
+					beforeEach ->
+						@path = 'compile/project/'
+						@builder.initialize(@path + 'buddy_single-file-with-wrapper.json')
+						@builder.compile()
+					it 'should build 1 js file', ->
+						path.existsSync(@builder.jsTargets[0].output).should.be.true
+					it 'should contain only 1 module wrapper', ->
+						contents = fs.readFileSync(@output, 'utf8')
+						contents.match(/require.module\('wrapped'/gm).should.have.length(1)
+				describe 'with a single stylus file', ->
+					it 'should build 1 css file', ->
+						@path = 'compile/project/'
+						@builder.initialize(@path + 'buddy_single-styl-file.json')
+						@builder.compile()
+						path.existsSync(@builder.cssTargets[0].output).should.be.true
+				describe 'with a single less file', ->
+					it 'should build 1 css file', ->
+						@path = 'compile/project/'
+						@builder.initialize(@path + 'buddy_single-less-file.json')
+						@builder.compile()
+						path.existsSync(@builder.cssTargets[0].output).should.be.true
+			describe 'directory target', ->
+				describe 'with 3 coffee files', ->
+					it 'should build 3 js files', ->
+						@path = 'compile/library/'
+						@builder.initialize(@path + 'buddy.json')
+						@builder.compile()
+						gatherFiles(@builder.jsTargets[0].output).should.have.length(3)
+				describe 'with 3 coffee files and the "nodejs" flag set', ->
+					it 'should build 3 js files without module wrappers', ->
+						@path = 'compile/library/'
+						@builder.initialize(@path + 'buddy-nodejs.json')
+						@builder.compile()
+						files = gatherFiles(@builder.jsTargets[0].output)
+						for f in files
+							fs.readFileSync(f, 'utf8').should.not.include('require.module(')
+				describe 'with 2 stylus files', ->
+					it 'should build 2 css files', ->
+						@path = 'compile/library/'
+						@builder.initialize(@path + 'buddy_styl.json')
+						@builder.compile()
+						gatherFiles(@builder.cssTargets[0].output).should.have.length(2)
+			describe 'project', ->
+				describe 'with a single coffee file and a stylus directory', ->
+					beforeEach ->
+						@path = 'compile/project/'
+						@builder.initialize(@path + 'buddy.json')
+						@builder.compile()
+					it 'should build 1 concatenated js file', ->
+						path.existsSync(@builder.jsTargets[0].output).should.be.true
+					it 'should build 2 css files', ->
+						gatherFiles(@builder.cssTargets[0].output).should.have.length(2)
+			describe 'complex project', ->
+				describe 'with 2 js targets and 1 child target sharing assets', ->
+					beforeEach ->
+						@path = 'compile/project-complex/'
+						@builder.initialize(@path + 'buddy.json')
+						@builder.compile()
+					it 'should build 3 concatenated js files'
+					it 'should build a child js file without require.js source'
+					it 'should build a child js file without source shared with it`s parent'
+			describe 'js project', ->
+				describe 'with a single js file requiring 1 dependency', ->
+					beforeEach ->
+						@path = 'compile/project-js/'
+						@builder.initialize(@path + 'buddy.json')
+						@builder.compile()
+					it 'should build 1 js file'
+					it 'should contain 2 modules'
+				describe 'with a single js file requiring 1 wrapped dependency', ->
+					beforeEach ->
+						@path = 'compile/project-js/'
+						@builder.initialize(@path + 'buddy_wrapped.json')
+						@builder.compile()
+					it 'should build 1 js file'
+					it 'should contain 2 modules'
+				describe 'with a directory of empty js files', ->
+					it 'should build 2 js files'
+
