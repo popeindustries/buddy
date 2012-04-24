@@ -1,0 +1,11 @@
+{
+	"js": {
+		"sources": ["src"],
+		"targets": [
+			{
+				"in": "src/main.js",
+				"out": "output"
+			}
+		]
+	}
+}

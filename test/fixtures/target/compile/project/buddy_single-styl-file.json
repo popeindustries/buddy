@@ -1,0 +1,11 @@
+{
+	"css": {
+		"sources": ["src/stylus"],
+		"targets": [
+			{
+				"in": "src/stylus/main.styl",
+				"out": "output/main.css"
+			}
+		]
+	}
+}

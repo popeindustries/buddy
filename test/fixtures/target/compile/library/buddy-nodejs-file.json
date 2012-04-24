@@ -1,0 +1,12 @@
+{
+	"js": {
+		"sources": ["src/coffee"],
+		"targets": [
+			{
+				"in": "src/coffee/lib1.coffee",
+				"out": "output",
+				"nodejs": true
+			}
+		]
+	}
+}

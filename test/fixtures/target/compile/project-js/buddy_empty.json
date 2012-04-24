@@ -1,0 +1,11 @@
+{
+	"js": {
+		"sources": ["src/empty"],
+		"targets": [
+			{
+				"in": "src/empty",
+				"out": "output/empty"
+			}
+		]
+	}
+}
