@@ -54,7 +54,7 @@ module.exports = class Builder
 	compile: (compress, types = [@JS, @CSS]) ->
 		for type in types
 			if @[type + 'Targets'].length
-				t.run(compress, @watching) for t in @[type + 'Targets']
+				t.run(compress) for t in @[type + 'Targets']
 
 	watch: (compress) ->
 		return unless fs.watch
@@ -155,6 +155,7 @@ module.exports = class Builder
 		for item in targets
 			item.parent = parentTarget
 			if t = @_targetFactory(type, item)
+				t.initialize()
 				@[type + 'Targets'].push(t)
 				# Recurse nested child targets
 				@_parseTargets(item.targets, type, t) if item.targets
@@ -204,5 +205,6 @@ module.exports = class Builder
 					term.out("[#{new Date().toLocaleTimeString()}] change detected in #{term.colour(file.filename, term.GREY)}", 0)
 					# Update contents
 					file.updateContents(fs.readFileSync(file.filepath, 'utf8'))
+					# TODO: re-initialize targets
 					@compile(compress, [file.type])
 

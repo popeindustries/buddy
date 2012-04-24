@@ -14,21 +14,26 @@ file = require('./file')
 exports.Target = class Target
 
 	constructor: (@input, @output, @cache) ->
-		@sources = []
 		@compress = false
-		# Batch output if input is a folder
-		@batch = fs.statSync(@input).isDirectory()
-		# Resolve output file name for file>folder target
-		if not path.extname(@output).length and fs.statSync(@input).isFile()
-			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), @EXTENSION)
-		@_parseSources(@input)
+		@batch = null
+		@sources = []
 
-	run: (compress, clean) ->
-		@compress = compress
+	initialize: ->
+		if @_validInput(@input)
+			@sources = []
+			# Batch output if input is a folder and not already set
+			if @batch is null
+				@batch = fs.statSync(@input).isDirectory()
+			# Resolve output file name for file>folder target
+			if not path.extname(@output).length and fs.statSync(@input).isFile()
+				@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), @EXTENSION)
+			@_parseInput(@input)
+		else
+			term.out("#{term.colour('warning', term.YELLOW)} input location does not exist #{term.colour(@input, term.GREY)}", 2)
+		return @
+
+	run: (@compress) ->
 		if @sources.length
-			if clean
-				@sources = []
-				@_parseSources(@input)
 			term.out("building #{term.colour(path.basename(@input), term.GREY)} to #{term.colour(path.basename(@output), term.GREY)}", 2)
 			@_build()
 		else
@@ -37,16 +42,18 @@ exports.Target = class Target
 	hasSource: (file) ->
 		file in @sources
 
+	# Validate input source
+	_validInput: (input) ->
+		path.existsSync(input)
+
 	# Recursively add File objects from source cache based on filepath
-	_parseSources: (input) ->
-		# Fix for #1: check that input exists before stat
-		if path.existsSync(input)
-			# Add files from source cache
-			if fs.statSync(input).isFile()
-				@_addSource(f) if f = @cache.byPath[input]
-			else
-				# Recurse child directories
-				@_parseSources(path.join(input, item)) for item in fs.readdirSync(input)
+	_parseInput: (input) ->
+		# Add files from source cache
+		if fs.statSync(input).isFile()
+			@_addSource(f) if f = @cache.byPath[input]
+		else
+			# Recurse child directories
+			@_parseInput(path.join(input, item)) for item in fs.readdirSync(input)
 
 	_addSource: (file) ->
 		# Add source if not already added
@@ -63,7 +70,7 @@ exports.Target = class Target
 					@_makeDirectory(dir)
 					fs.mkdirSync(dir)
 
-	# Ouput error to terminal and notify with growl
+	# Output error to terminal and notify with growl
 	_notifyError: (filepath, error) ->
 		term.out("#{term.colour('error', term.RED)} building #{term.colour(path.basename(filepath), term.GREY)}: #{error}", 4)
 		try growl.notify("error building #{filepath}: #{error}", {title: 'BUDDY'})
@@ -79,8 +86,11 @@ exports.JSTarget = class JSTarget extends Target
 
 	constructor: (input, output, cache, @nodejs = false, @parentTarget = null) ->
 		super(input, output, cache)
+
+	initialize: ->
 		# Treat nodejs targets as batch targets since concatenation does not apply
 		@batch = true if @nodejs
+		super()
 
 	_addSource: (file, dependantFile) ->
 		# If this target has a parent, make sure we don't duplicate sources
@@ -88,9 +98,10 @@ exports.JSTarget = class JSTarget extends Target
 		# First add dependencies
 		if file.dependencies.length
 			for dependency in file.dependencies
-				# Guard against circular dependancy
+				# Guard against circular dependency
 				if dependantFile?.module isnt dependency
 					if dep = @cache.byModule[dependency] or @cache.byModule["#{dependency}/index"]
+						# Recursively add dependency
 						@_addSource(dep, file)
 					else
 						term.out("#{term.colour('warning', term.YELLOW)} dependency #{term.colour(dependency, term.GREY)} for #{term.colour(file.module, term.GREY)} not found", 4)
