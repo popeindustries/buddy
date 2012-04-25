@@ -1,0 +1,20 @@
+{
+	"js": {
+		"sources": ["src/coffee"],
+		"targets": [
+			{
+				"in": "src/coffee/main.coffee",
+				"out": "js/main.js"
+			}
+		]
+	},
+	"css": {
+		"sources": ["src/stylus"],
+		"targets": [
+			{
+				"in": "src/stylus",
+				"out": "css/main.css"
+			}
+		]
+	}
+}

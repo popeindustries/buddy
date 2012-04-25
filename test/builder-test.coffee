@@ -9,7 +9,7 @@ term.silent = true
 
 describe 'Builder', ->
 
-	describe '[config]', ->
+	describe 'configuration', ->
 		beforeEach ->
 			@builder = new Builder()
 
