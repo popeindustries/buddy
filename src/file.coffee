@@ -22,7 +22,7 @@ exports.JSFile = class JSFile extends File
 	RE_COMMENT_LINES: /^\s*(?:\/\/|#).+$/gm
 	RE_REQUIRE: /require[\s|\(]['|"](.*?)['|"]/g
 	# "require.module('name', function(module, exports, require) {"
-	RE_MODULE: /^require\.module\(.+function *\( *module *, *exports *, *require *\) *{/g
+	RE_MODULE: /^require\.module\(.+function *\( *module *, *exports *, *require *\) *{/gm
 	RE_WIN_SEPARATOR: /\\\\?/g
 
 	constructor: (type, filepath, base, contents) ->
@@ -48,8 +48,8 @@ exports.JSFile = class JSFile extends File
 				require.module('#{@module}', function(module, exports, require) {
 				#{contents}
 				});
-				#{if @main then "require('" + @module + "');" else ''}
 				"""
+		contents += "\nrequire('" + @module + "');" if @main
 		contents
 
 	# Generate module name for this File
