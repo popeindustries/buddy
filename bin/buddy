@@ -3,7 +3,7 @@
 var program = require('commander'),
 	Builder = require('../lib/builder');
 
-var config = [
+var example = [
 	'',
 	'  Configuration:',
 	'',
@@ -69,7 +69,7 @@ program
 	});
 
 program.on('--help', function(){
-  console.log(config);
+  console.log(example);
 });
 
 program.parse(process.argv);
