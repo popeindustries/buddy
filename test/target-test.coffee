@@ -3,6 +3,7 @@ fs = require('fs')
 rimraf = require('rimraf')
 Builder = require('../lib/builder')
 target = require('../lib/target')
+{log} = console
 
 gatherFiles = (dir, files) ->
 	files ||= []
@@ -106,12 +107,14 @@ describe 'target', ->
 				describe 'with a single coffee file containing a module wrapper', ->
 					beforeEach ->
 						@path = 'compile/project/'
+						@builder = new Builder
 						@builder.initialize(@path + 'buddy_single-file-with-wrapper.json')
 						@builder.compile()
-					it 'should build 1 js file', ->
+					it 'should build 1 js file containing only 1 module wrapper', ->
 						path.existsSync(@builder.jsTargets[0].output).should.be.true
-					it 'should contain only 1 module wrapper', ->
-						contents = fs.readFileSync(@output, 'utf8')
+				## Some sort of error here when splitting into separate tests ##
+					# it 'should contain only 1 module wrapper', ->
+						contents = fs.readFileSync(@builder.jsTargets[0].output, 'utf8')
 						contents.match(/require.module\('wrapped'/gm).should.have.length(1)
 				describe 'with a single stylus file', ->
 					it 'should build 1 css file', ->
@@ -162,24 +165,43 @@ describe 'target', ->
 						@path = 'compile/project-complex/'
 						@builder.initialize(@path + 'buddy.json')
 						@builder.compile()
-					it 'should build 3 concatenated js files'
-					it 'should build a child js file without require.js source'
-					it 'should build a child js file without source shared with it`s parent'
+					it 'should build 3 concatenated js files', ->
+						gatherFiles(path.resolve(@path + 'output')).should.have.length(3)
+					it 'should build a child js file without require.js source', ->
+						contents = fs.readFileSync(path.resolve(@path + 'output/section.js'), 'utf8')
+						contents.should.not.include('require = function(path)')
+					it 'should build a child js file without source shared with it`s parent', ->
+						contents = fs.readFileSync(path.resolve(@path + 'output/section.js'), 'utf8')
+						contents.should.not.include("require.module('utils/util',")
+					it 'should build a child js file that is different than the same file built without a parent target', ->
+						fs.readFileSync(path.resolve(@path + 'output/section.js'), 'utf8').should.not.eql(fs.readFileSync(path.resolve(@path + 'output/section/someSection.js'), 'utf8'))
 			describe 'js project', ->
 				describe 'with a single js file requiring 1 dependency', ->
 					beforeEach ->
 						@path = 'compile/project-js/'
 						@builder.initialize(@path + 'buddy.json')
 						@builder.compile()
-					it 'should build 1 js file'
-					it 'should contain 2 modules'
+					it 'should build 1 js file', ->
+						path.existsSync(@builder.jsTargets[0].output).should.be.true
+					it 'should contain 2 modules', ->
+						contents = fs.readFileSync(@builder.jsTargets[0].output, 'utf8')
+						contents.should.include("require.module('main'")
+						contents.should.include("require.module('package/class_camel_case'")
 				describe 'with a single js file requiring 1 wrapped dependency', ->
 					beforeEach ->
 						@path = 'compile/project-js/'
 						@builder.initialize(@path + 'buddy_wrapped.json')
 						@builder.compile()
-					it 'should build 1 js file'
-					it 'should contain 2 modules'
+					it 'should build 1 js file', ->
+						path.existsSync(@builder.jsTargets[0].output).should.be.true
+					it 'should contain 2 modules', ->
+						contents = fs.readFileSync(@builder.jsTargets[0].output, 'utf8')
+						contents.should.include("require.module('main_wrapped'")
+						contents.should.include("require.module('package/prewrapped'")
 				describe 'with a directory of empty js files', ->
-					it 'should build 2 js files'
+					it 'should build 2 js files', ->
+						@path = 'compile/project-js/'
+						@builder.initialize(@path + 'buddy_empty.json')
+						@builder.compile()
+						gatherFiles(@builder.jsTargets[0].output).should.have.length(2)
 

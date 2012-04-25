@@ -43,7 +43,6 @@ describe 'file', ->
 						var Class = require('./package/class');
 						var instance = new Class();
 						});
-
 						'''
 					@cwm =
 						'''
