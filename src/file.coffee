@@ -18,7 +18,6 @@ exports.File = class File
 exports.JSFile = class JSFile extends File
 	RE_COFFEE_EXT: /\.coffee$/
 	RE_JS_EXT: /\.js$/
-	RE_UPPERCASE: /[A-Z]/g
 	RE_COMMENT_LINES: /^\s*(?:\/\/|#).+$/gm
 	RE_REQUIRE: /require[\s|\(]['|"](.*?)['|"]/g
 	# "require.module('name', function(module, exports, require) {"
@@ -59,9 +58,9 @@ exports.JSFile = class JSFile extends File
 		if process.platform is 'win32'
 			module = module.replace(@RE_WIN_SEPARATOR, '/')
 		# Convert uppercase letters to lowercase, adding _ where appropriate
-		if @RE_UPPERCASE.test(module)
+		if (/[A-Z]/g).test(module)
 			letters = Array::map.call module, (l, i, arr) =>
-				if @RE_UPPERCASE.test(l)
+				if (/[A-Z]/g).test(l)
 					return (if (i>0 and arr[i-1] isnt '/') then '_' else '') + l.toLowerCase()
 				else
 					return l
