@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/popeindustries/buddy.png)](http://travis-ci.org/popeindustries/buddy)
 # Buddy
 
 Buddy is primarily a build framework for the compilation of higher order js/css languages (coffeescript/stylus/less). 
