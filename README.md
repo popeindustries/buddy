@@ -348,6 +348,7 @@ exports.build = {
 **0.5.0** - November 13, 2012
 * changed module naming for compatibility with recent versions of Node.js (camel case no longer converted to underscores) **[breaking change]**
 * changed configuration file type to 'js' from 'json'; added *dependencies* and *settings* **[breaking change]**
+* concatenated js modules no longer self-booting; need to ```require('main');``` manually **[breaking change]**
 * removed *watch* command (temporarily) **[breaking change]**
 * added *install* command and project dependency management
 * added plugin support for compilers, compressors, linters, and modules; added support for custom plugins
