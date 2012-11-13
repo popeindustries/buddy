@@ -1,37 +1,44 @@
 {
-  "name": "buddy",
-  "description": "A build framework for the compilation of higher order js/css languages (coffeescript/stylus/less).",
-  "version": "0.4.0",
-  "author": "popeindustries <alex@pope-industries.com>",
-  "keywords": ["javascript", "coffeescript", "styus", "less"],
-  "dependencies": {
-    "coffee-script": "1.x.x",
-    "growl": "1.x.x",
-    "stylus": "0.x.x",
-    "less": "1.x.x",
-    "uglify-js": "1.x.x",
-    "commander": "0.x.x"
-  },
-  "devDependencies": {
-    "rimraf": "*",
-    "should": "*",
-		"mocha": "1.x.x"
+	"name": "buddy",
+	"description": "A build framework for js/css projects. Manages third-party dependencies, compiles source code, automatically modularizes js sources, statically resolves module dependencies, and lints/concatenates/compresses output.",
+	"version": "0.5.0",
+	"author": "popeindustries <alex@pope-industries.com>",
+	"keywords": ["build", "modules", "javascript", "coffeescript", "css", "styus", "less"],
+	"dependencies": {
+		"coffee-script": "1.4.0",
+		"stylus": "0.30.1",
+		"less": "1.3.1",
+		"uglify-js": "1.3.4",
+		"clean-css": "0.8.2",
+		"csslint": "0.9.9",
+		"jshint": "0.9.1",
+		"commander": "1.0.5",
+		"rimraf": "2.0.2",
+		"mkdirp": "0.3.4",
+		"bower": "0.4.0"
 	},
-  "directories": {
+	"devDependencies": {
+		"should": "*",
+		"mocha": "*"
+	},
+	"directories": {
 		"lib": "./lib"
 	},
-  "main": "./index",
-  "bin": {
+	"main": "./index.js",
+	"bin": {
 		"buddy": "./bin/buddy"
 	},
-  "scripts": {
-		"test": "mocha --compilers coffee:coffee-script --reporter spec --require should"
+	"scripts": {
+		"test": "mocha --compilers coffee:coffee-script --reporter spec --require should -t 40000"
 	},
-  "engines": {
-    "node": ">=0.6.0"
-  },
-  "repository": {
+	"engines": {
+		"node": ">=0.6.0"
+	},
+	"repository": {
 		"type": "git",
 		"url": "git://github.com/popeindustries/buddy.git"
-	}
+	},
+	"readme": "./README.md",
+	"_id": "buddy@0.5.0",
+	"_from": "buddy@~0.5"
 }

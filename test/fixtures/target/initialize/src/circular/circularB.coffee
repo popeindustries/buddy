@@ -1,2 +1,2 @@
-Class = require('./circular_a')
+Class = require('./circulara')
 

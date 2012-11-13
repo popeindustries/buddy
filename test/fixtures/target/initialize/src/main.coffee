@@ -1,4 +1,4 @@
 Class = require('./package/class')
-ClassCamelCase = require('./package/class_camel_case')
+ClassCamelCase = require('./package/classcamelcase')
 
 instance = new Class

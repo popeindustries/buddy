@@ -1,1 +1,1 @@
-Class = require('./circular_b')
+Class = require('./circularb')

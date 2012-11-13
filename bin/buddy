@@ -1,75 +1,63 @@
 #!/usr/bin/env node
 
-var program = require('commander'),
-	Builder = require('../lib/builder');
+var program = require('commander')
+	, fs = require('fs')
+	, path = require('path')
+	, Builder = require('../lib/Builder')
+	, indent = require('../lib/utils').indent;
 
-var example = [
-	'',
-	'  Configuration:',
-	'',
-	'    Build sources and targets are defined in a "buddy.json" config file',
-	'    that should be located in the root of your project directory:',
-	'',
-	'    {',
-	'      "js": {',
-	'        "sources": ["a/coffeescript/folder", "a/js/folder"],',
-	'        "targets": [',
-	'          {',
-	'            "in": "a/coffeescript/or/js/file",',
-	'            "out": "a/js/file/or/folder",',
-	'          },',
-	'          {',
-	'            "in": "a/coffeescript/folder",',
-	'            "out": "a/js/folder",',
-	'          }',
-	'        ]',
-	'       },',
-	'      "css":',
-	'        "sources": ["a/stylus/folder", "a/less/folder"],',
-	'        "targets": [',
-	'          {',
-	'            "in": "a/stylus/or/less/file",',
-	'            "out": "a/css/file/or/folder",',
-	'          },',
-	'          {',
-	'            "in": "a/stylus/or/less/folder",',
-	'            "out": "a/css/folder",',
-	'          }',
-	'        ]',
-	'      }',
-	'    }',
-	'',
-	'    Visit https://github.com/popeindustries/buddy#readme for more details.'
-].join('\n');
+var exampleHeader = [
+	'  Configuration:'
+	, ''
+	, '    Build, dependencies, and plugin settings are defined in a "buddy.js" config file'
+	, '    that should be located in the root of your project directory:'
+	, ''
+
+	].join('\n')
+	, exampleFooter = [
+	''
+	, '    Visit https://github.com/popeindustries/buddy#readme for more details.'
+	, ''
+	].join('\n');
 
 program
-	.version('0.4.0')
+	.version(require('../package.json').version)
 	.usage('[options] <command> [path/to/buddy.json]>')
-	.option('-c, --compress', 'compress output for production deployment');
+	.option('-c, --compress', 'compress output for production deployment')
+	.option('-l, --lint', 'check output for syntax and logic errors');
 
 program
-	.command('compile [config]')
-	.description('compile js and css sources')
-	.action(function(config){
-		new Builder(program.version()).initialize(config).compile(program.compress);
+	.command('install [config]')
+	.description('install dependencies')
+	.action(function(config) {
+		new Builder().initialize(config).install();
 	});
 
 program
-	.command('watch [config]')
-	.description('watch js and css source files and compile changes')
+	.command('build [config]')
+	.description('build js and css sources')
 	.action(function(config){
-		new Builder(program.version()).initialize(config).watch(program.compress);
+		new Builder().initialize(config).build(program.compress, program.lint);
 	});
+
+// program
+// 	.command('watch [config]')
+// 	.description('watch js and css source files and build changes')
+// 	.action(function(config){
+// 		new Builder().initialize(config).watch(program.compress, program.lint);
+// 	});
 
 program
 	.command('deploy [config]')
-	.description('compile compressed js and css sources')
+	.description('build compressed js and css sources')
 	.action(function(config){
-		new Builder(program.version()).initialize(config).deploy();
+		new Builder().initialize(config).deploy();
 	});
 
 program.on('--help', function(){
-  console.log(example);
+  console.log(exampleHeader);
+  console.log(indent(fs.readFileSync(path.resolve(__dirname, '../buddy.js'), 'utf8'), 4));
+  console.log(exampleFooter);
 });
 
 program.parse(process.argv);

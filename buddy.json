@@ -1,34 +1,59 @@
 {
-	"js": {
-		"sources": ["a/coffeescript/folder", "a/js/folder"],
-		"targets": [
-			{
-				"in": "a/coffeescript/or/js/file",
-				"out": "a/js/file/or/folder",
-				"targets": [
-					{
-						"in": "a/coffeescript/or/js/file",
-						"out": "a/js/file/or/folder",
-					}
-				]
-			},
-			{
-				"in": "a/coffeescript/folder",
-				"out": "a/js/folder",
-			}
-		]
+	"build": {
+		"js": {
+			"sources": ["a/coffeescript/folder", "a/js/folder"],
+			"targets": [
+				{
+					"in": "a/coffeescript/or/js/file",
+					"out": "a/js/file/or/folder",
+					"modular": true,
+					"targets": [
+						{
+							"in": "a/coffeescript/or/js/file",
+							"out": "a/js/file/or/folder",
+							"modular": true
+						}
+					]
+				},
+				{
+					"in": "a/coffeescript/or/js/folder",
+					"out": "a/js/folder",
+					"modular": false
+				}
+			]
+		},
+		"css": {
+			"sources": ["a/stylus/folder", "a/less/folder"],
+			"targets": [
+				{
+					"in": "a/stylus/or/less/file",
+					"out": "a/css/file/or/folder"
+				},
+				{
+					"in": "a/stylus/or/less/folder",
+					"out": "a/css/folder"
+				}
+			]
+		},
+		"html": {
+			"sources": [],
+			"targets": []
+		}
 	},
-	"css": {
-		"sources": ["a/stylus/folder", "a/less/folder"],
-		"targets": [
-			{
-				"in": "a/stylus/or/less/file",
-				"out": "a/css/file/or/folder"
-			},
-			{
-				"in": "a/stylus/or/less/folder",
-				"out": "a/css/folder"
-			}
-		]
+	"dependencies": {
+		"in": "a/folder",
+		"out": "a/file",
+		"sources": {
+			"library": "version/or/path"
+		}
+	},
+	"config": {
+		"plugins": {
+			"js:module": "node",
+			"js:compressor": "uglifyjs",
+			"css:compressor": "cleancss",
+			"js:linter": "jshint",
+			"css:linter": "csslint"
+		}
 	}
 }
