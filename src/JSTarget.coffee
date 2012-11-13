@@ -43,7 +43,8 @@ module.exports = class JSTarget extends Target
 	# Generate output, optionally compressing and linting
 	# @param {Boolean} compress
 	# @param {Boolean} lint
-	_build: (compress, lint) ->
+	# @param {Function} fn(err, files)
+	_build: (compress, lint, fn) ->
 		opts = {}
 		opts.modular = @options.modular
 		# Single file
@@ -52,46 +53,55 @@ module.exports = class JSTarget extends Target
 			@sources.forEach (file) =>
 				file.getContents opts, (err, content) =>
 					# Error compiling
-					err and notify.error(err)
-					contents.push(content)
-					# Concat and write when all content received
-					if contents.length is @sources.length
-						# Concat
-						content = contents.join('\n')
-						# Optimize and wrap in IIFE
-						content = @_wrapContent(@_optimizeContent(content))
-						# Lint
-						@_lint(content, @output) if lint
-						# Compress
-						if compress
-							@_compress content, @output, (err, content) =>
-								# Error compressing
-								err and notify.error(err)
+					if err
+						fn(err)
+					else
+						contents.push(content)
+						# Concat and write when all content received
+						if contents.length is @sources.length
+							# Concat
+							content = contents.join('\n')
+							# Optimize and wrap in IIFE
+							content = @_wrapContent(@_optimizeContent(content))
+							# Lint
+							@_lint(content, @output) if lint
+							# Compress
+							if compress
+								@_compress content, @output, (err, content) =>
+									# Error compressing
+									if err
+										fn(err)
+									else
+										# Output to file
+										@_writeFile(content, @output, true, fn, true)
+							else
 								# Output to file
-								@_writeFile(content, @output, true)
-						else
-							# Output to file
-							@_writeFile(content, @output, true)
+								@_writeFile(content, @output, true, fn, true)
 		# Batch files
 		else
+			n = @sources.length
 			@sources.forEach (file, idx) =>
 				# Resolve output name for directories
 				filepath = if path.extname(@output).length then @output else path.join(@output, file.qualifiedFilename) + '.js'
 				file.getContents opts, (err, content) =>
 					# Error compiling
-					err and notify.error(err)
-					# Lint
-					@_lint(content, filepath) if lint
-					# Compress
-					if compress
-						@_compress content, filepath, (err, content) =>
-							# Error compressing
-							err and notify.error(err)
-							# No header in this case since no concatenation
-							@_writeFile(content, filepath, false)
+					if err
+						fn(err)
 					else
-						# No header in this case since no concatenation
-						@_writeFile(content, filepath, false)
+						# Lint
+						@_lint(content, filepath) if lint
+						# Compress
+						if compress
+							@_compress content, filepath, (err, content) =>
+								# Error compressing
+								if err
+									fn(err)
+								else
+									# No header in this case since no concatenation
+									@_writeFile(content, filepath, false, fn, idx + 1 is n)
+						else
+							# No header in this case since no concatenation
+							@_writeFile(content, filepath, false, fn, idx + 1 is n)
 
 	# CoffeeScript boilerplate code optimization
 	# Hoists duplicate functions
@@ -123,10 +133,12 @@ module.exports = class JSTarget extends Target
 	# @param {String} content
 	# @param {String} filepath
 	# @param {Boolean} withHeader
-	_writeFile: (content, filepath, withHeader) ->
+	# @param {Function} fn(err, files)
+	# @param {Boolean} exit
+	_writeFile: (content, filepath, withHeader, fn, exit) ->
 		# Create directory if missing
 		mkdir(filepath)
-		notify.print("#{notify.colour('built', notify.GREEN)} #{notify.strong(path.basename(filepath))}", 3)
 		content = "#{BUILT_HEADER}#{new Date().toString()}*/\n#{content}" if withHeader
 		fs.writeFileSync(filepath, content, 'utf8')
-
+		notify.print("#{notify.colour('built', notify.GREEN)} #{notify.strong(path.basename(filepath))}", 3)
+		fn() if exit

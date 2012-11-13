@@ -16,6 +16,7 @@ module.exports = class Dependencies
 	constructor: (@options, @compressor) ->
 		@installIdx = 0
 		@dependencies = []
+		@files = []
 		for destination, data of @options
 			data.sources.forEach (source) =>
 				# Handle local files
@@ -38,7 +39,7 @@ module.exports = class Dependencies
 					filepath: ''
 
 	# Install dependencies and call 'fn' when complete
-	# @param {Function} fn
+	# @param {Function} fn(err, files)
 	install: (fn) ->
 		next = (dependency) =>
 			@installIdx++
@@ -60,14 +61,18 @@ module.exports = class Dependencies
 			@installIdx = 0
 			@_resolveDependants(fn)
 
+	clean: ->
+		# Clear bower cache
+		bower.commands['cache-clean']
+
 	# Move dependency files from temp location to destination
 	# @param {Object} dependency
 	_moveSource: (dependency) ->
 		mkdir(path.resolve(dependency.destination))
 		# Copy local sources
 		if dependency.local
-			filepath = dependency.source
-			cp(filepath, path.resolve(dependency.destination))
+			cp(dependency.source, path.resolve(dependency.destination))
+			@files.push(path.resolve(dependency.destination, path.basename(dependency.source)))
 		else
 			# parse component.json for this dependency
 			filepath = path.resolve(process.cwd(), 'components', dependency.id)
@@ -76,10 +81,11 @@ module.exports = class Dependencies
 			filepath = path.resolve(filepath, dependency.sourcePath or component.main or '')
 			dependency.filepath = path.resolve(process.cwd(), dependency.destination, path.basename(filepath))
 			mv(filepath, path.resolve(dependency.destination))
+			@files.push(path.resolve(dependency.destination, path.basename(filepath)))
 		notify.print("#{notify.colour('installed', notify.GREEN)} #{notify.strong(dependency.id)} to #{notify.strong(dependency.destination)}", 3)
 
 	# Check if dependants of our specified dependencies have been installed
-	# @param {Function} fn
+	# @param {Function} fn(err, files)
 	_resolveDependants: (fn) ->
 		# List all installed sources
 		bower.commands
@@ -110,7 +116,7 @@ module.exports = class Dependencies
 		rimraf.sync(path.resolve('components'))
 
 	# Package dependencies into single output file if necessary
-	# @param {Function} fn
+	# @param {Function} fn(err, files)
 	_pack: (fn) ->
 		outputs = {}
 		# Collect outputable dependencies
@@ -120,17 +126,23 @@ module.exports = class Dependencies
 				outputs[dependency.output] ?= []
 				outputs[dependency.output].push(dependency.filepath)
 			# Concat, compress, and write file
+			n = Object.keys(outputs).length
+			i = 0
 			for output, files of outputs
+				# Concat
 				contents = []
 				files.forEach((file) -> contents.push(fs.readFileSync(file)))
 				content = contents.join('\n')
 				mkdir(output)
-				@compressor.compress content, (err, content) ->
+				# Compress
+				@compressor.compress content, (err, content) =>
+					# Error compressing
 					if err
-						fn(err)
+						fn(err, @files)
 					else
 						notify.print("#{notify.colour('compressed', notify.GREEN)} #{notify.strong(path.basename(output))}", 3)
 						fs.writeFileSync(output, content)
-						fn(null)
+						@files.push(output)
+						fn(null, @files) if ++i is n
 		else
-			fn(null)
+			fn(null, @files)

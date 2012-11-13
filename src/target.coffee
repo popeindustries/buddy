@@ -24,7 +24,7 @@ module.exports = class Target
 	# Process the target, optionally compressing and linting output
 	# @param {Boolean} compress
 	# @param {Boolean} lint
-	# @param {Function} fn
+	# @param {Function} fn(err, files)
 	run: (compress, lint, fn) ->
 		# Clear existing sources
 		@sources = []

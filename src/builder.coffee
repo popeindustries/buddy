@@ -6,10 +6,12 @@ path = require('path')
 Configuration = require('./configuration')
 plugins = require('./plugins')
 Depedencies = require('./dependencies')
+Filelog =require('./filelog')
 JSFile = require('./jsfile')
 CSSFile = require('./cssfile')
 JSTarget = require('./jstarget')
 CSSTarget = require('./csstarget')
+rimraf = require('rimraf')
 {notify, readdir} = require('./utils')
 # Node 0.8.0 api change
 existsSync = fs.existsSync or path.existsSync
@@ -21,11 +23,14 @@ CSS = 'css'
 HTML = 'html'
 
 module.exports = class Builder
+
+	# Constructor
 	constructor: ->
 		@config = null
 		@plugins = null
 		@dependencies = null
-		@watchers = []
+		@filelog
+		# @watchers = []
 		@jsSources =
 			locations: []
 			byPath: {}
@@ -57,6 +62,8 @@ module.exports = class Builder
 			@plugins = plugins.load(@config.settings and @config.settings.plugins)
 			# Init dependencies if necessary
 			@dependencies = new Depedencies(@config.dependencies, @plugins.js.compressor) if @config.dependencies
+			# Init filelog
+			@filelog = new Filelog
 			@initialized = true
 		return @
 
@@ -64,7 +71,10 @@ module.exports = class Builder
 	install: ->
 		if @dependencies
 			notify.print('installing dependencies...', 2)
-			@dependencies.install((err) -> err and notify.error(err))
+			@dependencies.install (err, files) =>
+				# Persist file references created on install
+				@filelog.add(files)
+				err and notify.error(err)
 		else
 			notify.error('no dependencies specified in configuration file')
 
@@ -82,11 +92,20 @@ module.exports = class Builder
 				@_parseTargets(@config.build[type].targets, type)
 				# Run targets
 				@[type + 'Targets'].forEach (target) =>
-					target.run(compress, lint)
+					target.run compress, lint, (err, files) =>
+						# Persist file references created on build
+						@filelog.add(files)
+						err and notify.error(err)
 
 	# Build and compress sources based on targets specified in configuration
 	deploy: ->
 		@build(true, false)
+
+	# Remove all file system content created via installing and building
+	clean: ->
+		@dependencies?.clean()
+		@filelog.files.forEach((file) -> rimraf.sync(file))
+		@filelog.clean()
 
 	# Check that a given 'filename' is a valid source of 'type'
 	# including compileable file types
