@@ -40,12 +40,12 @@ program
 		new Builder().initialize(config).build(program.compress, program.lint);
 	});
 
-// program
-// 	.command('watch [config]')
-// 	.description('watch js and css source files and build changes')
-// 	.action(function(config){
-// 		new Builder().initialize(config).watch(program.compress, program.lint);
-// 	});
+program
+	.command('watch [config]')
+	.description('watch js and css source files and build changes')
+	.action(function(config){
+		new Builder().initialize(config).watch(program.compress, program.lint);
+	});
 
 program
 	.command('deploy [config]')

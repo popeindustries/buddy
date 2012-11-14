@@ -7,6 +7,7 @@ Configuration = require('./configuration')
 plugins = require('./plugins')
 Depedencies = require('./dependencies')
 Filelog =require('./filelog')
+Watcher =require('./watcher')
 JSFile = require('./jsfile')
 CSSFile = require('./cssfile')
 JSTarget = require('./jstarget')
@@ -29,8 +30,8 @@ module.exports = class Builder
 		@config = null
 		@plugins = null
 		@dependencies = null
-		@filelog
-		# @watchers = []
+		@filelog = null
+		@watchers = []
 		@jsSources =
 			locations: []
 			byPath: {}
@@ -96,6 +97,17 @@ module.exports = class Builder
 						# Persist file references created on build
 						files and @filelog.add(files)
 						err and notify.error(err, 2)
+
+	watch: (compress, lint) ->
+		@build(compress, lint)
+
+		[JS, CSS].forEach (type) =>
+			notify.print("watching [#{notify.strong(@config.build[type].sources.join(', '))}]...", 2)
+			@[type + 'Sources'].locations.forEach (source) =>
+				@watchers.push(new Watcher(source, RE_IGNORE_FILE, @_changed))
+
+	_changed: (err, data) ->
+
 
 	# Build and compress sources based on targets specified in configuration
 	deploy: ->

@@ -103,3 +103,9 @@ exports.indent = (string, level) ->
 	re = /^/gm
 	string = string.replace(re, (new Array(level)).join('  '))
 	string
+
+# setTimeout wrapper
+# @param {int} time
+# @param {Function} fn
+exports.wait = (time = 25, fn) ->
+	return setTimeout(fn, time)
