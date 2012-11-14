@@ -42,6 +42,12 @@ describe 'Dependencies', ->
 			@deps.install (err, files) ->
 				fs.existsSync(path.resolve('libs/vendor/lib/lib.js')).should.be.true
 				done()
+	describe 'installing a source from a local endpoint that resides in destination path', ->
+		it 'should not be marked for cleanup', (done) ->
+			@deps = new Dependencies(require(path.resolve('buddy_local_dest.js')).dependencies)
+			@deps.install (err, files) ->
+				files.should.have.length(0)
+				done()
 	describe 'installing sources with a specified output', ->
 		it 'should concatenate and minify the sources to the given output path', (done) ->
 			p = plugins.load()
@@ -49,4 +55,5 @@ describe 'Dependencies', ->
 			@deps.install (err, files) ->
 				fs.existsSync(path.resolve('libs/js/libs.js')).should.be.true
 				done()
+
 

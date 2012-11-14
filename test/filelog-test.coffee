@@ -3,7 +3,7 @@ fs = require('fs')
 rimraf = require('rimraf')
 Filelog = require('../lib/filelog')
 
-describe.only 'filelog', ->
+describe 'filelog', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/filelog'))
 		@filelog = new Filelog
