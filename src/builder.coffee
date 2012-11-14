@@ -73,7 +73,7 @@ module.exports = class Builder
 			notify.print('installing dependencies...', 2)
 			@dependencies.install (err, files) =>
 				# Persist file references created on install
-				@filelog.add(files)
+				# @filelog.add(files)
 				err and notify.error(err)
 		else
 			notify.error('no dependencies specified in configuration file')
@@ -94,7 +94,7 @@ module.exports = class Builder
 				@[type + 'Targets'].forEach (target) =>
 					target.run compress, lint, (err, files) =>
 						# Persist file references created on build
-						@filelog.add(files)
+						# @filelog.add(files)
 						err and notify.error(err)
 
 	# Build and compress sources based on targets specified in configuration
