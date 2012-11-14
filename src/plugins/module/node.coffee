@@ -44,6 +44,8 @@ module.exports =
 
 	# Wrap compiled content in module definition if it doesn't already have a wrapper
 	wrapModuleContents: (contents, id) ->
+		# Reset
+		RE_MODULE.lastIndex = 0
 		unless RE_MODULE.test(contents)
 			contents =
 				"""
