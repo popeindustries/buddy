@@ -1,4 +1,3 @@
-should = require('should')
 path = require('path')
 fs = require('fs')
 Configuration = require('../lib/configuration')

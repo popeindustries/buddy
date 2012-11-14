@@ -6,10 +6,12 @@ path = require('path')
 Configuration = require('./configuration')
 plugins = require('./plugins')
 Depedencies = require('./dependencies')
+Filelog =require('./filelog')
 JSFile = require('./jsfile')
 CSSFile = require('./cssfile')
 JSTarget = require('./jstarget')
 CSSTarget = require('./csstarget')
+rimraf = require('rimraf')
 {notify, readdir} = require('./utils')
 # Node 0.8.0 api change
 existsSync = fs.existsSync or path.existsSync
@@ -21,11 +23,14 @@ CSS = 'css'
 HTML = 'html'
 
 module.exports = class Builder
+
+	# Constructor
 	constructor: ->
 		@config = null
 		@plugins = null
 		@dependencies = null
-		@watchers = []
+		@filelog
+		# @watchers = []
 		@jsSources =
 			locations: []
 			byPath: {}
@@ -57,6 +62,8 @@ module.exports = class Builder
 			@plugins = plugins.load(@config.settings and @config.settings.plugins)
 			# Init dependencies if necessary
 			@dependencies = new Depedencies(@config.dependencies, @plugins.js.compressor) if @config.dependencies
+			# Init filelog
+			@filelog = new Filelog
 			@initialized = true
 		return @
 
@@ -64,7 +71,10 @@ module.exports = class Builder
 	install: ->
 		if @dependencies
 			notify.print('installing dependencies...', 2)
-			@dependencies.install((err) -> err and notify.error(err))
+			@dependencies.install (err, files) =>
+				# Persist file references created on install
+				files and @filelog.add(files)
+				err and notify.error(err, 2)
 		else
 			notify.error('no dependencies specified in configuration file')
 
@@ -82,11 +92,25 @@ module.exports = class Builder
 				@_parseTargets(@config.build[type].targets, type)
 				# Run targets
 				@[type + 'Targets'].forEach (target) =>
-					target.run(compress, lint)
+					target.run compress, lint, (err, files) =>
+						# Persist file references created on build
+						files and @filelog.add(files)
+						err and notify.error(err, 2)
 
 	# Build and compress sources based on targets specified in configuration
 	deploy: ->
 		@build(true, false)
+
+	# Remove all file system content created via installing and building
+	clean: ->
+		# Delete files
+		notify.print('cleaning files...', 2)
+		@filelog.files.forEach (file) ->
+			notify.print("#{notify.colour('deleted', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), file))}", 3)
+			rimraf.sync(file)
+		@filelog.clean()
+		@dependencies?.clean (err) =>
+			err and notify.error(err, 2)
 
 	# Check that a given 'filename' is a valid source of 'type'
 	# including compileable file types
@@ -148,8 +172,8 @@ module.exports = class Builder
 	# @param {String} type
 	# @param {Object} props
 	_targetFactory: (type, props) ->
-		inputpath = path.resolve(process.cwd(), props.input)
-		outputpath = path.resolve(process.cwd(), props.output)
+		inputpath = path.resolve(props.input)
+		outputpath = path.resolve(props.output)
 
 		# Validate target
 		# Abort if input doesn't exist

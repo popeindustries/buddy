@@ -1,9 +1,9 @@
 # Buddy
 
-**buddy(1)** is a build framework for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (coffeescript/stylus/less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
+**buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (coffeescript/stylus/less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.5.0
-*[this version is not backwards compatible with earlier versions. See Change Log below for more details]*
+**Current version:** 0.5.1
+*[the 0.5.x branch is not backwards compatible with earlier versions. See Change Log below for more details]*
 
 ## Installation
 
@@ -344,6 +344,11 @@ exports.build = {
 ```
 
 ## Change Log ##
+
+**0.5.1** - Novemver 14, 2012
+* added *clean* command to remove all generated files
+* added hidden *.buddy-filelog* file for tracking files changes between sessions
+* fix for false-negative module wrapping test
 
 **0.5.0** - November 13, 2012
 * *compile* command renamed to *build* **[breaking change]**

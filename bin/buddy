@@ -54,6 +54,13 @@ program
 		new Builder().initialize(config).deploy();
 	});
 
+program
+	.command('clean [config]')
+	.description('remove all previously created files and directories')
+	.action(function(config){
+		new Builder().initialize(config).clean();
+	});
+
 program.on('--help', function(){
   console.log(exampleHeader);
   console.log(indent(fs.readFileSync(path.resolve(__dirname, '../buddy.js'), 'utf8'), 4));

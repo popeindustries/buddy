@@ -17,6 +17,7 @@ module.exports = class Target
 	constructor: (@type, @input, @output, @fileCache, @options) ->
 		@sources = []
 		@concat = false
+		@files = []
 		# Resolve output file name for file>folder target
 		if not path.extname(@output).length and fs.statSync(@input).isFile()
 			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), ".#{@type}")
@@ -24,7 +25,7 @@ module.exports = class Target
 	# Process the target, optionally compressing and linting output
 	# @param {Boolean} compress
 	# @param {Boolean} lint
-	# @param {Function} fn
+	# @param {Function} fn(err, files)
 	run: (compress, lint, fn) ->
 		# Clear existing sources
 		@sources = []
