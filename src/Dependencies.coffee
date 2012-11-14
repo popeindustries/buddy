@@ -7,6 +7,9 @@ rimraf = require('rimraf')
 existsSync = fs.existsSync or path.existsSync
 
 RE_ID = /\D\[\d{2}m([\w-_]+)\D\[\d{2}m$/
+RE_LOCAL = /^[\.\/~]/
+RE_SOURCE_PATH = /@/
+RE_FETCHING = /fetching/
 
 module.exports = class Dependencies
 
@@ -20,12 +23,12 @@ module.exports = class Dependencies
 		for destination, data of @options
 			data.sources.forEach (source) =>
 				# Handle local files
-				if /^[\.\/~]/.test(source)
+				if RE_LOCAL.test(source)
 					id = source
 					source = path.resolve(source)
 					local = true
 				# Strip specified source path
-				if /@/.test(source)
+				if RE_SOURCE_PATH.test(source)
 					items = source.split('@')
 					source = items[0]
 					sourcePath = items[1]
@@ -53,7 +56,7 @@ module.exports = class Dependencies
 				bower.commands
 					.install([dependency.source])
 					# Derive id from message string (don't overwrite in case of dependants)
-					.on('data', (data) => dependency.id ?= RE_ID.exec(data)[1] if /fetching/.test(data))
+					.on('data', (data) => dependency.id ?= RE_ID.exec(data)[1] if RE_FETCHING.test(data))
 					.on('end', => next(dependency))
 					.on('error', (err) -> fn(err))
 		# Complete
