@@ -349,6 +349,7 @@ exports.build = {
 * *compile* command renamed to *build* **[breaking change]**
 * changed module naming for compatibility with recent versions of Node.js (camel case no longer converted to underscores) **[breaking change]**
 * changed configuration file type to 'js' from 'json'; added *dependencies* and *settings* **[breaking change]**
+* changed configuration *target* parameters to *input/output* from *in/out* **[breaking change]**
 * concatenated js modules no longer self-booting; need to ```require('main');``` manually **[breaking change]**
 * *require* boilerplate no longer included in generated source; install *git://github.com/popeindustries/browser-require.git* or equivalent **[breaking change]**
 * removed *watch* command (temporarily) **[breaking change]**
