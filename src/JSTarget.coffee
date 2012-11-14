@@ -140,5 +140,6 @@ module.exports = class JSTarget extends Target
 		mkdir(filepath)
 		content = "#{BUILT_HEADER}#{new Date().toString()}*/\n#{content}" if withHeader
 		fs.writeFileSync(filepath, content, 'utf8')
-		notify.print("#{notify.colour('built', notify.GREEN)} #{notify.strong(path.basename(filepath))}", 3)
-		fn() if exit
+		@files.push(filepath)
+		notify.print("#{notify.colour('built', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), filepath))}", 3)
+		fn(null, @files) if exit

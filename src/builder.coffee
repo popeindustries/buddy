@@ -73,8 +73,8 @@ module.exports = class Builder
 			notify.print('installing dependencies...', 2)
 			@dependencies.install (err, files) =>
 				# Persist file references created on install
-				# @filelog.add(files)
-				err and notify.error(err)
+				files and @filelog.add(files)
+				err and notify.error(err, 2)
 		else
 			notify.error('no dependencies specified in configuration file')
 
@@ -94,8 +94,8 @@ module.exports = class Builder
 				@[type + 'Targets'].forEach (target) =>
 					target.run compress, lint, (err, files) =>
 						# Persist file references created on build
-						# @filelog.add(files)
-						err and notify.error(err)
+						files and @filelog.add(files)
+						err and notify.error(err, 2)
 
 	# Build and compress sources based on targets specified in configuration
 	deploy: ->
@@ -103,9 +103,14 @@ module.exports = class Builder
 
 	# Remove all file system content created via installing and building
 	clean: ->
-		@dependencies?.clean()
-		@filelog.files.forEach((file) -> rimraf.sync(file))
+		# Delete files
+		notify.print('cleaning files...', 2)
+		@filelog.files.forEach (file) ->
+			notify.print("#{notify.colour('deleted', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), file))}", 3)
+			rimraf.sync(file)
 		@filelog.clean()
+		@dependencies?.clean (err) =>
+			err and notify.error(err, 2)
 
 	# Check that a given 'filename' is a valid source of 'type'
 	# including compileable file types
@@ -167,8 +172,8 @@ module.exports = class Builder
 	# @param {String} type
 	# @param {Object} props
 	_targetFactory: (type, props) ->
-		inputpath = path.resolve(process.cwd(), props.input)
-		outputpath = path.resolve(process.cwd(), props.output)
+		inputpath = path.resolve(props.input)
+		outputpath = path.resolve(props.output)
 
 		# Validate target
 		# Abort if input doesn't exist

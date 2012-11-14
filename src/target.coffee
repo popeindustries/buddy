@@ -17,6 +17,7 @@ module.exports = class Target
 	constructor: (@type, @input, @output, @fileCache, @options) ->
 		@sources = []
 		@concat = false
+		@files = []
 		# Resolve output file name for file>folder target
 		if not path.extname(@output).length and fs.statSync(@input).isFile()
 			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), ".#{@type}")
