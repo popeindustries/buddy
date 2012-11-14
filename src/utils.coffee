@@ -68,7 +68,7 @@ exports.readdir = readdir = (dir, ignore = //, files = []) ->
 exports.mkdir = mkdir = (filepath) ->
 	# Resolve directory name if passed a file
 	dir = if path.extname(filepath) then path.dirname(filepath) else filepath
-	mkdirp.sync(dir)
+	mkdirp.sync(dir) unless existsSync(dir)
 
 # Move file or directory 'source' to 'destination'
 # @param {String} source
