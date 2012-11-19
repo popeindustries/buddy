@@ -7,14 +7,5 @@ exports.build = {
 				"output": "output/js"
 			}
 		]
-	},
-	"css": {
-		"sources": ["src/stylus"],
-		"targets": [
-			{
-				"input": "src/stylus",
-				"output": "output/css"
-			}
-		]
 	}
 }

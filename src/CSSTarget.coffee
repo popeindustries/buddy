@@ -54,5 +54,5 @@ module.exports = class CSSTarget extends Target
 		mkdir(filepath)
 		fs.writeFileSync(filepath, content, 'utf8')
 		@files.push(filepath)
-		notify.print("#{notify.colour('built', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), filepath))}", 3)
+		notify.print("#{notify.colour('built', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), filepath))}", if @watching then 4 else 3)
 		fn(null, @files) if exit

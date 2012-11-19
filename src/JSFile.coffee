@@ -10,7 +10,6 @@ module.exports = class JSFile extends File
 	constructor: (filepath, basepath, compilers, @module) ->
 		super('js', filepath, basepath, compilers)
 		@moduleId = @module?.getModuleId(@qualifiedFilename)
-		@dependencies = []
 
 	# Read file contents and parse dependencies if 'modular'
 	# @param {Boolean} modular

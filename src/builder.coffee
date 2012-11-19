@@ -6,8 +6,8 @@ path = require('path')
 Configuration = require('./configuration')
 plugins = require('./plugins')
 Depedencies = require('./dependencies')
+Watcher = require('./watcher')
 Filelog =require('./filelog')
-Watcher =require('./watcher')
 JSFile = require('./jsfile')
 CSSFile = require('./cssfile')
 JSTarget = require('./jstarget')
@@ -17,8 +17,10 @@ rimraf = require('rimraf')
 # Node 0.8.0 api change
 existsSync = fs.existsSync or path.existsSync
 
-#starts with '.' or '_', contains '-min.' or '.min.' or 'svn' or '~'
+#starts with '.', '_', or '~' contains '-min.' or '.min.' or 'svn'
 RE_IGNORE_FILE = /^[\._~]|[-\.]min[-\.]|svn$/
+#starts with '.', or '~' contains '-min.' or '.min.' or 'svn'
+RE_WATCH_IGNORE_FILE = /^[\._]|[-\.]min[-\.]|svn$/
 JS = 'js'
 CSS = 'css'
 HTML = 'html'
@@ -31,6 +33,9 @@ module.exports = class Builder
 		@plugins = null
 		@dependencies = null
 		@filelog = null
+		@compress = false
+		@watching = false
+		@lint = false
 		@watchers = []
 		@jsSources =
 			locations: []
@@ -88,26 +93,28 @@ module.exports = class Builder
 			if @_validBuildType(type)
 				# Generate source cache
 				@config.build[type].sources.forEach (source) =>
-					@_parseSourceDirectory(path.resolve(process.cwd(), source), null, @[type + 'Sources'])
+					@_parseSourceDirectory(path.resolve(source), null, @[type + 'Sources'])
 				# Generate build targets
 				@_parseTargets(@config.build[type].targets, type)
 				# Run targets
-				@[type + 'Targets'].forEach (target) =>
-					target.run compress, lint, (err, files) =>
-						# Persist file references created on build
-						files and @filelog.add(files)
-						err and notify.error(err, 2)
+				@[type + 'Targets'].forEach (target) => @_runTarget(target, compress, lint)
 
-	watch: (compress, lint) ->
-		@build(compress, lint)
-
+	# Build sources and watch for creation, changes, and deletion
+	# optionally 'compress'ing and 'lint'ing
+	# @param {Boolean} compress
+	# @param {Boolean} lint
+	watch: (@compress, @lint) ->
+		@build(@compress, @lint)
+		@watching = true
 		[JS, CSS].forEach (type) =>
-			notify.print("watching [#{notify.strong(@config.build[type].sources.join(', '))}]...", 2)
-			@[type + 'Sources'].locations.forEach (source) =>
-				@watchers.push(new Watcher(source, RE_IGNORE_FILE, @_changed))
-
-	_changed: (err, data) ->
-
+			if @[type + 'Sources'].count
+				notify.print("watching [#{notify.strong(@config.build[type].sources.join(', '))}]...", 2)
+				@[type + 'Sources'].locations.forEach (source) =>
+					@watchers.push(watcher = new Watcher(RE_WATCH_IGNORE_FILE))
+					watcher.on('create', @_onWatchCreate)
+					watcher.on('change', @_onWatchChange)
+					watcher.on('delete', @_onWatchDelete)
+					watcher.watch(source)
 
 	# Build and compress sources based on targets specified in configuration
 	deploy: ->
@@ -118,7 +125,7 @@ module.exports = class Builder
 		# Delete files
 		notify.print('cleaning files...', 2)
 		@filelog.files.forEach (file) ->
-			notify.print("#{notify.colour('deleted', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), file))}", 3)
+			notify.print("#{notify.colour('deleted', notify.GREEN)} #{notify.strong(path.relative(file))}", 3)
 			rimraf.sync(file)
 		@filelog.clean()
 		@dependencies?.clean (err) =>
@@ -128,7 +135,7 @@ module.exports = class Builder
 	# including compileable file types
 	# @param {String} type
 	# @param {String} filename
-	_validSource: (type, filename) ->
+	_validFileType: (type, filename) ->
 		extension = path.extname(filename)[1..]
 		return true if extension is type
 		# Loop through compilers
@@ -141,6 +148,27 @@ module.exports = class Builder
 	_validBuildType: (type) ->
 		@config.build[type]?.sources? and @config.build[type].sources.length >= 1 and @config.build[type].targets? and @config.build[type].targets.length >= 1
 
+	# Retrieve the file type for a given 'filename'
+	# @param {String} filename
+	# @return {String}
+	_getFileType: (filename) ->
+		extension = path.extname(filename)[1..]
+		for type in [JS, CSS]
+			return type if extension is type
+			# Loop through compilers
+			for name, compiler of @plugins[type].compilers
+				return type if extension is compiler.extension
+		return ''
+
+	# Retrieve the source location for the given 'filename' and source 'type'
+	# @param {String} filename
+	# @param {String} type
+	# @return {String}
+	_getSourceLocation: (filename, type) ->
+		for source in @[type + 'Sources'].locations
+			return source if filename.indexOf(source) isnt -1
+		return ''
+
 	# Recursively store all valid source files in a 'cache' from a given 'dir'
 	# @param {String} dir
 	# @param {String} root [topmost location in recursive seach]
@@ -151,22 +179,37 @@ module.exports = class Builder
 
 		readdir(dir, RE_IGNORE_FILE).forEach (item) =>
 			# Store File objects in cache
-			if f = @_fileFactory(path.resolve(dir, item), root)
-				cache.count++
-				cache.byModule[f.moduleId] = f if f.moduleId?
-				cache.byPath[f.filepath] = f
+			@_cacheFile(file, cache) if file = @_fileFactory(path.resolve(dir, item), root)
 
 	# Generate file instances based on type
 	# @param {String} filepath
 	# @param {String} base [root of file's source location]
 	_fileFactory: (filepath, base) ->
 		# Create file instance by type
-		if @_validSource(JS, filepath)
+		if @_validFileType(JS, filepath)
 			return new JSFile(filepath, base, @plugins[JS].compilers, @plugins[JS].module)
-		else if @_validSource(CSS, filepath)
+		else if @_validFileType(CSS, filepath)
 			return new CSSFile(filepath, base, @plugins[CSS].compilers)
 		else
 			return null
+
+	# Store 'file' objects in 'cache'
+	# @param {File} file
+	# @param {Object} cache
+	_cacheFile: (file, cache) ->
+		unless cache.byPath[file.filepath]
+			cache.count++
+			cache.byModule[file.moduleId] = file if cache.byModule
+			cache.byPath[file.filepath] = file
+
+	# Remove 'file' object from 'cache'
+	# @param {File} file
+	# @param {Object} cache
+	_uncacheFile: (file, cache) ->
+		cache.count--
+		delete cache.byModule[file.moduleId] if file.moduleId
+		delete cache.byPath[file.filepath]
+		file.destroy()
 
 	# Recursively cache all valid target instances specified in configuration
 	# @param {Array} targets
@@ -218,62 +261,41 @@ module.exports = class Builder
 			return new JSTarget(inputpath, outputpath, @[type + 'Sources'], options)
 		else if type is CSS
 			return new CSSTarget(inputpath, outputpath, @[type + 'Sources'], options)
-###
-	watch: (compress, lint) ->
-		# @build(compress, lint)
-		# console.log(@jsSources.count, @cssSources.count)
 
-		# for type in [@JS, @CSS]
-		# 	notify.print("watching for changes in #{notify.strong('['+@config.build[type].sources.join(', ')+']')}...", 2)
-		# 	for s in @[type + 'Sources'].locations
-		# 		watcher = chokidar.watch(s, {ignored: @RE_IGNORE_FILE, persistent: true})
-		# 		watcher.on('add', @_onWatchAdd)
-		# 		watcher.on('change', @_onWatchChange)
-		# 		watcher.on('unlink', @_onWatchUnlink)
-		# 		@watchers.push(watcher)
+	# Run the given 'target'
+	# @param {Target} target
+	# @param {Boolean} compress
+	# @param {Boolean} lint
+	_runTarget: (target, compress, lint) ->
+		target.run compress, lint, (err, files) =>
+			# Persist file references created on build
+			files and @filelog.add(files)
+			err and notify.error(err, 2)
 
-	_onWatchAdd: (filepath) =>
-		unless (@jsSources.byPath[filepath] or @cssSources.byPath[filepath]) and not path.basename(filepath).match(RE_IGNORE_FILE)
-			# Find base source directory
-			for loc in @jsSources.locations.concat(@cssSources.locations)
-				# Create file instance and store
-				if filepath.indexOf(loc) is 0 and f = @_fileFactory(filepath, loc)
-					cache = @[f.type + 'Sources']
-					cache.count++
-					cache.byModule[f.moduleId] = f if f.moduleId?
-					cache.byPath[f.filepath] = f
-					console.log('add', filepath, cache.count, path.basename(filepath).match(RE_IGNORE_FILE))
-					return
-		# notify.print("[#{new Date().toLocaleTimeString()}] change detected in #{notify.strong(path)}", 0)
+	# Respond to 'create' event during watch
+	# @param {String} filename
+	# @param {Stats} stats
+	_onWatchCreate: (filename, stats) =>
+		type = @_getFileType(filename)
+		if type and file = @_fileFactory(filename, @_getSourceLocation(filename, type))
+			notify.print("[#{new Date().toLocaleTimeString()}] #{notify.colour('added', notify.GREEN)} #{notify.strong(path.basename(filename))}", 3)
+			@_cacheFile(file, @[type + 'Sources'])
 
-	_onWatchChange: (filepath) =>
-		# notify.print("[#{new Date().toLocaleTimeString()}] change detected in #{notify.strong(path)}", 0)
+	# Respond to 'change' event during watch
+	# @param {String} filename
+	# @param {Stats} stats
+	_onWatchChange: (filename, stats) =>
+		notify.print("[#{new Date().toLocaleTimeString()}] #{notify.colour('changed', notify.YELLOW)} #{notify.strong(path.basename(filename))}", 3)
+		type = @_getFileType(filename)
+		@[type + 'Targets'].forEach (target) =>
+			target.watching = true
+			@_runTarget(target, @compress, @lint)
 
-	_onWatchUnlink: (filepath) =>
-		# notify.print("[#{new Date().toLocaleTimeString()}] change detected in #{notify.strong(path)}", 0)
-
-	_watchFile: (file, compress) ->
-		# Store initial time and size
-		stat = fs.statSync(file.filepath)
-		file.lastChange = +stat.mtime
-		file.lastSize = stat.size
-		watcher = fs.watch file.filepath, callback = (event) =>
-			# Clear old and create new on rename
-			if event is 'rename'
-				watcher.close()
-				try	 # if source no longer exists, never mind
-					watcher = fs.watch(file.filepath, callback)
-			if event is 'change'
-				# Compare time to the last second
-				# This should prevent double watch execusion bug
-				nstat = fs.statSync(file.filepath)
-				last = +nstat.mtime / 1000
-				if last isnt file.lastChange
-					# Store new time
-					file.lastChange = last
-					term.out("[#{new Date().toLocaleTimeString()}] change detected in #{term.colour(file.filename, term.GREY)}", 0)
-					# Update contents
-					file.updateContents(fs.readFileSync(file.filepath, 'utf8'))
-					# TODO: re-initialize targets
-					@compile(compress, [file.type])
-###
+	# Respond to 'delete' event during watch
+	# @param {String} filename
+	# @param {Stats} stats
+	_onWatchDelete: (filename) =>
+		type = @_getFileType(filename)
+		if type and file = @[type + 'Sources'].byPath[filename]
+			notify.print("[#{new Date().toLocaleTimeString()}] #{notify.colour('removed', notify.RED)} #{notify.strong(path.basename(filename))}", 3)
+			@_uncacheFile(file, @[type + 'Sources'])

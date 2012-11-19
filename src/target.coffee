@@ -18,6 +18,7 @@ module.exports = class Target
 		@sources = []
 		@concat = false
 		@files = []
+		@watching = false
 		# Resolve output file name for file>folder target
 		if not path.extname(@output).length and fs.statSync(@input).isFile()
 			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), ".#{@type}")
@@ -32,7 +33,7 @@ module.exports = class Target
 		# Parse sources and build
 		@_parseSources(@input)
 		if @sources.length
-			notify.print("building #{notify.strong(path.basename(@input))} to #{notify.strong(path.basename(@output))}", 2)
+			notify.print("building #{notify.strong(path.basename(@input))} to #{notify.strong(path.basename(@output))}", 2) unless @watching
 			@_build(compress, lint, fn)
 		else
 			notify.warn("no sources to build in #{notify.strong(@input)}", 2)

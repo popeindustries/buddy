@@ -17,7 +17,6 @@ module.exports = class File
 		# qualified base name, with path from source root
 		@qualifiedFilename = path.relative(basepath, @filepath).replace(path.extname(@filename), '')
 		@needsCompile = @extension isnt @type
-		@lastChange = null
 		@_contents = ''
 		# Find and store compiler
 		if @needsCompile
@@ -42,6 +41,10 @@ module.exports = class File
 	getContents: (options, fn) ->
 		# Compile if necessary
 		if @needsCompile then @_compile(options, fn) else fn(null, @_contents)
+
+	destroy: ->
+		@dependencies = null
+		@compiler = null
 
 	# Use the supplied compiler to compile file contents
 	# @param {Object} options

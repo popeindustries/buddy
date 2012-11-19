@@ -141,5 +141,5 @@ module.exports = class JSTarget extends Target
 		content = "#{BUILT_HEADER}#{new Date().toString()}*/\n#{content}" if withHeader
 		fs.writeFileSync(filepath, content, 'utf8')
 		@files.push(filepath)
-		notify.print("#{notify.colour('built', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), filepath))}", 3)
+		notify.print("#{notify.colour('built', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), filepath))}", if @watching then 4 else 3)
 		fn(null, @files) if exit

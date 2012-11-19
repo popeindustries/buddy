@@ -96,6 +96,24 @@ describe 'Builder', ->
 				@builder._parseTargets([{'input': 'main.coffee', 'output': 'main.js', 'targets':[{'input':'class', 'output':'../js'}]}], 'js')
 				@builder.jsTargets.should.have.length(2)
 
+	describe.only 'getting file type', ->
+		before ->
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/init'))
+		beforeEach ->
+			@builder = new Builder()
+			config = @builder.config = new Configuration()
+			@builder.plugins = plugins.load()
+		it 'should return "js" for a js file', ->
+			@builder._getFileType('here/is/somefile.js').should.eql('js')
+		it 'should return "js" for a coffee file', ->
+			@builder._getFileType('here/is/somefile.coffee').should.eql('js')
+		it 'should return "css" for a css file', ->
+			@builder._getFileType('here/is/somefile.css').should.eql('css')
+		it 'should return "css" for a stylus file', ->
+			@builder._getFileType('here/is/somefile.styl').should.eql('css')
+		it 'should return "css" for a less file', ->
+			@builder._getFileType('here/is/somefile.less').should.eql('css')
+
 	describe 'build', ->
 		beforeEach ->
 			@builder = new Builder
@@ -213,4 +231,3 @@ describe 'Builder', ->
 					@builder.initialize('buddy_empty.js')
 					@builder.build()
 					gatherFiles(@builder.jsTargets[0].output).should.have.length(2)
-
