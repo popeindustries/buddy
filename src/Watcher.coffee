@@ -7,9 +7,13 @@ existsSync = fs.existsSync or path.existsSync
 
 module.exports = class Watcher extends events.EventEmitter
 
+	# Constructor
+	# @param {RegExp} ignore
 	constructor: (@ignore = /^\./) ->
 		@watchers = {}
 
+	# Watch a 'source' file or directory for changes
+	# @param {String} source
 	watch: (source) ->
 		unless @ignore.test(path.basename(source))
 			stats = fs.statSync(source)
@@ -40,6 +44,8 @@ module.exports = class Watcher extends events.EventEmitter
 					@unwatch(source)
 					@emit('delete', source)
 
+	# Stop watching a 'source' file or directory for changes
+	# @param {String} source
 	unwatch: (source) ->
 		if @watchers[source]?
 			try
@@ -47,5 +53,6 @@ module.exports = class Watcher extends events.EventEmitter
 			catch err
 			delete @watchers[source]
 
+	# Stop watching all sources for changes
 	clean: ->
 		@unwatch(source) for source of @watchers
