@@ -1,9 +1,9 @@
-# Buddy
+# buddy(1)
 
 **buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (coffeescript/stylus/less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.5.1
-*[the 0.5.x branch is not backwards compatible with earlier versions. See Change Log below for more details]*
+**Current version:** 0.5.2
+*[the 0.5.x branch is not backwards compatible with earlier versions. See [#changelog](Change Log) below for more details]*
 
 ## Installation
 
@@ -52,6 +52,8 @@ $ buddy build
 $ buddy -c build
 # build and lint all source files
 $ buddy -l build
+# watch and build on source changes
+$ buddy watch
 # build and compress for production
 $ buddy deploy
 # view usage, examples, and options
@@ -66,7 +68,7 @@ $ ./node_modules/buddy/bin/buddy install
 
 ### Configuration
 
-The only requirement for adding **buddy(1)** support to a project is the presence of a **buddy.js** file in your project root:
+The only requirement for adding **buddy** support to a project is the presence of a **buddy.js** file in your project root:
 
 ```js
 // Project build configuration.
@@ -198,7 +200,7 @@ If directory, all compileable files will be compiled, wrapped in module definiti
 
 - *modular*: a flag to prevent js files from being wrapped with a module definition.
 
-**Modules**: Each js file is wrapped in a module declaration based on the file's location. Dependencies (and concatenation order) are determined by the use of ***require*** statements:
+**Modules**: Each js file is wrapped in a module declaration based on the file's location. Dependencies (and concatenation order) are determined by the use of ```require()``` statements:
 
 ```javascript
 var lib = require('./my/lib'); // in current package
@@ -234,9 +236,9 @@ MyModule.prototype.myMethod = function() {
 module.exports = MyModule;
 ```
 
-Each module is provided with a ***module***, ***exports***, and ***require*** reference.
+Each module is provided with a ```module```, ```exports```, and ```require``` reference.
 
-When *require*-ing a module, keep in mind that the module id is resolved based on the following rules:
+When ```require()```-ing a module, keep in mind that the module id is resolved based on the following rules:
 
  * packages begin at the root folder specified in *buddy.js > js > sources*:
 ```
@@ -248,6 +250,8 @@ When *require*-ing a module, keep in mind that the module id is resolved based o
 ```
 
 See [node.js modules](http://nodejs.org/docs/v0.8.0/api/modules.html) for more info on modules.
+
+***NOTE***: ```require``` boilerplate needs to be included on the page to enable module loading. It's recommended to ```install``` a library like *git://github.com/popeindustries/browser-require.git*.
 
 ## Examples
 
@@ -298,19 +302,19 @@ Compile a library, then reference some library files in your project:
 ```js
 exports.build = {
   js: {
-    sources: ["libs/src/coffee", "libs/js", "src"],
+    sources: ['libs/src/coffee', 'libs/js', 'src'],
     targets: [
       {
         // a folder of coffee files (including nested folders)
-        input: "libs/src/coffee",
+        input: 'libs/src/coffee',
         // a folder of compiled js files
-        output: "libs/js"
+        output: 'libs/js'
       },
       {
         // the application entry point referencing library dependencies
-        input: "src/main.js",
+        input: 'src/main.js',
         // a concatenation of referenced dependencies
-        output: "js/main.js"
+        output: 'js/main.js'
       }
     ]
   }
@@ -322,19 +326,19 @@ Compile a site with an additional widget using shared sources:
 ```js
 exports.build = {
   js: {
-    sources: ["src/coffee"],
+    sources: ['src/coffee'],
     targets: [
       {
         // the application entry point
-        input: "src/coffee/main.coffee",
+        input: 'src/coffee/main.coffee',
         // output to main.js (includes all referenced dependencies)
-        output: "js",
+        output: 'js',
         targets: [
           {
             // references some of the same sources as main.coffee
-            input: "src/coffee/widget.coffee",
+            input: 'src/coffee/widget.coffee',
             // includes only referenced dependencies not in main.js
-            output: "js"
+            output: 'js'
           }
         ]
       }
@@ -343,7 +347,10 @@ exports.build = {
 }
 ```
 
-## Change Log ##
+## Changelog
+
+**0.5.2** - Novemver 20, 2012
+* added *watch* command
 
 **0.5.1** - Novemver 14, 2012
 * added *clean* command to remove all generated files
