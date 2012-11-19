@@ -51,10 +51,10 @@ exports.notify =
 # @param {Regex} ignore
 # @param {Array} files
 # @return {Array}
-exports.readdir = readdir = (dir, ignore = //, files = []) ->
+exports.readdir = readdir = (dir, ignore = /^\./, files = []) ->
 	fs.readdirSync(dir).forEach (item) =>
 		# Skip ignored files
-		unless item.match(ignore)
+		unless ignore.test(path.basename(item))
 			itempath = path.resolve(dir, item)
 			if fs.statSync(itempath).isDirectory()
 				# Recurse child directory
@@ -89,9 +89,11 @@ exports.cp = cp = (source, destination, base = null) ->
 		fs.writeFileSync(path.resolve(destination, path.basename(source)), fs.readFileSync(source))
 	# Directory
 	else
-		base ?= path.dirname(source)
-		# Create in destination
+		# Copy contents only if source ends in '/'
+		contentsOnly = if source.charAt(source.length - 1) is '/' and not base then true else false
+		base = if contentsOnly then path.resolve(source) else path.dirname(path.resolve(source))
 		dir = path.resolve(destination, source.replace(base, destination))
+		# Create in destination
 		fs.mkdirSync(dir) unless existsSync(dir)
 		# Loop through contents
 		fs.readdirSync(source).forEach (item) => cp(path.resolve(source, item), dir, base)
