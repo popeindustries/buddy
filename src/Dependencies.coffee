@@ -85,7 +85,7 @@ module.exports = class Dependencies
 			cp(dependency.source, path.resolve(dependency.destination))
 		else
 			# parse component.json for this dependency
-			filepath = path.resolve(process.cwd(), 'components', dependency.id)
+			filepath = path.resolve('components', dependency.id)
 			component = JSON.parse(fs.readFileSync(path.resolve(filepath, 'component.json'), 'utf8'))
 			# move source files to destination
 			filepath = path.resolve(filepath, dependency.sourcePath or component.main or '')
@@ -149,7 +149,7 @@ module.exports = class Dependencies
 					if err
 						fn(err, @files)
 					else
-						notify.print("#{notify.colour('compressed', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), output))}", 3)
+						notify.print("#{notify.colour('compressed', notify.GREEN)} #{notify.strong(path.relative(output))}", 3)
 						fs.writeFileSync(output, content)
 						@files.push(output)
 						fn(null, @files) if ++i is n

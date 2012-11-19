@@ -24,7 +24,7 @@ defaults = null
 # @param {String} type
 resolvePath = (plugin, type) ->
 	# Try version specified in configuration
-	pluginPath = path.resolve(process.cwd(), plugin)
+	pluginPath = path.resolve(plugin)
 	# Fallback to default version
 	pluginPath = path.resolve(__dirname, 'plugins', type, plugin) unless existsSync(pluginPath + '.js')
 	return pluginPath
