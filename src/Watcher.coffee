@@ -17,7 +17,8 @@ module.exports = class Watcher extends events.EventEmitter
 	watch: (source) ->
 		unless @ignore.test(path.basename(source))
 			stats = fs.statSync(source)
-			lastChange = 0
+			lastChange = stats.mtime.getTime()
+			lastSize = stats.size
 			# recursively parse items in directory
 			if stats.isDirectory()
 				fs.readdirSync(source).forEach (item) =>
@@ -29,7 +30,8 @@ module.exports = class Watcher extends events.EventEmitter
 					stats = fs.statSync(source)
 					if stats.isFile()
 						# notify if changed
-						@emit('change', source, stats) if lastChange is 0 or stats.mtime.getTime() > lastChange
+						if stats.mtime.getTime() isnt lastChange and stats.size isnt lastSize
+							@emit('change', source, stats)
 						lastChange = stats.mtime.getTime()
 					else if stats.isDirectory()
 						# notify if new
@@ -40,6 +42,7 @@ module.exports = class Watcher extends events.EventEmitter
 							if not @ignore.test(path.basename(item)) and not @watchers[item]
 								@emit('create', item, fs.statSync(item))
 								@watch(item)
+				# Deleted
 				else
 					@unwatch(source)
 					@emit('delete', source)
