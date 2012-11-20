@@ -350,7 +350,7 @@ exports.build = {
 ## Changelog
 
 **0.5.2** - Novemver 20, 2012
-* added *watch* command
+* added *watch* command; handle add, remove, and change of source files
 
 **0.5.1** - Novemver 14, 2012
 * added *clean* command to remove all generated files
