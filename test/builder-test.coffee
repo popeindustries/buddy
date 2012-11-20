@@ -96,7 +96,7 @@ describe 'Builder', ->
 				@builder._parseTargets([{'input': 'main.coffee', 'output': 'main.js', 'targets':[{'input':'class', 'output':'../js'}]}], 'js')
 				@builder.jsTargets.should.have.length(2)
 
-	describe.only 'getting file type', ->
+	describe 'getting file type', ->
 		before ->
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/init'))
 		beforeEach ->

@@ -16,8 +16,8 @@ module.exports = class Target
 	# @param {Object} options
 	constructor: (@type, @input, @output, @fileCache, @options) ->
 		@sources = []
-		@concat = false
 		@files = []
+		@concat = false
 		@watching = false
 		# Resolve output file name for file>folder target
 		if not path.extname(@output).length and fs.statSync(@input).isFile()
@@ -30,6 +30,7 @@ module.exports = class Target
 	run: (compress, lint, fn) ->
 		# Clear existing sources
 		@sources = []
+		@files = []
 		# Parse sources and build
 		@_parseSources(@input)
 		if @sources.length

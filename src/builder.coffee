@@ -5,6 +5,7 @@ fs = require('fs')
 path = require('path')
 Configuration = require('./configuration')
 plugins = require('./plugins')
+reloader = require('./reloader')
 Depedencies = require('./dependencies')
 Watcher = require('./watcher')
 Filelog =require('./filelog')
@@ -18,9 +19,9 @@ rimraf = require('rimraf')
 existsSync = fs.existsSync or path.existsSync
 
 #starts with '.', '_', or '~' contains '-min.' or '.min.' or 'svn'
-RE_IGNORE_FILE = /^[\._~]|[-\.]min[-\.]|svn$/
+RE_IGNORE_FILE = /^[\._~]|[-\.]min[-\.]|svn|~$/
 #starts with '.', or '~' contains '-min.' or '.min.' or 'svn'
-RE_WATCH_IGNORE_FILE = /^[\._]|[-\.]min[-\.]|svn$/
+RE_WATCH_IGNORE_FILE = /^[\.~]|[-\.]min[-\.]|svn|~$/
 JS = 'js'
 CSS = 'css'
 HTML = 'html'
@@ -34,8 +35,9 @@ module.exports = class Builder
 		@dependencies = null
 		@filelog = null
 		@compress = false
-		@watching = false
 		@lint = false
+		@watching = false
+		@reloading = false
 		@watchers = []
 		@jsSources =
 			locations: []
@@ -100,11 +102,14 @@ module.exports = class Builder
 				@[type + 'Targets'].forEach (target) => @_runTarget(target, compress, lint)
 
 	# Build sources and watch for creation, changes, and deletion
-	# optionally 'compress'ing and 'lint'ing
+	# optionally 'compress'ing and 'reload' the browser
 	# @param {Boolean} compress
-	# @param {Boolean} lint
-	watch: (@compress, @lint) ->
-		@build(@compress, @lint)
+	# @param {Boolean} reload
+	watch: (@compress, reload) ->
+		if reload
+			@reloading = true
+			reloader.start()
+		@build(@compress, false)
 		@watching = true
 		[JS, CSS].forEach (type) =>
 			if @[type + 'Sources'].count
@@ -266,10 +271,13 @@ module.exports = class Builder
 	# @param {Target} target
 	# @param {Boolean} compress
 	# @param {Boolean} lint
-	_runTarget: (target, compress, lint) ->
+	# @param {Function} fn
+	_runTarget: (target, compress, lint, fn) ->
 		target.run compress, lint, (err, files) =>
 			# Persist file references created on build
 			files and @filelog.add(files)
+			# Callback
+			fn and fn(files)
 			err and notify.error(err, 2)
 
 	# Respond to 'create' event during watch
@@ -289,7 +297,9 @@ module.exports = class Builder
 		type = @_getFileType(filename)
 		@[type + 'Targets'].forEach (target) =>
 			target.watching = true
-			@_runTarget(target, @compress, @lint)
+			@_runTarget target, @compress, @lint, (files) =>
+				@reloading and files and reloader.refresh(files)
+
 
 	# Respond to 'delete' event during watch
 	# @param {String} filename

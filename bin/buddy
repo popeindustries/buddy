@@ -24,7 +24,8 @@ program
 	.version(require('../package.json').version)
 	.usage('[options] <command> [path/to/buddy.json]>')
 	.option('-c, --compress', 'compress output for production deployment')
-	.option('-l, --lint', 'check output for syntax and logic errors');
+	.option('-l, --lint', 'check output for syntax and logic errors')
+	.option('-r, --reload', 'reload browser on source change while watching');
 
 program
 	.command('install [config]')
@@ -44,7 +45,7 @@ program
 	.command('watch [config]')
 	.description('watch js and css source files and build changes')
 	.action(function(config){
-		new Builder().initialize(config).watch(program.compress, program.lint);
+		new Builder().initialize(config).watch(program.compress, program.reload);
 	});
 
 program
