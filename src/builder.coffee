@@ -5,7 +5,6 @@ fs = require('fs')
 path = require('path')
 Configuration = require('./configuration')
 plugins = require('./plugins')
-reloader = require('./reloader')
 Depedencies = require('./dependencies')
 Watcher = require('./watcher')
 Filelog =require('./filelog')
@@ -37,7 +36,6 @@ module.exports = class Builder
 		@compress = false
 		@lint = false
 		@watching = false
-		@reloading = false
 		@watchers = []
 		@jsSources =
 			locations: []
@@ -104,11 +102,7 @@ module.exports = class Builder
 	# Build sources and watch for creation, changes, and deletion
 	# optionally 'compress'ing and 'reload' the browser
 	# @param {Boolean} compress
-	# @param {Boolean} reload
-	watch: (@compress, reload) ->
-		if reload
-			@reloading = true
-			reloader.start()
+	watch: (@compress) ->
 		@build(@compress, false)
 		@watching = true
 		[JS, CSS].forEach (type) =>
@@ -297,9 +291,7 @@ module.exports = class Builder
 		type = @_getFileType(filename)
 		@[type + 'Targets'].forEach (target) =>
 			target.watching = true
-			@_runTarget target, @compress, @lint, (files) =>
-				@reloading and files and reloader.refresh(files)
-
+			@_runTarget target, @compress, false
 
 	# Respond to 'delete' event during watch
 	# @param {String} filename

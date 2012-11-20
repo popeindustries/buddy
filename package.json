@@ -15,8 +15,6 @@
 		"commander": "1.0.5",
 		"rimraf": "2.0.2",
 		"mkdirp": "0.3.4",
-		"bower": "0.4.0",
-		"livereload-server": "0.2.1"
 	},
 	"devDependencies": {
 		"should": "*",
