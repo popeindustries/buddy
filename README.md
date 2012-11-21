@@ -212,7 +212,7 @@ var something = new SomeClass();
 util.log('hey');
 ```
 
-Specifying a module's public behaviour is achieved by decorating an *exports* object:
+Specifying a module's public behaviour is achieved by decorating an ```exports``` object:
 
 ```javascript
 var myModuleVar = 'my module';
@@ -222,7 +222,7 @@ exports.myModuleMethod = function() {
 };
 ```
 
-or overwriting the *exports* object completely:
+...or overwriting the ```exports``` object completely:
 
 ```javascript
 function MyModule() {
