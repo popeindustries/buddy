@@ -1,6 +1,7 @@
 fs = require('fs')
 path = require('path')
 mkdirp = require('mkdirp')
+rimraf = require('rimraf')
 # Node 0.8.0 api change
 existsSync = fs.existsSync or path.existsSync
 
@@ -97,6 +98,12 @@ exports.cp = cp = (source, destination, base = null) ->
 		fs.mkdirSync(dir) unless existsSync(dir)
 		# Loop through contents
 		fs.readdirSync(source).forEach (item) => cp(path.resolve(source, item), dir, base)
+
+# Recursive remove file or directory
+# Makes sure only project sources are removed
+# @param {String} source
+exports.rm = rm = (source) ->
+	rimraf.sync(source) if existsSync(source) and source.indexOf(process.cwd()) isnt -1
 
 # Indent the given 'string' a specific number of spaces
 # @param {String} string
