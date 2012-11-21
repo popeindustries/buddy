@@ -16,6 +16,7 @@ module.exports = class Filelog
 	# @param {Array} files
 	add: (files) ->
 		files.forEach (file) =>
+			file = path.relative(process.cwd(), file)
 			@files.push(file) if @files.indexOf(file) is -1
 		# Save
 		fs.writeFileSync(@filename, JSON.stringify(@files))
