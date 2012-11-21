@@ -1,14 +1,18 @@
 path = require('path')
 fs = require('fs')
-bower = require('bower')
-rimraf = require('rimraf')
-{mv, cp, mkdir, cat, notify} = require('./utils')
+Dependency = require('./dependency')
+{rm, mv, cp, mkdir, notify} = require('./utils')
 # Node 0.8.0 api change
 existsSync = fs.existsSync or path.existsSync
 
+RE_GITHUB_PROJECT = /\w+\/\w+/
+RE_GITHUB_URL = /git:\/\/(.*)\.git/
+RE_PACKAGE_NOT_FOUND = /was not found/
+
+RE_VERSION = /@/
+RE_SOURCE_OVERRIDE = /#/
 RE_ID = /\D\[\d{2}m([\w-_\.]+)\D\[\d{2}m$/
 RE_LOCAL = /^[\.\/~]/
-RE_SOURCE_PATH = /@/
 RE_FETCHING = /fetching/
 
 module.exports = class Dependencies
@@ -20,52 +24,36 @@ module.exports = class Dependencies
 		@installIdx = 0
 		@dependencies = []
 		@files = []
+		@temp = path.resolve('.tmp')
 		for destination, data of @options
 			data.sources.forEach (source) =>
-				# Handle local files
-				if RE_LOCAL.test(source)
-					id = source
-					source = path.resolve(source)
-					local = true
-					# Don't clean if source is in destination dir
-					keep = source.indexOf(path.resolve(destination)) isnt -1
-				# Strip specified source path
-				if RE_SOURCE_PATH.test(source)
-					items = source.split('@')
-					source = items[0]
-					sourcePath = items[1]
-				@dependencies.push
-					destination: destination
-					source: source
-					sourcePath: sourcePath or ''
-					output: data.output and path.resolve(data.output)
-					local: local or false
-					keep: keep or false
-					id: id
-					filepath: ''
+				@dependencies.push(new Dependency(source, destination, data.output))
 
 	# Install dependencies and call 'fn' when complete
 	# @param {Function} fn(err, files)
 	install: (fn) ->
-		next = (dependency) =>
-			@installIdx++
-			@_moveSource(dependency)
-			@install(fn)
-
-		if dependency = @dependencies[@installIdx]
+		# Create temp directory to store downloads
+		mkdir(@temp)
+		@dependencies.forEach (dependency) =>
 			if dependency.local
-				next(dependency)
+				@_move(dependency)
 			else
-				bower.commands
-					.install([dependency.source])
-					# Derive id from message string (don't overwrite in case of dependants)
-					.on('data', (data) => dependency.id ?= RE_ID.exec(data)[1] if RE_FETCHING.test(data))
-					.on('end', => next(dependency))
-					.on('error', (err) -> fn(err))
-		# Complete
-		else
-			@installIdx = 0
-			@_resolveDependants(fn)
+				unless dependency.url
+					@_lookupPackage dependency, (err) =>
+						if err
+							fn(err)
+						else
+							@_fetch dependency, temp, (err) =>
+								if err
+									fn(err)
+								else
+									@_parseSources dependency, (err) =>
+				else
+					@_fetch dependency, temp, (err) =>
+						if err
+							fn(err)
+						else
+							@_parseSources dependency, (err) =>
 
 	# Clean the bower cache
 	# @param {Function} fn(err)
@@ -74,6 +62,11 @@ module.exports = class Dependencies
 		bower.commands['cache-clean']()
 			.on('end', -> fn())
 			.on('error', (err) -> fn(err))
+
+
+
+
+
 
 	# Move dependency files from temp location to destination
 	# @param {Object} dependency
@@ -123,7 +116,7 @@ module.exports = class Dependencies
 
 	# Clear the temporary components directory
 	_clearCache: ->
-		rimraf.sync(path.resolve('components'))
+		rm(path.resolve('components'))
 
 	# Package dependencies into single output file if necessary
 	# @param {Function} fn(err, files)
@@ -155,3 +148,24 @@ module.exports = class Dependencies
 						fn(null, @files) if ++i is n
 		else
 			fn(null, @files)
+
+
+		# next = (dependency) =>
+		# 	@installIdx++
+		# 	@_moveSource(dependency)
+		# 	@install(fn)
+
+		# if dependency = @dependencies[@installIdx]
+		# 	if dependency.local
+		# 		next(dependency)
+		# 	else
+		# 		bower.commands
+		# 			.install([dependency.source])
+		# 			# Derive id from message string (don't overwrite in case of dependants)
+		# 			.on('data', (data) => dependency.id ?= RE_ID.exec(data)[1] if RE_FETCHING.test(data))
+		# 			.on('end', => next(dependency))
+		# 			.on('error', (err) -> fn(err))
+		# # Complete
+		# else
+		# 	@installIdx = 0
+		# 	@_resolveDependants(fn)
