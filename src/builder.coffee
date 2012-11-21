@@ -12,8 +12,7 @@ JSFile = require('./jsfile')
 CSSFile = require('./cssfile')
 JSTarget = require('./jstarget')
 CSSTarget = require('./csstarget')
-rimraf = require('rimraf')
-{notify, readdir} = require('./utils')
+{notify, readdir, rm} = require('./utils')
 # Node 0.8.0 api change
 existsSync = fs.existsSync or path.existsSync
 
@@ -124,8 +123,8 @@ module.exports = class Builder
 		# Delete files
 		notify.print('cleaning files...', 2)
 		@filelog.files.forEach (file) ->
-			notify.print("#{notify.colour('deleted', notify.GREEN)} #{notify.strong(path.relative(file))}", 3)
-			rimraf.sync(file)
+			notify.print("#{notify.colour('deleted', notify.GREEN)} #{notify.strong(file)}", 3)
+			rm(path.resolve(file))
 		@filelog.clean()
 		@dependencies?.clean (err) =>
 			err and notify.error(err, 2)
