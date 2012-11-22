@@ -1,9 +1,8 @@
 exports.dependencies = {
 	'libs/vendor': {
 		sources: [
-			'git://github.com/popeindustries/browser-require.git',
-			'jquery',
-			'backbone'
+			'popeindustries/browser-require',
+			'jquery'
 		],
 		output: 'libs/js/libs.js'
 	}
