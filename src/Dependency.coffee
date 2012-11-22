@@ -130,7 +130,7 @@ module.exports = class Dependency extends events.EventEmitter
 	# @param {String} dest
 	fetch: (temp) ->
 		# Create archive filename
-		filename = temp + '/' + @id + '-' + @version + '.zip'
+		filename = temp + path.sep + @id + '-' + @version + '.zip'
 		# Download archive to temp
 		req = request.get(@url).buffer(false)
 		req.end (err, res) =>
@@ -171,15 +171,15 @@ module.exports = class Dependency extends events.EventEmitter
 		else
 			@resources = []
 			# Find json file
-			if existsSync(@location + '/component.json')
-				config = '/component.json'
-			else if existsSync(@location + '/package.json')
-				config = '/package.json'
+			if existsSync(path.resolve(@location, 'component.json'))
+				config = 'component.json'
+			else if existsSync(path.resolve(@location, 'package.json'))
+				config = 'package.json'
 			else
 				return @emit('error', 'no config (component/package).json file found for: ' + @id)
 
 			try
-				json = JSON.parse(fs.readFileSync(@location + config, 'utf8'))
+				json = JSON.parse(fs.readFileSync(path.resolve(@location, config), 'utf8'))
 			catch err
 				return @emit('error', 'parsing: ' + @id + config)
 

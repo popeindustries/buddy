@@ -117,7 +117,7 @@ describe 'Dependencies', ->
 				dependency = new Dependency('popeindustries/buddy', '')
 				dependency.fetch(@temp)
 				.once 'end:fetch', ->
-					dependency.location.should.eql(path.resolve('libs' + path.sep + 'buddy-master'))
+					dependency.location.should.eql(path.resolve('libs', 'buddy-master'))
 					fs.existsSync(dependency.location).should.be.true
 					done()
 			it 'should return an error for an invalid url', (done) ->
