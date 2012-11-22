@@ -6,7 +6,7 @@ rimraf = require('rimraf')
 existsSync = fs.existsSync or path.existsSync
 
 # Console output formatting
-exports.notify =
+exports.notify = notify =
 	RED: '0;31'
 	YELLOW: '1;33'
 	GREEN: '0;32'
@@ -120,7 +120,9 @@ exports.cp = cp = (source, destination, base = null) ->
 # Makes sure only project sources are removed
 # @param {String} source
 exports.rm = rm = (source) ->
-	rimraf.sync(source) if existsSync(source) and source.indexOf(process.cwd()) isnt -1
+	if existsSync(source) and source.indexOf(process.cwd()) isnt -1
+		rimraf source, (err) ->
+			err and notify.error(err, 2)
 
 # Indent the given 'string' a specific number of spaces
 # @param {String} string

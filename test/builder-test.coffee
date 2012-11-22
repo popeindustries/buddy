@@ -117,9 +117,10 @@ describe 'Builder', ->
 	describe 'build', ->
 		beforeEach ->
 			@builder = new Builder
-		afterEach ->
+		afterEach (done) ->
 			@builder = null
-			rimraf.sync(path.resolve(process.cwd(), 'output'))
+			rimraf path.resolve(process.cwd(), 'output'), (err) ->
+				done()
 		describe 'file target', ->
 			before ->
 				process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project'))

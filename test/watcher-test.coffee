@@ -10,9 +10,11 @@ describe 'Watcher', ->
 	beforeEach ->
 		@watcher = new Watcher
 		cp(path.resolve('src') + '/', path.resolve('test'))
-	afterEach ->
+	afterEach (done) ->
 		@watcher.clean()
-		rimraf.sync(path.resolve('test'))
+		rimraf path.resolve('test'), (err) ->
+			done()
+
 	describe 'watching a directory for new files', ->
 		it 'should emit a create event on addition of a new file', (done) ->
 			newfile = path.resolve('test/coffee/dummy.coffee')

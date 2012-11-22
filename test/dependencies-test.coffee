@@ -10,8 +10,9 @@ plugins = require('../lib/plugins')
 describe 'Dependencies', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/dependencies'))
-	afterEach ->
-		rimraf.sync(path.resolve('libs'))
+	afterEach (done) ->
+		rimraf path.resolve('libs'), (err) ->
+			done()
 
 	describe 'Dependency', ->
 
