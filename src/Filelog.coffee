@@ -4,13 +4,18 @@ path = require('path')
 existsSync = fs.existsSync or path.existsSync
 
 NAME = '.buddy-filelog'
+RE_ABSOLUTE = /^\/|^[A-Z]:\\/
 
 module.exports = class Filelog
 
 	constructor: ->
 		@filename = path.resolve(NAME)
 		# Load existing
-		@files = if existsSync(@filename) then JSON.parse(fs.readFileSync(@filename, 'utf8')) else []
+		@files = if existsSync(@filename) then JSON.parse(json = fs.readFileSync(@filename, 'utf8')) else []
+		# Clean if file is old or from another system
+		if @files.length
+			if (path.sep is '/' and json.indexOf('\\') isnt -1) or (path.sep is '\\' and json.indexOf('/') isnt -1) or RE_ABSOLUTE.test(@files[0])
+				@clean()
 
 	# Add 'files' to the file log
 	# @param {Array} files
