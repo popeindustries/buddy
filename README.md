@@ -184,6 +184,8 @@ exports.settings = {
 
 ## Concepts
 
+### BUILD ###
+
 **Project Root**: The directory from which all paths resolve to. Determined by location of the *buddy.js* configuration file.
 
 **Sources**: An array of directories from which all referenced files are retrieved from. ***Note:*** A *js* module's id is derived from it's relative path to it's source directory.
@@ -201,7 +203,9 @@ If directory, all compileable files will be compiled, wrapped in module definiti
 
 - *modular*: a flag to prevent js files from being wrapped with a module definition.
 
-**Modules**: Each js file is wrapped in a module declaration based on the file's location. Dependencies (and concatenation order) are determined by the use of ```require()``` statements:
+### MODULES ###
+
+Each js file is wrapped in a module declaration based on the file's location. Dependencies (and concatenation order) are determined by the use of ```require()``` statements:
 
 ```javascript
 var lib = require('./my/lib'); // in current package
@@ -253,6 +257,22 @@ When ```require()```-ing a module, keep in mind that the module id is resolved b
 See [node.js modules](http://nodejs.org/docs/v0.8.0/api/modules.html) for more info on modules.
 
 ***NOTE***: ```require``` boilerplate needs to be included on the page to enable module loading. It's recommended to ```install``` a library like *popeindustries/browser-require*.
+
+### DEPENDENCIES ###
+
+Dependency resources are installed from local locations or remotely from Github.
+
+**Sources**: An array of local or remote resource locations.
+
+- **destination**: each group of sources will be installed to the project relative location specified.
+
+- **identifier**: github ```username/repo``` identifiers are preferred, but it is also possible to use identifiers from the [bower](https://github.com/twitter/bower) package manager: ```'jquery', 'backbone', 'underscore'```
+
+- **versioning**: github sources can specify a version by appending ```@``` and a npm-style symantic version: ```'*', '1.2.3', '1.x', '~1.2.0', '>=1.2.3'```
+
+- **resources**: specific resources can be specified by appending ```#``` and a list of ```|``` separated relative file or directory locations: ```'username/repo#a/file/or/directory|another/file/or/directory'```
+
+**Output**: A file destination to concatenate and compress the source contents. The order of *sources* determines the content order.
 
 ## Examples
 
