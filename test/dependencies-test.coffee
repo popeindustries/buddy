@@ -117,7 +117,7 @@ describe 'Dependencies', ->
 				dependency = new Dependency('popeindustries/buddy', '')
 				dependency.fetch(@temp)
 				.once 'end:fetch', ->
-					dependency.location.should.eql(path.resolve('libs/buddy-master'))
+					dependency.location.should.eql(path.resolve('libs' + path.sep + 'buddy-master'))
 					fs.existsSync(dependency.location).should.be.true
 					done()
 			it 'should return an error for an invalid url', (done) ->
@@ -165,7 +165,7 @@ describe 'Dependencies', ->
 				fs.existsSync(path.resolve('libs/backbone.js')).should.be.true
 				cp(path.resolve('libs/backbone.js'), path.resolve('archive/backbone-master'))
 			it 'should store references to moved files in `files` property', ->
-				@dependency.files.should.include('libs/backbone.js')
+				@dependency.files.should.include('libs' + path.sep + 'backbone.js')
 			it 'should not move or store references to files when `keep` property is set', ->
 				dependency = new Dependency(path.resolve('local/lib'), path.resolve('local'))
 				dependency.move()
