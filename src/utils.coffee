@@ -75,19 +75,35 @@ exports.mkdir = mkdir = (filepath) ->
 # @param {String} source
 # @param {String} destination
 exports.mv = mv = (source, destination) ->
+	mkdir(destination)
 	try
-		fs.rename(source, path.resolve(destination, path.basename(source)))
+		fs.rename(source, filename = path.resolve(destination, path.basename(source)))
+		return filename
 	catch err
 		# pipe files
 
 # Copy file or directory 'source' to 'destination'
+# Copies contents of 'source' if directory and ends in trailing '/'
 # @param {String} source
 # @param {String} destination
 # @param {String} base [private]
+# @returns {String}
 exports.cp = cp = (source, destination, base = null) ->
 	# File
 	if fs.statSync(source).isFile()
-		fs.writeFileSync(path.resolve(destination, path.basename(source)), fs.readFileSync(source))
+		# Same directory
+		if path.dirname(source) is path.dirname(destination)
+			if path.basename(destination) and path.basename(destination) isnt path.basename(source)
+				filename = destination
+			else
+				# Append 'copy' if no destination filename
+				filename = source.replace('.', ' copy.')
+		# New directory
+		else
+			filename = path.resolve(destination, path.basename(source))
+		# Write file if it doesn't already exisst
+		fs.writeFileSync(filename, fs.readFileSync(source)) unless existsSync(filename)
+		return filename
 	# Directory
 	else
 		# Copy contents only if source ends in '/'
@@ -95,9 +111,10 @@ exports.cp = cp = (source, destination, base = null) ->
 		base = if contentsOnly then path.resolve(source) else path.dirname(path.resolve(source))
 		dir = path.resolve(destination, source.replace(base, destination))
 		# Create in destination
-		fs.mkdirSync(dir) unless existsSync(dir)
+		mkdir(dir)
 		# Loop through contents
 		fs.readdirSync(source).forEach (item) => cp(path.resolve(source, item), dir, base)
+		return dir
 
 # Recursive remove file or directory
 # Makes sure only project sources are removed
