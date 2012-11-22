@@ -58,12 +58,12 @@ exports.dependencies = {
   'a/vendor/directory': {
     // An ordered list of dependencies
     sources: [
-      // A git url.
-      // Install the 'browser-require' source when using Node modules.
-      'git://github.com/popeindustries/browser-require.git',
-      // A named library with or without version (ex: jquery#latest, backbone, backbone#1.0.0).
+      // A github user/repo.
+      // Install the 'browser-require' source when using Node-style modules.
+      'popeindustries/browser-require',
+      // A named library with or without version (ex: jquery@latest, backbone, backbone@1.0.0).
       // Version identifiers follow the npm semantic versioning rules.
-      'library#version'
+      'library@version'
     ],
     // Dependencies can be packaged and minified to a destination file
     output: 'a/js/file'
@@ -71,11 +71,12 @@ exports.dependencies = {
   // A destination directory in which to place source library dependencies.
   'a/source/directory': {
     sources: [
-      // A git url.
-      // Will use the 'main' property of package.json to identify the file to install.
-      'git://github.com/username/project.git',
-      // A git url with a specific file or directory identifier.
-      'git://github.com/username/project.git@a/file/or/directory',
+      // A github user/repo.
+      // Will use the 'main' or 'scripts' properties of
+      // components.json or package.json to identify the file to install.
+      'username/repo',
+      // A github user/repo with specific file or directory locations.
+      'username/repo#a/file/or/directory|another/file/or/directory',
       // A local file or directory to copy and install.
       'a/file/or/directory'
     ]

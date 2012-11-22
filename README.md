@@ -2,7 +2,7 @@
 
 **buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (coffeescript/stylus/less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.5.2
+**Current version:** 0.5.3
 *[the 0.5.x branch is not backwards compatible with earlier versions. See Change Log below for more details]*
 
 ## Installation
@@ -131,12 +131,12 @@ exports.dependencies = {
   'a/vendor/directory': {
     // An ordered list of dependencies
     sources: [
-      // A git url.
-      // Install the 'browser-require' source when using Node modules.
-      'git://github.com/popeindustries/browser-require.git',
-      // A named library with or without version (ex: jquery#latest, backbone, backbone#1.0.0).
+      // A github user/repo.
+      // Install the 'browser-require' source when using Node-style modules.
+      'popeindustries/browser-require',
+      // A named library with or without version (ex: jquery@latest, backbone, backbone@1.0.0).
       // Version identifiers follow the npm semantic versioning rules.
-      'library#version'
+      'library@version'
     ],
     // Dependencies can be packaged and minified to a destination file
     output: 'a/js/file'
@@ -144,11 +144,12 @@ exports.dependencies = {
   // A destination directory in which to place source library dependencies.
   'a/source/directory': {
     sources: [
-      // A git url.
-      // Will use the 'main' property of package.json to identify the file to install.
-      'git://github.com/username/project.git',
-      // A git url with a specific file or directory identifier.
-      'git://github.com/username/project.git@a/file/or/directory',
+      // A github user/repo.
+      // Will use the 'main' or 'scripts' properties of
+      // components.json or package.json to identify the file to install.
+      'username/repo',
+      // A github user/repo with specific file or directory locations.
+      'username/repo#a/file/or/directory|another/file/or/directory',
       // A local file or directory to copy and install.
       'a/file/or/directory'
     ]
@@ -251,7 +252,7 @@ When ```require()```-ing a module, keep in mind that the module id is resolved b
 
 See [node.js modules](http://nodejs.org/docs/v0.8.0/api/modules.html) for more info on modules.
 
-***NOTE***: ```require``` boilerplate needs to be included on the page to enable module loading. It's recommended to ```install``` a library like *git://github.com/popeindustries/browser-require.git*.
+***NOTE***: ```require``` boilerplate needs to be included on the page to enable module loading. It's recommended to ```install``` a library like *popeindustries/browser-require*.
 
 ## Examples
 
@@ -273,9 +274,9 @@ exports.dependencies = {
   'libs/vendor': {
     sources: [
       // library for require boilerplate
-      'git://github.com/popeindustries/browser-require.git',
+      'popeindustries/browser-require',
       // jquery at specific version
-      'jquery#1.8.2'
+      'jquery@1.8.2'
     ],
     // packaged and compressed
     output: 'www/assets/js/libs.js'
@@ -291,7 +292,7 @@ exports.dependencies = {
   'libs/src/css': {
     sources: [
       // reference the lib/nib directory for installation
-      'git://github.com/visionmedia/nib.git@lib/nib'
+      'visionmedia/nib#lib/nib'
     ]
   }
 }
@@ -348,6 +349,11 @@ exports.build = {
 ```
 
 ## Changelog
+
+**0.5.3** - November 23, 2012
+* refactored *install* command behaviour; no longer uses git operations, changed syntax for specifying version ('@') and resources ('#'), added ability to list several resources **[breaking change]**
+* *.buddy-filelog* now stores relative paths for compatibility on different systems
+* file deletions limited to resources under the project root
 
 **0.5.2** - Novemver 20, 2012
 * added *watch* command; handle add, remove, and change of source files
