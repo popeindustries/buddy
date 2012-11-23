@@ -3,7 +3,7 @@ path = require('path')
 {existsSync} = require('./utils')
 
 NAME = '.buddy-filelog'
-RE_ABSOLUTE = /^([a-z]:\\)|\//i
+RE_ABSOLUTE = /^([a-z]:\\)|^\//i
 
 module.exports = class Filelog
 

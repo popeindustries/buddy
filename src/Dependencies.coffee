@@ -46,7 +46,7 @@ module.exports = class Dependencies
 			# Install
 			@_installDependency(dependant, fn)
 		.once 'end', =>
-			notify.print("#{notify.colour('installed', notify.GREEN)} #{notify.strong(dependency.id)} to #{notify.strong(dependency.destination)}", 3)
+			notify.print("#{notify.colour('installed', notify.GREEN)} #{notify.strong(dependency.id)} to #{notify.strong(path.relative(process.cwd(), dependency.destination))}", 3)
 			@files = @files.concat(dependency.files)
 			@installIdx++
 			@_pack(fn) if @installIdx is @dependencies.length
@@ -80,7 +80,7 @@ module.exports = class Dependencies
 					if err
 						fn(err, @files)
 					else
-						notify.print("#{notify.colour('compressed', notify.GREEN)} #{notify.strong(path.relative(output))}", 3)
+						notify.print("#{notify.colour('compressed', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), output))}", 3)
 						# TODO: async writeFile
 						fs.writeFileSync(output, content)
 						@files.push(output)

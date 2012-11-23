@@ -116,11 +116,14 @@ module.exports = class Builder
 	# Remove all file system content created via installing and building
 	clean: ->
 		# Delete files
-		notify.print('cleaning files...', 2)
-		@filelog.files.forEach (file) ->
-			notify.print("#{notify.colour('deleted', notify.GREEN)} #{notify.strong(file)}", 3)
-			rm(path.resolve(file))
-		@filelog.clean()
+		if @filelog.files.length
+			notify.print('cleaning files...', 2)
+			@filelog.files.forEach (file) ->
+				notify.print("#{notify.colour('deleted', notify.RED)} #{notify.strong(file)}", 3)
+				rm(path.resolve(file))
+			@filelog.clean()
+		else
+			notify.print('no files to clean', 2)
 
 	# Check that a given 'filename' is a valid source of 'type'
 	# including compileable file types
