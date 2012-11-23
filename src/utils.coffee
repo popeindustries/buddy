@@ -6,6 +6,8 @@ rimraf = require('rimraf')
 exports.existsSync = existsSync = fs.existsSync or path.existsSync
 exports.exists = exists = fs.exists or path.exists
 
+RE_IGNORE = /^[\.~]|~$/
+
 # Console output formatting
 exports.notify = notify =
 	RED: '0;31'
@@ -50,45 +52,86 @@ exports.notify = notify =
 
 # Read and store the contents of a directory, ignoring files of type specified
 # @param {String} dir
-# @param {Regex} ignore
 # @param {Function} fn(err, files)
-exports.readdir = readdir = (dir, ignore = /^\./, files = []) ->
-	fs.readdirSync(dir).forEach (item) =>
-		# Skip ignored files
-		unless ignore.test(path.basename(item))
-			itempath = path.resolve(dir, item)
-			if fs.statSync(itempath).isDirectory()
-				# Recurse child directory
-				readdir(itempath, ignore, files)
+# @param {Regex} ignore
+exports.readdir = readdir = (dir, fn, ignore) ->
+	# Merge ignores
+	ignore = if ignore then new RegExp(RE_IGNORE.source + '|' + ignore.source) else RE_IGNORE
+	_outstanding = 0
+	_files = []
+	_readdir = (dir) ->
+		_outstanding++
+		fs.readdir dir, (err, files) ->
+			_outstanding--
+			if err
+				# Exit if proper error, otherwise skip
+				return if err.code is 'ENOENT'
+				else return fn(err)
 			else
-				files.push(itempath)
-	files
+				files.forEach (file) ->
+					# Skip ignored files
+					unless ignore.test(path.basename(file))
+						filepath = path.resolve(dir, file)
+						_outstanding++
+						fs.stat filepath, (err, stats) ->
+							_outstanding--
+							if err
+								# Exit if proper error, otherwise skip
+								return if err.code is 'ENOENT'
+								else return fn(err)
+							else
+								# Recurse child directory
+								if stats.isDirectory()
+									_readdir(filepath)
+								else
+									# Store
+									_files.push(filepath)
+									# Return if no outstanding
+									fn(null, _files) unless _outstanding
+				# Return if no outstanding
+				fn(null, _files) unless _outstanding
+	_readdir(dir)
 
 # Recursively create directory path specified by 'filepath'
 # @param {String} filepath
-exports.mkdir = mkdir = (filepath) ->
+# @param {Function} fn(err)
+exports.mkdir = mkdir = (filepath, fn) ->
 	# Resolve directory name if passed a file
 	dir = if path.extname(filepath) then path.dirname(filepath) else filepath
-	mkdirp.sync(dir) unless existsSync(dir)
+	unless existsSync(dir)
+		mkdirp dir, (err) ->
+			if err then fn(err) else fn()
+	else
+		fn()
 
 # Move file or directory 'source' to 'destination'
 # @param {String} source
 # @param {String} destination
-exports.mv = mv = (source, destination) ->
-	mkdir(destination)
-	try
-		fs.rename(source, filename = path.resolve(destination, path.basename(source)))
-		return filename
-	catch err
-		# pipe files
+# @param {Function} fn(err, filepath)
+exports.mv = mv = (source, destination, fn) ->
+	mkdir destination, (err) ->
+		if err
+			fn(err)
+		else
+			filepath = path.resolve(destination, path.basename(source))
+			if existsSync(filepath)
+				fn(new Error('already exists: ' + filepath))
+			else
+				fs.rename source, filepath, (err) ->
+					if err then fn(err) else fn(null, filepath)
 
 # Copy file or directory 'source' to 'destination'
 # Copies contents of 'source' if directory and ends in trailing '/'
 # @param {String} source
 # @param {String} destination
-# @param {String} base [private]
-# @returns {String}
-exports.cp = cp = (source, destination, base = null) ->
+# @param {Function} fn(err, filepath)
+exports.cp = cp = (source, destination) ->
+	_outstanding = 0
+	_base =
+	_cp = (source, destination) ->
+
+
+
 	# File
 	if fs.statSync(source).isFile()
 		# Same directory
@@ -101,7 +144,7 @@ exports.cp = cp = (source, destination, base = null) ->
 		# New directory
 		else
 			filename = path.resolve(destination, path.basename(source))
-		# Write file if it doesn't already exisst
+		# Write file if it doesn't already exist
 		fs.writeFileSync(filename, fs.readFileSync(source)) unless existsSync(filename)
 		return filename
 	# Directory
@@ -119,10 +162,16 @@ exports.cp = cp = (source, destination, base = null) ->
 # Recursive remove file or directory
 # Makes sure only project sources are removed
 # @param {String} source
-exports.rm = rm = (source) ->
-	if existsSync(source) and source.indexOf(process.cwd()) isnt -1
-		rimraf source, (err) ->
-			err and notify.error(err, 2)
+# @param {Function} fn(err)
+exports.rm = rm = (source, fn) ->
+	if existsSync(source)
+		if source.indexOf(process.cwd()) isnt -1
+			rimraf source, (err) ->
+				if err then fn(err) else fn()
+		else
+			fn(new Error('cannot rm source outside of project path: ' + source))
+	else
+		fn(new Error('cannot rm non-existant source: ' + source))
 
 # Indent the given 'string' a specific number of spaces
 # @param {String} string
