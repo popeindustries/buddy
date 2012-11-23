@@ -15,6 +15,7 @@ module.exports = class JSTarget extends Target
 	# @param {Object} options
 	constructor: (input, output, fileCache, options) ->
 		super('js', input, output, fileCache, options)
+		# TODO: async stat
 		# Concat output if using modules and input is a file
 		@concat = @options.modular and fs.statSync(@input).isFile()
 
@@ -136,9 +137,11 @@ module.exports = class JSTarget extends Target
 	# @param {Function} fn(err, files)
 	# @param {Boolean} exit
 	_writeFile: (content, filepath, withHeader, fn, exit) ->
+		# TODO: async mkdir
 		# Create directory if missing
 		mkdir(filepath)
 		content = "#{BUILT_HEADER}#{new Date().toString()}*/\n#{content}" if withHeader
+		# TODO: async writeFile
 		fs.writeFileSync(filepath, content, 'utf8')
 		@files.push(filepath)
 		notify.print("#{notify.colour('built', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), filepath))}", if @watching then 4 else 3)

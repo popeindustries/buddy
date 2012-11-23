@@ -6,9 +6,7 @@ request = require('superagent')
 http = require('http')
 unzip = require('unzip')
 semver = require('semver')
-{rm, mv, cp, mkdir, notify} = require('./utils')
-# Node 0.8.0 api change
-existsSync = fs.existsSync or path.existsSync
+{rm, mv, cp, mkdir, notify, existsSync} = require('./utils')
 
 RE_GITHUB_PROJECT = /\w+\/\w+/
 RE_GITHUB_URL = /git:\/\/(.*)\.git/
@@ -90,6 +88,7 @@ module.exports = class Dependency extends events.EventEmitter
 						@url = "https://#{url}/archive/#{@version}.zip"
 						@emit('end:lookup', @)
 		else
+			# Delay for event chaining
 			process.nextTick(=> @emit('end:lookup', @))
 		@
 
@@ -123,6 +122,7 @@ module.exports = class Dependency extends events.EventEmitter
 								break
 					@emit('end:validate', @)
 		else
+			# Delay for event chaining
 			process.nextTick(=> @emit('end:validate', @))
 		@
 
@@ -158,6 +158,7 @@ module.exports = class Dependency extends events.EventEmitter
 			if RE_INDEX.test(filename)
 				filename += '.js' unless path.extname(filename)
 				newname = @id + '.js'
+				# TODO: async cp
 				cp(path.resolve(@location, filename), path.resolve(@location, newname))
 				filename = newname
 			filepath = path.resolve(@location, filename)
@@ -179,6 +180,7 @@ module.exports = class Dependency extends events.EventEmitter
 				return @emit('error', 'no config (component/package).json file found for: ' + @id)
 
 			try
+				# TODO: async readfile
 				json = JSON.parse(fs.readFileSync(path.resolve(@location, config), 'utf8'))
 			catch err
 				return @emit('error', 'parsing: ' + @id + config)
@@ -204,6 +206,7 @@ module.exports = class Dependency extends events.EventEmitter
 	move: ->
 		unless @keep
 			@resources.forEach (resource, idx) =>
+				# TODO: async cp/mv
 				filename = if @local then cp(resource, @destination) else mv(resource, @destination)
 				@files.push(path.relative(process.cwd(), filename))
 				@resources[idx] = filename

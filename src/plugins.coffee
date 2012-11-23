@@ -1,8 +1,5 @@
-fs = require('fs')
 path = require('path')
-# Node 0.8.0 api change
-existsSync = fs.existsSync or path.existsSync
-{notify} = require('./utils')
+{notify, existsSync} = require('./utils')
 
 DEFAULTS =
 	js:

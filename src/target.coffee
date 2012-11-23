@@ -1,10 +1,6 @@
-# TODO: catch write errors?
-
 fs = require('fs')
 path = require('path')
-{notify} = require('./utils')
-# Node 0.8.0 api change
-existsSync = fs.existsSync or path.existsSync
+{notify, existsSync} = require('./utils')
 
 module.exports = class Target
 
@@ -19,7 +15,8 @@ module.exports = class Target
 		@files = []
 		@concat = false
 		@watching = false
-		# Resolve output file name for file>folder target
+		# TODO: async stat
+		# Resolve output file name for file>directory target
 		if not path.extname(@output).length and fs.statSync(@input).isFile()
 			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), ".#{@type}")
 
@@ -49,12 +46,14 @@ module.exports = class Target
 	# Recursively add File objects from file cache based on 'input' path
 	# @param {String} input
 	_parseSources: (input) ->
+		# TODO: async stat
 		# Add files from source cache
 		if fs.statSync(input).isFile()
 			if file = @fileCache.byPath[input]
 				file.parseContents(@options.modular)
 				@_addSource(file)
 		else
+			# TODO: async readdir
 			# Recurse child directories
 			fs.readdirSync(input).forEach (item) => @_parseSources(path.join(input, item))
 

@@ -1,6 +1,3 @@
-# TODO: protect against source folder as out target during watch routine
-# TODO: add folder watching to pick up new files (wait for a better node.js implementation)
-
 fs = require('fs')
 path = require('path')
 Configuration = require('./configuration')
@@ -12,9 +9,7 @@ JSFile = require('./jsfile')
 CSSFile = require('./cssfile')
 JSTarget = require('./jstarget')
 CSSTarget = require('./csstarget')
-{notify, readdir, rm} = require('./utils')
-# Node 0.8.0 api change
-existsSync = fs.existsSync or path.existsSync
+{notify, readdir, rm, existsSync} = require('./utils')
 
 #starts with '.', '_', or '~' contains '-min.' or '.min.' or 'svn'
 RE_IGNORE_FILE = /^[\._~]|[-\.]min[-\.]|svn|~$/
@@ -126,8 +121,6 @@ module.exports = class Builder
 			notify.print("#{notify.colour('deleted', notify.GREEN)} #{notify.strong(file)}", 3)
 			rm(path.resolve(file))
 		@filelog.clean()
-		@dependencies?.clean (err) =>
-			err and notify.error(err, 2)
 
 	# Check that a given 'filename' is a valid source of 'type'
 	# including compileable file types
@@ -233,9 +226,11 @@ module.exports = class Builder
 		unless existsSync(inputpath)
 			notify.error("#{notify.strong(props.input)} not found in project path", 2)
 			return null
+		# TODO: async stat
+		isDir = fs.statSync(inputpath).isDirectory()
 		# Check that input exists in sources
 		for location in @[type + 'Sources'].locations
-			dir = if fs.statSync(inputpath).isDirectory() then inputpath else path.dirname(inputpath)
+			dir = if isDir then inputpath else path.dirname(inputpath)
 			inSources = dir.indexOf(location) >= 0
 			break if inSources
 		# Abort if input doesn't exist in sources
@@ -243,7 +238,7 @@ module.exports = class Builder
 			notify.error("#{notify.strong(props.input)} not found in source path", 2)
 			return null
 		# Abort if input is directory and output is file
-		if fs.statSync(inputpath).isDirectory() and path.extname(outputpath).length
+		if isDir and path.extname(outputpath).length
 			notify.error("a file (#{notify.strong(props.output)}) is not a valid output target for a directory (#{notify.strong(props.input)}) input target", 2)
 			return null
 

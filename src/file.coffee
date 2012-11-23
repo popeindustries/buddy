@@ -29,6 +29,7 @@ module.exports = class File
 	parseContents: ->
 		# Clear existing
 		@_contents = ''
+		# TODO: async readfile, parse stream and abort on header match
 		# Read file
 		contents = fs.readFileSync(@filepath, 'utf8')
 		# Skip compiled files

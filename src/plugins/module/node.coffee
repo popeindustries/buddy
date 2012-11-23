@@ -1,5 +1,4 @@
 path = require('path')
-fs = require('fs')
 {indent} = require('../../utils')
 
 RE_WIN_SEPARATOR = /\\\\?/g
@@ -14,7 +13,9 @@ module.exports =
 	category: 'js'
 	type: 'module'
 
-	# Return module id
+	# Retrieve a module's id based on it's 'qualifiedFilename'
+	# @param {String} qualifiedFilename
+	# @return {String}
 	getModuleId: (qualifiedFilename) ->
 		# Convert to lowercase and remove spaces
 		module = qualifiedFilename.toLowerCase().replace(RE_SPACES, '')
@@ -23,7 +24,11 @@ module.exports =
 			module = module.replace(RE_WIN_SEPARATOR, '/')
 		return module
 
-	# Retrieve all module references in file contents
+	# Retrieve all module references in file 'contents'
+	# Convert all references relative to 'id'
+	# @param {String} contents
+	# @param {String} id
+	# @return {Array}
 	getModuleDependencies: (contents, id) ->
 		deps = []
 		# Remove commented lines
@@ -42,7 +47,10 @@ module.exports =
 			deps.push(parts.join('/'))
 		return deps
 
-	# Wrap compiled content in module definition if it doesn't already have a wrapper
+	# Wrap 'contents' in module definition if not already wrapped
+	# @param {String} contents
+	# @param {String} id
+	# @return {String}
 	wrapModuleContents: (contents, id) ->
 		# Reset
 		RE_MODULE.lastIndex = 0

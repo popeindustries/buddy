@@ -1,4 +1,3 @@
-path = require('path')
 jshint = require('jshint').JSHINT
 
 module.exports =
@@ -22,6 +21,9 @@ module.exports =
 		smarttabs: true
 		node: true
 
+	# Lint 'data'
+	# @param {String} data
+	# @param {Function} fn(err)
 	lint: (data, fn) ->
 		result = jshint(data, @options, {})
 		unless result

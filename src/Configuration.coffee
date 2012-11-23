@@ -1,8 +1,6 @@
 fs = require('fs')
 path = require('path')
-# Node 0.8.0 api change
-existsSync = fs.existsSync or path.existsSync
-{notify} = require('./utils')
+{notify, existsSync} = require('./utils')
 
 DEFAULT = 'buddy.js'
 
@@ -23,6 +21,7 @@ module.exports = class Configuration
 			# Check that the supplied path is valid
 			@url = path.resolve(@url)
 			if exists = existsSync(@url)
+				# TODO: async stat
 				# Try default file name if passed directory
 				if fs.statSync(@url).isDirectory()
 					@url = path.join(@url, DEFAULT)

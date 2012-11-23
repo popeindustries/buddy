@@ -1,15 +1,15 @@
 fs = require('fs')
 path = require('path')
-# Node 0.8.0 api change
-existsSync = fs.existsSync or path.existsSync
+{existsSync} = require('./utils')
 
 NAME = '.buddy-filelog'
-RE_ABSOLUTE = /^\/|^[A-Z]:\\/
+RE_ABSOLUTE = /^([a-z]:\\)|\//i
 
 module.exports = class Filelog
 
 	constructor: ->
 		@filename = path.resolve(NAME)
+		# TODO: async stat, readfile
 		# Load existing
 		@files = if existsSync(@filename) then JSON.parse(json = fs.readFileSync(@filename, 'utf8')) else []
 		# Clean if file is old or from another system
@@ -23,6 +23,7 @@ module.exports = class Filelog
 		files.forEach (file) =>
 			file = path.relative(process.cwd(), file)
 			@files.push(file) if @files.indexOf(file) is -1
+		# TODO: async write
 		# Save
 		fs.writeFileSync(@filename, JSON.stringify(@files))
 
@@ -30,4 +31,5 @@ module.exports = class Filelog
 	clean: ->
 		# Save
 		@files = []
+		# TODO: async write
 		fs.writeFileSync(@filename, JSON.stringify(@files), 'utf8')

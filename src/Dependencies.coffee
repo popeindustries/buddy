@@ -1,9 +1,7 @@
 path = require('path')
 fs = require('fs')
 Dependency = require('./dependency')
-{rm, mv, cp, mkdir, notify} = require('./utils')
-# Node 0.8.0 api change
-existsSync = fs.existsSync or path.existsSync
+{rm, mv, cp, mkdir, notify, existsSync} = require('./utils')
 
 module.exports = class Dependencies
 
@@ -22,6 +20,7 @@ module.exports = class Dependencies
 	# Install dependencies and call 'fn' when complete
 	# @param {Function} fn(err, files)
 	install: (fn) ->
+		# TODO: async mkdir
 		# Create temp directory to store downloads
 		mkdir(@temp)
 		@dependencies.forEach (dependency) =>
@@ -55,6 +54,7 @@ module.exports = class Dependencies
 	# Package dependencies into single output file if necessary
 	# @param {Function} fn(err, files)
 	_pack: (fn) ->
+		# TODO: async rm
 		# Delete temp
 		rm(@temp)
 		# Collect outputable dependencies
@@ -68,9 +68,11 @@ module.exports = class Dependencies
 			n = Object.keys(outputs).length
 			i = 0
 			for output, files of outputs
+				# TODO: async readFile
 				# Concat
 				contents = files.map((file) -> fs.readFileSync(file))
 				content = contents.join('\n')
+				# TODO: async mkdir
 				mkdir(output)
 				# Compress
 				@compressor.compress content, (err, content) =>
@@ -79,6 +81,7 @@ module.exports = class Dependencies
 						fn(err, @files)
 					else
 						notify.print("#{notify.colour('compressed', notify.GREEN)} #{notify.strong(path.relative(output))}", 3)
+						# TODO: async writeFile
 						fs.writeFileSync(output, content)
 						@files.push(output)
 						fn(null, @files) if ++i is n

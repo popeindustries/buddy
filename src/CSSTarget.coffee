@@ -50,6 +50,7 @@ module.exports = class CSSTarget extends Target
 	# @param {Function} fn(err, files)
 	# @param {Boolean} exit
 	_writeFile: (content, filepath, fn, exit) ->
+		# TODO: async mkdir, writeFile
 		# Create directory if missing
 		mkdir(filepath)
 		fs.writeFileSync(filepath, content, 'utf8')

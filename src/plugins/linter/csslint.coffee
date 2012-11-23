@@ -1,4 +1,3 @@
-path = require('path')
 csslint = require('csslint').CSSLint
 
 module.exports =
@@ -6,6 +5,9 @@ module.exports =
 	category: 'css'
 	type: 'linter'
 
+	# Lint 'data'
+	# @param {String} data
+	# @param {Function} fn(err)
 	lint: (data, fn) ->
 		result = csslint.verify(data)
 		if result.messages.length

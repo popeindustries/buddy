@@ -5,6 +5,9 @@ module.exports =
 	category: 'js'
 	type: 'compressor'
 
+	# Compress 'data'
+	# @param {String} data
+	# @param {Function} fn(err, compressed)
 	compress: (data, fn) ->
 		try
 			jsp = uglify.parser

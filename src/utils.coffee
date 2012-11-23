@@ -3,7 +3,8 @@ path = require('path')
 mkdirp = require('mkdirp')
 rimraf = require('rimraf')
 # Node 0.8.0 api change
-existsSync = fs.existsSync or path.existsSync
+exports.existsSync = existsSync = fs.existsSync or path.existsSync
+exports.exists = exists = fs.exists or path.exists
 
 # Console output formatting
 exports.notify = notify =
@@ -50,8 +51,7 @@ exports.notify = notify =
 # Read and store the contents of a directory, ignoring files of type specified
 # @param {String} dir
 # @param {Regex} ignore
-# @param {Array} files
-# @return {Array}
+# @param {Function} fn(err, files)
 exports.readdir = readdir = (dir, ignore = /^\./, files = []) ->
 	fs.readdirSync(dir).forEach (item) =>
 		# Skip ignored files
