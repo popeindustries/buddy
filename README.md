@@ -2,7 +2,7 @@
 
 **buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (coffeescript/stylus/less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.5.3
+**Current version:** 0.5.4
 *[the 0.5.x branch is not backwards compatible with earlier versions. See __Change Log__ below for more details]*
 
 ## Installation
@@ -184,7 +184,7 @@ exports.settings = {
 
 ## Concepts
 
-### BUILD ###
+### BUILD
 
 **Project Root**: The directory from which all paths resolve to. Determined by location of the *buddy.js* configuration file.
 
@@ -203,7 +203,7 @@ If directory, all compileable files will be compiled, wrapped in module definiti
 
 - *modular*: a flag to prevent js files from being wrapped with a module definition.
 
-### MODULES ###
+### MODULES
 
 Each js file is wrapped in a module declaration based on the file's location. Dependencies (and concatenation order) are determined by the use of ```require()``` statements:
 
@@ -258,7 +258,7 @@ See [node.js modules](http://nodejs.org/docs/v0.8.0/api/modules.html) for more i
 
 ***NOTE***: ```require``` boilerplate needs to be included on the page to enable module loading. It's recommended to ```install``` a library like *popeindustries/browser-require*.
 
-### DEPENDENCIES ###
+### DEPENDENCIES
 
 Dependency resources are installed from local locations or remotely from Github.
 
@@ -369,6 +369,11 @@ exports.build = {
 ```
 
 ## Changelog
+
+**0.5.4** - November 23, 2012
+* regression fix for *clean* command
+* improved *.buddy-filelog* force clean
+* improved notifications for *install* and *clean* commands
 
 **0.5.3** - November 23, 2012
 * refactored *install* command behaviour; no longer uses git operations, changed syntax for specifying version ('@') and resources ('#'), added ability to list several resources **[breaking change]**
