@@ -3,7 +3,7 @@ fs = require('fs')
 rimraf = require('rimraf')
 utils = require('../lib/utils')
 
-describe.only 'utils', ->
+describe 'utils', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/utils'))
 

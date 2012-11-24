@@ -1,59 +1,57 @@
 path = require('path')
 fs = require('fs')
-Configuration = require('../lib/configuration')
+should = require('should')
+configuration = require('../lib/configuration')
 
-describe 'Configuration', ->
-	beforeEach ->
-		@config = new Configuration()
+describe 'configuration', ->
+	before ->
+		process.chdir(path.resolve(__dirname, 'fixtures/configuration'))
 
-	describe 'locating config file', ->
-		describe 'in a valid working directory', ->
-			beforeEach ->
-				process.chdir(path.resolve(__dirname, 'fixtures/configuration'))
-			describe 'without a specified name', ->
-				it 'should return a fully qualified path to the default file in the current working directory', ->
-					@config.locate()
-					@config.url.should.equal(path.resolve(process.cwd(), 'buddy.js'))
-			describe 'with a specified name', ->
-				it 'should return a fully qualified path to the specified file in the current working directory', ->
-					@config.url = 'buddy_custom_name.js'
-					@config.locate()
-					@config.url.should.equal(path.resolve(process.cwd(), 'buddy_custom_name.js'))
-			describe 'with a specified directory name', ->
-				it 'should return a fully qualified path to the default file in the specified directory', ->
-					@config.url = 'nested1'
-					@config.locate()
-					@config.url.should.equal(path.resolve(process.cwd(), 'buddy.js'))
-			describe 'with a specified directory and name', ->
-				it 'should return a fully qualified path to the default file in the specified directory', ->
-					@config.url = 'nested1/buddy_custom_name.js'
-					@config.locate()
-					@config.url.should.equal(path.resolve(process.cwd(), 'buddy_custom_name.js'))
-			describe 'with an invalid specified name', ->
-				it 'should throw an error', ->
-					@config.url = 'buddy_no_name.js'
-					(=> @config.locate()).should.throw()
+	describe 'locate', ->
+		describe 'from a valid working directory', ->
+			it 'should return a path to the default file when no name is specified', (done) ->
+				configuration.locate null, (err, url) ->
+					url.should.equal(path.resolve('buddy.js'))
+					done()
+			it 'should return a path to the named file when a name is specified', (done) ->
+				configuration.locate 'buddy_custom_name.js', (err, url) ->
+					url.should.equal(path.resolve('buddy_custom_name.js'))
+					done()
+			it 'should return a path to the default file in the specified directory when a directory name is specified', (done) ->
+				configuration.locate 'nested', (err, url) ->
+					url.should.equal(path.resolve('nested', 'buddy.js'))
+					done()
+			it 'should return a path to the named file in the specified directory when a directory and name are specified', (done) ->
+				configuration.locate 'nested/buddy_custom_name.js', (err, url) ->
+					url.should.equal(path.resolve('nested', 'buddy_custom_name.js'))
+					done()
+			it 'should return an error when an invalid name is specified', (done) ->
+				configuration.locate 'buddy_no_name.js', (err, url) ->
+					should.exist(err)
+					done()
 		describe 'from a valid child working directory', ->
 			before ->
-				process.chdir(path.resolve(__dirname, 'fixtures/configuration/nested2'))
-			describe 'without a specified name', ->
-				it 'should return a fully qualified path to the default file in a parent of the current working directory', ->
-					@config.locate()
-					@config.url.should.equal(path.resolve(process.cwd(), 'buddy.js'))
-		describe 'in an invalid working directory', ->
-			it 'should throw an error', ->
+				process.chdir(path.resolve('nested'))
+			it 'should return a path to the default file in a parent of the cwd when no name is specified', (done) ->
+				configuration.locate null, (err, url) ->
+					url.should.equal(path.resolve('buddy.js'))
+					done()
+		describe 'from an invalid working directory', ->
+			before ->
 				process.chdir('/')
-				(=> @config.locate()).should.throw()
+			it 'should return an error', (done) ->
+				configuration.locate null, (err, url) ->
+					should.exist(err)
+					done()
 
-	describe 'loading config file', ->
+	describe 'load', ->
 		before ->
 			process.chdir(path.resolve(__dirname, 'fixtures/configuration'))
-		describe 'with a valid file path', ->
-			it 'should store data from the file', ->
-				@config.url = path.resolve(process.cwd(), 'buddy.js')
-				@config.locate().load()
-				@config.build.should.be.ok
-		describe 'with a malformed file', ->
-			it 'should throw an error', ->
-				@config.url = path.resolve(process.cwd(), 'buddy_bad.js')
-				(=> @config.locate().load()).should.throw()
+		it 'should return validated file data', (done) ->
+			configuration.load 'buddy.js', (err, config) ->
+				should.exist(config.build)
+				done()
+		it 'should return an error when passed a reference to a malformed file', (done) ->
+			configuration.load 'buddy_bad.js', (err, config) ->
+				should.exist(err)
+				done()

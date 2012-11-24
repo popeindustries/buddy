@@ -15,6 +15,18 @@ DEFAULTS =
 
 defaults = null
 
+# Load all plugin modules, overriding defaults if specified in 'options'
+# @param {Object} options
+# @param {Function} fn(err, plugins)
+exports.load = (options, fn) ->
+	# Create a copy of DEFAULTS
+	defaults = JSON.parse(JSON.stringify(DEFAULTS))
+	# Override if we have options
+	options and overrideDefaults(options)
+	loadModules (err, plugins) ->
+		if err then fn(err) else fn(null, plugins)
+	return
+
 # Resolve plugin path
 # Handles overrides of defaults specified in configuration
 # @param {String} plugin
@@ -40,8 +52,8 @@ overrideDefaults = (options) ->
 				defaults[category][type] = resolvePath(plugin, type)
 
 # Load plugin modules
-# @return {Object}
-loadModules = ->
+# @param {Function} fn(err, plugins)
+loadModules = (fn) ->
 	plugins = {}
 	for category of defaults
 		# Create category hash
@@ -50,26 +62,16 @@ loadModules = ->
 			# Handle arrays of plugins for 'compilers'
 			if Array.isArray(plugin)
 				plugins[category][type] ?= []
-				plugin.forEach (plug, idx) =>
+				for plug, idx in plugin
 					try
 						plugins[category][type][idx] = require(plug)
 					catch err
-						notify.error("loading plugin #{notify.strong(plug)}", 2)
+						return fn("loading plugin #{notify.strong(plug)}")
 			else
 				plugins[category][type] ?= {}
 				try
 					plugins[category][type] = require(plugin)
 				catch err
-					notify.error("loading plugin #{notify.strong(plugin)}", 2)
-	return plugins
-
-# Load all plugin modules, overriding defaults if specified in 'options'
-# @param {Object} options
-# @return {Object}
-exports.load = (options) ->
-	# Create a copy of DEFAULTS
-	defaults = JSON.parse(JSON.stringify(DEFAULTS))
-	# Override if we have options
-	options and overrideDefaults(options)
-	return loadModules()
+					return fn("loading plugin #{notify.strong(plugin)}")
+	return fn(null, plugins)
 

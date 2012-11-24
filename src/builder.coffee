@@ -51,21 +51,23 @@ module.exports = class Builder
 	# Initialize based on configuration located at 'configpath'
 	# The directory tree will be walked if no 'configpath' specified
 	# @param {String} configpath [file name or directory containing default]
-	initialize: (configpath) ->
+	# @param {Function} fn(err)
+	initialize: (configpath, fn) ->
 		unless @initialized
 			# Load configuration file and plugins
 			@config = new Configuration(configpath)
-			@config
-				.locate()
-				.load()
-			# Load and store plugins
-			@plugins = plugins.load(@config.settings and @config.settings.plugins)
-			# Init dependencies if necessary
-			@dependencies = new Depedencies(@config.dependencies, @plugins.js.compressor) if @config.dependencies
-			# Init filelog
-			@filelog = new Filelog
-			@initialized = true
-		return @
+			@config.load (err) ->
+				if err
+					notify.error(err, 2)
+				else
+					notify.print("loaded config #{notify.strong(@url)}", 2)
+					# Load and store plugins
+					@plugins = plugins.load(@config.settings and @config.settings.plugins)
+					# Init dependencies if necessary
+					@dependencies = new Depedencies(@config.dependencies, @plugins.js.compressor) if @config.dependencies
+					# Init filelog
+					@filelog = new Filelog
+					@initialized = true
 
 	# Install dependencies
 	install: ->
@@ -220,43 +222,44 @@ module.exports = class Builder
 	# Validate and generate target instances based on type
 	# @param {String} type
 	# @param {Object} props
-	_targetFactory: (type, props) ->
+	# @param {Function} fn(err, target)
+	_targetFactory: (type, props, fn) ->
 		inputpath = path.resolve(props.input)
 		outputpath = path.resolve(props.output)
 
 		# Validate target
 		# Abort if input doesn't exist
 		unless existsSync(inputpath)
-			notify.error("#{notify.strong(props.input)} not found in project path", 2)
-			return null
-		# TODO: async stat
-		isDir = fs.statSync(inputpath).isDirectory()
-		# Check that input exists in sources
-		for location in @[type + 'Sources'].locations
-			dir = if isDir then inputpath else path.dirname(inputpath)
-			inSources = dir.indexOf(location) >= 0
-			break if inSources
-		# Abort if input doesn't exist in sources
-		unless inSources
-			notify.error("#{notify.strong(props.input)} not found in source path", 2)
-			return null
-		# Abort if input is directory and output is file
-		if isDir and path.extname(outputpath).length
-			notify.error("a file (#{notify.strong(props.output)}) is not a valid output target for a directory (#{notify.strong(props.input)}) input target", 2)
-			return null
+			return fn("#{notify.strong(props.input)} not found in project path")
+		fs.stat inputpath, (err, stats) ->
+			if err and err.code isnt 'ENOENT'
+				return fn(err)
+			else
+				isDir = stats.isDirectory()
+				# Check that input exists in sources
+				for location in @[type + 'Sources'].locations
+					dir = if isDir then inputpath else path.dirname(inputpath)
+					inSources = dir.indexOf(location) >= 0
+					break if inSources
+				# Abort if input doesn't exist in sources
+				unless inSources
+					return fn("#{notify.strong(props.input)} not found in source path")
+				# Abort if input is directory and output is file
+				if isDir and path.extname(outputpath).length
+					return fn("a file (#{notify.strong(props.output)}) is not a valid output target for a directory (#{notify.strong(props.input)}) input target")
 
-		# Set options
-		options =
-			compressor: @plugins[type].compressor
-			linter: @plugins[type].linter
-		if type is JS
-			# Default to modular TRUE
-			options.modular = if props.modular? then props.modular else true
-			options.module = @plugins.js.module
-			options.parent = props.parent
-			return new JSTarget(inputpath, outputpath, @[type + 'Sources'], options)
-		else if type is CSS
-			return new CSSTarget(inputpath, outputpath, @[type + 'Sources'], options)
+			# Set options
+			options =
+				compressor: @plugins[type].compressor
+				linter: @plugins[type].linter
+			if type is JS
+				# Default to modular TRUE
+				options.modular = if props.modular? then props.modular else true
+				options.module = @plugins.js.module
+				options.parent = props.parent
+				return fn(null, new JSTarget(inputpath, outputpath, @[type + 'Sources'], options))
+			else if type is CSS
+				return fn(null, new CSSTarget(inputpath, outputpath, @[type + 'Sources'], options))
 
 	# Run the given 'target'
 	# @param {Target} target
