@@ -125,39 +125,83 @@ exports.mv = mv = (source, destination, fn) ->
 # @param {String} source
 # @param {String} destination
 # @param {Function} fn(err, filepath)
-exports.cp = cp = (source, destination) ->
+exports.cp = cp = (source, destination, fn) ->
 	_outstanding = 0
-	_base =
+	_base = ''
+	_filepath = ''
+	_first = true
 	_cp = (source, destination) ->
-
-
-
-	# File
-	if fs.statSync(source).isFile()
-		# Same directory
-		if path.dirname(source) is path.dirname(destination)
-			if path.basename(destination) and path.basename(destination) isnt path.basename(source)
-				filename = destination
+		_outstanding++
+		fs.stat source, (err, stats) ->
+			_outstanding--
+			if err
+				# Exit if proper error, otherwise skip
+				return if err.code is 'ENOENT'
+				else return fn(err)
 			else
-				# Append 'copy' if no destination filename
-				filename = source.replace('.', ' copy.')
-		# New directory
-		else
-			filename = path.resolve(destination, path.basename(source))
-		# Write file if it doesn't already exist
-		fs.writeFileSync(filename, fs.readFileSync(source)) unless existsSync(filename)
-		return filename
-	# Directory
-	else
-		# Copy contents only if source ends in '/'
-		contentsOnly = if source.charAt(source.length - 1) is '/' and not base then true else false
-		base = if contentsOnly then path.resolve(source) else path.dirname(path.resolve(source))
-		dir = path.resolve(destination, source.replace(base, destination))
-		# Create in destination
-		mkdir(dir)
-		# Loop through contents
-		fs.readdirSync(source).forEach (item) => cp(path.resolve(source, item), dir, base)
-		return dir
+				isDestFile = path.extname(destination).length
+				# File
+				if stats.isFile()
+					# Handle file or directory as destination
+					destDir = if isDestFile then path.dirname(destination) else destination
+					destName = if isDestFile then path.basename(destination) else path.basename(source)
+					filepath = path.resolve(destDir, destName)
+					# Write file if it doesn't already exist
+					if existsSync(filepath)
+						fn(new Error('file already exists: ' + source))
+					else
+						_outstanding++
+						# Return the new path for the first source
+						if _first
+							_filepath = filepath
+							_first = false
+						# Pipe stream
+						fs.createReadStream(source).pipe(file = fs.createWriteStream(filepath))
+						file.on 'error', (err) ->
+							fn(err)
+						file.on 'close', ->
+							_outstanding--
+							# Return if no outstanding
+							fn(null, _filepath) unless _outstanding
+				# Directory
+				else
+					# Guard against invalid directory to file copy
+					if isDestFile
+						fn(new Error('invalid destination: ' + destination))
+					else
+						# Copy contents only if source ends in '/'
+						contentsOnly = _first and /\\|\/$/.test(source)
+						dest = if contentsOnly then destination else path.resolve(destination, path.basename(source))
+						# Create in destination
+						_outstanding++
+						mkdir dest, (err) ->
+							_outstanding--
+							if err
+								# Exit if proper error, otherwise skip
+								return if err.code is 'ENOENT'
+								else return fn(err)
+							else
+								# Loop through contents
+								_outstanding++
+								fs.readdir source, (err, files) ->
+									_outstanding--
+									if err
+										# Exit if proper error, otherwise skip
+										return if err.code is 'ENOENT'
+										else return fn(err)
+									else
+										# Return the new path for the first source
+										if _first
+											_filepath = dest
+											_first = false
+										# Loop through files and cp
+										files.forEach (file) ->
+											_cp(path.resolve(source, file), dest)
+										# Return if no outstanding
+										fn(null, _filepath) unless _outstanding
+		# Return if no outstanding
+		fn(null, _filepath) unless _outstanding
+	_cp(source, destination)
 
 # Recursive remove file or directory
 # Makes sure only project sources are removed

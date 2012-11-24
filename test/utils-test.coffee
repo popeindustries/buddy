@@ -29,11 +29,11 @@ describe.only 'utils', ->
 			rimraf.sync(path.resolve('mkdir'))
 		it 'should create a directory', (done) ->
 			utils.mkdir path.resolve('mkdir', 'test'), (err) ->
-				fs.existsSync(path.resolve('mkdir', 'test')).should.exist
+				fs.existsSync(path.resolve('mkdir', 'test')).should.be.true
 				done()
 		it 'should create a nested directory', (done) ->
 			utils.mkdir path.resolve('mkdir', 'test', 'test', 'test'), (err) ->
-				fs.existsSync(path.resolve('mkdir', 'test', 'test', 'test')).should.exist
+				fs.existsSync(path.resolve('mkdir', 'test', 'test', 'test')).should.be.true
 				done()
 
 	describe 'mv', ->
@@ -45,14 +45,14 @@ describe.only 'utils', ->
 			fs.mkdirSync(path.resolve('mv', 'test'))
 			fs.writeFileSync(path.resolve('mv', 'test.txt'), 'blah', 'utf8')
 			utils.mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), (err, filepath) ->
-				fs.existsSync(path.resolve('mv', 'test.txt')).should.not.exist
-				fs.existsSync(path.resolve('mv', 'test', 'test.txt')).should.exist
+				fs.existsSync(path.resolve('mv', 'test.txt')).should.be.false
+				fs.existsSync(path.resolve('mv', 'test', 'test.txt')).should.be.true
 				done()
 		it 'should move a nested file to an existing directory', (done) ->
 			fs.writeFileSync(path.resolve('mv', 'test.txt'), 'blah', 'utf8')
 			utils.mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), (err, filepath) ->
-				fs.existsSync(path.resolve('mv', 'test.txt')).should.not.exist
-				fs.existsSync(path.resolve('mv', 'test', 'test.txt')).should.exist
+				fs.existsSync(path.resolve('mv', 'test.txt')).should.be.false
+				fs.existsSync(path.resolve('mv', 'test', 'test.txt')).should.be.true
 				done()
 		it 'should return the path to the moved file', (done) ->
 			fs.mkdirSync(path.resolve('mv', 'test'))
@@ -66,7 +66,7 @@ describe.only 'utils', ->
 			fs.writeFileSync(path.resolve('mv', 'test', 'test.txt'), 'blah', 'utf8')
 			utils.mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), (err, filepath) ->
 				err.should.exist
-				fs.existsSync(path.resolve('mv', 'test.txt')).should.exist
+				fs.existsSync(path.resolve('mv', 'test.txt')).should.be.true
 				done()
 
 	describe 'rm', ->
@@ -77,12 +77,12 @@ describe.only 'utils', ->
 		it 'should remove a file in the project path', (done) ->
 			fs.writeFileSync(path.resolve('rm', 'test.txt'), 'blah', 'utf8')
 			utils.rm path.resolve('rm', 'test.txt'), (err) ->
-				fs.existsSync(path.resolve('rm', 'test.txt')).should.not.exist
+				fs.existsSync(path.resolve('rm', 'test.txt')).should.be.false
 				done()
 		it 'should return an error when attempting to remove a file outside the project path', (done) ->
 			utils.rm path.resolve('..', 'dummy'), (err) ->
 				err.should.exist
-				fs.existsSync(path.resolve('..', 'dummy')).should.exist
+				fs.existsSync(path.resolve('..', 'dummy')).should.be.true
 				done()
 		it 'should return an error when attempting to remove a file that does not exist', (done) ->
 			utils.rm path.resolve('rm', 'dummy'), (err) ->
@@ -90,8 +90,38 @@ describe.only 'utils', ->
 				done()
 
 	describe 'cp', ->
-		it 'should copy a file from one directory to another'
-		it 'should copy a file to the same directory, appending "copy" to the name'
-		it 'should copy a directory and it`s contents from one directory to another'
-		it 'should copy a directory and it`s contents to the same directory, appending "copy" to the name'
-		it 'should only copy the contents of a directory when the source contains a trailing "/"'
+		before ->
+			process.chdir(path.resolve('cp'))
+			fs.mkdirSync(path.resolve('test'))
+		after ->
+			rimraf.sync(path.resolve('test'))
+			process.chdir(path.resolve('..'))
+		it 'should copy a file from one directory to another directory', (done) ->
+			utils.cp path.resolve('main.coffee'), path.resolve('test'), (err, filepath) ->
+				fs.existsSync(path.resolve('test', 'main.coffee')).should.be.true
+				done()
+		it 'should copy a file from one directory to a new file name in another directory', (done) ->
+			utils.cp path.resolve('main.coffee'), path.resolve('test', 'test.coffee'), (err, filepath) ->
+				fs.existsSync(path.resolve('test', 'test.coffee')).should.be.true
+				done()
+		it 'should copy a file to a new file in the same directory with a new name', (done) ->
+			utils.cp path.resolve('test', 'main.coffee'), path.resolve('test', 'test2.coffee'), (err, filepath) ->
+				fs.existsSync(path.resolve('test', 'test2.coffee')).should.be.true
+				done()
+		it 'should return an error when copying a file to the same directory without a new name', (done) ->
+			utils.cp path.resolve('test', 'main.coffee'), path.resolve('test'), (err, filepath) ->
+				err.should.exist
+				done()
+		it 'should copy a directory and it\'s contents from one directory to another directory', (done) ->
+			utils.cp path.resolve('package'), path.resolve('test'), (err, filepath) ->
+				fs.existsSync(path.resolve('test', 'package')).should.be.true
+				done()
+		it 'should only copy the contents of a directory when the source contains a trailing "/"', (done) ->
+			utils.cp path.resolve('package') + path.sep, path.resolve('test'), (err, filepath) ->
+				fs.existsSync(path.resolve('test', 'Class.coffee')).should.be.true
+				fs.existsSync(path.resolve('test', 'ClassCamelCase.coffee')).should.be.true
+				done()
+		it 'should return an error when copying a directory to a file', (done) ->
+			utils.cp path.resolve('package'), path.resolve('test', 'main.coffee'), (err, filepath) ->
+				err.should.exist
+				done()
