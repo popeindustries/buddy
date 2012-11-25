@@ -5,31 +5,38 @@ path = require('path')
 NAME = '.buddy-filelog'
 RE_ABSOLUTE = /^([a-z]:\\)|^\//i
 
-module.exports = class Filelog
+exports.filename = filename = path.resolve(NAME)
 
-	constructor: ->
-		@filename = path.resolve(NAME)
-		# TODO: async stat, readfile
-		# Load existing
-		@files = if existsSync(@filename) then JSON.parse(json = fs.readFileSync(@filename, 'utf8')) else []
-		# Clean if file is old or from another system
-		if @files.length
-			if (path.sep is '/' and json.indexOf('\\') isnt -1) or (path.sep is '\\' and json.indexOf('/') isnt -1) or RE_ABSOLUTE.test(@files[0])
-				@clean()
+exports.files = files = []
 
-	# Add 'files' to the file log
-	# @param {Array} files
-	add: (files) ->
-		files.forEach (file) =>
-			file = path.relative(process.cwd(), file)
-			@files.push(file) if @files.indexOf(file) is -1
-		# TODO: async write
-		# Save
-		fs.writeFileSync(@filename, JSON.stringify(@files))
+# Load existing
+if existsSync(filename)
+	fs.readFile filename, 'utf8', (err, data) ->
+		return if err and err.code isnt 'ENOENT'
+		try
+			files = JSON.parse(data)
+			# Clean if file is old or from another system
+			if files.length
+				if (path.sep is '/' and data.indexOf('\\') isnt -1) or (path.sep is '\\' and data.indexOf('/') isnt -1) or RE_ABSOLUTE.test(files[0])
+					clean()
+		catch err
+			return
 
-	# Clean the file log of file references
-	clean: ->
-		# Save
-		@files = []
-		# TODO: async write
-		fs.writeFileSync(@filename, JSON.stringify(@files), 'utf8')
+# Add 'files' to the file log
+# @param {Array} files
+# @param {Function} fn(err)
+exports.add = (newFiles, fn) ->
+	newFiles.forEach (file) =>
+		file = path.relative(process.cwd(), file)
+		files.push(file) if files.indexOf(file) is -1
+	# Save
+	fs.writeFile filename, JSON.stringify(files), 'utf8', (err) ->
+		return if err then fn(err) else fn(null, files)
+
+# Clean the file log of file references
+# @param {Function} fn(err)
+exports.clean = clean = (fn) ->
+	files = []
+	# Save
+	fs.writeFile filename, JSON.stringify(files), 'utf8', (err) ->
+		return if err then fn(err) else fn()

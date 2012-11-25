@@ -14,41 +14,51 @@ module.exports = class Watcher extends events.EventEmitter
 	# @param {String} source
 	watch: (source) ->
 		unless @ignore.test(path.basename(source))
-			# TODO: async stat
-			stats = fs.statSync(source)
-			lastChange = stats.mtime.getTime()
-			lastSize = stats.size
-			# recursively parse items in directory
-			if stats.isDirectory()
-				# TODO: async readdir
-				fs.readdirSync(source).forEach (item) =>
-					@watch(path.resolve(source, item))
-
-			# store watcher objects
-			@watchers[source] = fs.watch source, (evt, filename) =>
-				if existsSync(source)
-					# TODO: async stat
-					stats = fs.statSync(source)
-					if stats.isFile()
-						# notify if changed
-						if stats.mtime.getTime() isnt lastChange and stats.size isnt lastSize
-							@emit('change', source, stats)
-						lastChange = stats.mtime.getTime()
-					else if stats.isDirectory()
-						# notify if new
-						@emit('create', source, stats) unless @watchers[source]
-						# TODO: async readdir
-						# check for new files
-						fs.readdirSync(source).forEach (item) =>
-							item = path.resolve(source, item)
-							if not @ignore.test(path.basename(item)) and not @watchers[item]
-								# TODO: async stat
-								@emit('create', item, fs.statSync(item))
-								@watch(item)
-				# Deleted
+			fs.stat source, (err, stats) =>
+				if err
+					@emit('error', err)
 				else
-					@unwatch(source)
-					@emit('delete', source)
+					lastChange = stats.mtime.getTime()
+					lastSize = stats.size
+					# recursively parse items in directory
+					if stats.isDirectory()
+						fs.readdir source, (err, files) =>
+							if err
+								@emit('error', err)
+							else
+								files.forEach (file) =>
+									@watch(path.resolve(source, file))
+
+					# store watcher objects
+					@watchers[source] = fs.watch source, (evt, filename) =>
+						if existsSync(source)
+							fs.stat source, (err, stats) =>
+								if err
+									@emit('error', err)
+								else
+									if stats.isFile()
+										# notify if changed
+										if stats.mtime.getTime() isnt lastChange and stats.size isnt lastSize
+											@emit('change', source, stats)
+										lastChange = stats.mtime.getTime()
+									else if stats.isDirectory()
+										# notify if new
+										@emit('create', source, stats) unless @watchers[source]
+										# check for new files
+										fs.readdir source, (err, files) =>
+											if err
+												@emit('error', err)
+											else
+												files.forEach (file) =>
+													item = path.resolve(source, file)
+													if not @ignore.test(path.basename(item)) and not @watchers[item]
+														fs.stat item, (err, stats) =>
+															@emit('create', item, stats)
+															@watch(item)
+						# Deleted
+						else
+							@unwatch(source)
+							@emit('delete', source)
 
 	# Stop watching a 'source' file or directory for changes
 	# @param {String} source

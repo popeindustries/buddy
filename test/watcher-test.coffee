@@ -2,17 +2,18 @@ path = require('path')
 fs = require('fs')
 rimraf = require('rimraf')
 Watcher = require('../lib/watcher')
-{cp, wait} = require('../lib/utils')
+{cp, rm, wait} = require('../lib/utils')
 
-describe 'Watcher', ->
+describe.only 'Watcher', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/watcher'))
-	beforeEach ->
+	beforeEach (done) ->
 		@watcher = new Watcher
-		cp(path.resolve('src') + '/', path.resolve('test'))
+		cp path.resolve('src') + path.sep, path.resolve('test'), (err, filepath) ->
+			done()
 	afterEach (done) ->
 		@watcher.clean()
-		rimraf path.resolve('test'), (err) ->
+		rm path.resolve('test'), (err) ->
 			done()
 
 	describe 'watching a directory for new files', ->

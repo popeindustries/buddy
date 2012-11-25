@@ -58,6 +58,8 @@ module.exports = class Dependency extends events.EventEmitter
 		# Copy local files
 		if @local
 			@move()
+			.once 'end:move', ->
+				@emit('end', @)
 		else
 			# Lookup, version, fetch, resolve, and move Bower files
 			@lookupPackage()
@@ -69,6 +71,8 @@ module.exports = class Dependency extends events.EventEmitter
 						@resolveResources()
 						.once 'end:resolve', ->
 							@move()
+							.once 'end:move', ->
+								@emit('end', @)
 
 	# Lookup a Bower package's github location
 	lookupPackage: ->
@@ -106,6 +110,7 @@ module.exports = class Dependency extends events.EventEmitter
 						json = JSON.parse(res.text)
 					catch err
 						@emit('error', 'parsing tag information for: ' + @name)
+					# Sort by version (name) descending
 					json.sort((a, b) -> semver.rcompare(a.name, b.name))
 
 					# Set latest version
@@ -158,8 +163,8 @@ module.exports = class Dependency extends events.EventEmitter
 			if RE_INDEX.test(filename)
 				filename += '.js' unless path.extname(filename)
 				newname = @id + '.js'
-				# TODO: async cp
-				cp(path.resolve(@location, filename), path.resolve(@location, newname))
+				# TODO: async rename
+				fs.renameSync(path.resolve(@location, filename), path.resolve(@location, newname))
 				filename = newname
 			filepath = path.resolve(@location, filename)
 			@resources.push(filepath) if existsSync(filepath)
@@ -169,6 +174,8 @@ module.exports = class Dependency extends events.EventEmitter
 			temp = @resources.concat()
 			@resources = []
 			temp.forEach((filename) -> add(filename))
+			# Delay for event chaining
+			process.nextTick(=> @emit('end:resolve', @))
 		else
 			@resources = []
 			# Find json file
@@ -179,39 +186,47 @@ module.exports = class Dependency extends events.EventEmitter
 			else
 				return @emit('error', 'no config (component/package).json file found for: ' + @id)
 
-			try
-				# TODO: async readfile
-				json = JSON.parse(fs.readFileSync(path.resolve(@location, config), 'utf8'))
-			catch err
-				return @emit('error', 'parsing: ' + @id + config)
+			fs.readFile path.resolve(@location, config), 'utf8', (err, data) =>
+				return @emit('error', 'reading: ' + @id + config) if err
+				try
+					json = JSON.parse(data)
+				catch err
+					return @emit('error', 'parsing: ' + @id + ' ' + config)
+				# Find dependencies and notify
+				if json.dependencies
+					for dependency, version of json.dependencies
+						@emit('dependency', "#{dependency}@#{version}")
 
-			# Find dependencies and notify
-			if json.dependencies
-				for dependency, version of json.dependencies
-					# Delay for event chaining
-					process.nextTick(=> @emit('dependency', "#{dependency}@#{version}"))
+				# Find files specified in 'scripts' or 'main'
+				if json.scripts
+					json.scripts.forEach((filename) -> add(filename))
+				else if json.main
+					add(json.main)
+				else
+					return @emit('error', 'unable to resolve resources for: ' + @id)
+				@emit('end:resolve', @)
 
-			# Find files specified in 'scripts' or 'main'
-			if json.scripts
-				json.scripts.forEach((filename) -> add(filename))
-			else if json.main
-				add(json.main)
-			else
-				return @emit('error', 'unable to resolve resources for: ' + @id)
-		# Delay for event chaining
-		process.nextTick(=> @emit('end:resolve', @))
 		@
 
 	# Move resources to destination
 	move: ->
+		outstanding = 0
 		unless @keep
 			@resources.forEach (resource, idx) =>
-				# TODO: async cp/mv
-				filename = if @local then cp(resource, @destination) else mv(resource, @destination)
-				@files.push(path.relative(process.cwd(), filename))
-				@resources[idx] = filename
-		# Delay for event chaining
-		process.nextTick(=> @emit('end', @))
+				outstanding++
+				# Copy local files, otherwise move
+				require('./utils')[if @local then 'cp' else 'mv'] resource, @destination, (err, filepath) =>
+					outstanding--
+					if err
+						@emit('error', err)
+					else
+						@files.push(path.relative(process.cwd(), filepath))
+						@resources[idx] = filepath
+						@emit('end:move', @) unless outstanding
+
+		else
+			# Delay for event chaining
+			process.nextTick(=> @emit('end:move', @))
 		@
 
 	destroy: ->
