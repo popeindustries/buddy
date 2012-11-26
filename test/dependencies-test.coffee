@@ -38,14 +38,12 @@ describe 'Dependencies', ->
 		describe 'package lookup', ->
 			it 'should resolve a valid `url`', (done) ->
 				dependency = new Dependency('backbone', '')
-				dependency.lookupPackage()
-				.once 'end:lookup', ->
+				dependency.lookupPackage (err) ->
 					dependency.url.should.eql('https://github.com/documentcloud/backbone/archive/master.zip')
 					done()
 			it 'should return an error for an invalid package', (done) ->
 				dependency = new Dependency('bunk', '')
-				dependency.lookupPackage()
-				.once 'error', (err) ->
+				dependency.lookupPackage (err) ->
 					should.exist(err)
 					done()
 
@@ -53,60 +51,50 @@ describe 'Dependencies', ->
 			beforeEach ->
 				@dependency = new Dependency('documentcloud/underscore', '')
 			afterEach ->
-				@dependency.destroy()
 				@dependency = null
 			it 'should ignore `1.2.3` as a valid version', (done) ->
 				@dependency.version = '1.2.3'
-				@dependency.validateVersion()
-				.once 'end:validate', =>
+				@dependency.validateVersion (err) =>
 					@dependency.version.should.eql('1.2.3')
 					done()
 			it 'should ignore `master` as a valid version', (done) ->
 				@dependency.version = 'master'
-				@dependency.validateVersion()
-				.once 'end:validate', =>
+				@dependency.validateVersion (err) =>
 					@dependency.version.should.eql('master')
 					done()
 			it 'should set the latest version for `*`', (done) ->
 				@dependency.version = '*'
-				@dependency.validateVersion()
-				.once 'end:validate', =>
+				@dependency.validateVersion (err) =>
 					@dependency.version.should.eql('1.4.2')
 					done()
 			it 'should set the latest version for `latest`', (done) ->
 				@dependency.version = 'latest'
-				@dependency.validateVersion()
-				.once 'end:validate', =>
+				@dependency.validateVersion (err) =>
 					@dependency.version.should.eql('1.4.2')
 					done()
 			it 'should set the highest version that satisfies `>=1.3.2`', (done) ->
 				@dependency.version = '>=1.3.2'
-				@dependency.validateVersion()
-				.once 'end:validate', =>
+				@dependency.validateVersion (err) =>
 					@dependency.version.should.eql('1.4.2')
 					done()
 			it 'should set the highest version that satisfies `>1.3.2`', (done) ->
 				@dependency.version = '>1.3.2'
-				@dependency.validateVersion()
-				.once 'end:validate', =>
+				@dependency.validateVersion (err) =>
 					@dependency.version.should.eql('1.4.2')
 					done()
 			it 'should set the highest version that satisfies `1.3.x`', (done) ->
 				@dependency.version = '1.3.x'
-				@dependency.validateVersion()
-				.once 'end:validate', =>
+				@dependency.validateVersion (err) =>
 					@dependency.version.should.eql('1.3.3')
 					done()
 			it 'should set the highest version that satisfies `1.x`', (done) ->
 				@dependency.version = '1.x'
-				@dependency.validateVersion()
-				.once 'end:validate', =>
+				@dependency.validateVersion (err) =>
 					@dependency.version.should.eql('1.4.2')
 					done()
 			it 'should set the highest version that satisfies `~1.3.2`', (done) ->
 				@dependency.version = '~1.3.2'
-				@dependency.validateVersion()
-				.once 'end:validate', =>
+				@dependency.validateVersion (err) =>
 					@dependency.version.should.eql('1.3.3')
 					done()
 
@@ -115,16 +103,14 @@ describe 'Dependencies', ->
 				@temp = path.resolve('libs')
 				fs.mkdirSync(@temp) unless fs.existsSync(@temp)
 			it 'should download an archive file to the temp directory', (done) ->
-				dependency = new Dependency('popeindustries/buddy', '')
-				dependency.fetch(@temp)
-				.once 'end:fetch', ->
+				dependency = new Dependency('popeindustries/buddy', '', null, @temp)
+				dependency.fetch (err) ->
 					dependency.location.should.eql(path.resolve('libs', 'buddy-master'))
 					fs.existsSync(dependency.location).should.be.true
 					done()
 			it 'should return an error for an invalid url', (done) ->
-				dependency = new Dependency('popeindustries/bunk', '')
-				dependency.fetch(@temp)
-				.once 'error', (err) ->
+				dependency = new Dependency('popeindustries/bunk', '', null, @temp)
+				dependency.fetch (err) ->
 					should.exist(err)
 					done()
 
@@ -132,33 +118,29 @@ describe 'Dependencies', ->
 			it 'should resolve resources for package with component.json config file', (done) ->
 				dependency = new Dependency('jquery', '')
 				dependency.location = path.resolve('archive/jquery-master')
-				dependency.resolveResources()
-				.once 'end:resolve', ->
+				dependency.resolveResources (err, dependencies) ->
 					dependency.resources.should.include(path.resolve('archive/jquery-master/jquery.js'))
 					done()
 			it 'should resolve resources for package with package.json config file', (done) ->
 				dependency = new Dependency('backbone', '')
 				dependency.location = path.resolve('archive/backbone-master')
-				dependency.resolveResources()
-				.once 'end:resolve', ->
+				dependency.resolveResources (err, dependencies) ->
 					dependency.resources.should.include(path.resolve('archive/backbone-master/backbone.js'))
 					done()
 			it 'should resolve resources for package with component.json config file containing `scripts` array', (done) ->
 				@dependency = new Dependency('domify', '')
 				@dependency.location = path.resolve('archive/domify-master')
-				@dependency.resolveResources()
-				.once 'end:resolve', (dependency) ->
-					dependency.resources.should.have.length(1)
+				@dependency.resolveResources (err, dependencies) =>
+					@dependency.resources.should.have.length(1)
 					done()
 			it 'should rename index.js resources to package {id}.js', ->
 				@dependency.resources.should.include(path.resolve('archive/domify-master/domify.js'))
 				fs.renameSync(path.resolve('archive/domify-master/domify.js'), path.resolve('archive/domify-master/index.js'))
-			it 'should emit `dependency` event for found dependencies, passing `name@version`', (done) ->
+			it 'should store an array of `name@version` dependencies', (done) ->
 				dependency = new Dependency('backbone', '')
 				dependency.location = path.resolve('archive/backbone-master')
-				dependency.resolveResources()
-				.once 'dependency', (source) =>
-					source.should.eql('underscore@>=1.3.3')
+				dependency.resolveResources (err, dependencies) ->
+					dependency.dependencies.should.include('underscore@>=1.3.3')
 					done()
 
 		describe 'moving resources', ->
@@ -169,8 +151,7 @@ describe 'Dependencies', ->
 				@dependency = new Dependency('backbone', path.resolve('libs'))
 				@dependency.location = path.resolve('archive/backbone-master')
 				@dependency.resources = [path.resolve('archive/backbone-master/backbone.js')]
-				@dependency.move()
-				.on 'end:move', (dependency) ->
+				@dependency.move (err) ->
 					fs.existsSync(path.resolve('libs/backbone.js')).should.be.true
 					mv path.resolve('libs/backbone.js'), path.resolve('archive/backbone-master'), (err) ->
 						done()
@@ -178,8 +159,7 @@ describe 'Dependencies', ->
 				@dependency.files.should.include('libs' + path.sep + 'backbone.js')
 			it 'should not move or store references to files when `keep` property is set', (done) ->
 				dependency = new Dependency(path.resolve('local/lib'), path.resolve('local'))
-				dependency.move()
-				.on 'end:move', (dependency) ->
+				dependency.move (err) ->
 					dependency.files.should.have.length(0)
 					done()
 
@@ -228,7 +208,7 @@ describe 'Dependencies', ->
 				done()
 
 	describe 'installing sources with a specified output', ->
-		it 'should concatenate and minify the resources to the given output path', (done) ->
+		it 'should concatenate and compress the resources to the given output path', (done) ->
 			plugins.load null, (err, plugins) ->
 				deps = new Dependencies(require(path.resolve('buddy_output.js')).dependencies, plugins.js.compressor)
 				deps.install (err, files) ->

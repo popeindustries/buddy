@@ -1,11 +1,11 @@
 path = require('path')
 fs = require('fs')
-events = require('events')
 bower = require('bower')
 request = require('superagent')
 http = require('http')
 unzip = require('unzip')
 semver = require('semver')
+async = require('async')
 {rm, mv, cp, mkdir, notify, existsSync} = require('./utils')
 
 RE_GITHUB_PROJECT = /\w+\/\w+/
@@ -14,13 +14,14 @@ RE_PACKAGE_NOT_FOUND = /was not found/
 RE_INDEX = /^index(?:\.js$)?/
 RE_VALID_VERSION = /^\d+\.\d+\.\d+$|^master$/
 
-module.exports = class Dependency extends events.EventEmitter
+module.exports = class Dependency
 
 	# Constructor
 	# @param {String} source
 	# @param {String} destination
 	# @param {String} output
-	constructor: (source, destination, output) ->
+	# @param {String} temp
+	constructor: (source, destination, output, @temp) ->
 		@local = false
 		@keep = false
 		@id = source
@@ -30,6 +31,7 @@ module.exports = class Dependency extends events.EventEmitter
 		@location = null
 		@resources = null
 		@files = []
+		@dependencies = []
 		@destination = path.resolve(destination)
 		@output = output and path.resolve(output)
 
@@ -54,62 +56,62 @@ module.exports = class Dependency extends events.EventEmitter
 				@url = "https://github.com/#{@name}/archive/#{@version}.zip"
 				@id = @name.split('/')[1]
 
-	install: (temp) ->
+	# Install the dependency
+	# @param {Function} fn(err, dependencies)
+	install: (fn) ->
 		# Copy local files
 		if @local
-			@move()
-			.once 'end:move', ->
-				@emit('end', @)
+			@move (err) =>
+				if err then fn(err) else fn(null, @dependencies)
+		# Retrieve remote files
 		else
-			# Lookup, version, fetch, resolve, and move Bower files
-			@lookupPackage()
-			.once 'end:lookup', ->
-				@validateVersion()
-				.once 'end:validate', ->
-					@fetch(temp)
-					.once 'end:fetch', ->
-						@resolveResources()
-						.once 'end:resolve', ->
-							@move()
-							.once 'end:move', ->
-								@emit('end', @)
+			async.series [
+				@lookupPackage,
+				@validateVersion,
+				@fetch,
+				@resolveResources,
+				@move
+			], (err) =>
+				if err then fn(err) else fn(null, @dependencies)
 
 	# Lookup a Bower package's github location
-	lookupPackage: ->
+	# @param {Function} fn(err)
+	lookupPackage: (fn) =>
 		unless @url
 			bower.commands
 				.lookup(@id)
 				# Error looking up package
-				.on('error', => @emit('error', 'no package found for:' + @id))
+				.on('error', => fn('no package found for:' + @id))
 				.on 'data', (data) =>
 					# Error looking up package
 					if RE_PACKAGE_NOT_FOUND.test(data)
-						@emit('error', 'no package found for:' + @id)
+						fn('no package found for:' + @id)
 					else
 						# Store archive url
 						url = RE_GITHUB_URL.exec(data)[1]
 						@name = url.replace('github.com/', '')
 						@url = "https://#{url}/archive/#{@version}.zip"
-						@emit('end:lookup', @)
+						fn()
 		else
 			# Delay for event chaining
-			process.nextTick(=> @emit('end:lookup', @))
-		@
+			process.nextTick(-> fn())
 
-	validateVersion: ->
+	# Retrieve the latest version that satisfies a conditional version number
+	# @param {Function} fn(err)
+	validateVersion: (fn) =>
 		unless RE_VALID_VERSION.test(@version)
 			# Get tags
 			req = request.get("https://api.github.com/repos/#{@name}/tags")
 			req.end (err, res) =>
 				# Error downloading
 				if err or res.error
-					@emit('error', 'fetching tags for: ' + @name + ' failed with error code: ' + http.STATUS_CODES[res.status])
+					fn('fetching tags for: ' + @name + ' failed with error code: ' + http.STATUS_CODES[res.status])
 				else
 					# Parse and sort json data
 					try
 						json = JSON.parse(res.text)
 					catch err
-						@emit('error', 'parsing tag information for: ' + @name)
+						fn('parsing tag information for: ' + @name)
 					# Sort by version (name) descending
 					json.sort((a, b) -> semver.rcompare(a.name, b.name))
 
@@ -125,39 +127,39 @@ module.exports = class Dependency extends events.EventEmitter
 								@version = version.name
 								@url = version.zipball_url
 								break
-					@emit('end:validate', @)
+					fn()
 		else
 			# Delay for event chaining
-			process.nextTick(=> @emit('end:validate', @))
-		@
+			process.nextTick(-> fn())
 
 	# Fetch the github archive zipball to 'temp' directory
-	# @param {String} dest
-	fetch: (temp) ->
+	# @param {Function} fn(err)
+	fetch: (fn) =>
 		# Create archive filename
-		filename = temp + path.sep + @id + '-' + @version + '.zip'
+		filename = @temp + path.sep + @id + '-' + @version + '.zip'
 		# Download archive to temp
 		req = request.get(@url).buffer(false)
 		req.end (err, res) =>
 			# Error downloading
 			if err or res.error
-				@emit('error', 'fetching ' + @url + ' failed with error code: ' + http.STATUS_CODES[res.status])
+				fn('fetching ' + @url + ' failed with error code: ' + http.STATUS_CODES[res.status])
 			else
 				# Write to disk
 				res.pipe(fs.createWriteStream(filename))
 				res.on 'end', =>
 					# Unzip
-					fs.createReadStream(filename).pipe(unzip.Extract({path: temp}))
+					extractor = unzip.Extract({path: @temp})
+					fs.createReadStream(filename).pipe(extractor)
 					# Error unzipping
-					.on('error', => @emit('error', 'unzipping archive: ' + filename))
+					extractor.on('error', => fn('unzipping archive: ' + filename))
 					# Store path to unzipped package
-					.on 'close', =>
+					extractor.on 'close', =>
 						@location = filename.replace(path.extname(filename), '')
-						@emit('end:fetch', @)
-		@
+						fn()
 
 	# Parse archive component.json or package.json for resources and dependencies
-	resolveResources: ->
+	# @param {Function} fn(err)
+	resolveResources: (fn) =>
 		add = (filename) =>
 			# Rename if index
 			if RE_INDEX.test(filename)
@@ -175,7 +177,7 @@ module.exports = class Dependency extends events.EventEmitter
 			@resources = []
 			temp.forEach((filename) -> add(filename))
 			# Delay for event chaining
-			process.nextTick(=> @emit('end:resolve', @))
+			process.nextTick(-> fn())
 		else
 			@resources = []
 			# Find json file
@@ -184,18 +186,19 @@ module.exports = class Dependency extends events.EventEmitter
 			else if existsSync(path.resolve(@location, 'package.json'))
 				config = 'package.json'
 			else
-				return @emit('error', 'no config (component/package).json file found for: ' + @id)
+				return fn('no config (component/package).json file found for: ' + @id)
 
 			fs.readFile path.resolve(@location, config), 'utf8', (err, data) =>
-				return @emit('error', 'reading: ' + @id + config) if err
+				return fn('reading: ' + @id + ' ' + config) if err
 				try
 					json = JSON.parse(data)
 				catch err
-					return @emit('error', 'parsing: ' + @id + ' ' + config)
-				# Find dependencies and notify
+					return fn('parsing: ' + @id + ' ' + config)
+
+				# Find dependencies and store
 				if json.dependencies
 					for dependency, version of json.dependencies
-						@emit('dependency', "#{dependency}@#{version}")
+						@dependencies.push("#{dependency}@#{version}")
 
 				# Find files specified in 'scripts' or 'main'
 				if json.scripts
@@ -203,31 +206,26 @@ module.exports = class Dependency extends events.EventEmitter
 				else if json.main
 					add(json.main)
 				else
-					return @emit('error', 'unable to resolve resources for: ' + @id)
-				@emit('end:resolve', @)
-
-		@
+					return fn('unable to resolve resources for: ' + @id)
+				fn(null)
 
 	# Move resources to destination
-	move: ->
-		outstanding = 0
+	# @param {Function} fn(err)
+	move: (fn) =>
 		unless @keep
-			@resources.forEach (resource, idx) =>
-				outstanding++
+			idx = -1
+			async.forEachSeries @resources, ((resource, cb) =>
 				# Copy local files, otherwise move
 				require('./utils')[if @local then 'cp' else 'mv'] resource, @destination, (err, filepath) =>
-					outstanding--
-					if err
-						@emit('error', err)
-					else
-						@files.push(path.relative(process.cwd(), filepath))
-						@resources[idx] = filepath
-						@emit('end:move', @) unless outstanding
-
+					return cb(err) if err
+					idx++
+					@files.push(path.relative(process.cwd(), filepath))
+					@resources[idx] = filepath
+					cb()
+				), (err) =>
+					if err then fn(err) else fn()
 		else
 			# Delay for event chaining
-			process.nextTick(=> @emit('end:move', @))
-		@
+			process.nextTick(-> fn())
 
 	destroy: ->
-		@removeAllListeners()

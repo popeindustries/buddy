@@ -4,7 +4,7 @@ rimraf = require('rimraf')
 Watcher = require('../lib/watcher')
 {cp, rm, wait} = require('../lib/utils')
 
-describe.only 'Watcher', ->
+describe 'Watcher', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/watcher'))
 	beforeEach (done) ->
