@@ -43,6 +43,7 @@ exports.notify = notify =
 	# @param {String} msg
 	# @param {Int} ind
 	warn: (msg, indent = 1) ->
+		msg = msg.message if 'string' instanceof Error
 		@print("#{@colour('warning', @YELLOW)} #{msg}", indent)
 
 	# Colourize 'string' for emphasis
@@ -167,7 +168,7 @@ exports.cp = cp = (source, destination, fn) ->
 				else
 					# Guard against invalid directory to file copy
 					if isDestFile
-						fn(new Error('invalid destination: ' + destination))
+						fn(new Error('invalid destination for copy: ' + destination))
 					else
 						# Copy contents only if source ends in '/'
 						contentsOnly = _first and /\\|\/$/.test(source)
@@ -177,9 +178,7 @@ exports.cp = cp = (source, destination, fn) ->
 						mkdir dest, (err) ->
 							_outstanding--
 							if err
-								# Exit if proper error, otherwise skip
-								return if err.code is 'ENOENT'
-								else return fn(err)
+								return fn(err)
 							else
 								# Loop through contents
 								_outstanding++
