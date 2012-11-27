@@ -9,18 +9,17 @@ describe 'utils', ->
 
 	describe 'readdir', ->
 		it 'should read the contents of a flat directory', (done) ->
-			utils.readdir path.resolve('readdir-simple'), (err, files) ->
+			utils.readdir path.resolve('readdir-simple'), null, (err, files) ->
 				files.should.have.length(4)
 				done()
 		it 'should read the contents of a nested directory', (done) ->
-			utils.readdir path.resolve('readdir-nested'), (err, files) ->
+			utils.readdir path.resolve('readdir-nested'), null, (err, files) ->
 				files.should.have.length(4)
 				done()
 		it 'should ignore files when an ignore pattern is passed', (done) ->
-			utils.readdir path.resolve('readdir-simple'), (err, files) ->
+			utils.readdir path.resolve('readdir-simple'), /^Class/, (err, files) ->
 				files.should.have.length(2)
 				done()
-			, /^Class/
 
 	describe 'mkdir', ->
 		beforeEach ->

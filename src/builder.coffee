@@ -232,7 +232,7 @@ module.exports = class Builder
 		unless existsSync(inputpath)
 			return fn("#{notify.strong(props.input)} not found in project path")
 		fs.stat inputpath, (err, stats) ->
-			if err and err.code isnt 'ENOENT'
+			if err
 				return fn(err)
 			else
 				isDir = stats.isDirectory()

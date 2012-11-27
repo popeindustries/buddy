@@ -1,11 +1,9 @@
 path = require('path')
-Builder = require('../lib/builder')
-Configuration = require('../lib/configuration')
 plugins = require('../lib/plugins')
 File = require('../lib/file')
 
 describe 'File', ->
-	beforeEach ->
+	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/file'))
 
 	describe '"qualifiedFilename" property', ->
@@ -17,9 +15,8 @@ describe 'File', ->
 			f = new File('js', path.resolve('src/package/Class.coffee'), path.resolve('src'))
 			f.needsCompile.should.be.true
 	describe '"compiler" property', ->
-		it 'should store a reference to the compiler plugin appropriate for that file', ->
-			b = new Builder
-			c = b.config = new Configuration()
-			b.plugins = plugins.load()
-			f = new File('js', path.resolve('src/package/Class.coffee'), path.resolve('src'), b.plugins.js.compilers)
-			f.compiler.extension.should.equal(f.extension)
+		it 'should store a reference to the compiler plugin appropriate for that file', (done)->
+			plugins.load null, (err, plugins) ->
+				f = new File('js', path.resolve('src/package/Class.coffee'), path.resolve('src'), plugins.js.compilers)
+				f.compiler.extension.should.equal(f.extension)
+				done()
