@@ -8,6 +8,23 @@ exports.exists = exists = fs.exists or path.exists
 
 RE_IGNORE = /^[\.~]|~$/
 
+# Check that a 'filepath' is likely a child of a given directory
+# Applies to nested directories
+# Only makes String comparison. Does not check for existance
+# @param {String} dir
+# @param {String} file
+# @returns {Boolean}
+exports.indir = (dir, filepath) ->
+	dir = path.resolve(dir)
+	filepath = path.resolve(filepath)
+	if filepath.indexOf(dir) isnt -1
+		if path.relative(dir, filepath).indexOf('..') isnt -1
+			return false
+		else
+			return true
+	else
+		return false
+
 # Read and store the contents of a directory, ignoring files of type specified
 # @param {String} dir
 # @param {Regex} ignore
