@@ -4,7 +4,7 @@ notify = require('../utils/notify')
 
 DEFAULTS =
 	js:
-		compilers: ['./compilers/coffeescript']
+		compilers: ['./compilers/coffeescript', './compilers/typescript']
 		compressor: './compressor/uglifyjs'
 		linter: './linter/jshint'
 		module: './module/node'
@@ -17,7 +17,7 @@ DEFAULTS =
 
 defaults = null
 
-exports.installed = installed = null
+exports.installed = null
 
 # Load all processor modules, overriding defaults if specified in 'options'
 # @param {Object} options
@@ -27,8 +27,8 @@ exports.load = (options, fn) ->
 	defaults = JSON.parse(JSON.stringify(DEFAULTS))
 	# Override if we have options
 	options and overrideDefaults(options)
-	loadModules (err) ->
-		if err then fn(err) else fn(null, installed)
+	loadModules (err, processors) ->
+		if err then fn(err) else fn(null, exports.installed)
 	return
 
 # Resolve processor path
@@ -77,5 +77,6 @@ loadModules = (fn) ->
 					installed[category][type] = require(processor)
 				catch err
 					return fn("failed loading processor #{notify.strong(processor)}")
+	exports.installed = installed
 	return fn()
 
