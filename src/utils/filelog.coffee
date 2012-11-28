@@ -1,6 +1,6 @@
 fs = require('fs')
 path = require('path')
-{existsSync} = require('./utils')
+{existsSync} = require('./fs')
 
 NAME = '.buddy-filelog'
 RE_ABSOLUTE = /^([a-z]:\\)|^\//i

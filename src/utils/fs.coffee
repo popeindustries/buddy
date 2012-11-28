@@ -8,49 +8,6 @@ exports.exists = exists = fs.exists or path.exists
 
 RE_IGNORE = /^[\.~]|~$/
 
-# Console output formatting
-exports.notify = notify =
-	RED: '0;31'
-	YELLOW: '1;33'
-	GREEN: '0;32'
-	GREY: '0;90'
-
-	silent: false
-
-	nocolor: !process.stdout.isTTY
-
-	# Add TTY colours to given 'string'
-	# @param {String} string
-	# @param {String} colourCode
-	colour: (string, colourCode) ->
-		return if @nocolor then string else `'\033[' + colourCode + 'm' + string + '\033[0m'`
-
-	# Print 'msg' to console, with indentation level
-	# @param {String} msg
-	# @param {Int} ind
-	print: (msg, ind = 1) ->
-		console.log(exports.indent(msg, ind)) unless @silent
-
-	# Print 'err' to console, with error colour and indentation level
-	# @param {Object or String} err
-	# @param {Int} ind
-	error: (err, ind = 1) ->
-		err = new Error(err) if 'string' is typeof err
-		@print("#{@colour('error', @RED)}: #{err.message}", ind)
-		throw err
-
-	# Print 'msg' to console, with warning colour and indentation level
-	# @param {String} msg
-	# @param {Int} ind
-	warn: (msg, indent = 1) ->
-		msg = msg.message if 'string' instanceof Error
-		@print("#{@colour('warning', @YELLOW)} #{msg}", indent)
-
-	# Colourize 'string' for emphasis
-	# @param {String} string
-	strong: (string) ->
-		@colour(string, @GREY)
-
 # Read and store the contents of a directory, ignoring files of type specified
 # @param {String} dir
 # @param {Regex} ignore
@@ -215,17 +172,3 @@ exports.rm = rm = (source, fn) ->
 			fn(new Error('cannot rm source outside of project path: ' + source))
 	else
 		fn(new Error('cannot rm non-existant source: ' + source))
-
-# Indent the given 'string' a specific number of spaces
-# @param {String} string
-# @param {Int} level
-exports.indent = (string, level) ->
-	re = /^/gm
-	string = string.replace(re, (new Array(level)).join('  '))
-	string
-
-# setTimeout wrapper
-# @param {int} time
-# @param {Function} fn
-exports.wait = (time = 25, fn) ->
-	return setTimeout(fn, time)

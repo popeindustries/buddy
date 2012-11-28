@@ -1,11 +1,9 @@
 path = require('path')
 fs = require('fs')
 Builder = require('../lib/builder')
-Configuration = require('../lib/configuration')
-plugins = require('../lib/plugins')
-Target = require('../lib/target')
-JSTarget = require('../lib/jstarget')
-CSSTarget = require('../lib/csstarget')
+Configuration = require('../lib/core/configuration')
+processors = require('../lib/processors')
+Target = require('../lib/core/target')
 
 describe 'Target', ->
 	beforeEach ->

@@ -1,6 +1,6 @@
 path = require('path')
-plugins = require('../lib/plugins')
-File = require('../lib/file')
+processors = require('../lib/processors')
+File = require('../lib/core/file')
 
 describe 'File', ->
 	before ->

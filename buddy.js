@@ -85,8 +85,8 @@ exports.dependencies = {
 
 // Project settings configuration.
 exports.settings = {
-  // Override the default plugins, and/or include custom plugins.
-  plugins: {
+  // Override the default processors, and/or include custom processors.
+  processors: {
     js: {
       // Append one or more js compilers to the default 'coffeescript'.
       compilers: ['a/file', 'another/file'],

@@ -1,7 +1,7 @@
 fs = require('fs')
 path = require('path')
 events = require('events')
-{readdir, wait, existsSync} = require('./utils')
+{readdir, wait, existsSync} = require('./fs')
 
 module.exports = class Watcher extends events.EventEmitter
 

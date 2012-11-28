@@ -1,13 +1,13 @@
 path = require('path')
 fs = require('fs')
-node = require('../lib/plugins/module/node')
+node = require('../lib/processors/module/node')
 
-describe 'Module plugin', ->
+describe 'Module processor', ->
 
 	describe 'Node', ->
 
 		beforeEach ->
-			process.chdir(path.resolve(__dirname, 'fixtures/plugins/module'))
+			process.chdir(path.resolve(__dirname, 'fixtures/processors/module'))
 
 		describe 'a module id from a filename containing spaces', ->
 			it 'should contain no spaces', ->

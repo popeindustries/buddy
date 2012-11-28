@@ -1,15 +1,11 @@
 fs = require('fs')
 path = require('path')
-Configuration = require('./configuration')
-plugins = require('./plugins')
-Depedencies = require('./dependencies')
-Watcher = require('./watcher')
-Filelog =require('./filelog')
-JSFile = require('./jsfile')
-CSSFile = require('./cssfile')
-JSTarget = require('./jstarget')
-CSSTarget = require('./csstarget')
-{notify, readdir, rm, existsSync} = require('./utils')
+# Configuration = require('./core/configuration')
+# processors = require('./processors/processors')
+# Depedencies = require('./core/dependencies')
+# Watcher = require('./utils/watcher')
+# Filelog =require('./utils/filelog')
+# {notify, readdir, rm, existsSync} = require('./utils/utils')
 
 #starts with '.', '_', or '~' contains '-min.' or '.min.' or 'svn'
 RE_IGNORE_FILE = /^[\._~]|[-\.]min[-\.]|svn|~$/

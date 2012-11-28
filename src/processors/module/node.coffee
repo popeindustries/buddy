@@ -1,5 +1,5 @@
 path = require('path')
-{indent} = require('../../utils')
+{indent} = require('../../utils/notify')
 
 RE_WIN_SEPARATOR = /\\\\?/g
 # "require.register('id', function(module, exports, require) {"

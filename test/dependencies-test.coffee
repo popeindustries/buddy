@@ -2,10 +2,10 @@ path = require('path')
 fs = require('fs')
 rimraf = require('rimraf')
 should = require('should')
-Dependencies = require('../lib/dependencies')
-Dependency = require('../lib/dependency')
-plugins = require('../lib/plugins')
-{mv} = require('../lib/utils')
+Dependencies = require('../lib/core/dependencies')
+Dependency = require('../lib/core/dependency')
+processors = require('../lib/processors')
+{mv} = require('../lib/utils/fs')
 
 describe 'Dependencies', ->
 	before ->

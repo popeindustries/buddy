@@ -1,7 +1,7 @@
 path = require('path')
 fs = require('fs')
 should = require('should')
-configuration = require('../lib/configuration')
+configuration = require('../lib/core/configuration')
 
 describe 'configuration', ->
 	before ->

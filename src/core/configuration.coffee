@@ -1,6 +1,7 @@
 fs = require('fs')
 path = require('path')
-{notify, existsSync} = require('../utils/utils')
+{existsSync} = require('../utils/fs')
+notify = require('../utils/notify')
 
 DEFAULT = 'buddy.js'
 

@@ -1,7 +1,7 @@
 fs = require('fs')
 path = require('path')
 async = require('async')
-{existsSync} = require('./utils')
+{existsSync} = require('../utils/fs')
 
 RE_BUILT_HEADER = /^\/\*BUILT/g
 

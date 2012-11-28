@@ -1,7 +1,8 @@
 fs = require('fs')
 path = require('path')
 async = require('async')
-{notify, readdir, existsSync} = require('./utils')
+{readdir, existsSync} = require('../utils/fs')
+notify = require('../utils/notify')
 
 #starts with '.', '_', or '~' contains '-min.' or '.min.', is 'svn', or ends with '~'
 RE_IGNORE_FILE = /^[\._~]|[-\.]min[-\.]|svn|~$/

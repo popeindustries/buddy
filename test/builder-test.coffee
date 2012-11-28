@@ -2,9 +2,9 @@ path = require('path')
 fs = require('fs')
 rimraf = require('rimraf')
 Builder = require('../lib/builder')
-Configuration = require('../lib/configuration')
-plugins = require('../lib/plugins')
-{notify} = require('../lib/utils')
+Configuration = require('../lib/core/configuration')
+processors = require('../lib/processors')
+notify = require('../lib/utils/notify')
 
 notify.silent = true
 

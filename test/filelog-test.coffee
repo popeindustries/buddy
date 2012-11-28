@@ -1,7 +1,7 @@
 path = require('path')
 fs = require('fs')
 rimraf = require('rimraf')
-filelog = require('../lib/filelog')
+filelog = require('../lib/utils/filelog')
 
 describe 'filelog', ->
 	before ->
