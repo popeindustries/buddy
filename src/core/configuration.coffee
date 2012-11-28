@@ -5,6 +5,8 @@ notify = require('../utils/notify')
 
 DEFAULT = 'buddy.js'
 
+exports.data = null
+
 # Load and parse configuration file
 # Accepts optional path to file or directory
 # @param {String} url
@@ -17,6 +19,8 @@ exports.load = (url, fn) ->
 		catch err
 			return fn("parsing #{notify.strong(url)}\n  Run #{notify.strong('buddy -h')} for proper formatting")
 		if data.build or data.dependencies or data.settings
+			# Store
+			exports.data = data
 			# Set current directory to location of file
 			process.chdir(path.dirname(url))
 			return fn(null, data)
