@@ -30,28 +30,28 @@ program
 	.command('install [config]')
 	.description('install dependencies')
 	.action(function(config) {
-		new Builder().initialize(config).install();
+		new Builder().install(config);
 	});
 
 program
 	.command('build [config]')
 	.description('build js and css sources')
 	.action(function(config){
-		new Builder().initialize(config).build(program.compress, program.lint);
+		new Builder().build(config, program.compress, program.lint);
 	});
 
 program
 	.command('watch [config]')
 	.description('watch js and css source files and build changes')
 	.action(function(config){
-		new Builder().initialize(config).watch(program.compress);
+		new Builder().watch(config, program.compress);
 	});
 
 program
 	.command('deploy [config]')
 	.description('build compressed js and css sources')
 	.action(function(config){
-		new Builder().initialize(config).deploy();
+		new Builder().deploy(config);
 	});
 
 program
