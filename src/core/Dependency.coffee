@@ -6,7 +6,8 @@ http = require('http')
 unzip = require('unzip')
 semver = require('semver')
 async = require('async')
-{rm, mv, cp, mkdir, notify, existsSync} = require('../utils/utils')
+fsutils = require('../utils/fs')
+{rm, mv, cp, mkdir, existsSync} = require('../utils/fs')
 
 RE_GITHUB_PROJECT = /\w+\/\w+/
 RE_GITHUB_URL = /git:\/\/(.*)\.git/
@@ -216,7 +217,7 @@ module.exports = class Dependency
 			idx = -1
 			async.forEachSeries @resources, ((resource, cb) =>
 				# Copy local files, otherwise move
-				require('./utils')[if @local then 'cp' else 'mv'] resource, @destination, (err, filepath) =>
+				fsutils[if @local then 'cp' else 'mv'] resource, @destination, (err, filepath) =>
 					return cb(err) if err
 					idx++
 					@files.push(path.relative(process.cwd(), filepath))
