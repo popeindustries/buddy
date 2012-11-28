@@ -1,39 +1,83 @@
 path = require('path')
 File = require('./file')
-{readdir, existsSync} = require('../utils/utils')
+{indir, readdir, existsSync} = require('../utils/fs')
+
+#starts with '.', '_', or '~' contains '-min.' or '.min.' or 'svn'
+RE_IGNORE_FILE = /^[\._~]|[-\.]min[-\.]|svn|~$/
 
 module.exports = class Source
 
-	constructor: (@type, sources) ->
-		@byPath: {}
-		@byModule: {}
-		@length: 0
+	# Constructor
+	# @param {String} type
+	# @param {Array} sources
+	# @param {Object} processors
+	constructor: (@type, sources, @processors) ->
+		@_watchers = []
+		@byPath = {}
+		@byModule = {}
+		@length = 0
 		@locations = []
 		sources.forEach (source) =>
 			@locations.push(path.resolve(source))
 
-	parse: (ignore, fn) ->
+	# Parse sources, generating File instances for valid files
+	# @param {Function} fn(err)
+	parse: (fn) ->
 		outstanding = 0
 		@locations.forEach (location) =>
 			outstanding++
-			readdir location, ignore, (err, files) =>
+			readdir location, RE_IGNORE_FILE, (err, files) =>
 				outstanding--
 				return fn(err) if err
 				files.forEach (file) => @add(file)
 				return fn() unless outstanding
 
-	add: (file) ->
-		@length++
-		@byPath[file.filepath] = file
-		@byModule[file.moduleId] = file
+	# Add a File instance to the cache by 'filepath'
+	# @param {String} filepath
+	add: (filepath) ->
+		filepath = path.resolve(filepath)
+		if not @byPath[filepath] and file = @_fileFactory(filepath)
+			@length++
+			@byPath[file.filepath] = file
+			@byModule[file.moduleId] = file
 
-	remove: (file) ->
-		@length--
-		delete @byPath[file.filepath]
-		delete @byModule[file.moduleId]
-		file.destroy()
+	# Remove a File instance from the cache by 'filepath'
+	# @param {String} filepath
+	remove: (filepath) ->
+		filepath = path.resolve(filepath)
+		if file = @byPath[filepath]
+			@length--
+			delete @byPath[filepath]
+			delete @byModule[file.moduleId]
+			file.destroy()
 
+	# Watch for changes and call 'fn'
+	# @param {Function} fn(err, changed)
 	watch: (fn) ->
+
+	# Check that a given 'filename' is a valid source
+	# including compileable file types
+	# @param {String} filepath
+	_validFileType: (filepath) ->
+		extension = path.extname(filepath)[1..]
+		return true if extension is @type
+		# Loop through compilers
+		for name, compiler of @processors.compilers
+			return true if extension is compiler.extension
+		return false
+
+	# Generate file instances based on type
+	# @param {String} filepath
+	_fileFactory: (filepath) ->
+		# Create file instance by type
+		if @_validFileType(filepath)
+			for location in @locations
+				if indir(location, filepath)
+					base = location
+					break
+			return new File(@type, filepath, base, @processors) if base
+		else
+			return null
 
 	# Respond to 'create' event during watch
 	# @param {String} filename
