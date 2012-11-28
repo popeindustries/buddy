@@ -1,11 +1,19 @@
 path = require('path')
 fs = require('fs')
 rimraf = require('rimraf')
-{readdir, mkdir, mv, rm, cp} = require('../lib/utils/fs')
+{indir, readdir, mkdir, mv, rm, cp} = require('../lib/utils/fs')
 
 describe 'fs utils', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/utils'))
+
+	describe 'indir', ->
+		it 'should return true when checking a filepath that resides in a directory', ->
+			indir('/some/directory', '/some/directory/file.js').should.be.true
+			indir('/some/directory', '/some/directory/nested/file.js').should.be.true
+		it 'should return false when checking a filepath that does not reside in a directory', ->
+			indir('/some/directory', '/another/directory/file.js').should.be.false
+			indir('/some/directory', '/some/other/directory/file.js').should.be.false
 
 	describe 'readdir', ->
 		it 'should read the contents of a flat directory', (done) ->

@@ -2,12 +2,12 @@ path = require('path')
 fs = require('fs')
 rimraf = require('rimraf')
 should = require('should')
-Dependencies = require('../lib/core/dependencies')
+dependencies = require('../lib/core/dependencies')
 Dependency = require('../lib/core/dependency')
 processors = require('../lib/processors')
 {mv} = require('../lib/utils/fs')
 
-describe 'Dependencies', ->
+describe 'dependencies', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/dependencies'))
 	afterEach (done) ->
@@ -165,53 +165,46 @@ describe 'Dependencies', ->
 
 	describe 'installing a github source', ->
 		it 'should install the resource to the given path', (done) ->
-			deps = new Dependencies(require(path.resolve('buddy_github.js')).dependencies)
-			deps.install (err, files) ->
+			dependencies.install require(path.resolve('buddy_github.js')).dependencies, (err, files) ->
 				fs.existsSync(path.resolve('libs/vendor/require.js')).should.be.true
 				done()
 
 	describe 'installing a github source with specified resources', ->
 		it 'should install the resources to the given path', (done) ->
-			deps = new Dependencies(require(path.resolve('buddy_github_resources.js')).dependencies)
-			deps.install (err, files) ->
+			dependencies.install require(path.resolve('buddy_github_resources.js')).dependencies, (err, files) ->
 				fs.existsSync(path.resolve('libs/vendor/pi/event.js')).should.be.true
 				fs.existsSync(path.resolve('libs/vendor/pi/dom')).should.be.true
 				done()
 
 	describe 'installing a named source', ->
 		it 'should install the resource to the given path', (done) ->
-			deps = new Dependencies(require(path.resolve('buddy_name.js')).dependencies)
-			deps.install (err, files) ->
+			dependencies.install require(path.resolve('buddy_name.js')).dependencies, (err, files) ->
 				fs.existsSync(path.resolve('libs/vendor/jquery.js')).should.be.true
 				done()
 
 	describe 'installing a named source with a dependency', ->
 		it 'should install the resources to the given path', (done) ->
-			deps = new Dependencies(require(path.resolve('buddy_name_dependant.js')).dependencies)
-			deps.install (err, files) ->
+			dependencies.install require(path.resolve('buddy_name_dependant.js')).dependencies, (err, files) ->
 				fs.existsSync(path.resolve('libs/vendor/backbone.js')).should.be.true
 				fs.existsSync(path.resolve('libs/vendor/underscore.js')).should.be.true
 				done()
 
 	describe 'installing a local source', ->
 		it 'should copy the resources to the given path', (done) ->
-			deps = new Dependencies(require(path.resolve('buddy_local.js')).dependencies)
-			deps.install (err, files) ->
+			dependencies.install require(path.resolve('buddy_local.js')).dependencies, (err, files) ->
 				fs.existsSync(path.resolve('libs/vendor/lib/lib.js')).should.be.true
 				done()
 
 	describe 'installing a local source residing in the destination path', ->
 		it 'should not be marked for cleanup', (done) ->
-			deps = new Dependencies(require(path.resolve('buddy_local_dest.js')).dependencies)
-			deps.install (err, files) ->
+			dependencies.install require(path.resolve('buddy_local_dest.js')).dependencies, (err, files) ->
 				files.should.have.length(0)
 				done()
 
 	describe 'installing sources with a specified output', ->
 		it 'should concatenate and compress the resources to the given output path', (done) ->
-			plugins.load null, (err, plugins) ->
-				deps = new Dependencies(require(path.resolve('buddy_output.js')).dependencies, plugins.js.compressor)
-				deps.install (err, files) ->
+			processors.load null, (err, installed) ->
+				dependencies.install require(path.resolve('buddy_output.js')).dependencies, (err, files) ->
 					fs.existsSync(path.resolve('libs/js/libs.js')).should.be.true
 					done()
 

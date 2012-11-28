@@ -1,8 +1,9 @@
 path = require('path')
 fs = require('fs')
 rimraf = require('rimraf')
+should = require('should')
 Builder = require('../lib/builder')
-Configuration = require('../lib/core/configuration')
+configuration = require('../lib/core/configuration')
 processors = require('../lib/processors')
 notify = require('../lib/utils/notify')
 
@@ -21,100 +22,74 @@ gatherFiles = (dir, files) ->
 describe 'Builder', ->
 
 	describe 'validating build type', ->
-		beforeEach ->
-			@builder = new Builder()
 		before ->
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/validation'))
+			@builder = new Builder()
 		describe 'with valid source, source length, target, and target length', ->
 			it 'should return true', ->
-				@builder.config = require(path.resolve(process.cwd(), 'buddy.js'))
-				@builder._validBuildType('js').should.be.true
+				config = require(path.resolve('buddy.js'))
+				@builder._validBuildType(config.build.js).should.be.true
 		describe 'without source', ->
 			it 'should return false', ->
-				@builder.config = require(path.resolve(process.cwd(), 'buddy_invalid_source.js'))
-				@builder._validBuildType('js').should.be.false
+				config = require(path.resolve('buddy_invalid_source.js'))
+				@builder._validBuildType(config.build.js).should.be.false
 		describe 'without source length', ->
 			it 'should return false', ->
-				@builder.config = require(path.resolve(process.cwd(), 'buddy_invalid_source_length.js'))
-				@builder._validBuildType('js').should.be.false
+				config = require(path.resolve('buddy_invalid_source_length.js'))
+				@builder._validBuildType(config.build.js).should.be.false
 		describe 'without target', ->
 			it 'should return false', ->
-				@builder.config = require(path.resolve(process.cwd(), 'buddy_invalid_target.js'))
-				@builder._validBuildType('js').should.be.false
+				config = require(path.resolve('buddy_invalid_target.js'))
+				@builder._validBuildType(config.build.js).should.be.false
 		describe 'without target length', ->
 			it 'should return false', ->
-				@builder.config = require(path.resolve(process.cwd(), 'buddy_invalid_target_length.js'))
-				@builder._validBuildType('js').should.be.false
-
-	describe 'parsing source directory', ->
-		before ->
-			process.chdir(path.resolve(__dirname, 'fixtures/builder/init/source'))
-		beforeEach ->
-			@builder = new Builder()
-			config = @builder.config = new Configuration()
-			@builder.plugins = plugins.load()
-		describe 'with ignored files and folders', ->
-			it 'should result in a cache count of 0', ->
-				@builder._parseSourceDirectory(path.resolve('ignored'), null, @builder.jsSources)
-				@builder.jsSources.count.should.equal(0)
-		describe 'with invalid files', ->
-			it 'should result in a cache count of 0', ->
-				@builder._parseSourceDirectory(path.resolve('invalid'), null, @builder.jsSources)
-				@builder.jsSources.count.should.equal(0)
-		describe 'with 1 source file', ->
-			it 'should result in a cache count of 1', ->
-				@builder._parseSourceDirectory(path.resolve('src'), null, @builder.jsSources)
-				@builder.jsSources.count.should.equal(1)
-		describe 'with 1 source file and 2 nested source files', ->
-			it 'should result in a cache count of 3', ->
-				@builder._parseSourceDirectory(path.resolve('src-nested'), null, @builder.jsSources)
-				@builder.jsSources.count.should.equal(3)
+				config = require(path.resolve('buddy_invalid_target_length.js'))
+				@builder._validBuildType(config.build.js).should.be.false
 
 	describe 'parsing build target', ->
 		before ->
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/init/target'))
-		beforeEach ->
 			@builder = new Builder()
-			config = @builder.config = new Configuration()
-			@builder.plugins = plugins.load()
-			@builder._parseSourceDirectory(process.cwd(), null, @builder.jsSources)
-		describe 'with an input file that doesn`t exist', ->
-			it 'should throw an error', ->
-				(=>@builder._parseTargets([{'input': 'none.coffee', 'output': ''}], 'js')).should.throw()
-		describe 'with an input file that doesn`t exist in sources', ->
-			it 'should throw an error', ->
-				(=>@builder._parseTargets([{'input': '../source/src/main.coffee', 'output': ''}], 'js')).should.throw()
-		describe 'with an input directory and an output file', ->
-			it 'should throw an error', ->
-				(=>@builder._parseTargets([{'input': 'class', 'output': 'js/main.js'}], 'js')).should.throw()
-		describe 'with a valid input file and output file', ->
-			it 'should result in a target count of 1', ->
-				@builder._parseTargets([{'input': 'main.coffee', 'output': 'main.js'}], 'js')
-				@builder.jsTargets.should.have.length(1)
-		describe 'with a valid target containing a valid child target', ->
-			it 'should result in a target count of 2', ->
-				@builder._parseTargets([{'input': 'main.coffee', 'output': 'main.js', 'targets':[{'input':'class', 'output':'../js'}]}], 'js')
-				@builder.jsTargets.should.have.length(2)
+		it 'should return an error for an input file that doesn`t exist', (done) ->
+			@builder._parseTargets 'js', [{'input': 'none.coffee', 'output': ''}], (err, instances) ->
+				should.exist(err)
+				done()
+		it 'should return an error for an input file that doesn`t exist in sources', (done) ->
+			@builder._parseTargets 'js', [{'input': '../source/src/main.coffee', 'output': ''}], (err, instances) ->
+				should.exist(err)
+				done()
+		it 'should return an error for an input directory and an output file', (done) ->
+			@builder._parseTargets 'js', [{'input': 'class', 'output': 'js/main.js'}], (err, instances) ->
+				should.exist(err)
+				done()
+		it 'should result in a target count of 1 for a valid input file and output file', (done) ->
+			@builder._parseTargets 'js', [{'input': 'main.coffee', 'output': 'main.js'}], (err, instances) ->
+				instances.should.have.length(1)
+				done()
+		it 'should result in a target count of 2 with a valid target containing a valid child target', (done) ->
+			@builder._parseTargets 'js', [{'input': 'main.coffee', 'output': 'main.js', 'targets':[{'input':'class', 'output':'../js'}]}], (err, instances) ->
+				instances.should.have.length(2)
+				done()
 
-	describe 'getting file type', ->
-		before ->
-			process.chdir(path.resolve(__dirname, 'fixtures/builder/init'))
-		beforeEach ->
-			@builder = new Builder()
-			config = @builder.config = new Configuration()
-			@builder.plugins = plugins.load()
-		it 'should return "js" for a js file', ->
-			@builder._getFileType('here/is/somefile.js').should.eql('js')
-		it 'should return "js" for a coffee file', ->
-			@builder._getFileType('here/is/somefile.coffee').should.eql('js')
-		it 'should return "css" for a css file', ->
-			@builder._getFileType('here/is/somefile.css').should.eql('css')
-		it 'should return "css" for a stylus file', ->
-			@builder._getFileType('here/is/somefile.styl').should.eql('css')
-		it 'should return "css" for a less file', ->
-			@builder._getFileType('here/is/somefile.less').should.eql('css')
+	# describe 'getting file type', ->
+	# 	before ->
+	# 		process.chdir(path.resolve(__dirname, 'fixtures/builder/init'))
+	# 	beforeEach ->
+	# 		@builder = new Builder()
+	# 		config = @builder.config = new Configuration()
+	# 		@builder.plugins = plugins.load()
+	# 	it 'should return "js" for a js file', ->
+	# 		@builder._getFileType('here/is/somefile.js').should.eql('js')
+	# 	it 'should return "js" for a coffee file', ->
+	# 		@builder._getFileType('here/is/somefile.coffee').should.eql('js')
+	# 	it 'should return "css" for a css file', ->
+	# 		@builder._getFileType('here/is/somefile.css').should.eql('css')
+	# 	it 'should return "css" for a stylus file', ->
+	# 		@builder._getFileType('here/is/somefile.styl').should.eql('css')
+	# 	it 'should return "css" for a less file', ->
+	# 		@builder._getFileType('here/is/somefile.less').should.eql('css')
 
-	describe 'build', ->
+	describe.skip 'build', ->
 		beforeEach ->
 			@builder = new Builder
 		afterEach (done) ->
