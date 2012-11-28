@@ -9,12 +9,13 @@ notify = require('../utils/notify')
 dependencies = []
 childDependencies = []
 outputFiles = []
-temp = path.resolve('.tmp')
+temp = null
 
 # Install dependencies and call 'fn' when complete
 # param {Object} options
 # param {Function} fn(err, files)
 exports.install = (options, fn) ->
+	temp = path.resolve('.tmp')
 	dependencies = []
 	childDependencies = []
 	outputFiles = []
