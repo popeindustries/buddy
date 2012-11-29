@@ -12,26 +12,6 @@ describe 'Source', ->
 			processors = installed
 			done()
 
-	describe 'validation', ->
-		before ->
-			@jsSource = new Source('js', [], processors.js)
-			@cssSource = new Source('css', [], processors.css)
-
-		it 'should allow js files for a js type source', ->
-			@jsSource._validFileType('some.js').should.be.true
-		it 'should allow coffeescript files for a js type source', ->
-			@jsSource._validFileType('some.coffee').should.be.true
-		it 'should allow typescript files for a js type source', ->
-			@jsSource._validFileType('some.ts').should.be.true
-		it 'should allow css files for a css type source', ->
-			@cssSource._validFileType('some.css').should.be.true
-		it 'should allow stylus files for a css type source', ->
-			@cssSource._validFileType('some.styl').should.be.true
-		it 'should allow less files for a css type source', ->
-			@cssSource._validFileType('some.less').should.be.true
-		it 'should not allow invalid files for a js type source', ->
-			@jsSource._validFileType('some.doc').should.be.false
-
 	describe 'adding', ->
 		before ->
 			@jsSource = new Source('js', [path.resolve('src'), path.resolve('invalid')], processors.js)

@@ -48,8 +48,9 @@ describe 'Builder', ->
 
 	describe 'parsing build target', ->
 		before ->
-			process.chdir(path.resolve(__dirname, 'fixtures/builder/init/target'))
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/init'))
 			@builder = new Builder()
+			@builder.sources.js = {locations:[path.resolve('target')]}
 		it 'should return an error for an input file that doesn`t exist', (done) ->
 			@builder._parseTargets 'js', [{'input': 'none.coffee', 'output': ''}], (err, instances) ->
 				should.exist(err)
@@ -63,11 +64,11 @@ describe 'Builder', ->
 				should.exist(err)
 				done()
 		it 'should result in a target count of 1 for a valid input file and output file', (done) ->
-			@builder._parseTargets 'js', [{'input': 'main.coffee', 'output': 'main.js'}], (err, instances) ->
+			@builder._parseTargets 'js', [{'input': 'target/main.coffee', 'output': 'main.js'}], (err, instances) ->
 				instances.should.have.length(1)
 				done()
 		it 'should result in a target count of 2 with a valid target containing a valid child target', (done) ->
-			@builder._parseTargets 'js', [{'input': 'main.coffee', 'output': 'main.js', 'targets':[{'input':'class', 'output':'../js'}]}], (err, instances) ->
+			@builder._parseTargets 'js', [{'input': 'target/main.coffee', 'output': 'main.js', 'targets':[{'input':'target/class', 'output':'../js'}]}], (err, instances) ->
 				instances.should.have.length(2)
 				done()
 

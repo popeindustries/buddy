@@ -42,8 +42,7 @@ exports.strong = (string) ->
 
 # Indent the given 'string' a specific number of spaces
 # @param {String} string
-# @param {Int} level
-exports.indent = (string, level) ->
-	re = /^/gm
-	string = string.replace(re, (new Array(level)).join('  '))
-	string
+# @param {Int} column
+exports.indent = (string, column) ->
+	spaces = (new Array(column)).join('  ')
+	string.replace(/^/gm, spaces)

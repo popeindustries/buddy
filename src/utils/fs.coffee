@@ -8,6 +8,11 @@ exports.exists = exists = fs.exists or path.exists
 
 RE_IGNORE = /^[\.~]|~$/
 
+#starts with '.', or '~', ends with '~'
+exports.ignoredHidden = /^[\.~]|~$/
+#starts with '.', or '~' contains '-min.', '.min.' or 'svn', ends with '~'
+exports.ignored = /^[\.~]|[-\.]min[-\.]|svn|~$/
+
 # Check that a 'filepath' is likely a child of a given directory
 # Applies to nested directories
 # Only makes String comparison. Does not check for existance
@@ -31,7 +36,7 @@ exports.indir = (dir, filepath) ->
 # @param {Function} fn(err, files)
 exports.readdir = readdir = (dir, ignore, fn) ->
 	# Merge ignores
-	ignore = if ignore then new RegExp(RE_IGNORE.source + '|' + ignore.source) else RE_IGNORE
+	ignore = if ignore then new RegExp(exports.ignoredHidden.source + '|' + ignore.source) else exports.ignoredHidden
 	_outstanding = 0
 	_files = []
 	_readdir = (dir) ->

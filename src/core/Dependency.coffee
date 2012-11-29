@@ -203,6 +203,7 @@ module.exports = class Dependency
 
 				# Find files specified in 'scripts' or 'main'
 				if json.scripts
+					# TODO: check for array
 					json.scripts.forEach((filename) -> add(filename))
 				else if json.main
 					add(json.main)

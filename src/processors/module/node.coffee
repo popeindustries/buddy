@@ -1,9 +1,11 @@
 path = require('path')
 {indent} = require('../../utils/notify')
 
+# '\' or '\\'
 RE_WIN_SEPARATOR = /\\\\?/g
-# "require.register('id', function(module, exports, require) {"
-RE_MODULE = /^require\.register\(.+function *\( *module *, *exports *, *require *\) *{/gm
+# "require.register('id', function(module, exports, require)"
+# "require.register 'id', (module, exports, require)"
+RE_MODULE = /require\.register[\s|\(].+(?:function)? *\( *module *, *exports *, *require *\)/gm
 RE_COMMENT_LINES = /^\s*(?:\/\/|#).+$/gm
 RE_REQUIRE = /require[\s|\(]['|"](.*?)['|"]/g
 RE_SPACES = /\s/
@@ -33,7 +35,7 @@ module.exports =
 		deps = []
 		# Remove commented lines
 		contents = contents.replace(RE_COMMENT_LINES, '')
-		# Match all uses of 'require' and parse path
+		# Match all uses of 'require' and resolve relative path
 		while match = RE_REQUIRE.exec(contents)
 			dep = match[1]
 			parts = dep.split('/')
@@ -50,16 +52,24 @@ module.exports =
 	# Wrap 'contents' in module definition if not already wrapped
 	# @param {String} contents
 	# @param {String} id
+	# @param {Boolean} isCoffee
 	# @return {String}
-	wrapModuleContents: (contents, id) ->
+	wrapModuleContents: (contents, id, isCoffee = false) ->
 		# Reset
 		RE_MODULE.lastIndex = 0
 		unless RE_MODULE.test(contents)
 			contents =
-				"""
-				require.register('#{id}', function(module, exports, require) {
-				#{indent(contents, 2)}
-				});
-				"""
+				if isCoffee
+					"""
+					require.register('#{id}', (module, exports, require) ->
+					#{indent(contents, 2)}
+					)
+					"""
+				else
+					"""
+					require.register('#{id}', function(module, exports, require) {
+					#{indent(contents, 2)}
+					});
+					"""
 		return contents
 
