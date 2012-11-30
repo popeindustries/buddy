@@ -137,8 +137,8 @@ describe 'target', ->
 					target 'js', {input: 'src', output: 'temp', source: @src}, processors.js, (err, instance) =>
 						@tgt = instance
 						done()
-			# after ->
-				# rimraf.sync(path.resolve('temp'))
+			after ->
+				rimraf.sync(path.resolve('temp'))
 			describe 'with 1 js file and no dependencies', ->
 				it 'should write 1 file to disk', (done) ->
 					@tgt.input = path.resolve('src/basic.coffee')
