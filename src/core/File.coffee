@@ -46,7 +46,7 @@ class File
 		# qualified name, with path from base source directory
 		@qualifiedName = path.relative(@basepath, @filepath).replace(path.extname(@name), '')
 		@needsCompile = @compiler?
-		@moduleId = @module.getModuleId(@qualifiedName)
+		@moduleID = @module.getModuleID(@qualifiedName)
 		@dependencies = []
 		@content = ''
 		@dependant = null
@@ -60,6 +60,7 @@ class File
 			fs.readFile @filepath, 'utf8', (err, content) =>
 				return fn(err) if err
 				@dependencies = @module.getModuleDependencies(content, @moduleId)
+				@dependencies = @module.getModuleDependencies(content, @moduleID)
 				# Compile
 				# if compiled and @needsCompile
 				# 	@compiler.compile content, (err, compiled) =>

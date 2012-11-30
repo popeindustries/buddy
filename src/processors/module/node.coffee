@@ -18,7 +18,7 @@ module.exports =
 	# Retrieve a module's id based on it's 'qualifiedFilename'
 	# @param {String} qualifiedFilename
 	# @return {String}
-	getModuleId: (qualifiedFilename) ->
+	getModuleID: (qualifiedFilename) ->
 		# Convert to lowercase and remove spaces
 		module = qualifiedFilename.toLowerCase().replace(RE_SPACES, '')
 		# Fix path separator for windows

@@ -7,7 +7,7 @@ module.exports =
 	type: 'module'
 
 	# Return module id
-	getModuleId: (qualifiedFilename) ->
+	getModuleID: (qualifiedFilename) ->
 		return ''
 
 	# Retrieve all module references in file contents

@@ -41,7 +41,7 @@ module.exports = class Source
 				return if err
 				@length++
 				@byPath[instance.filepath] = instance
-				@byModule[instance.moduleId] = instance
+				@byModule[instance.moduleID] = instance
 
 	# Remove a File instance from the cache by 'filepath'
 	# @param {String} filepath
@@ -50,7 +50,7 @@ module.exports = class Source
 		if f = @byPath[filepath]
 			@length--
 			delete @byPath[filepath]
-			delete @byModule[file.moduleId]
+			delete @byModule[file.moduleID]
 			f.destroy()
 
 	# Watch for changes and call 'fn'
