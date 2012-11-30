@@ -26,17 +26,17 @@ module.exports =
 			module = module.replace(RE_WIN_SEPARATOR, '/')
 		return module
 
-	# Retrieve all module references in file 'contents'
+	# Retrieve all module references in file 'content'
 	# Convert all references relative to 'id'
-	# @param {String} contents
+	# @param {String} content
 	# @param {String} id
 	# @return {Array}
-	getModuleDependencies: (contents, id) ->
+	getModuleDependencies: (content, id) ->
 		deps = []
 		# Remove commented lines
-		contents = contents.replace(RE_COMMENT_LINES, '')
+		content = content.replace(RE_COMMENT_LINES, '')
 		# Match all uses of 'require' and resolve relative path
-		while match = RE_REQUIRE.exec(contents)
+		while match = RE_REQUIRE.exec(content)
 			dep = match[1]
 			parts = dep.split('/')
 			# Resolve relative path
@@ -49,27 +49,42 @@ module.exports =
 			deps.push(parts.join('/'))
 		return deps
 
-	# Wrap 'contents' in module definition if not already wrapped
-	# @param {String} contents
+	# Wrap 'content' in module definition if not already wrapped
+	# @param {String} content
 	# @param {String} id
 	# @param {Boolean} isCoffee
 	# @return {String}
-	wrapModuleContents: (contents, id, isCoffee = false) ->
+	wrapModuleContents: (content, id, isCoffee = false) ->
 		# Reset
 		RE_MODULE.lastIndex = 0
-		unless RE_MODULE.test(contents)
-			contents =
+		unless RE_MODULE.test(content)
+			content =
 				if isCoffee
 					"""
 					require.register('#{id}', (module, exports, require) ->
-					#{indent(contents, 2)}
+					#{indent(content, 2)}
 					)
 					"""
 				else
 					"""
 					require.register('#{id}', function(module, exports, require) {
-					#{indent(contents, 2)}
+					#{indent(content, 2)}
 					});
 					"""
-		return contents
+		return content
 
+	# Concatenate wrapped file and dependency content
+	# @param {File} file
+	# @return String
+	concat: (file) ->
+		contents = []
+		add = (file) ->
+			# First add dependencies
+			file.dependencies.forEach (dependency) -> add(dependency)
+			# Wrap contents
+			content = module.exports.wrapModuleContents(file.content, file.moduleID, file.needsCompile and file.compiler.extension is 'coffee')
+			# Store if not already stored
+			contents.push(content) if contents.indexOf(content) is -1
+
+		add(file)
+		return contents.join('\n')
