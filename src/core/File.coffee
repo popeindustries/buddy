@@ -48,65 +48,37 @@ class File
 		@needsCompile = @compiler?
 		@moduleID = @module.getModuleID(@qualifiedName)
 		@dependencies = []
+		@isDependency = false
 		@content = ''
-		@dependant = null
 
 	# Retrieve the file's content, compiled if necessary
+	# @param {Boolean} compile
 	# @param {Function} fn(err, content)
-	parseContent: (fn) ->
+	parseContent: (compile, fn) ->
 		if @content
-			process.nextTick(=>fn(null))
+			process.nextTick(=>fn())
 		else
 			fs.readFile @filepath, 'utf8', (err, content) =>
 				return fn(err) if err
-				@dependencies = @module.getModuleDependencies(content, @moduleId)
+				# Abort if this is a built file
+				return fn() if content.match(RE_BUILT_HEADER)
 				@dependencies = @module.getModuleDependencies(content, @moduleID)
 				# Compile
-				# if compiled and @needsCompile
-				# 	@compiler.compile content, (err, compiled) =>
-				# 		return fn(err, '') if err
-				# 		@content = compiled
-				# 		fn(null, compiled)
-				# else
-				@content = content
-				fn(null)
+				if compile and @needsCompile
+					@compiler.compile content, (err, compiled) =>
+						return fn(err) if err
+						@content = compiled
+						fn()
+				else
+					@content = content
+					fn()
+
+	reset: ->
+		@dependencies = []
+		@isDependency = false
+		@content = ''
 
 	destroy: ->
-
-###
-
-	# Read file contents
-	# @param {Function} fn(err, data)
-	parseContents: (fn) ->
-		# Clear existing
-		@_contents = ''
-		# TODO: read stream and abort on header match
-		# Read file
-		fs.readFile @filepath, 'utf8', (err, data) =>
-			return fn(err) if err
-			# Skip compiled files
-			return if data.match(RE_BUILT_HEADER)
-			@_contents = data
-			return fn(null, @_contents)
-
-	# Return contents, compiled if necessary
-	# @param {Object} options
-	# @param {Function} fn(err, data)
-	getContents: (options, fn) ->
-		# Compile if necessary
-		if @needsCompile then @_compile(options, fn) else fn(null, @_contents)
-
-	destroy: ->
-		@dependencies = null
+		@reset()
 		@compiler = null
-
-	# Use the supplied compiler to compile file contents
-	# @param {Object} options
-	# @param {Function} fn(err, data)
-	_compile: (options, fn) ->
-		if @compiler?
-			@compiler.compile @_contents, options.sources, (err, compiled) =>
-				if err then fn(err, '') else fn(null, compiled)
-		else
-			fn("no compiler plugin available for #{nofify.strong(@filename)}", '')
-###
+		@module = null
