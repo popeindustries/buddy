@@ -8,9 +8,6 @@ describe 'Module processor', ->
 		process.chdir(path.resolve(__dirname, 'fixtures/processors/module'))
 
 	describe 'CSS', ->
-		describe 'a module id from a filename containing spaces', ->
-			it 'should contain no spaces', ->
-				css.getModuleId('path/to/illegal file').should.equal('path/to/illegalfile')
 		describe 'a stylus module source with 2 dependencies', ->
 			it 'should result in a dependency count of 2', ->
 				c = fs.readFileSync(path.resolve('src/one.styl'), 'utf8')
@@ -19,18 +16,61 @@ describe 'Module processor', ->
 		describe 'a css module source with 2 dependencies', ->
 			it 'should result in a dependency count of 2', ->
 				c = fs.readFileSync(path.resolve('src/one.css'), 'utf8')
-				deps = css.getModuleDependencies(c, 'one')
-				deps.should.have.length(2)
+				@deps = css.getModuleDependencies(c, 'one')
+				@deps.should.have.length(2)
+			it 'should strip \'.css\' from dependency ids', ->
+				@deps[0].should.not.include('.css')
 		describe 'a css module source with 1 commented out dependency', ->
 			it 'should result in a dependency count of 0', ->
-				c = fs.readFileSync(path.resolve('src/two.css'), 'utf8')
-				deps = node.getModuleDependencies(c, 'two')
+				c = fs.readFileSync(path.resolve('src/five.css'), 'utf8')
+				deps = css.getModuleDependencies(c, 'five')
 				deps.should.have.length(0)
+		describe 'concat-ing a file', ->
+			it 'should replace @import rules with file contents', ->
+				file =
+					moduleID: 'one'
+					content: fs.readFileSync(path.resolve('src/one.css'), 'utf8')
+					dependencies: [
+						{
+							moduleID: 'two'
+							content: fs.readFileSync(path.resolve('src/two.css'), 'utf8')
+							dependencies: []
+						},
+						{
+							moduleID: 'three'
+							content: fs.readFileSync(path.resolve('src/three.css'), 'utf8')
+							dependencies: [
+								{
+									moduleID: 'four'
+									content: fs.readFileSync(path.resolve('src/four.css'), 'utf8')
+									dependencies: []
+								}
+							]
+						}
+					]
+				c =
+				'''
+				html {
+					margin: 0;
+				}
+
+				p {
+					padding: 0;
+				}
+
+				body {
+					padding: 0;
+				}
+
+				'''
+				content = css.concat(file)
+				content.should.not.include('@import')
+				content.should.eql(c)
 
 	describe 'Node', ->
 		describe 'a module id from a filename containing spaces', ->
 			it 'should contain no spaces', ->
-				node.getModuleId('path/to/illegal file').should.equal('path/to/illegalfile')
+				node.getModuleID('path/to/illegal file').should.equal('path/to/illegalfile')
 		describe 'a coffeescript module source with 2 dependencies', ->
 			it 'should result in a dependency count of 2', ->
 				c = fs.readFileSync(path.resolve('src/main.coffee'), 'utf8')
@@ -92,4 +132,52 @@ describe 'Module processor', ->
 			it 'should not wrap coffeescript file contents in a module wrapper if already wrapped', ->
 				node.wrapModuleContents(@ccw, 'main').should.equal(@ccw)
 				node.wrapModuleContents(@ccw2, 'main').should.equal(@ccw2)
-
+		describe 'concat-ing a file', ->
+			it 'should join wrapped dependency file contents', ->
+				file =
+					moduleID: 'main'
+					content: fs.readFileSync(path.resolve('src/main.coffee'), 'utf8')
+					dependencies: [
+						{
+							moduleID: 'package/class'
+							content: fs.readFileSync(path.resolve('src/package/Class.coffee'), 'utf8')
+							dependencies: []
+						},
+						{
+							moduleID: 'package/classcamelcase'
+							content: fs.readFileSync(path.resolve('src/package/ClassCamelCase.coffee'), 'utf8')
+							dependencies: [
+								{
+									moduleID: 'package/class'
+									content: fs.readFileSync(path.resolve('src/package/Class.coffee'), 'utf8')
+									dependencies: []
+								}
+							]
+						}
+					]
+				c =
+				'''
+				require.register('package/class', function(module, exports, require) {
+				  # Nothing = require('./nonexistant')
+				  module.exports = class Class
+				  	constructor: ->
+				  		@someVar = 'hey'
+				  	someFunc: ->
+				  		console.log @someVar
+				});
+				require.register('package/classcamelcase', function(module, exports, require) {
+				  Class = require './class'
+				  module.exports = class ClassCamelCase extends Class
+				  	constructor: ->
+				  		@someVar = 'hey'
+				  	someFunc: ->
+				  		console.log @someVar
+				});
+				require.register('main', function(module, exports, require) {
+				  Class = require('./package/class')
+				  ClassCamelCase = require('./package/classcamelcase')
+				  instance = new Class
+				});
+				'''
+				content = node.concat(file)
+				content.should.eql(c)
