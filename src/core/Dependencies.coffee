@@ -80,11 +80,11 @@ _pack = (fn) =>
 					content = contents.join('\n')
 					async.waterfall [
 						# Create directory
-						((cb) -> mkdir output, cb),
+						((cb) -> mkdir(output, cb)),
 						# Compress
-						((cb) => processors.installed.js.compressor.compress content, cb),
+						((cb) => processors.installed.js.compressor.compress(content, cb)),
 						# Write file
-						((content, cb) => fs.writeFile output, content, 'utf8', cb),
+						((content, cb) => fs.writeFile(output, content, 'utf8', cb)),
 						# Notify and store generated
 						((cb) =>
 							notify.print("#{notify.colour('compressed', notify.GREEN)} #{notify.strong(path.relative(process.cwd(), output))}", 3)
