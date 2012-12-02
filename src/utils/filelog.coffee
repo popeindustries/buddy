@@ -1,42 +1,55 @@
 fs = require('fs')
 path = require('path')
 {existsSync} = require('./fs')
+{debug, strong} = require('./notify')
 
 NAME = '.buddy-filelog'
 RE_ABSOLUTE = /^([a-z]:\\)|^\//i
 
-exports.filename = filename = path.resolve(NAME)
+exports.filename = null
 
-exports.files = files = []
+exports.files = []
 
 # Load existing
-if existsSync(filename)
-	fs.readFile filename, 'utf8', (err, data) ->
-		return if err
-		try
-			files = JSON.parse(data)
-			# Clean if file is old or from another system
-			if files.length
-				if (path.sep is '/' and data.indexOf('\\') isnt -1) or (path.sep is '\\' and data.indexOf('/') isnt -1) or RE_ABSOLUTE.test(files[0])
-					clean()
-		catch err
-			return
+# @param {Function} fn(err)
+exports.load = (fn) ->
+	exports.filename = path.resolve(NAME)
+	if existsSync(exports.filename)
+		fs.readFile exports.filename, 'utf8', (err, data) ->
+			return fn(err) if err
+			try
+				exports.files = JSON.parse(data)
+				# Clean if file is old or from another system
+				if exports.files.length
+					if (path.sep is '/' and data.indexOf('\\') isnt -1) or (path.sep is '\\' and data.indexOf('/') isnt -1) or RE_ABSOLUTE.test(exports.files[0])
+						clean((err) -> fn())
+			catch err
+				return fn(err)
+			fn()
+	else
+		fn()
 
 # Add 'files' to the file log
 # @param {Array} files
-# @param {Function} fn(err)
 exports.add = (newFiles, fn) ->
 	newFiles.forEach (file) =>
 		file = path.relative(process.cwd(), file)
-		files.push(file) if files.indexOf(file) is -1
+		if exports.files.indexOf(file) is -1
+			exports.files.push(file)
+			debug("adding to filelog: #{strong(file)}", 2)
 	# Save
-	fs.writeFile filename, JSON.stringify(files), 'utf8', (err) ->
-		if err then fn(err) else fn(null, files)
+	fs.writeFile exports.filename, JSON.stringify(exports.files), 'utf8', (err) ->
+		if fn
+			return fn(err) if err
+			fn(null, exports.files)
 
 # Clean the file log of file references
 # @param {Function} fn(err)
 exports.clean = clean = (fn) ->
-	files = []
+	exports.files = []
 	# Save
-	fs.writeFile filename, JSON.stringify(files), 'utf8', (err) ->
-		if err then fn(err) else fn()
+	fs.writeFile exports.filename, JSON.stringify(exports.files), 'utf8', (err) ->
+		debug('cleaned filelog', 2)
+		if fn
+			return fn(err) if err
+			fn()
