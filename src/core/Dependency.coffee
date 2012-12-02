@@ -7,6 +7,7 @@ unzip = require('unzip')
 semver = require('semver')
 async = require('async')
 fsutils = require('../utils/fs')
+{debug, strong} = require('../utils/notify')
 {rm, mv, cp, mkdir, existsSync} = require('../utils/fs')
 
 RE_GITHUB_PROJECT = /\w+\/\w+/
@@ -23,12 +24,14 @@ module.exports = class Dependency
 	# @param {String} output
 	# @param {String} temp
 	constructor: (source, destination, output, @temp) ->
+		debug("created Source instance for: #{source}", 2)
 		@local = false
 		@keep = false
 		@id = source
 		@name = source
 		@url = null
 		@version = 'master'
+		@packageFiles = ['component.json', 'package.json']
 		@location = null
 		@resources = null
 		@files = []
@@ -79,6 +82,7 @@ module.exports = class Dependency
 	# @param {Function} fn(err)
 	lookupPackage: (fn) =>
 		unless @url
+			debug("looking up package: #{strong(@id)}", 3)
 			bower.commands
 				.lookup(@id)
 				# Error looking up package
@@ -101,6 +105,7 @@ module.exports = class Dependency
 	# @param {Function} fn(err)
 	validateVersion: (fn) =>
 		unless RE_VALID_VERSION.test(@version)
+			debug("validating version: #{strong(@name + '@' + @version)}", 3)
 			# Get tags
 			req = request.get("https://api.github.com/repos/#{@name}/tags")
 			req.end (err, res) =>
@@ -138,6 +143,7 @@ module.exports = class Dependency
 	fetch: (fn) =>
 		# Create archive filename
 		filename = @temp + path.sep + @id + '-' + @version + '.zip'
+		debug("downloading zipball to temp: #{strong(@url)}", 3)
 		# Download archive to temp
 		req = request.get(@url).buffer(false)
 		req.end (err, res) =>
@@ -161,17 +167,38 @@ module.exports = class Dependency
 	# Parse archive component.json or package.json for resources and dependencies
 	# @param {Function} fn(err)
 	resolveResources: (fn) =>
+		# Find 'main' property in json file
+		find = (packageFile, cb) =>
+			if existsSync(filename = path.resolve(@location, packageFile))
+				fs.readFile filename, 'utf8', (err, data) =>
+					# Error reading file
+					return cb('reading: ' + @id + ' ' + packageFile) if err
+					try
+						json = JSON.parse(data)
+					catch err
+						# Error parsing json
+						return cb('parsing: ' + @id + ' ' + packageFile)
+					# Return
+					cb(null, json)
+			else
+				cb(null)
+
+		# Add file to resources
 		add = (filename) =>
 			# Rename if index
 			if RE_INDEX.test(filename)
 				filename += '.js' unless path.extname(filename)
 				newname = @id + '.js'
 				# TODO: async rename
+				# TODO: parse contents for require redirect
+				# Rename to package name
 				fs.renameSync(path.resolve(@location, filename), path.resolve(@location, newname))
 				filename = newname
 			filepath = path.resolve(@location, filename)
+			debug("added resource: #{strong(path.basename(filepath))}", 3)
 			@resources.push(filepath) if existsSync(filepath)
 
+		# Resources specified
 		if @resources
 			# Store resources with absolute paths
 			temp = @resources.concat()
@@ -181,35 +208,22 @@ module.exports = class Dependency
 			process.nextTick(-> fn())
 		else
 			@resources = []
-			# Find json file
-			if existsSync(path.resolve(@location, 'component.json'))
-				config = 'component.json'
-			else if existsSync(path.resolve(@location, 'package.json'))
-				config = 'package.json'
-			else
-				return fn('no config (component/package).json file found for: ' + @id)
-
-			fs.readFile path.resolve(@location, config), 'utf8', (err, data) =>
-				return fn('reading: ' + @id + ' ' + config) if err
-				try
-					json = JSON.parse(data)
-				catch err
-					return fn('parsing: ' + @id + ' ' + config)
-
-				# Find dependencies and store
-				if json.dependencies
-					for dependency, version of json.dependencies
-						@dependencies.push("#{dependency}@#{version}")
-
-				# Find files specified in 'scripts' or 'main'
-				if json.scripts
-					# TODO: check for array
-					json.scripts.forEach((filename) -> add(filename))
-				else if json.main
+			# Find first json file that has a 'main' property
+			find @packageFiles.pop(), callback = (err, json) =>
+				return fn(err) if err
+				if json and json.main
 					add(json.main)
+					# Find dependencies and store
+					if json.dependencies
+						for dependency, version of json.dependencies
+							@dependencies.push("#{dependency}@#{version}")
+					# Return
+					fn()
+				# Try next
+				else if @packageFiles.length
+					find @packageFiles.pop(), callback
 				else
 					return fn('unable to resolve resources for: ' + @id)
-				fn(null)
 
 	# Move resources to destination
 	# @param {Function} fn(err)
@@ -222,6 +236,7 @@ module.exports = class Dependency
 					return cb(err) if err
 					idx++
 					@files.push(path.relative(process.cwd(), filepath))
+					debug("moved resource #{strong(path.basename(resource))} to destination #{strong(path.relative(process.cwd(), @destination))}", 3)
 					@resources[idx] = filepath
 					cb()
 				), (err) =>
