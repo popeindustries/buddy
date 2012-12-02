@@ -118,11 +118,21 @@ describe 'target', ->
 							@tgt._parse (err) =>
 								@tgt.sources.should.have.length(0)
 								done()
+			describe 'with a directory of 6 files and no dependencies', ->
+				before ->
+					@tgt.sources = []
+				it 'should increase \'sources\' by 6', (done) ->
+					@tgt.input = path.resolve('src/batch')
+					@tgt.concat = true
+					@tgt.isDir = true
+					@tgt._parse (err) =>
+						@tgt.sources.should.have.length(6)
+						done()
 			describe 'with a directory of 6 files with 3 dependencies', ->
 				before ->
 					@tgt.sources = []
 				it 'should increase \'sources\' by 3', (done) ->
-					@tgt.input = path.resolve('src/batch')
+					@tgt.input = path.resolve('src/batch-dependencies')
 					@tgt.concat = true
 					@tgt.isDir = true
 					@tgt._parse (err) =>

@@ -4,9 +4,10 @@ rimraf = require('rimraf')
 filelog = require('../lib/utils/filelog')
 
 describe 'filelog', ->
-	before ->
+	before (done) ->
 		process.chdir(path.resolve(__dirname, 'fixtures/filelog'))
-		rimraf.sync(filelog.filename)
+		filelog.load (err) ->
+			done()
 	afterEach (done) ->
 		filelog.clean (err) ->
 			done()

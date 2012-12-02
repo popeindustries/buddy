@@ -1,1 +1,1 @@
-six = require('./six')
+hey = 'hey five'
