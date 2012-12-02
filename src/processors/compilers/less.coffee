@@ -10,7 +10,7 @@ module.exports =
 	# @param {String} data
 	# @param {Function} fn(err, compiled)
 	compile: (data, fn) ->
-		parser = new less.Parser({paths: sources})
+		parser = new less.Parser()
 		parser.parse data, (err, tree) =>
 			if err
 				fn(err, '')

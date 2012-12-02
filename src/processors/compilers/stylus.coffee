@@ -10,7 +10,7 @@ module.exports =
 	# @param {String} data
 	# @param {Function} fn(err, compiled)
 	compile: (content, fn) ->
-		stylc = stylus(content).set('paths', sources)
+		stylc = stylus(content).set('paths')
 		stylc.render (err, css) =>
 			if err
 				fn(err, '')
