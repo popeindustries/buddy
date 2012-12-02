@@ -1,7 +1,7 @@
 fs = require('fs')
 path = require('path')
 async = require('async')
-notify = require('../utils/notify')
+{debug, strong} = require('../utils/notify')
 {existsSync} = require('../utils/fs')
 
 RE_BUILT_HEADER = /^\/\*BUILT/g
@@ -14,9 +14,8 @@ RE_BUILT_HEADER = /^\/\*BUILT/g
 # @param {Function} fn(err, instance)
 module.exports = (type, filepath, basepath, processors, fn) ->
 	filepath = path.resolve(filepath)
-
 	# Validate file
-	return fn("#{notify.strong(filepath)} not found in project path") unless existsSync(filepath)
+	return fn("#{strong(filepath)} not found in project path") unless existsSync(filepath)
 	extension = path.extname(filepath)[1..]
 	if extension is type
 		valid = true
@@ -27,7 +26,7 @@ module.exports = (type, filepath, basepath, processors, fn) ->
 				valid = true
 				break
 	unless valid
-		return fn("invalid file type #{notify.strong(path.relative(process.cwd(), filepath))}")
+		return fn("invalid file type #{strong(path.relative(process.cwd(), filepath))}")
 	else
 		# Return instance
 		return fn(null, new File(type, filepath, basepath, compiler, processors.module))
@@ -42,6 +41,7 @@ class File
 	# @param {Object} compiler
 	# @param {Object} module
 	constructor: (@type, @filepath, @basepath, @compiler, @module) ->
+		debug("created #{@type} File instance for: #{strong(path.relative(process.cwd(), @filepath))}", 3)
 		@name = path.basename(@filepath)
 		# qualified name, with path from base source directory
 		@qualifiedName = path.relative(@basepath, @filepath).replace(path.extname(@name), '')
@@ -67,18 +67,21 @@ class File
 				if compile and @needsCompile
 					@compiler.compile content, (err, compiled) =>
 						return fn(err) if err
+						debug("compiled: #{strong(path.relative(process.cwd(), @filepath))}", 3)
 						@content = compiled
 						fn()
 				else
 					@content = content
 					fn()
 
+	# Reset instance for reuse
 	reset: ->
 		@dependencies = []
 		@isDependency = false
-		@content = ''
 
+	# Destroy instance
 	destroy: ->
 		@reset()
+		@content = ''
 		@compiler = null
 		@module = null
