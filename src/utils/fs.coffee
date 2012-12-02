@@ -95,7 +95,7 @@ exports.mv = mv = (source, destination, fn) ->
 		else
 			filepath = path.resolve(destination, path.basename(source))
 			if existsSync(filepath)
-				fn(new Error('already exists: ' + filepath))
+				fn(null, filepath)
 			else
 				fs.rename source, filepath, (err) ->
 					if err then fn(err) else fn(null, filepath)
@@ -128,7 +128,8 @@ exports.cp = cp = (source, destination, fn) ->
 					filepath = path.resolve(destDir, destName)
 					# Write file if it doesn't already exist
 					if existsSync(filepath)
-						fn(new Error('file already exists: ' + source))
+						# fn(new Error('file already exists: ' + source))
+						fn(null, _filepath) unless _outstanding
 					else
 						_outstanding++
 						# Return the new path for the first source
