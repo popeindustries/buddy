@@ -1,12 +1,16 @@
 # Console output formatting
 exports.RED = '0;31'
 exports.YELLOW = '1;33'
+exports.CYAN = '1;36'
 exports.GREEN = '0;32'
 exports.GREY = '0;90'
 
 exports.silent = false
+exports.verbose = false
 
 exports.nocolor = !process.stdout.isTTY
+
+exports.start = 0
 
 # Add TTY colours to given 'string'
 # @param {String} string
@@ -16,24 +20,27 @@ exports.colour = (string, colourCode) ->
 
 # Print 'msg' to console, with indentation level
 # @param {String} msg
-# @param {Int} ind
-exports.print = (msg, ind = 1) ->
-	console.log(exports.indent(msg, ind)) unless exports.silent
+# @param {Int} column
+exports.print = (msg, column = 0) ->
+	console.log(exports.indent(msg, column)) unless exports.silent
 
 # Print 'err' to console, with error colour and indentation level
 # @param {Object or String} err
-# @param {Int} ind
-exports.error = (err, ind = 1) ->
+# @param {Int} column
+exports.error = (err, column = 0) ->
 	err = new Error(err) if 'string' is typeof err
-	exports.print("#{exports.colour('error', exports.RED)}: #{err.message}", ind)
+	exports.print("#{exports.colour('error', exports.RED)}: #{err.message}", column)
 	throw err
 
 # Print 'msg' to console, with warning colour and indentation level
 # @param {String} msg
-# @param {Int} ind
-exports.warn = (msg, indent = 1) ->
+# @param {Int} column
+exports.warn = (msg, column = 0) ->
 	msg = msg.message if 'string' instanceof Error
-	exports.print("#{exports.colour('warning', exports.YELLOW)} #{msg}", indent)
+	exports.print("#{exports.colour('warning', exports.YELLOW)} #{msg}", column)
+
+exports.debug = (msg, column = 0) ->
+	exports.print("#{exports.colour('+', exports.CYAN)}#{exports.strong(+new Date - exports.start + 'ms')}#{exports.colour('::', exports.CYAN)}#{msg}", column) if exports.verbose
 
 # Colourize 'string' for emphasis
 # @param {String} string
