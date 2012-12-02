@@ -1,31 +1,33 @@
 fs = require('fs')
 path = require('path')
 {existsSync} = require('../utils/fs')
-notify = require('../utils/notify')
+{debug, strong} = require('../utils/notify')
 
 DEFAULT = 'buddy.js'
 
 exports.data = null
+exports.url = ''
 
 # Load and parse configuration file
 # Accepts optional path to file or directory
 # @param {String} url
 # @param {Function} fn(err, config)
 exports.load = (url, fn) ->
-	locate url, (err, url) ->
+	debug('CONFIGURATION', 1)
+	locate url, (err) ->
 		return fn(err) if err
 		try
-			data = require(url)
+			data = require(exports.url)
 		catch err
-			return fn("parsing #{notify.strong(url)}\n  Run #{notify.strong('buddy -h')} for proper formatting")
+			return fn("parsing #{strong(exports.url)}\n  Run #{strong('buddy -h')} for proper formatting")
 		if data.build or data.dependencies or data.settings
 			# Store
 			exports.data = data
 			# Set current directory to location of file
-			process.chdir(path.dirname(url))
+			process.chdir(path.dirname(exports.url))
 			return fn(null, data)
 		else
-			return fn("parsing #{notify.strong(url)}\n  Run #{notify.strong('buddy -h')} for proper formatting")
+			return fn("parsing #{strong(exports.url)}\n  Run #{strong('buddy -h')} for proper formatting")
 
 # Locate the configuration file
 # Walks the directory tree if no file/directory specified
@@ -41,13 +43,17 @@ exports.locate = locate = (url, fn) ->
 				if not path.extname(url).length or stats.isDirectory()
 					url = path.join(url, DEFAULT)
 					if existsSync(url)
+						debug("config file found at: #{strong(url)}", 2)
+						exports.url = url
 						fn(null, url)
 					else
-						return fn("#{notify.strong(path.basename(url))} not found in #{notify.strong(path.dirname(url))}")
+						return fn("#{strong(path.basename(url))} not found in #{strong(path.dirname(url))}")
 				else
+					debug("config file found at: #{strong(url)}", 2)
+					exports.url = url
 					fn(null, url)
 		else
-			return fn("#{notify.strong(path.basename(url))} not found in #{notify.strong(path.dirname(url))}")
+			return fn("#{strong(path.basename(url))} not found in #{strong(path.dirname(url))}")
 	# No url specified
 	# Find the first instance of a DEFAULT file based on the current working directory.
 	else
@@ -56,11 +62,14 @@ exports.locate = locate = (url, fn) ->
 				parent = path.resolve(dir, '../')
 				# Exit if we can no longer go up a level
 				if parent is dir
-					return fn("#{notify.strong(DEFAULT)} not found on this path")
+					return fn("#{strong(DEFAULT)} not found on this path")
 				else
 					dir = parent
 			else
 				# Start at current working directory
 				dir = process.cwd()
 			url = path.join(dir, DEFAULT)
-			return fn(null, url) if existsSync(url)
+			if existsSync(url)
+				debug("config file found at: #{strong(url)}", 2)
+				exports.url = url
+				return fn(null)
