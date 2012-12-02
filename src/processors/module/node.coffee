@@ -1,5 +1,5 @@
 path = require('path')
-{indent} = require('../../utils/notify')
+{indent, debug} = require('../../utils/notify')
 
 # '\' or '\\'
 RE_WIN_SEPARATOR = /\\\\?/g
@@ -52,25 +52,17 @@ module.exports =
 	# Wrap 'content' in module definition if not already wrapped
 	# @param {String} content
 	# @param {String} id
-	# @param {Boolean} isCoffee
 	# @return {String}
-	wrapModuleContents: (content, id, isCoffee = false) ->
+	wrapModuleContents: (content, id) ->
 		# Reset
 		RE_MODULE.lastIndex = 0
 		unless RE_MODULE.test(content)
 			content =
-				if isCoffee
-					"""
-					require.register('#{id}', (module, exports, require) ->
-					#{indent(content, 2)}
-					)
-					"""
-				else
-					"""
-					require.register('#{id}', function(module, exports, require) {
-					#{indent(content, 2)}
-					});
-					"""
+				"""
+				require.register('#{id}', function(module, exports, require) {
+				#{indent(content, 2)}
+				});
+				"""
 		return content
 
 	# Concatenate wrapped file and dependency content
@@ -82,7 +74,7 @@ module.exports =
 			# First add dependencies
 			file.dependencies.forEach (dependency) -> add(dependency)
 			# Wrap contents
-			content = module.exports.wrapModuleContents(file.content, file.moduleID, file.needsCompile and file.compiler.extension is 'coffee')
+			content = module.exports.wrapModuleContents(file.content, file.moduleID)
 			# Store if not already stored
 			contents.push(content) if contents.indexOf(content) is -1
 
