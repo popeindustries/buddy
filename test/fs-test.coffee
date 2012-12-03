@@ -1,5 +1,6 @@
 path = require('path')
 fs = require('fs')
+should = require('should')
 rimraf = require('rimraf')
 {indir, readdir, mkdir, mv, rm, cp} = require('../lib/utils/fs')
 
@@ -67,12 +68,12 @@ describe 'fs utils', ->
 			mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), (err, filepath) ->
 				filepath.should.eql(path.resolve('mv', 'test', 'test.txt'))
 				done()
-		it 'should return an error when moving a file to a location with an existing file of the same name', (done) ->
+		it 'should not return an error when moving a file to a location with an existing file of the same name', (done) ->
 			fs.mkdirSync(path.resolve('mv', 'test'))
 			fs.writeFileSync(path.resolve('mv', 'test.txt'), 'blah', 'utf8')
 			fs.writeFileSync(path.resolve('mv', 'test', 'test.txt'), 'blah', 'utf8')
 			mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), (err, filepath) ->
-				err.should.exist
+				should.not.exist(err)
 				fs.existsSync(path.resolve('mv', 'test.txt')).should.be.true
 				done()
 
@@ -88,12 +89,12 @@ describe 'fs utils', ->
 				done()
 		it 'should return an error when attempting to remove a file outside the project path', (done) ->
 			rm path.resolve('..', 'dummy'), (err) ->
-				err.should.exist
+				should.exist(err)
 				fs.existsSync(path.resolve('..', 'dummy')).should.be.true
 				done()
 		it 'should return an error when attempting to remove a file that does not exist', (done) ->
 			rm path.resolve('rm', 'dummy'), (err) ->
-				err.should.exist
+				should.exist(err)
 				done()
 
 	describe 'cp', ->
@@ -115,9 +116,9 @@ describe 'fs utils', ->
 			cp path.resolve('test', 'main.coffee'), path.resolve('test', 'test2.coffee'), (err, filepath) ->
 				fs.existsSync(path.resolve('test', 'test2.coffee')).should.be.true
 				done()
-		it 'should return an error when copying a file to the same directory without a new name', (done) ->
+		it 'should not return an error when copying a file to the same directory without a new name', (done) ->
 			cp path.resolve('test', 'main.coffee'), path.resolve('test'), (err, filepath) ->
-				err.should.exist
+				should.not.exist(err)
 				done()
 		it 'should copy a directory and it\'s contents from one directory to another directory', (done) ->
 			cp path.resolve('package'), path.resolve('test'), (err, filepath) ->
@@ -130,5 +131,5 @@ describe 'fs utils', ->
 				done()
 		it 'should return an error when copying a directory to a file', (done) ->
 			cp path.resolve('package'), path.resolve('test', 'main.coffee'), (err, filepath) ->
-				err.should.exist
+				should.exist(err)
 				done()

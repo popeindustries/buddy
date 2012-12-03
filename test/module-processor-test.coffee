@@ -125,13 +125,8 @@ describe 'Module processor', ->
 					'''
 			it 'should wrap js file contents in a module wrapper', ->
 				node.wrapModuleContents(@c, 'main').should.equal(@cw)
-			it 'should wrap coffeescript file contents in a module wrapper', ->
-				node.wrapModuleContents(@cc, 'main', true).should.equal(@ccw)
 			it 'should not wrap js file contents in a module wrapper if already wrapped', ->
 				node.wrapModuleContents(@cw, 'main').should.equal(@cw)
-			it 'should not wrap coffeescript file contents in a module wrapper if already wrapped', ->
-				node.wrapModuleContents(@ccw, 'main').should.equal(@ccw)
-				node.wrapModuleContents(@ccw2, 'main').should.equal(@ccw2)
 		describe 'concat-ing a file', ->
 			it 'should join wrapped dependency file contents', ->
 				file =

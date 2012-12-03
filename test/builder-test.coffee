@@ -77,24 +77,6 @@ describe 'Builder', ->
 				instances.should.have.length(2)
 				done()
 
-	# describe 'getting file type', ->
-	# 	before ->
-	# 		process.chdir(path.resolve(__dirname, 'fixtures/builder/init'))
-	# 	beforeEach ->
-	# 		@builder = new Builder()
-	# 		config = @builder.config = new Configuration()
-	# 		@builder.plugins = plugins.load()
-	# 	it 'should return "js" for a js file', ->
-	# 		@builder._getFileType('here/is/somefile.js').should.eql('js')
-	# 	it 'should return "js" for a coffee file', ->
-	# 		@builder._getFileType('here/is/somefile.coffee').should.eql('js')
-	# 	it 'should return "css" for a css file', ->
-	# 		@builder._getFileType('here/is/somefile.css').should.eql('css')
-	# 	it 'should return "css" for a stylus file', ->
-	# 		@builder._getFileType('here/is/somefile.styl').should.eql('css')
-	# 	it 'should return "css" for a less file', ->
-	# 		@builder._getFileType('here/is/somefile.less').should.eql('css')
-
 	describe 'build', ->
 		beforeEach ->
 			@builder = new Builder
@@ -107,33 +89,33 @@ describe 'Builder', ->
 				process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project'))
 			describe 'with a single coffee file', ->
 				it 'should build 1 js file', (done) ->
-					@builder.build 'buddy_single-file.js', false, false, false, (err) =>
+					@builder.build 'buddy_single-file.js', false, false, false, false, (err) =>
 						fs.existsSync(@builder.targets.js[0].output).should.be.true
 						done()
 			describe 'with a single coffee file requiring 1 dependency', ->
 				it 'should build 1 js file', (done) ->
-					@builder.build 'buddy_single-file-with-dependency.js', false, false, false, (err) =>
+					@builder.build 'buddy_single-file-with-dependency.js', false, false, false, false, (err) =>
 						fs.existsSync(@builder.targets.js[0].output).should.be.true
 						done()
 				it 'should contain 2 modules', (done) ->
-					@builder.build 'buddy_single-file-with-dependency.js', false, false, false, (err) =>
+					@builder.build 'buddy_single-file-with-dependency.js', false, false, false, false, (err) =>
 						contents = fs.readFileSync(@builder.targets.js[0].output, 'utf8')
 						contents.should.include("require.register('package/class'")
 						contents.should.include("require.register('package/classcamelcase'")
 						done()
 			describe 'with a single coffee file containing a module wrapper', ->
 				it 'should build 1 js file containing only 1 module wrapper', (done) ->
-					@builder.build 'buddy_single-file-with-wrapper.js', false, false, false, (err) =>
+					@builder.build 'buddy_single-file-with-wrapper.js', false, false, false, false, (err) =>
 						fs.existsSync(@builder.targets.js[0].output).should.be.true
 						done()
 			describe 'with a single stylus file', ->
 				it 'should build 1 css file', (done) ->
-					@builder.build 'buddy_single-styl-file.js', false, false, false, (err) =>
+					@builder.build 'buddy_single-styl-file.js', false, false, false, false, (err) =>
 						fs.existsSync(@builder.targets.css[0].output).should.be.true
 						done()
 			describe 'with a single less file', ->
 				it 'should build 1 css file', (done) ->
-					@builder.build 'buddy_single-less-file.js', false, false, false, (err) =>
+					@builder.build 'buddy_single-less-file.js', false, false, false, false, (err) =>
 						fs.existsSync(@builder.targets.css[0].output).should.be.true
 						done()
 		describe 'directory target', ->
@@ -141,19 +123,19 @@ describe 'Builder', ->
 				process.chdir(path.resolve(__dirname, 'fixtures/builder/build/library'))
 			describe 'with 3 coffee files', ->
 				it 'should build 3 js files', (done) ->
-					@builder.build 'buddy.js', false, false, false, (err) =>
+					@builder.build 'buddy.js', false, false, false, false, (err) =>
 						gatherFiles(@builder.targets.js[0].output).should.have.length(3)
 						done()
 			describe 'with 3 coffee files and the "modular" flag set to false', ->
 				it 'should build 3 js files without module wrappers', (done) ->
-					@builder.build 'buddy-nodejs.js', false, false, false, (err) =>
+					@builder.build 'buddy-nodejs.js', false, false, false, false, (err) =>
 						files = gatherFiles(@builder.targets.js[0].output)
 						for f in files
 							fs.readFileSync(f, 'utf8').should.not.include('require.register(')
 						done()
 			describe 'with 2 stylus files', ->
 				it 'should build 2 css files', (done) ->
-					@builder.build 'buddy_styl.js', false, false, false, (err) =>
+					@builder.build 'buddy_styl.js', false, false, false, false, (err) =>
 						gatherFiles(@builder.targets.css[0].output).should.have.length(2)
 						done()
 		describe 'project', ->
@@ -161,11 +143,11 @@ describe 'Builder', ->
 				process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project'))
 			describe 'with a single coffee file and a stylus directory', ->
 				it 'should build 1 concatenated js file', (done) ->
-					@builder.build 'buddy.js', false, false, false, (err) =>
+					@builder.build 'buddy.js', false, false, false, false, (err) =>
 						fs.existsSync(@builder.targets.js[0].output).should.be.true
 						done()
 				it 'should build 2 css files', (done) ->
-					@builder.build 'buddy.js', false, false, false, (err) =>
+					@builder.build 'buddy.js', false, false, false, false, (err) =>
 						gatherFiles(@builder.targets.css[0].output).should.have.length(2)
 						done()
 		describe 'complex project', ->
@@ -173,17 +155,17 @@ describe 'Builder', ->
 				process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-complex'))
 			describe 'with 2 js targets and 1 child target sharing assets', ->
 				it 'should build 3 concatenated js files', (done) ->
-					@builder.build 'buddy.js', false, false, false, (err) =>
+					@builder.build 'buddy.js', false, false, false, false, (err) =>
 						console.log err
 						gatherFiles(path.resolve('output')).should.have.length(3)
 						done()
 				it 'should build a child js file without source shared with it`s parent', (done) ->
-					@builder.build 'buddy.js', false, false, false, (err) =>
+					@builder.build 'buddy.js', false, false, false, false, (err) =>
 						contents = fs.readFileSync(path.resolve('output/section.js'), 'utf8')
 						contents.should.not.include("require.module('utils/util',")
 						done()
 				it 'should build a child js file that is different than the same file built without a parent target', (done) ->
-					@builder.build 'buddy.js', false, false, false, (err) =>
+					@builder.build 'buddy.js', false, false, false, false, (err) =>
 						fs.readFileSync(path.resolve('output/section.js'), 'utf8').should.not.eql(fs.readFileSync(path.resolve('output/section/someSection.js'), 'utf8'))
 						done()
 		describe 'js project', ->
@@ -191,28 +173,28 @@ describe 'Builder', ->
 				process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-js'))
 			describe 'with a single js file requiring 1 dependency', ->
 				it 'should build 1 js file', (done) ->
-					@builder.build 'buddy.js', false, false, false, (err) =>
+					@builder.build 'buddy.js', false, false, false, false, (err) =>
 						fs.existsSync(@builder.targets.js[0].output).should.be.true
 						done()
 				it 'should contain 2 modules', (done) ->
-					@builder.build 'buddy.js', false, false, false, (err) =>
+					@builder.build 'buddy.js', false, false, false, false, (err) =>
 						contents = fs.readFileSync(@builder.targets.js[0].output, 'utf8')
 						contents.should.include("require.register('main'")
 						contents.should.include("require.register('package/classcamelcase'")
 						done()
 			describe 'with a single js file requiring 1 wrapped dependency', ->
 				it 'should build 1 js file', (done) ->
-					@builder.build 'buddy_wrapped.js', false, false, false, (err) =>
+					@builder.build 'buddy_wrapped.js', false, false, false, false, (err) =>
 						fs.existsSync(@builder.targets.js[0].output).should.be.true
 						done()
 				it 'should contain 2 modules', (done) ->
-					@builder.build 'buddy_wrapped.js', false, false, false, (err) =>
+					@builder.build 'buddy_wrapped.js', false, false, false, false, (err) =>
 						contents = fs.readFileSync(@builder.targets.js[0].output, 'utf8')
 						contents.should.include("require.register('mainwrapped'")
 						contents.should.include("require.register('package/prewrapped'")
 						done()
 			describe 'with a directory of empty js files', ->
 				it 'should build 2 js files', (done) ->
-					@builder.build 'buddy_empty.js', false, false, false, (err) =>
+					@builder.build 'buddy_empty.js', false, false, false, false, (err) =>
 						gatherFiles(@builder.targets.js[0].output).should.have.length(2)
 						done()
