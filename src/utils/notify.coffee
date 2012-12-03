@@ -10,7 +10,7 @@ exports.verbose = false
 
 exports.nocolor = !process.stdout.isTTY
 
-exports.start = 0
+exports.start = exports.last = 0
 
 # Add TTY colours to given 'string'
 # @param {String} string
@@ -27,10 +27,10 @@ exports.print = (msg, column = 0) ->
 # Print 'err' to console, with error colour and indentation level
 # @param {Object or String} err
 # @param {Int} column
-exports.error = (err, column = 0) ->
+exports.error = (err, column = 0, throws = true) ->
 	err = new Error(err) if 'string' is typeof err
 	exports.print("#{exports.colour('error', exports.RED)}: #{err.message}", column)
-	throw err
+	throw err if throws
 
 # Print 'msg' to console, with warning colour and indentation level
 # @param {String} msg
@@ -40,7 +40,10 @@ exports.warn = (msg, column = 0) ->
 	exports.print("#{exports.colour('warning', exports.YELLOW)} #{msg}", column)
 
 exports.debug = (msg, column = 0) ->
-	exports.print("#{exports.colour('+', exports.CYAN)}#{exports.strong(+new Date - exports.start + 'ms')}#{exports.colour('::', exports.CYAN)}#{msg}", column) if exports.verbose
+	now = +new Date
+	exports.last = exports.start unless exports.last
+	exports.print("#{exports.colour('+', exports.CYAN)}#{exports.strong(now - exports.last + 'ms')}#{exports.colour('::', exports.CYAN)}#{exports.strong(now - exports.start + 'ms')}#{exports.colour('=', exports.CYAN)}#{msg}", column) if exports.verbose
+	exports.last = now
 
 # Colourize 'string' for emphasis
 # @param {String} string
