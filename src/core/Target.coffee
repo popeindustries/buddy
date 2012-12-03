@@ -44,7 +44,7 @@ class Target
 	# @param {Object} options
 	# @param {Object} processors
 	constructor: (@type, @isDir, @options, @processors) ->
-		debug("created #{@type} Target instance for input: #{strong(@options.input)} and output: #{strong(@options.output)}", 2)
+		debug("created #{@type} Target instance with input: #{strong(@options.input)} and output: #{strong(@options.output)}", 2)
 		@input = path.resolve(@options.input)
 		@output = path.resolve(@options.output)
 		@sources = []

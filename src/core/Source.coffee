@@ -40,7 +40,6 @@ module.exports = class Source
 		filepath = path.resolve(filepath)
 		basepath = @_getBasepath(filepath)
 		if not @byPath[filepath] and basepath
-			debug("added source: #{strong(path.relative(process.cwd(), filepath))}", 3)
 			# Create File instance
 			file @type, filepath, basepath, @processors, (err, instance) =>
 				# Notify?

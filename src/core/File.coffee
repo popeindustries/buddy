@@ -49,7 +49,7 @@ class File
 		@dependencies = []
 		@isDependency = false
 		@content = ''
-		debug("created #{@type} File instance for: #{strong(path.relative(process.cwd(), @filepath))} with moduleID: #{strong(@moduleID)}", 3)
+		debug("created #{@type} File instance #{strong(path.relative(process.cwd(), @filepath))} with moduleID: #{strong(@moduleID)}", 3)
 
 	# Retrieve the file's content, compiled if necessary
 	# @param {Boolean} compile
