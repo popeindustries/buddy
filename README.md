@@ -2,8 +2,8 @@
 
 **buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (coffeescript/stylus/less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.5.4
-*[the 0.5.x branch is not backwards compatible with earlier versions. See __Change Log__ below for more details]*
+**Current version:** 0.6.0
+*[the 0.5.x+ branch is not backwards compatible with earlier versions. See __Change Log__ below for more details]*
 
 ## Installation
 
@@ -52,10 +52,19 @@ $ buddy build
 $ buddy -c build
 # build and lint all source files
 $ buddy -l build
+# build all source files and execute
+# the 'test' command defined in config
+$ buddy -t build
+# build all source files with verbose notifications
+$ buddy -v build
 # watch and build on source changes
 $ buddy watch
 # build and compress for production
 $ buddy deploy
+# list all generated files
+$ buddy ls
+# remove all generated files
+$ buddy clean
 # view usage, examples, and options
 $ buddy --help
 
@@ -158,6 +167,8 @@ exports.dependencies = {
 
 // Project settings configuration.
 exports.settings = {
+  // Run a command after build
+  test: 'command --flags',
   // Override the default plugins, and/or include custom plugins.
   plugins: {
     js: {
@@ -370,6 +381,13 @@ exports.build = {
 
 ## Changelog
 
+**0.6.0** - December 3, 2012
+* complete rewrite for async file operations
+* added *--test* flag for executing a command after build
+* added *--verbose* flag for outputting detailed notifications during build
+* added *ls* command to list all generated files
+* simplified dependency resource parsing on install; only parse 'main' field in component.json/package.json
+
 **0.5.4** - November 23, 2012
 * regression fix for *clean* command
 * improved *.buddy-filelog* force clean
@@ -405,6 +423,12 @@ exports.build = {
 
 ## License
 
+(The MIT License)
+
 Copyright (c) 2011 Pope-Industries &lt;alex@pope-industries.com&gt;
 
-Permission is hereby granted to do whatever you want with this software, but I won't be held responsible if something bad happens.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
