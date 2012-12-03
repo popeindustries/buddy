@@ -3,12 +3,13 @@
 var program = require('commander')
 	, fs = require('fs')
 	, path = require('path')
+	, indent = require('../lib/utils/notify').indent
 	, Builder = require('../lib/Builder');
 
 var exampleHeader = [
 	'  Configuration:'
 	, ''
-	, '    Build, dependencies, and plugin settings are defined in a "buddy.js" config file'
+	, '    build, dependencies, and plugin settings are defined in a "buddy.js" config file'
 	, '    that should be located in the root of your project directory:'
 	, ''
 
