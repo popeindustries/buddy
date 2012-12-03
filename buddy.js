@@ -85,6 +85,8 @@ exports.dependencies = {
 
 // Project settings configuration.
 exports.settings = {
+  // Run a command after build
+  test: 'command --flags',
   // Override the default processors, and/or include custom processors.
   processors: {
     js: {
