@@ -85,7 +85,7 @@ class Target
 					return fn(err, @files) if err
 					# Reset files
 					@modified.map((file) -> file.reset())
-					@modified = null
+					@modified = []
 					fn(null, @files)
 			else
 				warn("no sources to build in #{strong(@options.input)}", 3)
@@ -113,17 +113,15 @@ class Target
 					file.dependencies.forEach (dependency, idx) =>
 						# Resolve dependency
 						if dep = @options.source.byModule[dependency] or @options.source.byModule["#{dependency}/index"]
-							# Protect against circular references
+							# Protect against circular references and duplicates
 							unless dep.isDependency
 								# Store dependency references
+								@modified.push(dep)
 								dep.isDependency = true
 								file.dependencies[idx] = dep
 								debug("added dependency #{strong(dep.moduleID)} to #{strong(file.moduleID)}", 3)
 								# Parse
 								parse(dep, fn)
-							else
-								# Remove since already a dependency
-								file.dependencies.splice(idx, 1)
 						else
 							warn("dependency #{strong(dependency)} for #{strong(file.moduleID)} not found", 4)
 				outstanding--
