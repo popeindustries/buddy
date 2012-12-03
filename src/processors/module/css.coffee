@@ -4,7 +4,8 @@ path = require('path')
 RE_WIN_SEPARATOR = /\\\\?/g
 # "@import 'moduleid'"
 RE_IMPORT = /@import\s['|"](.*?)['|"];?/g
-RE_COMMENT_LINES = /^\s*(?:\/\/|#|\/\*).+(?:\*\/)?$/gm
+# RE_COMMENT_LINES = /^\s*(?:\/\/|#|\/\*).+(?:\*\/)?$/gm
+RE_COMMENT_LINES = /((?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:\/\/.*))$/gm
 
 module.exports =
 	name: 'css'
@@ -32,7 +33,17 @@ module.exports =
 		content = content.replace(RE_COMMENT_LINES, '')
 		# Match all uses of '@import'
 		while match = RE_IMPORT.exec(content)
-			deps.push(match[1].replace('.css', ''))
+			dep = match[1].replace('.css', '')
+			# Force relative path
+			dep = ('./' + dep) if dep.indexOf('/') is -1
+			parts = dep.split('/')
+			if dep.charAt(0) is '.'
+				parts = id.split('/')
+				parts.pop()
+				for part in dep.split('/')
+					if part is '..' then parts.pop()
+					else unless part is '.' then parts.push(part)
+			deps.push(parts.join('/'))
 		return deps
 
 	# Wrap 'content' in module definition if not already wrapped
@@ -51,8 +62,11 @@ module.exports =
 				# First inline dependencies if necessary
 				inlineContent = if dependency.dependencies.length then inline(dependency, dependency.content) else dependency.content
 				# Replace @import with inline content
-				re = new RegExp("^@import\\s['|\"]#{dependency.moduleID}(?:\\.css)?['|\"];?\\s*$", 'im')
+				# Use fuzzy match to get around absolute and relative pathing differences
+				id = dependency.moduleID.split('/').reverse()[0]
+				re = new RegExp("^@import\\s['|\"](?:\\.\\/)?(?:\\w*\/)?#{id}(?:\\.css)?['|\"];?\\s*$", 'im')
 				content = content.replace(re, inlineContent + '\n')
 			content
 
-		return inline(file, file.content)
+		# Remove comments and return
+		return inline(file, file.content).replace(RE_COMMENT_LINES, '')
