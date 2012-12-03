@@ -1,7 +1,9 @@
 path = require('path')
 file = require('./file')
+Watcher = require('../utils/watcher')
+notify = require('../utils/notify')
+{debug, strong, print, colour} = require('../utils/notify')
 {indir, readdir, existsSync, ignored} = require('../utils/fs')
-{debug, strong} = require('../utils/notify')
 
 module.exports = class Source
 
@@ -35,10 +37,10 @@ module.exports = class Source
 	# Add a File instance to the cache by 'filepath'
 	# @param {String} filepath
 	add: (filepath) ->
-		debug("added source: #{strong(path.relative(process.cwd(), filepath))}", 3)
 		filepath = path.resolve(filepath)
 		basepath = @_getBasepath(filepath)
 		if not @byPath[filepath] and basepath
+			debug("added source: #{strong(path.relative(process.cwd(), filepath))}", 3)
 			# Create File instance
 			file @type, filepath, basepath, @processors, (err, instance) =>
 				# Notify?
@@ -50,17 +52,40 @@ module.exports = class Source
 	# Remove a File instance from the cache by 'filepath'
 	# @param {String} filepath
 	remove: (filepath) ->
-		debug("removed source: #{strong(path.relative(process.cwd(), filepath))}", 3)
 		filepath = path.resolve(filepath)
 		if f = @byPath[filepath]
+			debug("removed source: #{strong(path.relative(process.cwd(), filepath))}", 3)
 			@length--
 			delete @byPath[filepath]
 			delete @byModule[file.moduleID]
 			f.destroy()
 
 	# Watch for changes and call 'fn'
-	# @param {Function} fn(err, changed)
+	# @param {Function} fn(err, file)
 	watch: (fn) ->
+		@locations.forEach (location) =>
+			print("watching [#{strong(path.relative(process.cwd(), location))}]...", 3)
+			@_watchers.push(watcher = new Watcher(ignored))
+			# Add file on 'create'
+			watcher.on 'create', (filepath, stats) =>
+				@add(filepath)
+				print("[#{new Date().toLocaleTimeString()}] #{colour('added', notify.GREEN)} #{strong(path.relative(process.cwd(), filepath))}", 3)
+			# Remove file on 'delete'
+			watcher.on 'delete', (filepath) =>
+				@remove(filepath)
+				print("[#{new Date().toLocaleTimeString()}] #{colour('removed', notify.RED)} #{strong(path.relative(process.cwd(), filepath))}", 3)
+			# Notify when 'change'
+			# Return File instance
+			watcher.on 'change', (filepath, stats) =>
+				print("[#{new Date().toLocaleTimeString()}] #{colour('changed', notify.YELLOW)} #{strong(path.relative(process.cwd(), filepath))}", 3)
+				file = @byPath[filepath]
+				file.content = ''
+				fn(null, file)
+			# Notify when 'error'
+			watcher.on 'error', (err) =>
+				fn(err)
+			# Watch
+			watcher.watch(location)
 
 	# Get base path for 'filepath'
 	# @param {String} filepath
@@ -68,31 +93,3 @@ module.exports = class Source
 		for location in @locations
 			return location if indir(location, filepath)
 		return null
-
-	# Respond to 'create' event during watch
-	# @param {String} filename
-	# @param {Stats} stats
-	_onWatchCreate: (filename, stats) =>
-		type = @_getFileType(filename)
-		if type and file = @_fileFactory(filename, @_getSourceLocation(filename, type))
-			print("[#{new Date().toLocaleTimeString()}] #{colour('added', GREEN)} #{strong(path.basename(filename))}", 3)
-			@_cacheFile(file, @[type + 'Sources'])
-
-	# Respond to 'change' event during watch
-	# @param {String} filename
-	# @param {Stats} stats
-	_onWatchChange: (filename, stats) =>
-		print("[#{new Date().toLocaleTimeString()}] #{colour('changed', YELLOW)} #{strong(path.basename(filename))}", 3)
-		type = @_getFileType(filename)
-		@[type + 'Targets'].forEach (target) =>
-			target.watching = true
-			@_runTarget target, @compress, false
-
-	# Respond to 'delete' event during watch
-	# @param {String} filename
-	# @param {Stats} stats
-	_onWatchDelete: (filename) =>
-		type = @_getFileType(filename)
-		if type and file = @[type + 'Sources'].byPath[filename]
-			print("[#{new Date().toLocaleTimeString()}] #{colour('removed', RED)} #{strong(path.basename(filename))}", 3)
-			@_uncacheFile(file, @[type + 'Sources'])
