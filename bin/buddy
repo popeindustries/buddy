@@ -24,6 +24,7 @@ program
 	.usage('[options] <command> [path/to/buddy.json]>')
 	.option('-c, --compress', 'compress output for production deployment')
 	.option('-l, --lint', 'check output for syntax and logic errors')
+	.option('-t, --test', 'run test command on build completion')
 	.option('-v, --verbose', 'print all messages for debugging');
 
 program
@@ -37,21 +38,21 @@ program
 	.command('build [config]')
 	.description('build js and css sources')
 	.action(function(config){
-		new Builder().build(config, program.compress, program.lint, program.verbose);
+		new Builder().build(config, program.compress, program.lint, program.test, program.verbose);
 	});
 
 program
 	.command('watch [config]')
 	.description('watch js and css source files and build changes')
 	.action(function(config){
-		new Builder().watch(config, program.compress, program.verbose);
+		new Builder().watch(config, program.compress, program.test, program.verbose);
 	});
 
 program
 	.command('deploy [config]')
 	.description('build compressed js and css sources')
 	.action(function(config){
-		new Builder().deploy(config, program.verbose);
+		new Builder().deploy(config, program.test, program.verbose);
 	});
 
 program
