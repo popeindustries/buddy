@@ -72,7 +72,8 @@ module.exports =
 		contents = []
 		add = (file) ->
 			# First add dependencies
-			file.dependencies.forEach (dependency) -> add(dependency)
+			file.dependencies.forEach (dependency) ->
+				add(dependency) unless 'string' is typeof dependency
 			# Wrap contents
 			content = module.exports.wrapModuleContents(file.content, file.moduleID)
 			# Store if not already stored
