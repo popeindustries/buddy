@@ -41,7 +41,6 @@ class File
 	# @param {Object} compiler
 	# @param {Object} module
 	constructor: (@type, @filepath, @basepath, @compiler, @module) ->
-		debug("created #{@type} File instance for: #{strong(path.relative(process.cwd(), @filepath))}", 3)
 		@name = path.basename(@filepath)
 		# qualified name, with path from base source directory
 		@qualifiedName = path.relative(@basepath, @filepath).replace(path.extname(@name), '')
@@ -50,6 +49,7 @@ class File
 		@dependencies = []
 		@isDependency = false
 		@content = ''
+		debug("created #{@type} File instance for: #{strong(path.relative(process.cwd(), @filepath))} with moduleID: #{strong(@moduleID)}", 3)
 
 	# Retrieve the file's content, compiled if necessary
 	# @param {Boolean} compile
