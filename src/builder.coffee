@@ -1,5 +1,6 @@
 fs = require('fs')
 path = require('path')
+exec = require('child_process').exec
 async = require('async')
 target = require('./core/target')
 configuration = require('./core/configuration')
@@ -25,8 +26,6 @@ module.exports = class Builder
 		@processors = null
 		@dependencies = null
 		@filelog = null
-		@compress = false
-		@lint = false
 		@watching = false
 		@sources =
 			js: null
@@ -59,11 +58,12 @@ module.exports = class Builder
 	# @param {String} configpath [file name or directory containing default]
 	# @param {Boolean} compress
 	# @param {Boolean} lint
+	# @param {Boolean} test
 	# @param {Boolean} verbose
 	# @param {Function} fn(err)
-	build: (configpath, @compress, @lint, verbose, fn) ->
+	build: (configpath, compress, lint, test, verbose, fn) ->
 		@_initialize configpath, verbose, (err) =>
-			error(err, 0) if err
+			error(err, 2) if err
 			async.forEachSeries [JS, CSS], ((type, cb) =>
 				if build = @config.build[type]
 					if @_validBuildType(build)
@@ -78,12 +78,7 @@ module.exports = class Builder
 								return cb(err) if err
 								@targets[type] = instances
 								# Build targets
-								debug('BUILD', 1)
-								async.forEachSeries @targets[type], ((target, cb2) =>
-									@_buildTarget target, compress, lint, (err) =>
-										return cb2(err) if err
-										cb2()
-								), (err) =>
+								@_buildTargets type, compress, lint, (err) =>
 									return cb(err) if err
 									cb()
 					else
@@ -96,32 +91,38 @@ module.exports = class Builder
 					error(err, 2)
 				print("completed build in #{colour((+new Date - start) / 1000 + 's', notify.CYAN)}", 2)
 				fn and fn()
+				# Run test script
+				if test and @config.settings.test
+					exec @config.settings.test, (err, stdout, stderr) ->
+						error(err, 2) if err
+						console.log(if stderr then stderr else stdout)
 
 	# Build sources and watch for creation, changes, and deletion
 	# optionally 'compress'ing and 'reload'ing the browser
 	# @param {String} configpath [file name or directory containing default]
 	# @param {Boolean} compress
+	# @param {Boolean} test
 	# @param {Boolean} verbose
-	watch: (configpath, @compress, verbose) ->
-		@_initialize configpath, verbose, (err) =>
-			return error(err, 0) if err
-			@build(configpath, @compress, false, verbose)
+	watch: (configpath, compress, test, verbose) ->
+		@build configpath, compress, false, test, verbose, (err) =>
+			error(err, 2) if err
 			@watching = true
-			[JS, CSS].forEach (type) =>
-				if @[type + 'Sources'].count
-					print("watching [#{strong(@config.build[type].sources.join(', '))}]...", 0)
-					@[type + 'Sources'].locations.forEach (source) =>
-						@watchers.push(watcher = new Watcher(RE_WATCH_IGNORE_FILE))
-						watcher.on('create', @_onWatchCreate)
-						watcher.on('change', @_onWatchChange)
-						watcher.on('delete', @_onWatchDelete)
-						watcher.watch(source)
+			debug('WATCH', 1)
+			print('watching sources...', 2)
+			[@sources.js, @sources.css].forEach (source) =>
+				source.watch (err, file) =>
+					# Watch error, don't throw
+					error(err, 2, false) if err
+					@_buildTargets source.type, compress, false, (err) =>
+						# Build error, don't throw
+						error(err, 2, false) if err
 
 	# Build and compress sources based on targets specified in configuration
 	# @param {String} configpath [file name or directory containing default]
+	# @param {Boolean} test
 	# @param {Boolean} verbose
-	deploy: (configpath, verbose) ->
-		@build(configpath, true, false, verbose)
+	deploy: (configpath, test, verbose) ->
+		@build(configpath, true, false, test, verbose)
 
 	# List all file system content created via installing and building
 	# @param {Boolean} verbose
@@ -197,15 +198,21 @@ module.exports = class Builder
 					return fn(null, instances) unless outstanding
 		parse(targets)
 
-	# Run the given 'target'
-	# @param {Target} target
+	# Run all targets for a given 'type'
+	# @param {String} type
 	# @param {Boolean} compress
 	# @param {Boolean} lint
-	# @param {Function} fn
-	_buildTarget: (target, compress, lint, fn) =>
-		target.build compress, lint, (err, files) =>
-			# Persist file references created on build
-			files and filelog.add(files)
+	# @param {Function} fn(err)
+	_buildTargets: (type, compress, lint, fn) =>
+		debug('BUILD', 1)
+		async.forEachSeries @targets[type], ((target, cb) =>
+			target.watching = @watching
+			target.build compress, lint, (err, files) =>
+				# Persist file references created on build
+				files and filelog.add(files)
+				return cb(err) if err
+				cb()
+		), (err) =>
 			return fn(err) if err
 			fn()
 
