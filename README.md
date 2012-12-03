@@ -389,6 +389,7 @@ exports.build = {
 * added *--test* flag for executing a command after build
 * added *--verbose* flag for outputting detailed notifications during build
 * added *ls* command to list all generated files
+* added inlining of '@import' rules for all css source types
 * simplified dependency resource parsing on install; only parse 'main' field in component.json/package.json
 
 **0.5.4** - November 23, 2012
