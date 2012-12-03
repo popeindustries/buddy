@@ -92,10 +92,7 @@ module.exports = class Builder
 				print("completed build in #{colour((+new Date - start) / 1000 + 's', notify.CYAN)}", 2)
 				fn and fn()
 				# Run test script
-				if test and @config.settings.test
-					exec @config.settings.test, (err, stdout, stderr) ->
-						error(err, 2) if err
-						console.log(if stderr then stderr else stdout)
+				@_executeTest() if test and @config.settings.test
 
 	# Build sources and watch for creation, changes, and deletion
 	# optionally 'compress'ing and 'reload'ing the browser
@@ -116,6 +113,8 @@ module.exports = class Builder
 					@_buildTargets source.type, compress, false, (err) =>
 						# Build error, don't throw
 						error(err, 2, false) if err
+						# Run test script
+						@_executeTest() if test and @config.settings.test
 
 	# Build and compress sources based on targets specified in configuration
 	# @param {String} configpath [file name or directory containing default]
@@ -216,23 +215,9 @@ module.exports = class Builder
 			return fn(err) if err
 			fn()
 
-	# Retrieve the file type for a given 'filename'
-	# @param {String} filename
-	# @return {String}
-	# _getFileType: (filename) ->
-	# 	extension = path.extname(filename)[1..]
-	# 	for type in [JS, CSS]
-	# 		return type if extension is type
-	# 		# Loop through compilers
-	# 		for name, compiler of @plugins[type].compilers
-	# 			return type if extension is compiler.extension
-	# 	return ''
-
-	# Retrieve the source location for the given 'filename' and source 'type'
-	# @param {String} filename
-	# @param {String} type
-	# @return {String}
-	# _getSourceLocation: (filename, type) ->
-	# 	for source in @[type + 'Sources'].locations
-	# 		return source if filename.indexOf(source) isnt -1
-	# 	return ''
+	_executeTest: =>
+		print('executing test script...', 2)
+		debug("execute: #{strong(@config.settings.test)}", 3)
+		exec @config.settings.test, (err, stdout, stderr) ->
+			error(err, 2) if err
+			console.log(if stderr then stderr else stdout)
