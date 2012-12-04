@@ -29,6 +29,14 @@ describe 'fs utils', ->
 			readdir path.resolve('readdir-simple'), /^Class/, (err, files) ->
 				files.should.have.length(2)
 				done()
+		it 'should skip empty nested directories', (done) ->
+			readdir path.resolve('readdir-empty'), null, (err, files) ->
+				files.should.have.length(1)
+				done()
+		it 'should skip empty directories', (done) ->
+			readdir path.resolve('readdir-empty/empty'), null, (err, files) ->
+				files.should.have.length(0)
+				done()
 
 	describe 'mkdir', ->
 		beforeEach ->

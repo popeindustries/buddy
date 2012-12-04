@@ -56,17 +56,20 @@ describe 'Builder', ->
 			@builder = new Builder()
 			@builder.processors = processors
 			@builder.sources.js = {locations:[path.resolve('target')]}
-		it 'should return an error for an input file that doesn`t exist', (done) ->
+		it 'should not return an error for an input file that doesn`t exist', (done) ->
 			@builder._parseTargets 'js', [{'input': 'none.coffee', 'output': ''}], (err, instances) ->
-				should.exist(err)
+				should.not.exist(err)
+				instances.should.have.length(0)
 				done()
-		it 'should return an error for an input file that doesn`t exist in sources', (done) ->
+		it 'should not return an error for an input file that doesn`t exist in sources', (done) ->
 			@builder._parseTargets 'js', [{'input': '../source/src/main.coffee', 'output': ''}], (err, instances) ->
-				should.exist(err)
+				should.not.exist(err)
+				instances.should.have.length(0)
 				done()
-		it 'should return an error for an input directory and an output file', (done) ->
+		it 'should not return an error for an input directory and an output file', (done) ->
 			@builder._parseTargets 'js', [{'input': 'class', 'output': 'js/main.js'}], (err, instances) ->
-				should.exist(err)
+				should.not.exist(err)
+				instances.should.have.length(0)
 				done()
 		it 'should result in a target count of 1 for a valid input file and output file', (done) ->
 			@builder._parseTargets 'js', [{'input': 'target/main.coffee', 'output': 'main.js'}], (err, instances) ->
@@ -124,7 +127,9 @@ describe 'Builder', ->
 			describe 'with 3 coffee files', ->
 				it 'should build 3 js files', (done) ->
 					@builder.build 'buddy.js', false, false, false, false, (err) =>
-						gatherFiles(@builder.targets.js[0].output).should.have.length(3)
+						(files = gatherFiles(@builder.targets.js[0].output)).should.have.length(3)
+						for f in files
+							fs.readFileSync(f, 'utf8').should.include('require.register(')
 						done()
 			describe 'with 3 coffee files and the "modular" flag set to false', ->
 				it 'should build 3 js files without module wrappers', (done) ->
@@ -149,6 +154,18 @@ describe 'Builder', ->
 				it 'should build 2 css files', (done) ->
 					@builder.build 'buddy.js', false, false, false, false, (err) =>
 						gatherFiles(@builder.targets.css[0].output).should.have.length(2)
+						done()
+		describe 'project partial', ->
+			before ->
+				process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-partial'))
+			describe 'with a single coffee file and a missing stylus directory', ->
+				it 'should skip and not throw an error', (done) ->
+					@builder.build 'buddy.js', false, false, false, false, (err) =>
+						should.not.exist(err)
+						done()
+				it 'should build 1 concatenated js file', (done) ->
+					@builder.build 'buddy.js', false, false, false, false, (err) =>
+						fs.existsSync(@builder.targets.js[0].output).should.be.true
 						done()
 		describe 'complex project', ->
 			before ->
