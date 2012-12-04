@@ -18,7 +18,7 @@ module.exports = (type, options, processors, fn) ->
 	options.modular ?= true
 	# Validate target
 	# Abort if input doesn't exist
-	return fn("#{strong(options.input)} not found in project path") unless existsSync(inputpath)
+	return fn("#{strong(options.input)} doesn\'t exist") unless existsSync(inputpath)
 	fs.stat inputpath, (err, stats) ->
 		return fn(err) if err
 		isDir = stats.isDirectory()
@@ -162,12 +162,13 @@ class Target
 	# @param {File} file
 	# @param {Function} fn(err)
 	_outputFile: (file, fn) =>
-		# Concatenate
 		if @concat
+			# Concatenate
 			content = file.module.concat(file)
 			debug("concat: #{strong(path.relative(process.cwd(), file.filepath))}", 3)
 		else
-			content = file.content
+			# Optionally wrap content
+			content = if @options.modular then file.module.wrapModuleContents(file.content, file.moduleID) else file.content
 		# Resolve output path if directory
 		filepath = if path.extname(@output).length then @output else path.join(@output, file.qualifiedName) + '.' + @type
 		# Sequence
