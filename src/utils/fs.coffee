@@ -40,14 +40,11 @@ exports.readdir = readdir = (dir, ignore, fn) ->
 	_outstanding = 0
 	_files = []
 	_readdir = (dir) ->
-		_outstanding++
-		fs.readdir dir, (err, files) ->
-			_outstanding--
-			if err
-				# Exit if proper error, otherwise skip
-				return if err.code is 'ENOENT'
-				else return fn(err)
-			else
+		if existsSync(dir)
+			_outstanding++
+			fs.readdir dir, (err, files) ->
+				_outstanding--
+				return fn(err) if err
 				files.forEach (file) ->
 					# Skip ignored files
 					unless ignore.test(path.basename(file))
@@ -70,6 +67,9 @@ exports.readdir = readdir = (dir, ignore, fn) ->
 									fn(null, _files) unless _outstanding
 				# Return if no outstanding
 				fn(null, _files) unless _outstanding
+		else
+			# Return if no outstanding
+			fn(null, _files) unless _outstanding
 	_readdir(dir)
 
 # Recursively create directory path specified by 'filepath'
@@ -88,6 +88,7 @@ exports.mkdir = mkdir = (filepath, fn) ->
 # @param {String} source
 # @param {String} destination
 # @param {Function} fn(err, filepath)
+# TODO: add force flag
 exports.mv = mv = (source, destination, fn) ->
 	mkdir destination, (err) ->
 		if err
@@ -105,6 +106,7 @@ exports.mv = mv = (source, destination, fn) ->
 # @param {String} source
 # @param {String} destination
 # @param {Function} fn(err, filepath)
+# TODO: add force flag
 exports.cp = cp = (source, destination, fn) ->
 	_outstanding = 0
 	_base = ''
