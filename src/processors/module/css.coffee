@@ -51,6 +51,7 @@ module.exports =
 	# @param {String} id
 	# @return {String}
 	wrapModuleContents: (content, id) ->
+		# No op
 		return content
 
 	# Recursively inline dependency file content
