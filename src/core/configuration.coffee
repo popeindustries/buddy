@@ -4,6 +4,7 @@ path = require('path')
 {debug, strong} = require('../utils/notify')
 
 DEFAULT = 'buddy.js'
+DEFAULT_JSON = 'buddy.json'
 
 exports.data = null
 exports.url = ''
@@ -41,8 +42,10 @@ exports.locate = locate = (url, fn) ->
 				return fn(err) if err
 				# Try default file name if passed directory
 				if not path.extname(url).length or stats.isDirectory()
-					url = path.join(url, DEFAULT)
-					if existsSync(url)
+					# Support both js and json file types
+					urljs = path.join(url, DEFAULT)
+					urljson = path.join(url, DEFAULT_JSON)
+					if existsSync(url = urljs) or existsSync(url = urljson)
 						debug("config file found at: #{strong(url)}", 2)
 						exports.url = url
 						fn(null, url)
@@ -68,8 +71,10 @@ exports.locate = locate = (url, fn) ->
 			else
 				# Start at current working directory
 				dir = process.cwd()
-			url = path.join(dir, DEFAULT)
-			if existsSync(url)
+			# Support both js and json file types
+			urljs = path.join(dir, DEFAULT)
+			urljson = path.join(dir, DEFAULT_JSON)
+			if existsSync(url = urljs) or existsSync(url = urljson)
 				debug("config file found at: #{strong(url)}", 2)
 				exports.url = url
 				return fn(null)

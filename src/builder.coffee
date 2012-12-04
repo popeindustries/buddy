@@ -107,14 +107,15 @@ module.exports = class Builder
 			debug('WATCH', 1)
 			print('watching sources...', 2)
 			[@sources.js, @sources.css].forEach (source) =>
-				source.watch (err, file) =>
-					# Watch error, don't throw
-					error(err, 2, false) if err
-					@_buildTargets source.type, compress, false, (err) =>
-						# Build error, don't throw
+				if source
+					source.watch (err, file) =>
+						# Watch error, don't throw
 						error(err, 2, false) if err
-						# Run test script
-						@_executeTest() if test and @config.settings.test
+						@_buildTargets source.type, compress, false, (err) =>
+							# Build error, don't throw
+							error(err, 2, false) if err
+							# Run test script
+							@_executeTest() if test and @config.settings.test
 
 	# Build and compress sources based on targets specified in configuration
 	# @param {String} configpath [file name or directory containing default]

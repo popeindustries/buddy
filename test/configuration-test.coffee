@@ -8,8 +8,10 @@ describe 'configuration', ->
 		process.chdir(path.resolve(__dirname, 'fixtures/configuration'))
 
 	describe 'locate', ->
+		beforeEach ->
+			configuration.url = ''
 		describe 'from a valid working directory', ->
-			it 'should return a path to the default file when no name is specified', (done) ->
+			it 'should return a path to the default js file when no name is specified', (done) ->
 				configuration.locate null, (err, url) ->
 					configuration.url.should.equal(path.resolve('buddy.js'))
 					done()
@@ -20,6 +22,10 @@ describe 'configuration', ->
 			it 'should return a path to the default file in the specified directory when a directory name is specified', (done) ->
 				configuration.locate 'nested', (err, url) ->
 					configuration.url.should.equal(path.resolve('nested', 'buddy.js'))
+					done()
+			it 'should return a path to the default json file in the specified directory when a directory name is specified', (done) ->
+				configuration.locate 'json', (err, url) ->
+					configuration.url.should.equal(path.resolve('json', 'buddy.json'))
 					done()
 			it 'should return a path to the named file in the specified directory when a directory and name are specified', (done) ->
 				configuration.locate 'nested/buddy_custom_name.js', (err, url) ->
