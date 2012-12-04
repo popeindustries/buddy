@@ -151,7 +151,7 @@ exports.cp = cp = (source, destination, fn) ->
 						fn(new Error('invalid destination for copy: ' + destination))
 					else
 						# Copy contents only if source ends in '/'
-						contentsOnly = _first and /\\|\/$/.test(source)
+						contentsOnly = _first and /\\$|\/$/.test(source)
 						dest = if contentsOnly then destination else path.resolve(destination, path.basename(source))
 						# Create in destination
 						_outstanding++

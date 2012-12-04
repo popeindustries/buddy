@@ -63,7 +63,7 @@ describe 'Module processor', ->
 				}
 
 				'''
-				content = css.concat(file)
+				content = css.concat(file).replace(/\r/gm, '')
 				content.should.not.include('@import')
 				content.should.eql(c)
 
@@ -174,5 +174,5 @@ describe 'Module processor', ->
 				  instance = new Class
 				});
 				'''
-				content = node.concat(file)
+				content = node.concat(file).replace(/\r  \n/gm, '\n')
 				content.should.eql(c)

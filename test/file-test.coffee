@@ -48,7 +48,7 @@ describe 'file', ->
 		describe '"qualifiedName" property', ->
 			it 'should match it`s location relative to the base source directory', (done) ->
 				file 'js', path.resolve('src/package/Class.coffee'), path.resolve('src'), processors.js, (err, instance) ->
-					instance.qualifiedName.should.equal('package/Class')
+					instance.qualifiedName.should.equal('package' + path.sep + 'Class')
 					done()
 		describe '"needsCompile" property', ->
 			it 'should be true for compileable file types', (done) ->
