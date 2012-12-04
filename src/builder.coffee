@@ -75,11 +75,14 @@ module.exports = class Builder
 							# Generate build targets
 							debug('TARGET', 1)
 							@_parseTargets type, build.targets, (err, instances) =>
-								return cb(err) if err
-								@targets[type] = instances
-								# Build targets
-								@_buildTargets type, compress, lint, (err) =>
-									return cb(err) if err
+								# Parse errors shouldn't throw
+								if instances
+									@targets[type] = instances
+									# Build targets
+									@_buildTargets type, compress, lint, (err) =>
+										return cb(err) if err
+										cb()
+								else
 									cb()
 					else
 						return cb('invalid build configuration')
@@ -192,9 +195,11 @@ module.exports = class Builder
 				outstanding++
 				target type, options, @processors[type], (err, instance) =>
 					outstanding--
-					return fn(err) if err
-					instances.push(instance)
-					parse(options.targets, instance) if options.targets
+					# Parse errors shouldn't throw
+					warn(err, 2) if err
+					if instance
+						instances.push(instance)
+						parse(options.targets, instance) if options.targets
 					return fn(null, instances) unless outstanding
 		parse(targets)
 
@@ -221,4 +226,5 @@ module.exports = class Builder
 		debug("execute: #{strong(@config.settings.test)}", 3)
 		exec @config.settings.test, (err, stdout, stderr) ->
 			error(err, 2) if err
-			console.log(if stderr then stderr else stdout)
+			stdout and console.log(stdout)
+			stderr and console.log(stderr)
