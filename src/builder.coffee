@@ -211,11 +211,12 @@ module.exports = class Builder
 	_buildTargets: (type, compress, lint, fn) =>
 		debug('BUILD', 1)
 		async.forEachSeries @targets[type], ((target, cb) =>
-			target.watching = @watching
-			target.build compress, lint, (err, files) =>
+			target.build compress, lint, @watching, (err, files) =>
 				# Persist file references created on build
 				files and filelog.add(files)
 				return cb(err) if err
+				# Reset unless target has children
+				target.reset() unless target.hasChildren
 				cb()
 		), (err) =>
 			return fn(err) if err

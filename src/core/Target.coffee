@@ -50,7 +50,9 @@ class Target
 		@sources = []
 		@files = []
 		# Track all modified files so we can reset when complete
-		@modified = []
+		@_modified = []
+		@hasChildren = @options.targets
+		@hasParent = @options.parent
 		@watching = false
 		@compress = false
 		@lint = false
@@ -71,8 +73,9 @@ class Target
 	# Generate output, 'compress'ing and 'lint'ing as required
 	# @param {Boolean} compress
 	# @param {Boolean} lint
+	# @param {Boolean} watching
 	# @param {Function} fn(err, files)
-	build: (@compress, @lint, fn) ->
+	build: (@compress, @lint, @watching, fn) ->
 		# Clear existing
 		@sources = []
 		@files = []
@@ -83,9 +86,6 @@ class Target
 			if @sources.length
 				async.forEach @sources, @_outputFile, (err) =>
 					return fn(err, @files) if err
-					# Reset files
-					@modified.map((file) -> file.reset())
-					@modified = []
 					fn(null, @files)
 			else
 				warn("no sources to build in #{strong(@options.input)}", 3)
@@ -95,7 +95,12 @@ class Target
 	# @param {File} file
 	# @return	{Boolean}
 	hasSource: (file) ->
-		file in @sources or @options.parent and @options.parent.hasSource(file)
+		file in @sources or @hasParent and @options.parent.hasSource(file)
+
+	reset: ->
+		@_modified.map((file) -> file.reset())
+		@_modified = []
+		@options.parent.reset() if @hasParent
 
 	# Parse input sources
 	# Resolve number of source files with dependencies
@@ -116,7 +121,7 @@ class Target
 							# Protect against circular references and duplicates
 							unless dep.isDependency
 								# Store dependency references
-								@modified.push(dep)
+								@_modified.push(dep)
 								dep.isDependency = true
 								file.dependencies[idx] = dep
 								debug("added dependency #{strong(dep.moduleID)} to #{strong(file.moduleID)}", 3)
@@ -138,7 +143,7 @@ class Target
 						# Add unless already added
 						unless @hasSource(file)
 							@sources.push(file)
-							@modified.push(file)
+							@_modified.push(file)
 							parse file, (err) =>
 								return fn(err) if err
 								# Filter out all files that are dependants
@@ -152,8 +157,7 @@ class Target
 				# Add unless already added
 				unless @hasSource(file)
 					@sources.push(file)
-					@modified.push(file)
-					file.isDependency = false
+					@_modified.push(file)
 					parse(file, fn)
 				else
 					return fn()
