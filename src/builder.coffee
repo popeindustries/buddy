@@ -198,7 +198,8 @@ module.exports = class Builder
 					# Parse errors shouldn't throw
 					warn(err, 2) if err
 					if instance
-						instances.push(instance)
+						# Insert after parent
+						if parent then instances.splice(instances.indexOf(parent)+1, 0, instance) else instances.push(instance)
 						parse(options.targets, instance) if options.targets
 					return fn(null, instances) unless outstanding
 		parse(targets)
