@@ -63,7 +63,7 @@ module.exports = class Source
 	# @param {Function} fn(err, file)
 	watch: (fn) ->
 		@locations.forEach (location) =>
-			print("watching [#{strong(path.relative(process.cwd(), location))}]...", 3)
+			print("watching #{strong(path.relative(process.cwd(), location))}...", 3)
 			@_watchers.push(watcher = new Watcher(ignored))
 			# Add file on 'create'
 			watcher.on 'create', (filepath, stats) =>
