@@ -110,11 +110,13 @@ describe 'target', ->
 				it 'should not contain \'sources\'', (done) ->
 					target 'js', {input: 'src/main.coffee', output: 'js', source: @src}, processors.js, (err, instance) =>
 						parent = instance
+						parent.hasChildren = true
 						parent._parse (err) =>
 							@tgt.input = path.resolve('src/main.coffee')
 							@tgt.concat = true
 							@tgt.isDir = false
 							@tgt.options.parent = parent
+							@tgt.hasParent = true
 							@tgt._parse (err) =>
 								@tgt.sources.should.have.length(0)
 								done()

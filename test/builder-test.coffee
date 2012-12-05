@@ -173,7 +173,6 @@ describe 'Builder', ->
 			describe 'with 2 js targets and 1 child target sharing assets', ->
 				it 'should build 3 concatenated js files', (done) ->
 					@builder.build 'buddy.js', false, false, false, false, (err) =>
-						console.log err
 						gatherFiles(path.resolve('output')).should.have.length(3)
 						done()
 				it 'should build a child js file without source shared with it`s parent', (done) ->
