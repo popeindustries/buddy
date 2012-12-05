@@ -3,12 +3,15 @@ path = require('path')
 events = require('events')
 {readdir, wait, existsSync} = require('./fs')
 
+THROTTLE_TIMEOUT = 250
+
 module.exports = class Watcher extends events.EventEmitter
 
 	# Constructor
 	# @param {RegExp} ignore
 	constructor: (@ignore = /^\./) ->
 		@watchers = {}
+		@_throttling = false
 
 	# Watch a 'source' file or directory for changes
 	# @param {String} source
@@ -24,7 +27,7 @@ module.exports = class Watcher extends events.EventEmitter
 					if stats.isDirectory()
 						fs.readdir source, (err, files) =>
 							if err
-								@emit('error', err)
+								@_throttleEvent('error', err)
 							else
 								files.forEach (file) =>
 									@watch(path.resolve(source, file))
@@ -34,32 +37,33 @@ module.exports = class Watcher extends events.EventEmitter
 						if existsSync(source)
 							fs.stat source, (err, stats) =>
 								if err
-									@emit('error', err)
+									@_throttleEvent('error', err)
 								else
 									if stats.isFile()
 										# notify if changed
 										if stats.mtime.getTime() isnt lastChange and stats.size isnt lastSize
-											@emit('change', source, stats)
+											@_throttleEvent('change', source, stats)
 										lastChange = stats.mtime.getTime()
 									else if stats.isDirectory()
 										# notify if new
-										@emit('create', source, stats) unless @watchers[source]
+										unless @watchers[source]
+											@_throttleEvent('create', source, stats)
 										# check for new files
 										fs.readdir source, (err, files) =>
 											if err
-												@emit('error', err)
+												@_throttleEvent('error', err)
 											else
 												files.forEach (file) =>
 													item = path.resolve(source, file)
 													# new file
 													if not @ignore.test(path.basename(item)) and not @watchers[item]
 														fs.stat item, (err, stats) =>
-															@emit('create', item, stats)
+															@_throttleEvent('create', item, stats)
 															@watch(item)
 						# Deleted
 						else
 							@unwatch(source)
-							@emit('delete', source)
+							@_throttleEvent('delete', source)
 
 	# Stop watching a 'source' file or directory for changes
 	# @param {String} source
@@ -73,3 +77,11 @@ module.exports = class Watcher extends events.EventEmitter
 	# Stop watching all sources for changes
 	clean: ->
 		@unwatch(source) for source of @watchers
+
+	# Protect against mutiple event emits
+	# @param {String} type
+	_throttleEvent: (type, props...) ->
+		unless @_throttling
+			@_throttling = true
+			@emit.apply(@, [type].concat(props))
+			setTimeout((=> @_throttling = false), THROTTLE_TIMEOUT)
