@@ -7,7 +7,7 @@ Dependency = require('../lib/core/dependency')
 processors = require('../lib/processors')
 {mv} = require('../lib/utils/fs')
 
-describe.skip 'dependencies', ->
+describe 'dependencies', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/dependencies'))
 	afterEach (done) ->
@@ -65,22 +65,22 @@ describe.skip 'dependencies', ->
 			it 'should set the latest version for `*`', (done) ->
 				@dependency.version = '*'
 				@dependency.validateVersion (err) =>
-					@dependency.version.should.eql('1.4.2')
+					@dependency.version.should.eql('1.4.3')
 					done()
 			it 'should set the latest version for `latest`', (done) ->
 				@dependency.version = 'latest'
 				@dependency.validateVersion (err) =>
-					@dependency.version.should.eql('1.4.2')
+					@dependency.version.should.eql('1.4.3')
 					done()
 			it 'should set the highest version that satisfies `>=1.3.2`', (done) ->
 				@dependency.version = '>=1.3.2'
 				@dependency.validateVersion (err) =>
-					@dependency.version.should.eql('1.4.2')
+					@dependency.version.should.eql('1.4.3')
 					done()
 			it 'should set the highest version that satisfies `>1.3.2`', (done) ->
 				@dependency.version = '>1.3.2'
 				@dependency.validateVersion (err) =>
-					@dependency.version.should.eql('1.4.2')
+					@dependency.version.should.eql('1.4.3')
 					done()
 			it 'should set the highest version that satisfies `1.3.x`', (done) ->
 				@dependency.version = '1.3.x'
@@ -90,7 +90,7 @@ describe.skip 'dependencies', ->
 			it 'should set the highest version that satisfies `1.x`', (done) ->
 				@dependency.version = '1.x'
 				@dependency.validateVersion (err) =>
-					@dependency.version.should.eql('1.4.2')
+					@dependency.version.should.eql('1.4.3')
 					done()
 			it 'should set the highest version that satisfies `~1.3.2`', (done) ->
 				@dependency.version = '~1.3.2'
