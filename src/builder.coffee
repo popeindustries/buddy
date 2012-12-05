@@ -95,15 +95,18 @@ module.exports = class Builder
 				print("completed build in #{colour((+new Date - start) / 1000 + 's', notify.CYAN)}", 2)
 				fn and fn()
 				# Run test script
-				@_executeTest() if test and @config.settings.test
+				if test and @config.settings.test
+					@_executeTest (err) ->
+						return error(err, 2) if err
 
 	# Build sources and watch for creation, changes, and deletion
 	# optionally 'compress'ing and 'reload'ing the browser
 	# @param {String} configpath [file name or directory containing default]
 	# @param {Boolean} compress
+	# @param {Boolean} reload
 	# @param {Boolean} test
 	# @param {Boolean} verbose
-	watch: (configpath, compress, test, verbose) ->
+	watch: (configpath, compress, reload, test, verbose) ->
 		@build configpath, compress, false, test, verbose, (err) =>
 			error(err, 2) if err
 			@watching = true
@@ -111,18 +114,26 @@ module.exports = class Builder
 			print('watching sources...', 2)
 			[@sources.js, @sources.css].forEach (source) =>
 				if source
-					source.watch (err, file) =>
-						start = new Date()
+					source.watch reload, (err, file) =>
 						# Watch error, don't throw
-						error(err, 2, false) if err
-						@_buildTargets source.type, compress, false, (err) =>
-							# Build error, don't throw
-							if err
-								error(err, 2, false)
-							else
-								print("completed build in #{colour((+new Date - start) / 1000 + 's', notify.CYAN)}", 3)
-								# Run test script
-								@_executeTest() if test and @config.settings.test
+						if err
+							error(err, 2, false)
+						else
+							start = new Date()
+							file.content = ''
+							@_buildTargets source.type, compress, false, (err) =>
+								# Build error, don't throw
+								if err
+									error(err, 2, false)
+								else
+									print("completed build in #{colour((+new Date - start) / 1000 + 's', notify.CYAN)}", 3)
+									# Run test script
+									if test and @config.settings.test
+										@_executeTest (err) ->
+											return error(err, 2) if err
+											source.reload() if reload
+									else
+										source.reload() if reload
 
 	# Build and compress sources based on targets specified in configuration
 	# @param {String} configpath [file name or directory containing default]
@@ -227,10 +238,13 @@ module.exports = class Builder
 			return fn(err) if err
 			fn()
 
-	_executeTest: =>
+	# Run the script defined in config 'test'
+	# @param {Function} fn(err)
+	_executeTest: (fn) =>
 		print('executing test script...', 2)
 		debug("execute: #{strong(@config.settings.test)}", 3)
 		exec @config.settings.test, (err, stdout, stderr) ->
-			error(err, 2) if err
+			return fn(err) if err
 			stdout and console.log(stdout)
 			stderr and console.log(stderr)
+			fn()

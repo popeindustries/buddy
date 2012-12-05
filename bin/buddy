@@ -25,6 +25,7 @@ program
 	.usage('[options] <command> [path/to/buddy.json]>')
 	.option('-c, --compress', 'compress output for production deployment')
 	.option('-l, --lint', 'check output for syntax and logic errors')
+	.option('-r, --reload', 'reload all connected live-reload clients on file change during watch')
 	.option('-t, --test', 'run test command on build completion')
 	.option('-v, --verbose', 'print all messages for debugging');
 
@@ -46,7 +47,7 @@ program
 	.command('watch [config]')
 	.description('watch js and css source files and build changes')
 	.action(function(config){
-		new Builder().watch(config, program.compress, program.test, program.verbose);
+		new Builder().watch(config, program.compress, program.reload, program.test, program.verbose);
 	});
 
 program

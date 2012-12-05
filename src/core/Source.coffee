@@ -1,5 +1,6 @@
 path = require('path')
 file = require('./file')
+reloader = require('../utils/reloader')
 Watcher = require('../utils/watcher')
 notify = require('../utils/notify')
 {debug, strong, print, colour} = require('../utils/notify')
@@ -60,8 +61,9 @@ module.exports = class Source
 			f.destroy()
 
 	# Watch for changes and call 'fn'
+	# @param {Boolean} reload
 	# @param {Function} fn(err, file)
-	watch: (fn) ->
+	watch: (reload, fn) ->
 		@locations.forEach (location) =>
 			print("watching #{strong(path.relative(process.cwd(), location))}...", 3)
 			@_watchers.push(watcher = new Watcher(ignored))
@@ -78,13 +80,18 @@ module.exports = class Source
 			watcher.on 'change', (filepath, stats) =>
 				print("[#{new Date().toLocaleTimeString()}] #{colour('changed', notify.YELLOW)} #{strong(path.relative(process.cwd(), filepath))}", 3)
 				file = @byPath[filepath]
-				file.content = ''
 				fn(null, file)
 			# Notify when 'error'
-			watcher.on 'error', (err) =>
+			watcher.on 'error', (err) ->
 				fn(err)
 			# Watch
 			watcher.watch(location)
+			# Start reloader
+			reloader.start 'com.popeindustries.buddy', 'buddy', '1.0', (err) ->
+				fn(err)
+
+	reload: ->
+		reloader.refresh()
 
 	# Get base path for 'filepath'
 	# @param {String} filepath

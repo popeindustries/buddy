@@ -27,7 +27,7 @@ module.exports = class Watcher extends events.EventEmitter
 					if stats.isDirectory()
 						fs.readdir source, (err, files) =>
 							if err
-								@_throttleEvent('error', err)
+								@emit('error', err)
 							else
 								files.forEach (file) =>
 									@watch(path.resolve(source, file))

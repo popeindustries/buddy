@@ -19,7 +19,8 @@
 		"superagent": "0.10.0",
 		"unzip": "0.1.0",
 		"semver": "1.1.1",
-		"async": "0.1.22"
+		"async": "0.1.22",
+		"livereload-server": "0.2.1"
 	},
 	"devDependencies": {
 		"should": "*",
