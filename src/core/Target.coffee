@@ -51,8 +51,8 @@ class Target
 		@files = []
 		# Track all modified files so we can reset when complete
 		@_modified = []
-		@hasChildren = @options.targets
-		@hasParent = @options.parent
+		@hasChildren = !!@options.targets
+		@hasParent = !!@options.parent
 		@watching = false
 		@compress = false
 		@lint = false
@@ -97,6 +97,7 @@ class Target
 	hasSource: (file) ->
 		file in @sources or @hasParent and @options.parent.hasSource(file)
 
+	# Reset modified files
 	reset: ->
 		@_modified.map((file) -> file.reset())
 		@_modified = []
@@ -105,7 +106,7 @@ class Target
 	# Parse input sources
 	# Resolve number of source files with dependencies
 	# @param {Function} fn(err)
-	_parse: (fn) ->
+	_parse: (fn) =>
 		outstanding = 0
 		parse = (file, fn) =>
 			# Parse file content, if necessary

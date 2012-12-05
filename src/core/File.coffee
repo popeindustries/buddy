@@ -76,7 +76,7 @@ class File
 
 	# Reset instance for reuse
 	reset: ->
-		@dependencies = []
+		@dependencies = if @content then @module.getModuleDependencies(@content, @moduleID) else []
 		@isDependency = false
 
 	# Destroy instance
