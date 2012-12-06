@@ -15,6 +15,7 @@ module.exports = class Source
 	constructor: (@type, sources, @processors) ->
 		debug("created #{type} Source instance for: #{strong(sources)}", 2)
 		@_watchers = []
+		@reload = false
 		@byPath = {}
 		@byModule = {}
 		@length = 0
@@ -63,7 +64,7 @@ module.exports = class Source
 	# Watch for changes and call 'fn'
 	# @param {Boolean} reload
 	# @param {Function} fn(err, file)
-	watch: (reload, fn) ->
+	watch: (@reload, fn) ->
 		@locations.forEach (location) =>
 			print("watching #{strong(path.relative(process.cwd(), location))}...", 3)
 			@_watchers.push(watcher = new Watcher(ignored))
@@ -87,11 +88,18 @@ module.exports = class Source
 			# Watch
 			watcher.watch(location)
 			# Start reloader
-			reloader.start 'com.popeindustries.buddy', 'buddy', '1.0', (err) ->
-				fn(err)
+			if @reload
+				reloader.start 'com.popeindustries.buddy', 'buddy', '1.0', (err) ->
+					fn(err)
 
-	reload: ->
-		reloader.refresh()
+	# Reload 'file'
+	# @param {String} file
+	refresh: (file) ->
+		reloader.refresh(file) if @reload
+
+	# Clean up
+	clean: ->
+		reloader.stop()
 
 	# Get base path for 'filepath'
 	# @param {String} filepath
