@@ -115,7 +115,7 @@ describe 'target', ->
 							@tgt.input = path.resolve('src/main.coffee')
 							@tgt.concat = true
 							@tgt.isDir = false
-							@tgt.options.parent = parent
+							@tgt.parent = parent
 							@tgt.hasParent = true
 							@tgt._parse (err) =>
 								@tgt.sources.should.have.length(0)
