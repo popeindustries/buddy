@@ -386,7 +386,7 @@ exports.build = {
 ## Changelog
 
 **0.6.6** - December 6, 2012
-* added live-reload support for *watch* command with **-r/--reload**
+* added live-reload support for *watch* command with *--reload*
 * re-enabled linting
 
 **0.6.5** - December 5, 2012
