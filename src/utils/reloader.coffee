@@ -1,7 +1,7 @@
 path = require('path')
 fs = require('fs')
 ReloadServer = require('./reloadserver')
-{debug, strong} = require('./notify')
+{debug, strong, print} = require('./notify')
 
 server = null
 ready = false
@@ -12,10 +12,10 @@ exports.start = ->
 		server = new ReloadServer()
 
 		server.on 'connected', (connection) ->
-			debug("live-reload client connected: #{connection.id}", 4)
+			print("live-reload client connected: #{connection.id}", 3)
 
 		server.on 'disconnected', (connection) ->
-			debug("live-reload client disconnected: #{connection.id}", 4)
+			print("live-reload client disconnected: #{connection.id}", 3)
 
 		server.on 'command', (message) ->
 			debug("received live-reload command '#{message.command}': #{message.url}", 4)
@@ -26,7 +26,7 @@ exports.start = ->
 		server.listen (err) ->
 			# return fn(err) if err
 			unless err
-				debug("started live-reload server on port: #{server.port}", 3)
+				print("started live-reload server on port: #{server.port}", 2)
 				ready = true
 
 # Stop server
