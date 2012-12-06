@@ -1,5 +1,7 @@
 csslint = require('csslint').CSSLint
 
+RE_TRIM = /^\s+|\s+$/
+
 module.exports =
 	name: 'csslint'
 	category: 'css'
@@ -12,5 +14,5 @@ module.exports =
 		result = csslint.verify(data)
 		if result.messages.length
 			items = result.messages.map (error) ->
-				return {line: error.line, col: error.col, reason: error.message}
+				return {line: error.line, col: error.col, reason: error.message, evidence: error.evidence?.replace(RE_TRIM, '')}
 			fn({items})

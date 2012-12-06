@@ -43,16 +43,19 @@ class Target
 	# @param {String} type
 	# @param {Object} options
 	# @param {Object} processors
-	constructor: (@type, @isDir, @options, @processors) ->
-		debug("created #{@type} Target instance with input: #{strong(@options.input)} and output: #{strong(@options.output)}", 2)
-		@input = path.resolve(@options.input)
-		@output = path.resolve(@options.output)
+	constructor: (@type, @isDir, options, @processors) ->
+		debug("created #{@type} Target instance with input: #{strong(options.input)} and output: #{strong(options.output)}", 2)
+		@input = path.resolve(options.input)
+		@output = path.resolve(options.output)
+		@source = options.source
+		@modular = options.modular
 		@sources = []
 		@files = []
 		# Track all modified files so we can reset when complete
 		@_modified = []
-		@hasChildren = !!@options.targets
-		@hasParent = !!@options.parent
+		@parent = options.parent
+		@hasChildren = !!options.targets
+		@hasParent = !!@parent
 		@watching = false
 		@compress = false
 		@lint = false
@@ -61,7 +64,7 @@ class Target
 		# input is file
 		unless @isDir
 			# A single file can be 'batched' if not modular
-			@concat = @options.modular
+			@concat = @modular
 			# Resolve default output file name for file>directory target
 			unless path.extname(@output).length
 				@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), ".#{@type}")
@@ -79,7 +82,7 @@ class Target
 		# Clear existing
 		@sources = []
 		@files = []
-		print("building #{strong(path.basename(@options.input))} to #{strong(path.basename(@options.output))}", 2) unless @watching
+		print("building #{strong(path.basename(@input))} to #{strong(path.basename(@output))}", 2) unless @watching
 		# Parse sources for input
 		@_parse (err) =>
 			return fn(err) if err
@@ -88,20 +91,20 @@ class Target
 					return fn(err, @files) if err
 					fn(null, @files)
 			else
-				warn("no sources to build in #{strong(@options.input)}", 3)
+				warn("no sources to build in #{strong(@input)}", 3)
 				fn(null, @files)
 
 	# Determine if a File exists in sources or a parent's
 	# @param {File} file
 	# @return	{Boolean}
 	hasSource: (file) ->
-		file in @sources or @hasParent and @options.parent.hasSource(file)
+		file in @sources or @hasParent and @parent.hasSource(file)
 
 	# Reset modified files
 	reset: ->
 		@_modified.map((file) -> file.reset())
 		@_modified = []
-		@options.parent.reset() if @hasParent
+		@parent.reset() if @hasParent
 
 	# Parse input sources
 	# Resolve number of source files with dependencies
@@ -118,7 +121,7 @@ class Target
 				if @concat and file.dependencies.length
 					file.dependencies.forEach (dependency, idx) =>
 						# Resolve dependency
-						if dep = @options.source.byModule[dependency] or @options.source.byModule["#{dependency}/index"]
+						if dep = @source.byModule[dependency] or @source.byModule["#{dependency}/index"]
 							# Protect against circular references and duplicates
 							unless dep.isDependency
 								# Store dependency references
@@ -140,7 +143,7 @@ class Target
 			readdir @input, ignored, (err, files) =>
 				# Find files in source cache
 				files.forEach (filepath) =>
-					if file = @options.source.byPath[filepath]
+					if file = @source.byPath[filepath]
 						# Add unless already added
 						unless @hasSource(file)
 							@sources.push(file)
@@ -154,7 +157,7 @@ class Target
 							return fn() unless outstanding
 		# Input is file
 		else
-			if file = @options.source.byPath[@input]
+			if file = @source.byPath[@input]
 				# Add unless already added
 				unless @hasSource(file)
 					@sources.push(file)
@@ -170,10 +173,10 @@ class Target
 		if @concat
 			# Concatenate
 			content = file.module.concat(file)
-			debug("concat: #{strong(path.relative(process.cwd(), file.filepath))}", 3)
+			debug("concatenated: #{strong(path.relative(process.cwd(), file.filepath))}", 3)
 		else
 			# Optionally wrap content
-			content = if @options.modular then file.module.wrapModuleContents(file.content, file.moduleID) else file.content
+			content = if @modular then file.module.wrapModuleContents(file.content, file.moduleID) else file.content
 		# Resolve output path if directory
 		filepath = if path.extname(@output).length then @output else path.join(@output, file.qualifiedName) + '.' + @type
 		# Sequence
@@ -205,16 +208,19 @@ class Target
 	# @param {String} filepath
 	# @param {Function} fn(err, content, filepath)
 	_lint: (content, filepath, fn) =>
-		# debug("compiled: #{strong(path.relative(process.cwd(), filepath))}")
-		# if @options.linter?
-		# 	@options.linter.lint content, (err) =>
-		# 		if err
-		# 			warn('failed linting', 4)
-		# 			err.items.forEach (item) =>
-		# 				print("[#{item.line}:#{item.col}] #{item.reason}", 5)
-		# 		else
-		# 			print("#{colour('passed linting', GREEN)} #{strong(path.basename(filepath))}", 4)
-		fn(null, content, filepath)
+		if @lint and @processors.linter
+			@processors.linter.lint content, (err) =>
+				if err
+					warn('failed linting', 3)
+					err.items.forEach (item) =>
+						if item
+							print("[#{colour(item.line, notify.CYAN)}:#{colour(item.col, notify.CYAN)}] #{item.reason}:", 4)
+							print("#{strong(item.evidence)}", 5) if item.evidence
+				else
+					print("#{colour('linted', GREEN)} #{strong(path.relative(process.cwd(), filepath))}", 3)
+				fn(null, content, filepath)
+		else
+			fn(null, content, filepath)
 
 	# Compress contents, if necessary
 	# @param {String} content
