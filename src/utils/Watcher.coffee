@@ -22,7 +22,6 @@ module.exports = class Watcher extends events.EventEmitter
 					@emit('error', err)
 				else
 					lastChange = stats.mtime.getTime()
-					lastSize = stats.size
 					# recursively parse items in directory
 					if stats.isDirectory()
 						fs.readdir source, (err, files) =>
@@ -41,7 +40,7 @@ module.exports = class Watcher extends events.EventEmitter
 								else
 									if stats.isFile()
 										# notify if changed
-										if stats.mtime.getTime() isnt lastChange and stats.size isnt lastSize
+										if stats.mtime.getTime() isnt lastChange
 											@_throttleEvent('change', source, stats)
 										lastChange = stats.mtime.getTime()
 									else if stats.isDirectory()
