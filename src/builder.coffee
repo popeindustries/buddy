@@ -79,7 +79,7 @@ module.exports = class Builder
 								if instances
 									@targets[type] = instances
 									# Build targets
-									@_buildTargets type, compress, lint, (err) =>
+									@_buildTargets type, compress, lint, false, (err) =>
 										return cb(err) if err
 										cb()
 								else
@@ -121,7 +121,7 @@ module.exports = class Builder
 						else
 							start = new Date()
 							file.content = ''
-							@_buildTargets source.type, compress, false, (err) =>
+							@_buildTargets source.type, compress, false, reload, (err) =>
 								# Build error, don't throw
 								if err
 									error(err, 2, false)
@@ -131,9 +131,6 @@ module.exports = class Builder
 									if test and @config.settings.test
 										@_executeTest (err) ->
 											return error(err, 2) if err
-											source.reload() if reload
-									else
-										source.reload() if reload
 
 	# Build and compress sources based on targets specified in configuration
 	# @param {String} configpath [file name or directory containing default]
@@ -188,6 +185,11 @@ module.exports = class Builder
 					@processors = installed
 					@initialized = true
 					fn()
+				# Register for uncaught errors and clean up
+				process.on 'uncaughtException', (err) =>
+					dependencies.clean()
+					[@sources.js, @sources.css].forEach (source) =>
+						source.clean() if source
 		else
 			fn()
 
@@ -223,8 +225,9 @@ module.exports = class Builder
 	# @param {String} type
 	# @param {Boolean} compress
 	# @param {Boolean} lint
+	# @param {Boolean} reload
 	# @param {Function} fn(err)
-	_buildTargets: (type, compress, lint, fn) =>
+	_buildTargets: (type, compress, lint, reload, fn) =>
 		debug('BUILD', 1)
 		async.forEachSeries @targets[type], ((target, cb) =>
 			target.build compress, lint, @watching, (err, files) =>
@@ -233,6 +236,8 @@ module.exports = class Builder
 				return cb(err) if err
 				# Reset unless target has children
 				target.reset() unless target.hasChildren
+				# Reload
+				target.source.refresh(path.basename(files[0])) if reload
 				cb()
 		), (err) =>
 			return fn(err) if err
