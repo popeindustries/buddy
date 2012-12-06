@@ -13,12 +13,7 @@ childDependencies = []
 outputFiles = []
 temp = null
 
-# Catch errors and force cleanup
-process.on 'uncaughtException', (err) =>
-	_clear()
-	throw err
-
-# Install dependencies and call 'fn' when complete
+## Install dependencies and call 'fn' when complete
 # param {Object} options
 # param {Function} fn(err, files)
 exports.install = (options, fn) ->
@@ -45,6 +40,10 @@ exports.install = (options, fn) ->
 					_pack (err) => fn(err, outputFiles)
 			else
 				_pack (err) => fn(err, outputFiles)
+
+# Force remove temp directory
+exports.clean = ->
+	_clear()
 
 # Install a dependency
 # param {Dependency} dependency
