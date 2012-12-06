@@ -20,7 +20,8 @@
 		"unzip": "0.1.0",
 		"semver": "1.1.1",
 		"async": "0.1.22",
-		"livereload-server": "0.2.1"
+		"livereload-protocol": "0.2.2",
+		"websocket.io": "0.2.1"
 	},
 	"devDependencies": {
 		"should": "*",
