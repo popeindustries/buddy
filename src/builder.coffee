@@ -111,7 +111,7 @@ module.exports = class Builder
 			error(err, 2) if err
 			@watching = true
 			debug('WATCH', 1)
-			print('watching sources...', 2)
+			print('watching sources:', 2)
 			[@sources.js, @sources.css].forEach (source) =>
 				if source
 					source.watch reload, (err, file) =>
@@ -233,9 +233,10 @@ module.exports = class Builder
 			target.build compress, lint, @watching, (err, files) =>
 				# Persist file references created on build
 				files and filelog.add(files)
-				return cb(err) if err
 				# Reset unless target has children
 				target.reset() unless target.hasChildren
+				# Return error
+				return cb(err) if err
 				# Reload
 				target.source.refresh(path.basename(files[0])) if reload
 				cb()
