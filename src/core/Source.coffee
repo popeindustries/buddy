@@ -89,7 +89,7 @@ module.exports = class Source
 			watcher.watch(location)
 			# Start reloader
 			if @reload
-				reloader.start 'com.popeindustries.buddy', 'buddy', '1.0', (err) ->
+				reloader.start (err) ->
 					fn(err)
 
 	# Reload 'file'
