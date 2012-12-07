@@ -7,7 +7,7 @@ server = null
 ready = false
 
 # Start the reload server
-exports.start = ->
+exports.start = (fn) ->
 	unless server
 		server = new ReloadServer()
 
