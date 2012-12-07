@@ -1,7 +1,7 @@
 # Console output formatting
 exports.RED = '0;31'
-exports.YELLOW = '1;33'
-exports.CYAN = '1;36'
+exports.YELLOW = '0;33'
+exports.CYAN = '0;36'
 exports.GREEN = '0;32'
 exports.GREY = '0;90'
 
