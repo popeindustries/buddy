@@ -29,6 +29,8 @@ exports.print = (msg, column = 0) ->
 # @param {Int} column
 exports.error = (err, column = 0, throws = true) ->
 	err = new Error(err) if 'string' is typeof err
+	# Add beep when not throwing
+	err.message += '\x07' unless throws
 	exports.print("#{exports.colour('error', exports.RED)}: #{err.message}", column)
 	throw err if throws
 
