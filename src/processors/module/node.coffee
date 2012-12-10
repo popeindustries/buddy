@@ -6,9 +6,18 @@ RE_WIN_SEPARATOR = /\\\\?/g
 # "require.register('id', function(module, exports, require)"
 # "require.register 'id', (module, exports, require)"
 RE_MODULE = /require\.register[\s|\(].+(?:function)? *\( *module *, *exports *, *require *\)/gm
+# "require.register('id', 'content')"
+# "require.register 'id', 'content'"
+RE_MODULE_LAZY = /require\.register[\s|\(].+\)?/gm
 RE_COMMENT_LINES = /^\s*(?:\/\/|#).+$/gm
 RE_REQUIRE = /require[\s|\(]['|"](.*?)['|"]/g
 RE_SPACES = /\s/
+RE_ESCAPE = /\\|\r?\n|"/g
+ESCAPE_MAP =
+	'\\': '\\\\'
+	'\n': '\\n'
+	'\r\n': '\\n'
+	'"': '\\"'
 
 module.exports =
 	name: 'node'
@@ -52,20 +61,25 @@ module.exports =
 	# Wrap 'content' in module definition if not already wrapped
 	# @param {String} content
 	# @param {String} id
+	# @param {Boolean} lazy
 	# @return {String}
-	wrapModuleContents: (content, id) ->
+	wrapModuleContents: (content, id, lazy = false) ->
+		re = if lazy then RE_MODULE_LAZY else RE_MODULE
 		# Reset
-		RE_MODULE.lastIndex = 0
-		unless RE_MODULE.test(content)
-			content =
-				"""
-				require.register('#{id}', function(module, exports, require) {
-				#{indent(content, 2)}
-				});
-				"""
+		re.lastIndex = 0
+		unless re.test(content)
+			if lazy
+				content = "require.register('#{id}', #{content});"
+			else
+				content =
+					"""
+					require.register('#{id}', function(module, exports, require) {
+					#{indent(content, 2)}
+					});
+					"""
 		return content
 
-	# Concatenate wrapped file and dependency content
+	# Concatenate file and dependency content
 	# @param {File} file
 	# @return String
 	concat: (file) ->
@@ -74,9 +88,8 @@ module.exports =
 			# First add dependencies
 			file.dependencies.forEach (dependency) ->
 				add(dependency) unless 'string' is typeof dependency
-			# Wrap contents
-			content = module.exports.wrapModuleContents(file.content, file.moduleID)
 			# Store if not already stored
+			content = file.getContent(true)
 			contents.push(content) if contents.indexOf(content) is -1
 
 		add(file)
