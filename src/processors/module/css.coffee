@@ -61,7 +61,7 @@ module.exports =
 		inline = (file, content) ->
 			file.dependencies.forEach (dependency) ->
 				# First inline dependencies if necessary
-				inlineContent = if dependency.dependencies.length then inline(dependency, dependency.content) else dependency.content
+				inlineContent = if dependency.dependencies.length then inline(dependency, dependency.getContent(false)) else dependency.getContent(false)
 				# Replace @import with inline content
 				# Use fuzzy match to get around absolute and relative pathing differences
 				id = dependency.moduleID.split('/').reverse()[0]
@@ -70,4 +70,4 @@ module.exports =
 			content
 
 		# Remove comments and return
-		return inline(file, file.content).replace(RE_COMMENT_LINES, '')
+		return inline(file, file.getContent(false)).replace(RE_COMMENT_LINES, '')

@@ -11,11 +11,10 @@ module.exports = class Source
 	# Constructor
 	# @param {String} type
 	# @param {Array} sources
-	# @param {Object} processors
-	constructor: (@type, sources, @processors) ->
+	# @param {Object} options
+	constructor: (@type, sources, @options) ->
 		debug("created #{type} Source instance for: #{strong(sources)}", 2)
 		@_watchers = []
-		@reload = false
 		@byPath = {}
 		@byModule = {}
 		@length = 0
@@ -43,7 +42,7 @@ module.exports = class Source
 		basepath = @_getBasepath(filepath)
 		if not @byPath[filepath] and basepath
 			# Create File instance
-			file @type, filepath, basepath, @processors, (err, instance) =>
+			file @type, filepath, basepath, @options, (err, instance) =>
 				# Notify?
 				return if err
 				@length++
@@ -62,9 +61,8 @@ module.exports = class Source
 			f.destroy()
 
 	# Watch for changes and call 'fn'
-	# @param {Boolean} reload
 	# @param {Function} fn(err, file)
-	watch: (@reload, fn) ->
+	watch: (fn) ->
 		@locations.forEach (location) =>
 			print("watching #{strong(path.relative(process.cwd(), location))}...", 3)
 			@_watchers.push(watcher = new Watcher(ignored))
@@ -88,7 +86,7 @@ module.exports = class Source
 			# Watch
 			watcher.watch(location)
 			# Start reloader
-			if @reload
+			if @options.reload
 				reloader.start (err) ->
 					fn(err)
 

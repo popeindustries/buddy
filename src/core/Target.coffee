@@ -10,12 +10,10 @@ BUILT_HEADER = '/*BUILT '
 # Target instance factory
 # @param {String} type
 # @param {Object} options
-# @param {Object} processors
 # @param {Function} fn(err, instance)
-module.exports = (type, options, processors, fn) ->
+module.exports = (type, options, fn) ->
 	inputpath = path.resolve(options.input)
 	outputpath = path.resolve(options.output)
-	options.modular ?= true
 	# Validate target
 	# Abort if input doesn't exist
 	return fn("#{strong(options.input)} doesn\'t exist") unless existsSync(inputpath)
@@ -33,38 +31,31 @@ module.exports = (type, options, processors, fn) ->
 		# Abort if input is directory and output is file
 		if isDir and path.extname(outputpath).length
 			return fn("a file (#{strong(options.output)}) is not a valid output target for a directory (#{strong(options.input)}) input target")
-		# Return instance
-		return fn(null, new Target(type, isDir, options, processors))
+		# Override options
+		options.modular ?= true
+		options.compressor = options.processors.compressor if options.compress
+		options.linter = options.processors.linter if options.lint
+		return fn(null, new Target(type, isDir, options))
 
 # Target class
 class Target
 
 	# Constructor
 	# @param {String} type
+	# @param {Boolean} isDir
 	# @param {Object} options
-	# @param {Object} processors
-	constructor: (@type, @isDir, options, @processors) ->
-		debug("created #{@type} Target instance with input: #{strong(options.input)} and output: #{strong(options.output)}", 2)
-		@input = path.resolve(options.input)
-		@output = path.resolve(options.output)
-		@source = options.source
-		@modular = options.modular
+	constructor: (@type, @isDir, @options) ->
+		debug("created #{@type} Target instance with input: #{strong(@options.input)} and output: #{strong(@options.output)}", 2)
+		@input = path.resolve(@options.input)
+		@output = path.resolve(@options.output)
 		@sources = []
 		@files = []
 		# Track all modified files so we can reset when complete
 		@_modified = []
-		@parent = options.parent
-		@hasChildren = !!options.targets
-		@hasParent = !!@parent
-		@watching = false
-		@compress = false
-		@lint = false
-		# css targets are compiled after concat, js targets are precompiled
-		@compile = @type is 'css'
 		# input is file
 		unless @isDir
 			# A single file can be 'batched' if not modular
-			@concat = @modular
+			@concat = @options.modular
 			# Resolve default output file name for file>directory target
 			unless path.extname(@output).length
 				@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), ".#{@type}")
@@ -74,15 +65,12 @@ class Target
 			@concat = @type is 'css'
 
 	# Generate output, 'compress'ing and 'lint'ing as required
-	# @param {Boolean} compress
-	# @param {Boolean} lint
-	# @param {Boolean} watching
 	# @param {Function} fn(err, files)
-	build: (@compress, @lint, @watching, fn) ->
+	build: (fn) ->
 		# Clear existing
 		@sources = []
 		@files = []
-		print("building #{strong(path.basename(@input))} to #{strong(path.basename(@output))}", 2) unless @watching
+		print("building #{strong(path.basename(@input))} to #{strong(path.basename(@output))}", 2) unless @options.watching
 		# Parse sources for input
 		@_parse (err) =>
 			return fn(err) if err
@@ -98,13 +86,13 @@ class Target
 	# @param {File} file
 	# @return	{Boolean}
 	hasSource: (file) ->
-		file in @sources or @hasParent and @parent.hasSource(file)
+		file in @sources or @options.hasParent and @options.parent.hasSource(file)
 
 	# Reset modified files
 	reset: ->
 		@_modified.map((file) -> file.reset())
 		@_modified = []
-		@parent.reset() if @hasParent
+		@options.parent.reset() if @options.hasParent
 
 	# Parse input sources
 	# Resolve number of source files with dependencies
@@ -114,14 +102,14 @@ class Target
 		parse = (file, fn) =>
 			# Parse file content, if necessary
 			outstanding++
-			file.parseContent !@compile, (err) =>
+			file.parseContent (err) =>
 				# Exit if compile error
 				return fn(err) if err
 				# Add dependencies
 				if @concat and file.dependencies.length
 					file.dependencies.forEach (dependency, idx) =>
 						# Resolve dependency
-						if dep = @source.byModule[dependency] or @source.byModule["#{dependency}/index"]
+						if dep = @options.source.byModule[dependency] or @options.source.byModule["#{dependency}/index"]
 							# Protect against circular references and duplicates
 							unless dep.isDependency
 								# Store dependency references
@@ -143,7 +131,7 @@ class Target
 			readdir @input, ignored, (err, files) =>
 				# Find files in source cache
 				files.forEach (filepath) =>
-					if file = @source.byPath[filepath]
+					if file = @options.source.byPath[filepath]
 						# Add unless already added
 						unless @hasSource(file)
 							@sources.push(file)
@@ -157,7 +145,7 @@ class Target
 							return fn() unless outstanding
 		# Input is file
 		else
-			if file = @source.byPath[@input]
+			if file = @options.source.byPath[@input]
 				# Add unless already added
 				unless @hasSource(file)
 					@sources.push(file)
@@ -172,16 +160,16 @@ class Target
 	_outputFile: (file, fn) =>
 		if @concat
 			# Concatenate
-			content = file.module.concat(file)
+			content = file.options.module.concat(file)
 			debug("concatenated: #{strong(path.relative(process.cwd(), file.filepath))}", 3)
 		else
 			# Optionally wrap content
-			content = if @modular then file.module.wrapModuleContents(file.content, file.moduleID) else file.content
+			content = file.getContent(@options.modular)
 		# Resolve output path if directory
 		filepath = if path.extname(@output).length then @output else path.join(@output, file.qualifiedName) + '.' + @type
 		# Sequence
 		async.waterfall [
-			((cb) => @_compile(content, filepath, file.compiler, cb)),
+			((cb) => @_compile(content, filepath, file.options.compiler, cb)),
 			@_lint,
 			@_compress,
 			@_write
@@ -195,7 +183,7 @@ class Target
 	# @param {Object} compiler
 	# @param {Function} fn(err, content, filepath)
 	_compile: (content, filepath, compiler, fn) =>
-		if @compile and compiler
+		if @options.compile and compiler
 			compiler.compile content, (err, content) =>
 				return fn(err) if err
 				debug("compiled: #{strong(path.relative(process.cwd(), filepath))}", 3)
@@ -208,8 +196,8 @@ class Target
 	# @param {String} filepath
 	# @param {Function} fn(err, content, filepath)
 	_lint: (content, filepath, fn) =>
-		if @lint and @processors.linter
-			@processors.linter.lint content, (err) =>
+		if @options.lint
+			@options.linter.lint content, (err) =>
 				if err
 					warn('failed linting', 3)
 					err.items.forEach (item) =>
@@ -227,8 +215,8 @@ class Target
 	# @param {String} filepath
 	# @param {Function} fn(err, content, filepath)
 	_compress: (content, filepath, fn) =>
-		if @compress
-			@processors.compressor.compress content, (err, content) =>
+		if @options.compress
+			@options.compressor.compress content, (err, content) =>
 				return fn(err) if err
 				print("#{colour('compressed', notify.GREEN)} #{strong(path.relative(process.cwd(), filepath))}", 3)
 				fn(null, content, filepath)
@@ -247,5 +235,5 @@ class Target
 			fs.writeFile filepath, content, 'utf8', (err) =>
 				return fn(err) if err
 				@files.push(filepath)
-				print("#{colour('built', notify.GREEN)} #{strong(path.relative(process.cwd(), filepath))}", if @watching then 4 else 3)
+				print("#{colour('built', notify.GREEN)} #{strong(path.relative(process.cwd(), filepath))}", if @options.watching then 4 else 3)
 				fn()
