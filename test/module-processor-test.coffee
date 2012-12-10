@@ -98,10 +98,10 @@ describe 'Module processor', ->
 					var Class = require('./package/Class');
 					var instance = new Class();
 					'''
-				@cc =
+				@cl =
 					'''
-					Class = require('./package/Class')
-					instance = new Class()
+					var Class = require("./package/Class");
+					var instance = new Class();
 					'''
 				@cw =
 					'''
@@ -110,25 +110,21 @@ describe 'Module processor', ->
 					  var instance = new Class();
 					});
 					'''
-				@ccw =
+				@cwl =
 					'''
-					require.register('main', (module, exports, require) ->
-					  Class = require('./package/Class')
-					  instance = new Class()
-					)
-					'''
-				@ccw2 =
-					'''
-					require.register 'main', (module, exports, require) ->
-					  Class = require('./package/Class')
-					  instance = new Class()
+					require.register('main', "var Class = require(\\"./package/Class\\");\\nvar instance = new Class();");
 					'''
 			it 'should wrap js file contents in a module wrapper', ->
-				node.wrapModuleContents(@c, 'main').should.equal(@cw)
+				node.wrapModuleContents(@c, 'main', false).should.equal(@cw)
+			it 'should wrap js file contents in a lazy wrapper when \'lazy\'', ->
+				node.wrapModuleContents(@cl, 'main', true).should.equal(@cwl)
 			it 'should not wrap js file contents in a module wrapper if already wrapped', ->
-				node.wrapModuleContents(@cw, 'main').should.equal(@cw)
+				node.wrapModuleContents(@cw, 'main', false).should.equal(@cw)
+			it 'should not wrap js file contents in a lazy wrapper if already wrapped', ->
+				node.wrapModuleContents(@cwl, 'main', true).should.equal(@cwl)
+
 		describe 'concat-ing a file', ->
-			it 'should join wrapped dependency file contents', ->
+			it 'should join file contents', ->
 				file =
 					moduleID: 'main'
 					content: fs.readFileSync(path.resolve('src/main.coffee'), 'utf8')
@@ -152,27 +148,21 @@ describe 'Module processor', ->
 					]
 				c =
 				'''
-				require.register('package/class', function(module, exports, require) {
-				  # Nothing = require('./nonexistant')
-				  module.exports = class Class
-				  	constructor: ->
-				  		@someVar = 'hey'
-				  	someFunc: ->
-				  		console.log @someVar
-				});
-				require.register('package/classcamelcase', function(module, exports, require) {
-				  Class = require './class'
-				  module.exports = class ClassCamelCase extends Class
-				  	constructor: ->
-				  		@someVar = 'hey'
-				  	someFunc: ->
-				  		console.log @someVar
-				});
-				require.register('main', function(module, exports, require) {
-				  Class = require('./package/class')
-				  ClassCamelCase = require('./package/classcamelcase')
-				  instance = new Class
-				});
+				# Nothing = require('./nonexistant')
+				module.exports = class Class
+					constructor: ->
+						@someVar = 'hey'
+					someFunc: ->
+						console.log @someVar
+				Class = require './class'
+				module.exports = class ClassCamelCase extends Class
+					constructor: ->
+						@someVar = 'hey'
+					someFunc: ->
+						console.log @someVar
+				Class = require('./package/class')
+				ClassCamelCase = require('./package/classcamelcase')
+				instance = new Class
 				'''
 				content = node.concat(file).replace(/\r  \n/gm, '\n')
 				content.should.eql(c)

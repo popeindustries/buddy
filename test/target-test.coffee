@@ -16,45 +16,45 @@ describe 'target', ->
 
 	describe 'factory', ->
 		it 'should return an error if input isn\'t found in the project path', (done) ->
-			target 'js', {input: 'src/some.coffee', output: 'js', source: {locations: ['src']}}, processors.js, (err, instance) ->
+			target 'js', {input: 'src/some.coffee', output: 'js', source: {locations: ['src']}, processors: processors.js}, (err, instance) ->
 				should.exist(err)
 				done()
 		it 'should return an error if input is a directory and output is a file', (done) ->
-			target 'js', {input: 'src/package', output: 'js/main.js', source: {locations: ['src/package']}}, processors.js, (err, instance) ->
+			target 'js', {input: 'src/package', output: 'js/main.js', source: {locations: ['src/package']}, processors: processors.js}, (err, instance) ->
 				should.exist(err)
 				done()
 		it 'should return an error if input isnt in sources', (done) ->
-			target 'js', {input: 'src/main.coffee', output: 'js/main.js', source: {locations: ['src/package']}}, processors.js, (err, instance) ->
+			target 'js', {input: 'src/main.coffee', output: 'js/main.js', source: {locations: ['src/package']}, processors: processors.js}, (err, instance) ->
 				should.exist(err)
 				done()
 
 	describe 'Target instance', ->
 		describe '"output" property', ->
 			it 'should resolve to a single file when input is file and output is directory', (done) ->
-				target 'js', {input: 'src/package/Class.coffee', output: 'js', source: {locations: ['src']}}, processors.js, (err, instance) ->
+				target 'js', {input: 'src/package/Class.coffee', output: 'js', source: {locations: ['src']}, processors: processors.js}, (err, instance) ->
 					instance.output.should.equal(path.resolve('js/Class.js'))
 					done()
 
 		describe '"concat" property', ->
 			it 'should be false for directory input', (done) ->
-				target 'js', {input: 'src/package', output: 'js', source: {locations: ['src']}}, processors.js, (err, instance) ->
+				target 'js', {input: 'src/package', output: 'js', source: {locations: ['src']}, processors: processors.js}, (err, instance) ->
 					instance.concat.should.be.false
 					done()
 			it 'should be false for file input and a modular option of false', (done) ->
-				target 'js', {input: 'src/main.coffee', output: 'js', modular: false, source: {locations: ['src']}}, processors.js, (err, instance) ->
+				target 'js', {input: 'src/main.coffee', output: 'js', modular: false, source: {locations: ['src']}, processors: processors.js}, (err, instance) ->
 					instance.concat.should.be.false
 					done()
 			it 'should be true for file input and a modular option of true', (done) ->
-				target 'js', {input: 'src/main.coffee', output: 'js', modular: true, source: {locations: ['src']}}, processors.js, (err, instance) ->
+				target 'js', {input: 'src/main.coffee', output: 'js', modular: true, source: {locations: ['src']}, processors: processors.js}, (err, instance) ->
 					instance.concat.should.be.true
 					done()
 
 		describe 'parsing sources', ->
 			before (done) ->
 				@tgt = null
-				@src = new Source('js', ['src'], processors.js)
+				@src = new Source('js', ['src'], {processors:processors.js})
 				@src.parse (err) =>
-					target 'js', {input: 'src', output: 'temp', source: @src}, processors.js, (err, instance) =>
+					target 'js', {input: 'src', output: 'temp', source: @src, processors: processors.js}, (err, instance) =>
 						@tgt = instance
 						done()
 			describe 'with 1 file with no dependencies', ->
@@ -108,15 +108,15 @@ describe 'target', ->
 				before ->
 					@tgt.sources = []
 				it 'should not contain \'sources\'', (done) ->
-					target 'js', {input: 'src/main.coffee', output: 'js', source: @src}, processors.js, (err, instance) =>
+					target 'js', {input: 'src/main.coffee', output: 'js', source: @src, processors: processors.js}, (err, instance) =>
 						parent = instance
-						parent.hasChildren = true
+						parent.options.hasChildren = true
 						parent._parse (err) =>
 							@tgt.input = path.resolve('src/main.coffee')
 							@tgt.concat = true
 							@tgt.isDir = false
-							@tgt.parent = parent
-							@tgt.hasParent = true
+							@tgt.options.parent = parent
+							@tgt.options.hasParent = true
 							@tgt._parse (err) =>
 								@tgt.sources.should.have.length(0)
 								done()
@@ -144,9 +144,9 @@ describe 'target', ->
 		describe 'outputing sources', ->
 			before (done) ->
 				@tgt = null
-				@src = new Source('js', ['src'], processors.js)
+				@src = new Source('js', ['src'], {processors:processors.js})
 				@src.parse (err) =>
-					target 'js', {input: 'src', output: 'temp', source: @src}, processors.js, (err, instance) =>
+					target 'js', {input: 'src', output: 'temp', source: @src, processors: processors.js}, (err, instance) =>
 						@tgt = instance
 						done()
 			after ->
@@ -158,9 +158,12 @@ describe 'target', ->
 					@tgt.isDir = false
 					file =
 						moduleID: 'basic'
-						content: fs.readFileSync(path.resolve('src/basic.coffee'), 'utf8')
+						getContent: -> fs.readFileSync(path.resolve('src/basic.coffee'), 'utf8')
 						dependencies: []
-						module: processors.js.module
+						options:
+							compile: true
+							compiler: processors.js.compilers.coffee
+							module: processors.js.module
 						qualifiedName: 'basic'
 					@tgt._outputFile file, (err) =>
 						fs.existsSync(path.resolve('temp/basic.js')).should.be.true
@@ -172,17 +175,21 @@ describe 'target', ->
 					@tgt.isDir = false
 					file =
 						moduleID: 'package/classcamelcase'
-						content: fs.readFileSync(path.resolve('src/package/ClassCamelCase.coffee'), 'utf8')
+						getContent: -> fs.readFileSync(path.resolve('src/package/ClassCamelCase.coffee'), 'utf8')
 						dependencies: [
 							{
 								moduleID: 'package/class'
-								content: fs.readFileSync(path.resolve('src/package/Class.coffee'), 'utf8')
+								getContent: -> fs.readFileSync(path.resolve('src/package/Class.coffee'), 'utf8')
 								dependencies: []
-								module: processors.js.module
+								options:
+									compiler: processors.js.compilers.coffee
+									module: processors.js.module
 								qualifiedName: 'package/Class'
 							}
 						]
-						module: processors.js.module
+						options:
+							compiler: processors.js.compilers.coffee
+							module: processors.js.module
 						qualifiedName: 'package/ClassCamelCase'
 					@tgt._outputFile file, (err) =>
 						fs.existsSync(path.resolve('temp/package/classcamelcase.js')).should.be.true
