@@ -2,7 +2,7 @@
 
 **buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (coffeescript/stylus/less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.6.6
+**Current version:** 0.6.7
 *[the 0.5.x+ branch is not backwards compatible with earlier versions. See [Change Log](#a1) below for more details]*
 
 ## Installation
@@ -24,9 +24,9 @@ Or, optionally, add **buddy** as a dependency in your project's *package.json* f
     "buddy": "0.5.0"
   },
   "scripts": {
-    "install": "buddy install",
-    "build": "buddy build",
-    "deploy": "buddy deploy"
+    "install": "./node_modules/buddy/bin/buddy install",
+    "build": "./node_modules/buddy/bin/buddy build",
+    "deploy": "./node_modules/buddy/bin/buddy deploy"
   }
 }
 ```
@@ -50,6 +50,8 @@ $ buddy install
 $ buddy build
 # build and compress all source files
 $ buddy -c build
+# build all js modules for 'lazy' evaluation
+$ buddy -L build
 # build and lint all source files
 $ buddy -l build
 # build all source files and execute
@@ -59,7 +61,7 @@ $ buddy -t build
 $ buddy -v build
 # watch and build on source changes
 $ buddy watch
-# watch and build on source changes
+# watch and build on source changes,
 # reloading open browsers
 $ buddy watch -r
 # build and compress for production
@@ -384,6 +386,9 @@ exports.build = {
 
 <a name="a1"/>
 ## Changelog
+
+**0.6.7** - December 11, 2012
+* added *--lazy* option for generating js modules for lazy evaluation; module contents are encoded as strings to be passed to a Function constructor on first require()
 
 **0.6.6** - December 6, 2012
 * added live-reload support for *watch* command with *--reload*
