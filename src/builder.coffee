@@ -9,6 +9,7 @@ dependencies = require('./core/dependencies')
 Source = require('./core/source')
 filelog =require('./utils/filelog')
 notify = require('./utils/notify')
+object = require('./utils/object')
 {debug, warn, error, print, colour, strong} = require('./utils/notify')
 {readdir, rm, existsSync} = require('./utils/fs')
 
@@ -25,6 +26,7 @@ module.exports = class Builder
 		@config = null
 		@options =
 			compress: false
+			compile: false
 			lint: false
 			test: false
 			lazy: false
@@ -69,7 +71,7 @@ module.exports = class Builder
 	# @param {Boolean} verbose
 	# @param {Function} fn(err)
 	build: (configpath, compress, lint, test, lazy, verbose, fn) ->
-		@_extend(@options, {compress, lint, test, lazy, verbose})
+		object.extend(@options, {compress, lint, test, lazy, verbose})
 		@_initialize configpath, (err) =>
 			error(err, 2) if err
 			async.forEachSeries [JS, CSS], ((type, cb) =>
@@ -77,7 +79,7 @@ module.exports = class Builder
 					if @_validBuildType(build)
 						# Generate source cache
 						debug('SOURCE', 1)
-						opts = @_clone(@options)
+						opts = object.clone(@options)
 						opts.processors = @options.processors[type]
 						@sources[type] = new Source(type, build.sources, opts)
 						@sources[type].parse (err) =>
@@ -119,12 +121,12 @@ module.exports = class Builder
 	# @param {Boolean} verbose
 	watch: (configpath, compress, reload, test, lazy, verbose) ->
 		@build configpath, compress, false, test, lazy, verbose, (err) =>
-			@_extend(@options, {watching: true, reload})
 			error(err, 2) if err
 			debug('WATCH', 1)
 			print('watching sources:', 2)
 			[@sources.js, @sources.css].forEach (source) =>
 				if source
+					object.extend(source.options, {watching: true, reload})
 					source.watch (err, file) =>
 						# Watch error, don't throw
 						if err
@@ -176,23 +178,6 @@ module.exports = class Builder
 				rm path.resolve(file), ->
 			filelog.clean()
 
-	# Extend 'obj' with properties from 'options'
-	# @param {Object} obj
-	# @param {Object} options
-	_extend: (obj, options) ->
-		for option, value of options
-			obj[option] = value
-		return obj
-
-	# Shallow copy of 'obj'
-	# @param {Object} obj
-	# @return {Object}
-	_clone: (obj) ->
-		o = {}
-		for prop, value of obj when obj.hasOwnProperty(prop)
-			o[prop] = value
-		return o
-
 	# Initialize based on configuration located at 'configpath'
 	# The directory tree will be walked if no 'configpath' specified
 	# @param {String} configpath [file name or directory containing default]
@@ -238,7 +223,7 @@ module.exports = class Builder
 		parse = (tgts, parent) =>
 			tgts.forEach (tgt) =>
 				# Create unique options object
-				opts = @_extend(@_clone(@options), tgt)
+				opts = object.extend(object.clone(@options), tgt)
 				opts.parent = parent
 				opts.hasParent = !!parent
 				opts.hasChildren = !!opts.targets
@@ -272,7 +257,7 @@ module.exports = class Builder
 				# Return error
 				return cb(err) if err
 				# Reload
-				tgt.source.refresh(path.basename(files[0])) if tgt.options.reload
+				tgt.options.source.refresh(path.basename(files[0]))
 				cb()
 		), (err) =>
 			return fn(err) if err
