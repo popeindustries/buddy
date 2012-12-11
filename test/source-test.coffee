@@ -14,7 +14,7 @@ describe 'Source', ->
 
 	describe 'adding', ->
 		before ->
-			@jsSource = new Source('js', [path.resolve('src'), path.resolve('invalid')], processors.js)
+			@jsSource = new Source('js', [path.resolve('src'), path.resolve('invalid')], {processors:processors.js})
 
 		it 'should add a File instance to the cache if passed a valid filename', ->
 			@jsSource.add('src/main.coffee')
@@ -36,22 +36,22 @@ describe 'Source', ->
 
 	describe 'parsing a source directory', ->
 		it 'should not add File instances when parsing a directory of ignored files', (done) ->
-			source = new Source('js', [path.resolve('ignored')], processors.js)
+			source = new Source('js', [path.resolve('ignored')], {processors:processors.js})
 			source.parse (err) ->
 				source.length.should.eql(0)
 				done()
 		it 'should not add File instances when parsing a directory of invalid files', (done) ->
-			source = new Source('js', [path.resolve('invalid')], processors.js)
+			source = new Source('js', [path.resolve('invalid')], {processors:processors.js})
 			source.parse (err) ->
 				source.length.should.eql(0)
 				done()
 		it 'should add 1 File instance when parsing a directory containing 1 valid file', (done) ->
-			source = new Source('js', [path.resolve('src')], processors.js)
+			source = new Source('js', [path.resolve('src')], {processors:processors.js})
 			source.parse (err) ->
 				source.length.should.eql(1)
 				done()
 		it 'should add 3 File instances when parsing a directory containing 1 valid file and 2 nested valid files', (done) ->
-			source = new Source('js', [path.resolve('src-nested')], processors.js)
+			source = new Source('js', [path.resolve('src-nested')], {processors:processors.js})
 			source.parse (err) ->
 				source.length.should.eql(3)
 				done()

@@ -29,20 +29,20 @@ describe 'Module processor', ->
 			it 'should replace @import rules with file contents', ->
 				file =
 					moduleID: 'one'
-					content: fs.readFileSync(path.resolve('src/one.css'), 'utf8')
+					getContent: -> fs.readFileSync(path.resolve('src/one.css'), 'utf8')
 					dependencies: [
 						{
 							moduleID: 'two'
-							content: fs.readFileSync(path.resolve('src/two.css'), 'utf8')
+							getContent: -> fs.readFileSync(path.resolve('src/two.css'), 'utf8')
 							dependencies: []
 						},
 						{
 							moduleID: 'three'
-							content: fs.readFileSync(path.resolve('src/three.css'), 'utf8')
+							getContent: -> fs.readFileSync(path.resolve('src/three.css'), 'utf8')
 							dependencies: [
 								{
 									moduleID: 'four'
-									content: fs.readFileSync(path.resolve('src/four.css'), 'utf8')
+									getContent: -> fs.readFileSync(path.resolve('src/four.css'), 'utf8')
 									dependencies: []
 								}
 							]
@@ -112,7 +112,7 @@ describe 'Module processor', ->
 					'''
 				@cwl =
 					'''
-					require.register('main', "var Class = require(\\"./package/Class\\");\\nvar instance = new Class();");
+					require.register('main', var Class = require("./package/Class");\nvar instance = new Class(););
 					'''
 			it 'should wrap js file contents in a module wrapper', ->
 				node.wrapModuleContents(@c, 'main', false).should.equal(@cw)
@@ -127,20 +127,20 @@ describe 'Module processor', ->
 			it 'should join file contents', ->
 				file =
 					moduleID: 'main'
-					content: fs.readFileSync(path.resolve('src/main.coffee'), 'utf8')
+					getContent: -> fs.readFileSync(path.resolve('src/main.coffee'), 'utf8')
 					dependencies: [
 						{
 							moduleID: 'package/class'
-							content: fs.readFileSync(path.resolve('src/package/Class.coffee'), 'utf8')
+							getContent: -> fs.readFileSync(path.resolve('src/package/Class.coffee'), 'utf8')
 							dependencies: []
 						},
 						{
 							moduleID: 'package/classcamelcase'
-							content: fs.readFileSync(path.resolve('src/package/ClassCamelCase.coffee'), 'utf8')
+							getContent: -> fs.readFileSync(path.resolve('src/package/ClassCamelCase.coffee'), 'utf8')
 							dependencies: [
 								{
 									moduleID: 'package/class'
-									content: fs.readFileSync(path.resolve('src/package/Class.coffee'), 'utf8')
+									getContent: -> fs.readFileSync(path.resolve('src/package/Class.coffee'), 'utf8')
 									dependencies: []
 								}
 							]

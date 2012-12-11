@@ -38,15 +38,19 @@ describe 'target', ->
 		describe '"concat" property', ->
 			it 'should be false for directory input', (done) ->
 				target 'js', {input: 'src/package', output: 'js', source: {locations: ['src']}, processors: processors.js}, (err, instance) ->
-					instance.concat.should.be.false
+					instance.options.concat.should.be.false
 					done()
 			it 'should be false for file input and a modular option of false', (done) ->
 				target 'js', {input: 'src/main.coffee', output: 'js', modular: false, source: {locations: ['src']}, processors: processors.js}, (err, instance) ->
-					instance.concat.should.be.false
+					instance.options.concat.should.be.false
 					done()
 			it 'should be true for file input and a modular option of true', (done) ->
 				target 'js', {input: 'src/main.coffee', output: 'js', modular: true, source: {locations: ['src']}, processors: processors.js}, (err, instance) ->
-					instance.concat.should.be.true
+					instance.options.concat.should.be.true
+					done()
+			it 'should be true for directory input and type of css', (done) ->
+				target 'css', {input: 'src/main.coffee', output: 'js', modular: true, source: {locations: ['src']}, processors: processors.css}, (err, instance) ->
+					instance.options.concat.should.be.true
 					done()
 
 		describe 'parsing sources', ->
@@ -60,7 +64,7 @@ describe 'target', ->
 			describe 'with 1 file with no dependencies', ->
 				it 'should increase \'sources\' by 1', (done) ->
 					@tgt.input = path.resolve('src/basic.coffee')
-					@tgt.concat = true
+					@tgt.options.concat = true
 					@tgt.isDir = false
 					@tgt._parse (err) =>
 						@tgt.sources.should.have.length(1)
@@ -72,7 +76,7 @@ describe 'target', ->
 					@tgt.sources = []
 				it 'should increase \'sources\' by 1', (done) ->
 					@tgt.input = path.resolve('src/package/ClassCamelCase.coffee')
-					@tgt.concat = true
+					@tgt.options.concat = true
 					@tgt.isDir = false
 					@tgt._parse (err) =>
 						@tgt.sources.should.have.length(1)
@@ -84,7 +88,7 @@ describe 'target', ->
 					@tgt.sources = []
 				it 'should increase \'sources\' by 1', (done) ->
 					@tgt.input = path.resolve('src/main.coffee')
-					@tgt.concat = true
+					@tgt.options.concat = true
 					@tgt.isDir = false
 					@tgt._parse (err) =>
 						@tgt.sources.should.have.length(1)
@@ -97,7 +101,7 @@ describe 'target', ->
 					@tgt.sources = []
 				it 'should increase \'sources\' by 1', (done) ->
 					@tgt.input = path.resolve('src/circular/circular.coffee')
-					@tgt.concat = true
+					@tgt.options.concat = true
 					@tgt.isDir = false
 					@tgt._parse (err) =>
 						@tgt.sources.should.have.length(1)
@@ -113,7 +117,7 @@ describe 'target', ->
 						parent.options.hasChildren = true
 						parent._parse (err) =>
 							@tgt.input = path.resolve('src/main.coffee')
-							@tgt.concat = true
+							@tgt.options.concat = true
 							@tgt.isDir = false
 							@tgt.options.parent = parent
 							@tgt.options.hasParent = true
@@ -125,7 +129,7 @@ describe 'target', ->
 					@tgt.sources = []
 				it 'should increase \'sources\' by 6', (done) ->
 					@tgt.input = path.resolve('src/batch')
-					@tgt.concat = true
+					@tgt.options.concat = true
 					@tgt.isDir = true
 					@tgt._parse (err) =>
 						@tgt.sources.should.have.length(6)
@@ -135,7 +139,7 @@ describe 'target', ->
 					@tgt.sources = []
 				it 'should increase \'sources\' by 3', (done) ->
 					@tgt.input = path.resolve('src/batch-dependencies')
-					@tgt.concat = true
+					@tgt.options.concat = true
 					@tgt.isDir = true
 					@tgt._parse (err) =>
 						@tgt.sources.should.have.length(3)
@@ -154,7 +158,7 @@ describe 'target', ->
 			describe 'with 1 js file and no dependencies', ->
 				it 'should write 1 file to disk', (done) ->
 					@tgt.input = path.resolve('src/basic.coffee')
-					@tgt.concat = true
+					@tgt.options.concat = true
 					@tgt.isDir = false
 					file =
 						moduleID: 'basic'
@@ -171,7 +175,7 @@ describe 'target', ->
 			describe 'with 1 js file and 1 dependency', ->
 				it 'should write 1 concatenated file to disk', (done) ->
 					@tgt.input = path.resolve('src/package/ClassCamelCase.coffee')
-					@tgt.concat = true
+					@tgt.options.concat = true
 					@tgt.isDir = false
 					file =
 						moduleID: 'package/classcamelcase'
