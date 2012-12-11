@@ -128,5 +128,6 @@ class File
 	# @param {Function} fn()
 	_escape: (fn) =>
 		if @options.lazy
+			debug("escaped: #{strong(path.relative(process.cwd(), @filepath))}", 3)
 			@_content = '"' + @_content.replace(RE_ESCAPE, (m) -> return ESCAPE_MAP[m]) + '"'
 		fn()
