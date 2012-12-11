@@ -33,6 +33,9 @@ module.exports = (type, options, fn) ->
 			return fn("a file (#{strong(options.output)}) is not a valid output target for a directory (#{strong(options.input)}) input target")
 		# Override options
 		options.modular ?= true
+		# A single file can be 'batched' if not modular
+		# Resolve dependencies even if directory for css
+		options.concat = if isDir then (type is 'css') else options.modular
 		options.compressor = options.processors.compressor if options.compress
 		options.linter = options.processors.linter if options.lint
 		return fn(null, new Target(type, isDir, options))
@@ -52,17 +55,9 @@ class Target
 		@files = []
 		# Track all modified files so we can reset when complete
 		@_modified = []
-		# input is file
-		unless @isDir
-			# A single file can be 'batched' if not modular
-			@concat = @options.modular
-			# Resolve default output file name for file>directory target
-			unless path.extname(@output).length
-				@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), ".#{@type}")
-		# input is directory
-		else
-			# Resolve dependencies even if directory for css
-			@concat = @type is 'css'
+		# Resolve default output file name for file>directory target
+		if not @isDir and not path.extname(@output).length
+			@output = path.join(@output, path.basename(@input)).replace(path.extname(@input), ".#{@type}")
 
 	# Generate output, 'compress'ing and 'lint'ing as required
 	# @param {Function} fn(err, files)
@@ -70,7 +65,7 @@ class Target
 		# Clear existing
 		@sources = []
 		@files = []
-		print("building #{strong(path.basename(@input))} to #{strong(path.basename(@output))}", 2) unless @options.watching
+		print("building #{strong(path.basename(@input))} to #{strong(path.basename(@output))}", 2) unless @options.source.options.watching
 		# Parse sources for input
 		@_parse (err) =>
 			return fn(err) if err
@@ -106,7 +101,7 @@ class Target
 				# Exit if compile error
 				return fn(err) if err
 				# Add dependencies
-				if @concat and file.dependencies.length
+				if @options.concat and file.dependencies.length
 					file.dependencies.forEach (dependency, idx) =>
 						# Resolve dependency
 						if dep = @options.source.byModule[dependency] or @options.source.byModule["#{dependency}/index"]
@@ -158,7 +153,7 @@ class Target
 	# @param {File} file
 	# @param {Function} fn(err)
 	_outputFile: (file, fn) =>
-		if @concat
+		if @options.concat
 			# Concatenate
 			content = file.options.module.concat(file)
 			debug("concatenated: #{strong(path.relative(process.cwd(), file.filepath))}", 3)
@@ -231,9 +226,9 @@ class Target
 		mkdir filepath, (err) =>
 			return fn(err) if err
 			# Add header for concatenated files
-			content = "#{BUILT_HEADER}#{new Date().toString()}*/\n#{content}" if @concat
+			content = "#{BUILT_HEADER}#{new Date().toString()}*/\n#{content}" if @options.concat
 			fs.writeFile filepath, content, 'utf8', (err) =>
 				return fn(err) if err
 				@files.push(filepath)
-				print("#{colour('built', notify.GREEN)} #{strong(path.relative(process.cwd(), filepath))}", if @options.watching then 4 else 3)
+				print("#{colour('built', notify.GREEN)} #{strong(path.relative(process.cwd(), filepath))}", if @options.source.options.watching then 4 else 3)
 				fn()
