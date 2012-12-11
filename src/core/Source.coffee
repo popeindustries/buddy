@@ -3,6 +3,7 @@ file = require('./file')
 reloader = require('../utils/reloader')
 Watcher = require('../utils/watcher')
 notify = require('../utils/notify')
+object = require('../utils/object')
 {debug, strong, print, colour} = require('../utils/notify')
 {indir, readdir, existsSync, ignored} = require('../utils/fs')
 
@@ -42,7 +43,7 @@ module.exports = class Source
 		basepath = @_getBasepath(filepath)
 		if not @byPath[filepath] and basepath
 			# Create File instance
-			file @type, filepath, basepath, @options, (err, instance) =>
+			file @type, filepath, basepath, object.clone(@options), (err, instance) =>
 				# Notify?
 				return if err
 				@length++
@@ -93,7 +94,7 @@ module.exports = class Source
 	# Reload 'file'
 	# @param {String} file
 	refresh: (file) ->
-		reloader.refresh(file) if @reload
+		reloader.refresh(file) if @options.reload
 
 	# Clean up
 	clean: ->
