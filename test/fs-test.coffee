@@ -60,27 +60,27 @@ describe 'fs utils', ->
 		it 'should move a file to an existing directory', (done) ->
 			fs.mkdirSync(path.resolve('mv', 'test'))
 			fs.writeFileSync(path.resolve('mv', 'test.txt'), 'blah', 'utf8')
-			mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), (err, filepath) ->
+			mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), false, (err, filepath) ->
 				fs.existsSync(path.resolve('mv', 'test.txt')).should.be.false
 				fs.existsSync(path.resolve('mv', 'test', 'test.txt')).should.be.true
 				done()
 		it 'should move a nested file to an existing directory', (done) ->
 			fs.writeFileSync(path.resolve('mv', 'test.txt'), 'blah', 'utf8')
-			mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), (err, filepath) ->
+			mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), false, (err, filepath) ->
 				fs.existsSync(path.resolve('mv', 'test.txt')).should.be.false
 				fs.existsSync(path.resolve('mv', 'test', 'test.txt')).should.be.true
 				done()
 		it 'should return the path to the moved file', (done) ->
 			fs.mkdirSync(path.resolve('mv', 'test'))
 			fs.writeFileSync(path.resolve('mv', 'test.txt'), 'blah', 'utf8')
-			mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), (err, filepath) ->
+			mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), false, (err, filepath) ->
 				filepath.should.eql(path.resolve('mv', 'test', 'test.txt'))
 				done()
 		it 'should not return an error when moving a file to a location with an existing file of the same name', (done) ->
 			fs.mkdirSync(path.resolve('mv', 'test'))
 			fs.writeFileSync(path.resolve('mv', 'test.txt'), 'blah', 'utf8')
 			fs.writeFileSync(path.resolve('mv', 'test', 'test.txt'), 'blah', 'utf8')
-			mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), (err, filepath) ->
+			mv path.resolve('mv', 'test.txt'), path.resolve('mv', 'test'), false, (err, filepath) ->
 				should.not.exist(err)
 				fs.existsSync(path.resolve('mv', 'test.txt')).should.be.true
 				done()
@@ -113,31 +113,31 @@ describe 'fs utils', ->
 			rimraf.sync(path.resolve('test'))
 			process.chdir(path.resolve('..'))
 		it 'should copy a file from one directory to another directory', (done) ->
-			cp path.resolve('main.coffee'), path.resolve('test'), (err, filepath) ->
+			cp path.resolve('main.coffee'), path.resolve('test'), false, (err, filepath) ->
 				fs.existsSync(path.resolve('test', 'main.coffee')).should.be.true
 				done()
 		it 'should copy a file from one directory to a new file name in another directory', (done) ->
-			cp path.resolve('main.coffee'), path.resolve('test', 'test.coffee'), (err, filepath) ->
+			cp path.resolve('main.coffee'), path.resolve('test', 'test.coffee'), false, (err, filepath) ->
 				fs.existsSync(path.resolve('test', 'test.coffee')).should.be.true
 				done()
 		it 'should copy a file to a new file in the same directory with a new name', (done) ->
-			cp path.resolve('test', 'main.coffee'), path.resolve('test', 'test2.coffee'), (err, filepath) ->
+			cp path.resolve('test', 'main.coffee'), path.resolve('test', 'test2.coffee'), false, (err, filepath) ->
 				fs.existsSync(path.resolve('test', 'test2.coffee')).should.be.true
 				done()
 		it 'should not return an error when copying a file to the same directory without a new name', (done) ->
-			cp path.resolve('test', 'main.coffee'), path.resolve('test'), (err, filepath) ->
+			cp path.resolve('test', 'main.coffee'), path.resolve('test'), false, (err, filepath) ->
 				should.not.exist(err)
 				done()
 		it 'should copy a directory and it\'s contents from one directory to another directory', (done) ->
-			cp path.resolve('package'), path.resolve('test'), (err, filepath) ->
+			cp path.resolve('package'), path.resolve('test'), false, (err, filepath) ->
 				fs.existsSync(path.resolve('test', 'package')).should.be.true
 				done()
 		it 'should only copy the contents of a directory when the source contains a trailing "/"', (done) ->
-			cp path.resolve('package') + path.sep, path.resolve('test'), (err, filepath) ->
+			cp path.resolve('package') + path.sep, path.resolve('test'), false, (err, filepath) ->
 				fs.existsSync(path.resolve('test', 'Class.coffee')).should.be.true
 				fs.existsSync(path.resolve('test', 'ClassCamelCase.coffee')).should.be.true
 				done()
 		it 'should return an error when copying a directory to a file', (done) ->
-			cp path.resolve('package'), path.resolve('test', 'main.coffee'), (err, filepath) ->
+			cp path.resolve('package'), path.resolve('test', 'main.coffee'), false, (err, filepath) ->
 				should.exist(err)
 				done()

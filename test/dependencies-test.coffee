@@ -153,7 +153,7 @@ describe 'dependencies', ->
 				@dependency.resources = [path.resolve('archive/backbone-master/backbone.js')]
 				@dependency.move (err) ->
 					fs.existsSync(path.resolve('libs/backbone.js')).should.be.true
-					mv path.resolve('libs/backbone.js'), path.resolve('archive/backbone-master'), (err) ->
+					mv path.resolve('libs/backbone.js'), path.resolve('archive/backbone-master'), false, (err) ->
 						done()
 			it 'should store references to moved files in `files` property', ->
 				@dependency.files.should.include('libs' + path.sep + 'backbone.js')

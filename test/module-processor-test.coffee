@@ -66,6 +66,51 @@ describe 'Module processor', ->
 				content = css.concat(file).replace(/\r/gm, '')
 				content.should.not.include('@import')
 				content.should.eql(c)
+			it 'should replace @import rules with file contents, skipping all duplicates', ->
+				file =
+					moduleID: 'one'
+					getContent: -> fs.readFileSync(path.resolve('src/one.css'), 'utf8')
+					dependencies: [
+						{
+							moduleID: 'two'
+							getContent: -> fs.readFileSync(path.resolve('src/two.css'), 'utf8')
+							dependencies: []
+						},
+						{
+							moduleID: 'three'
+							getContent: -> fs.readFileSync(path.resolve('src/three.css'), 'utf8')
+							dependencies: [
+								{
+									moduleID: 'two'
+									getContent: -> fs.readFileSync(path.resolve('src/two.css'), 'utf8')
+									dependencies: []
+								},
+								{
+									moduleID: 'four'
+									getContent: -> fs.readFileSync(path.resolve('src/four.css'), 'utf8')
+									dependencies: []
+								}
+							]
+						}
+					]
+				c =
+				'''
+				html {
+					margin: 0;
+				}
+
+				p {
+					padding: 0;
+				}
+
+				body {
+					padding: 0;
+				}
+
+				'''
+				content = css.concat(file).replace(/\r/gm, '')
+				content.should.not.include('@import')
+				content.should.eql(c)
 
 	describe 'Node', ->
 		describe 'a module id from a filename containing spaces', ->

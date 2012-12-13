@@ -9,7 +9,7 @@ describe 'Watcher', ->
 		process.chdir(path.resolve(__dirname, 'fixtures/watcher'))
 	beforeEach (done) ->
 		@watcher = new Watcher
-		cp path.resolve('src') + path.sep, path.resolve('test'), (err, filepath) ->
+		cp path.resolve('src') + path.sep, path.resolve('test'), false, (err, filepath) ->
 			done()
 	afterEach (done) ->
 		@watcher.clean()
