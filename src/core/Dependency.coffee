@@ -232,7 +232,7 @@ module.exports = class Dependency
 			idx = -1
 			async.forEachSeries @resources, ((resource, cb) =>
 				# Copy local files, otherwise move
-				fsutils[if @local then 'cp' else 'mv'] resource, @destination, (err, filepath) =>
+				fsutils[if @local then 'cp' else 'mv'] resource, @destination, true, (err, filepath) =>
 					return cb(err) if err
 					idx++
 					@files.push(path.relative(process.cwd(), filepath))
