@@ -87,27 +87,31 @@ exports.mkdir = mkdir = (filepath, fn) ->
 # Move file or directory 'source' to 'destination'
 # @param {String} source
 # @param {String} destination
+# @param {Boolean} force
 # @param {Function} fn(err, filepath)
 # TODO: add force flag
-exports.mv = mv = (source, destination, fn) ->
+exports.mv = mv = (source, destination, force = false, fn) ->
 	mkdir destination, (err) ->
 		if err
 			fn(err)
 		else
 			filepath = path.resolve(destination, path.basename(source))
-			if existsSync(filepath)
+			if not force and existsSync(filepath)
 				fn(null, filepath)
 			else
-				fs.rename source, filepath, (err) ->
-					if err then fn(err) else fn(null, filepath)
+				rm filepath, (err) ->
+					# Ignore rm errors
+					fs.rename source, filepath, (err) ->
+						if err then fn(err) else fn(null, filepath)
 
 # Copy file or directory 'source' to 'destination'
 # Copies contents of 'source' if directory and ends in trailing '/'
 # @param {String} source
 # @param {String} destination
+# @param {Boolean} force
 # @param {Function} fn(err, filepath)
 # TODO: add force flag
-exports.cp = cp = (source, destination, fn) ->
+exports.cp = cp = (source, destination, force = false, fn) ->
 	_outstanding = 0
 	_base = ''
 	_filepath = ''
@@ -129,23 +133,25 @@ exports.cp = cp = (source, destination, fn) ->
 					destName = if isDestFile then path.basename(destination) else path.basename(source)
 					filepath = path.resolve(destDir, destName)
 					# Write file if it doesn't already exist
-					if existsSync(filepath)
+					if not force and existsSync(filepath)
 						# fn(new Error('file already exists: ' + source))
 						fn(null, _filepath) unless _outstanding
 					else
-						_outstanding++
-						# Return the new path for the first source
-						if _first
-							_filepath = filepath
-							_first = false
-						# Pipe stream
-						fs.createReadStream(source).pipe(file = fs.createWriteStream(filepath))
-						file.on 'error', (err) ->
-							fn(err)
-						file.on 'close', ->
-							_outstanding--
-							# Return if no outstanding
-							fn(null, _filepath) unless _outstanding
+						rm filepath, (err) ->
+							# Ignore rm errors
+							_outstanding++
+							# Return the new path for the first source
+							if _first
+								_filepath = filepath
+								_first = false
+							# Pipe stream
+							fs.createReadStream(source).pipe(file = fs.createWriteStream(filepath))
+							file.on 'error', (err) ->
+								fn(err)
+							file.on 'close', ->
+								_outstanding--
+								# Return if no outstanding
+								fn(null, _filepath) unless _outstanding
 				# Directory
 				else
 					# Guard against invalid directory to file copy
