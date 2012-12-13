@@ -47,7 +47,7 @@ module.exports = class Builder
 	# @param {String} configpath [file name or directory containing default]
 	# @param {Boolean} verbose
 	install: (configpath, verbose) ->
-		@_extend(@options, {verbose})
+		object.extend(@options, {verbose})
 		@_initialize configpath, (err) =>
 			error(err, 0) if err
 			if @config.dependencies
