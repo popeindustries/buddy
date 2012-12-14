@@ -388,18 +388,18 @@ exports.build = {
 ## Changelog
 
 **0.6.9** - December 14, 2012
-* fixed *watch* not adding new file during renames
+* fixed _watch_ not adding new file during renames
 
 **0.6.8** - December 13, 2012
-* fixed *install* crash
-* *install* now overwrites previously downloaded resources
-* properly handle duplicate *@import* rules while inlining
+* fixed _install_ crash
+* _install_ now overwrites previously downloaded resources
+* properly handle duplicate _@import_ rules while inlining
 
 **0.6.7** - December 11, 2012
-* added *--lazy* option for generating js modules for lazy evaluation; module contents are encoded as strings to be passed to a Function constructor on first require()
+* added _--lazy_ option for generating js modules for lazy evaluation; module contents are encoded as strings to be passed to a Function constructor on first require()
 
 **0.6.6** - December 6, 2012
-* added live-reload support for *watch* command with *--reload*
+* added live-reload support for _watch_ command with _--reload_
 * re-enabled linting support
 
 **0.6.5** - December 5, 2012
@@ -408,56 +408,56 @@ exports.build = {
 * fix for child target building shared resources
 
 **0.6.4** - December 4, 2012
-* fix for *--test* not displaying both stdout and stderr
-* added wrapping of batch files in module definitions if *options.modular* is not false
+* fix for _--test_ not displaying both stdout and stderr
+* added wrapping of batch files in module definitions if _options.modular_ is not false
 * fix for building targets that contain no source
 
 **0.6.3** - December 4, 2012
-* fix for *watch* command attempting to watch a source that doesn't exist
+* fix for _watch_ command attempting to watch a source that doesn't exist
 * added support for default json config file type
 
 **0.6.2** - December 4, 2012
-* fix for css '@import' inlining
+* fix for css _@import_ inlining
 
 **0.6.1** - December 3, 2012
-* added *--test* to watch command
+* added _--test_ to watch command
 
 **0.6.0** - December 3, 2012
 * complete rewrite for async file operations
-* added *--test* flag for executing a command after build
-* added *--verbose* flag for outputting detailed notifications during build
-* added *ls* command to list all generated files
+* added _--test_ flag for executing a command after build
+* added _--verbose_ flag for outputting detailed notifications during build
+* added _ls_ command to list all generated files
 * added inlining of '@import' rules for all css source types
 * simplified dependency resource parsing on install; only parse 'main' field in component.json/package.json
 
 **0.5.4** - November 23, 2012
-* regression fix for *clean* command
-* improved *.buddy-filelog* force clean
-* improved notifications for *install* and *clean* commands
+* regression fix for _clean_ command
+* improved _.buddy-filelog_ force clean
+* improved notifications for _install_ and *clean* commands
 
 **0.5.3** - November 23, 2012
-* refactored *install* command behaviour; no longer uses git operations, changed syntax for specifying version ('@') and resources ('#'), added ability to list several resources **[breaking change]**
-* *.buddy-filelog* now stores relative paths for compatibility on different systems
+* refactored _install_ command behaviour; no longer uses git operations, changed syntax for specifying version ('@') and resources ('#'), added ability to list several resources __[breaking change]__
+* _.buddy-filelog_ now stores relative paths for compatibility on different systems
 * file deletions limited to resources under the project root
 
 **0.5.2** - Novemver 20, 2012
-* added *watch* command; handle add, remove, and change of source files
+* added _watch_ command; handle add, remove, and change of source files
 
 **0.5.1** - Novemver 14, 2012
-* added *clean* command to remove all generated files
-* added hidden *.buddy-filelog* file for tracking files changes between sessions
+* added _clean_ command to remove all generated files
+* added hidden _.buddy-filelog_ file for tracking files changes between sessions
 * fix for false-negative module wrapping test
 
 **0.5.0** - November 13, 2012
-* *compile* command renamed to *build* **[breaking change]**
-* changed module naming for compatibility with recent versions of Node.js (camel case no longer converted to underscores) **[breaking change]**
-* changed configuration file type to 'js' from 'json'; added *dependencies* and *settings* **[breaking change]**
-* changed configuration *target* parameters to *input/output* from *in/out* **[breaking change]**
-* changed configuration *target* parameter to *modular* from *nodejs* **[breaking change]**
-* concatenated js modules no longer self-booting; need to ```require('main');``` manually **[breaking change]**
-* *require* boilerplate no longer included in generated source; install *git://github.com/popeindustries/browser-require.git* or equivalent **[breaking change]**
-* removed *watch* command (temporarily) **[breaking change]**
-* added *install* command and project dependency management
+* _compile_ command renamed to *build* __[breaking change]__
+* changed module naming for compatibility with recent versions of Node.js (camel case no longer converted to underscores) __[breaking change]__
+* changed configuration file type to 'js' from 'json'; added _dependencies_ and _settings_ __[breaking change]__
+* changed configuration _target_ parameters to _input/output_ from _in/out_ __[breaking change]__
+* changed configuration _target_ parameter to _modular_ from _nodejs_ __[breaking change]__
+* concatenated js modules no longer self-booting; need to ```require('main');``` manually __[breaking change]__
+* _require_ boilerplate no longer included in generated source; install _popeindustries/browser-require_ or equivalent ___breaking change]**
+* removed _watch_ command (temporarily) __[breaking change]__
+* added _install_ command and project dependency management
 * added plugin support for compilers, compressors, linters, and modules; added support for custom plugins
 * added code linting
 * all errors now throw
