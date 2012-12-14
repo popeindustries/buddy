@@ -3,7 +3,7 @@ path = require('path')
 events = require('events')
 {readdir, wait, existsSync} = require('./fs')
 
-THROTTLE_TIMEOUT = 250
+THROTTLE_TIMEOUT = 100
 
 module.exports = class Watcher extends events.EventEmitter
 
