@@ -455,7 +455,7 @@ exports.build = {
 * changed configuration _target_ parameters to _input/output_ from _in/out_ __[breaking change]__
 * changed configuration _target_ parameter to _modular_ from _nodejs_ __[breaking change]__
 * concatenated js modules no longer self-booting; need to ```require('main');``` manually __[breaking change]__
-* _require_ boilerplate no longer included in generated source; install _popeindustries/browser-require_ or equivalent ___breaking change]**
+* _require_ boilerplate no longer included in generated source; install _popeindustries/browser-require_ or equivalent __breaking change]__
 * removed _watch_ command (temporarily) __[breaking change]__
 * added _install_ command and project dependency management
 * added plugin support for compilers, compressors, linters, and modules; added support for custom plugins
