@@ -2,7 +2,7 @@
 
 **buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (coffeescript/stylus/less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.6.8
+**Current version:** 0.6.9
 *[the 0.5.x+ branch is not backwards compatible with earlier versions. See [Change Log](#a1) below for more details]*
 
 ## Installation
@@ -386,6 +386,9 @@ exports.build = {
 
 <a name="a1"/>
 ## Changelog
+
+**0.6.9** - December 14, 2012
+* fixed *watch* not adding new file during renames
 
 **0.6.8** - December 13, 2012
 * fixed *install* crash
