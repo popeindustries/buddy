@@ -11,7 +11,10 @@ module.exports = class Watcher extends events.EventEmitter
 	# @param {RegExp} ignore
 	constructor: (@ignore = /^\./) ->
 		@watchers = {}
-		@_throttling = false
+		@_throttling =
+			create: false
+			'delete': false
+			change: false
 
 	# Watch a 'source' file or directory for changes
 	# @param {String} source
@@ -67,11 +70,11 @@ module.exports = class Watcher extends events.EventEmitter
 	# Stop watching a 'source' file or directory for changes
 	# @param {String} source
 	unwatch: (source) ->
-		if @watchers[source]?
-			try
-				@watchers[source].close()
-			catch err
+		if watcher = @watchers[source]
 			delete @watchers[source]
+			try
+				watcher.close()
+			catch err
 
 	# Stop watching all sources for changes
 	clean: ->
@@ -80,7 +83,7 @@ module.exports = class Watcher extends events.EventEmitter
 	# Protect against mutiple event emits
 	# @param {String} type
 	_throttleEvent: (type, props...) ->
-		unless @_throttling
-			@_throttling = true
+		unless @_throttling[type]
+			@_throttling[type] = true
 			@emit.apply(@, [type].concat(props))
-			setTimeout((=> @_throttling = false), THROTTLE_TIMEOUT)
+			setTimeout((=> @_throttling[type] = false), THROTTLE_TIMEOUT)
