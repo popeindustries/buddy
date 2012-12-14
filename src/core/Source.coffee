@@ -55,7 +55,6 @@ module.exports = class Source
 	remove: (filepath) ->
 		filepath = path.resolve(filepath)
 		if f = @byPath[filepath]
-			debug("removed source: #{strong(path.relative(process.cwd(), filepath))}", 3)
 			@length--
 			delete @byPath[filepath]
 			delete @byModule[file.moduleID]
