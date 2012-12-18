@@ -1,5 +1,5 @@
 path = require('path')
-file = require('./file')
+fileFactory = require('./file')
 reloader = require('../utils/reloader')
 Watcher = require('../utils/watcher')
 notify = require('../utils/notify')
@@ -43,7 +43,7 @@ module.exports = class Source
 		basepath = @_getBasepath(filepath)
 		if not @byPath[filepath] and basepath
 			# Create File instance
-			file @type, filepath, basepath, object.clone(@options), (err, instance) =>
+			fileFactory @type, filepath, basepath, object.clone(@options), (err, instance) =>
 				# Notify?
 				return if err
 				@length++
@@ -54,11 +54,11 @@ module.exports = class Source
 	# @param {String} filepath
 	remove: (filepath) ->
 		filepath = path.resolve(filepath)
-		if f = @byPath[filepath]
+		if file = @byPath[filepath]
 			@length--
 			delete @byPath[filepath]
 			delete @byModule[file.moduleID]
-			f.destroy()
+			file.destroy()
 
 	# Watch for changes and call 'fn'
 	# @param {Function} fn(err, file)
