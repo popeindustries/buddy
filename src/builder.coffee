@@ -205,6 +205,9 @@ module.exports = class Builder
 					dependencies.clean()
 					[@sources.js, @sources.css].forEach (source) =>
 						source.clean() if source
+					# Ring bell
+					console.log('\x07') if @options.watching
+					throw err
 		else
 			fn()
 
