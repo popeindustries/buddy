@@ -63,7 +63,7 @@ $ buddy -v build
 $ buddy watch
 # watch and build on source changes,
 # reloading open browsers
-$ buddy watch -r
+$ buddy -r watch
 # build and compress for production
 $ buddy deploy
 # list all generated files
