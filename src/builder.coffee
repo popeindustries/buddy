@@ -2,7 +2,7 @@ fs = require('fs')
 path = require('path')
 exec = require('child_process').exec
 async = require('async')
-target = require('./core/target')
+targetFactory = require('./core/target')
 configuration = require('./core/configuration')
 processors = require('./processors')
 dependencies = require('./core/dependencies')
@@ -33,6 +33,7 @@ module.exports = class Builder
 			reload: false
 			verbose: false
 			watching: false
+			deploy: false
 			processors: null
 		@sources =
 			js: null
@@ -152,6 +153,7 @@ module.exports = class Builder
 	# @param {Boolean} lazy
 	# @param {Boolean} verbose
 	deploy: (configpath, test, lazy, verbose) ->
+		object.extend(@options, {deploy: true})
 		@build(configpath, true, false, test, lazy, verbose)
 
 	# List all file system content created via installing and building
@@ -235,7 +237,7 @@ module.exports = class Builder
 				# CSS targets are compiled at the target level because of @import inlining
 				opts.compile = type is CSS
 				outstanding++
-				target type, opts, (err, instance) =>
+				targetFactory type, opts, (err, instance) =>
 					outstanding--
 					# Parse errors shouldn't throw
 					warn(err, 2) if err

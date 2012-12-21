@@ -10,13 +10,7 @@ module.exports =
 	# @param {Function} fn(err, compressed)
 	compress: (data, fn) ->
 		try
-			jsp = uglify.parser
-			pro = uglify.uglify
-			# Compress
-			ast = jsp.parse(data)
-			ast = pro.ast_mangle(ast)
-			ast = pro.ast_squeeze(ast)
-			compressed = pro.gen_code(ast)
-			fn(null, compressed)
+			result = uglify.minify(data, {fromString: true})
+			fn(null, result.code)
 		catch err
 			fn(err)
