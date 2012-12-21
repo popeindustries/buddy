@@ -4,8 +4,7 @@ path = require('path')
 RE_WIN_SEPARATOR = /\\\\?/g
 # "@import 'moduleid'"
 RE_IMPORT = /@import\s['|"](.*?)['|"];?/g
-# RE_COMMENT_LINES = /^\s*(?:\/\/|#|\/\*).+(?:\*\/)?$/gm
-RE_COMMENT_LINES = /((?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:\/\/.*))$/gm
+RE_COMMENT_LINES = /((?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/))$/gm
 
 module.exports =
 	name: 'css'
