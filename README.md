@@ -1,9 +1,24 @@
 # buddy(1)
 
-**buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (coffeescript/stylus/less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
+**buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (CoffeeScript/Stylus/Less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.6.9
+**Current version:** 0.6.10
 *[the 0.5.x+ branch is not backwards compatible with earlier versions. See [Change Log](#a1) below for more details]*
+
+## Features
+
+- Allows you to write js __modules__ without the module boilerplate (similar to Node.js)
+- Resolves js module __dependencies__ automatically
+- Supports ___lazy___ runtime evaluation by storing js modules as strings
+- __Compiles__ _CoffeeScript_, _Stylus_, and _Less_ source files
+- __Concatenates__ js modules into a single file
+- Runs js and css code through __linters__ to check for syntax errors
+- __Watches__ for source changes and builds automatically
+- __Refreshes__ connected browsers after each change
+- __Inlines__ css `@imports` automatically
+- Supports execution of a ___test___ script after each build
+- Copies __libraries__ from GitHub to your project
+- Copies __assets__ from a local destination to your project
 
 ## Installation
 
@@ -40,44 +55,28 @@ $ npm install
 
 ## Usage
 
-```bash
-$ cd path/to/project
+```text
+Usage: buddy [options] <command> [path/to/buddy.json]>
 
-# When buddy is installed globally:
-# install dependencies
-$ buddy install
-# build all source files
-$ buddy build
-# build and compress all source files
-$ buddy -c build
-# build all js modules for 'lazy' evaluation
-$ buddy -L build
-# build and lint all source files
-$ buddy -l build
-# build all source files and execute
-# the 'test' command defined in config
-$ buddy -t build
-# build all source files with verbose notifications
-$ buddy -v build
-# watch and build on source changes
-$ buddy watch
-# watch and build on source changes,
-# reloading open browsers
-$ buddy -r watch
-# build and compress for production
-$ buddy deploy
-# list all generated files
-$ buddy ls
-# remove all generated files
-$ buddy clean
-# view usage, examples, and options
-$ buddy --help
+Commands:
 
-# When buddy is installed locally:
-# ...if scripts parameter defined in package.json
-$ npm run-script install
-# ...if called directly
-$ ./node_modules/buddy/bin/buddy install
+  install [config]       install dependencies
+  build [config]         build js and css sources
+  watch [config]         watch js and css source files and build changes
+  deploy [config]        build compressed js and css sources
+  ls                     list all previously created files and directories
+  clean                  remove all previously created files and directories
+
+Options:
+
+  -h, --help      output usage information
+  -V, --version   output the version number
+  -c, --compress  compress output for production deployment
+  -l, --lint      check output for syntax and logic errors
+  -r, --reload    reload all connected live-reload clients on file change during watch
+  -t, --test      run test command on build completion
+  -L, --lazy      convert js modules for lazy evaluation
+  -v, --verbose   print all messages for debugging
 ```
 
 ### Configuration
@@ -387,13 +386,16 @@ exports.build = {
 <a name="a1"/>
 ## Changelog
 
+**0.6.10** - December 21, 2012
+* updated _Uglify-js_ compressor to 2.0
+
 **0.6.9** - December 14, 2012
 * fixed _watch_ not adding new file during renames
 
 **0.6.8** - December 13, 2012
 * fixed _install_ crash
 * _install_ now overwrites previously downloaded resources
-* properly handle duplicate _@import_ rules while inlining
+* properly handle duplicate `@import` rules while inlining
 
 **0.6.7** - December 11, 2012
 * added _--lazy_ option for generating js modules for lazy evaluation; module contents are encoded as strings to be passed to a Function constructor on first require()
