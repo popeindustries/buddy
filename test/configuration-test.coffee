@@ -3,7 +3,7 @@ fs = require('fs')
 should = require('should')
 configuration = require('../lib/core/configuration')
 
-describe 'configuration', ->
+describe.only 'configuration', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/configuration'))
 
@@ -26,6 +26,10 @@ describe 'configuration', ->
 			it 'should return a path to the default json file in the specified directory when a directory name is specified', (done) ->
 				configuration.locate 'json', (err, url) ->
 					configuration.url.should.equal(path.resolve('json', 'buddy.json'))
+					done()
+			it 'should return a path to the default package.json file in the specified directory when a directory name is specified', (done) ->
+				configuration.locate 'pkgjson', (err, url) ->
+					configuration.url.should.equal(path.resolve('pkgjson', 'package.json'))
 					done()
 			it 'should return a path to the named file in the specified directory when a directory and name are specified', (done) ->
 				configuration.locate 'nested/buddy_custom_name.js', (err, url) ->
@@ -55,6 +59,10 @@ describe 'configuration', ->
 			process.chdir(path.resolve(__dirname, 'fixtures/configuration'))
 		it 'should return validated file data', (done) ->
 			configuration.load 'buddy.js', (err, config) ->
+				should.exist(config.build)
+				done()
+		it 'should return validated file data for a package.json config file', (done) ->
+			configuration.load 'package.json', (err, config) ->
 				should.exist(config.build)
 				done()
 		it 'should return an error when passed a reference to a malformed file', (done) ->
