@@ -65,22 +65,22 @@ describe 'dependencies', ->
 			it 'should set the latest version for `*`', (done) ->
 				@dependency.version = '*'
 				@dependency.validateVersion (err) =>
-					@dependency.version.should.eql('1.4.3')
+					@dependency.version.should.eql('1.4.4')
 					done()
 			it 'should set the latest version for `latest`', (done) ->
 				@dependency.version = 'latest'
 				@dependency.validateVersion (err) =>
-					@dependency.version.should.eql('1.4.3')
+					@dependency.version.should.eql('1.4.4')
 					done()
 			it 'should set the highest version that satisfies `>=1.3.2`', (done) ->
 				@dependency.version = '>=1.3.2'
 				@dependency.validateVersion (err) =>
-					@dependency.version.should.eql('1.4.3')
+					@dependency.version.should.eql('1.4.4')
 					done()
 			it 'should set the highest version that satisfies `>1.3.2`', (done) ->
 				@dependency.version = '>1.3.2'
 				@dependency.validateVersion (err) =>
-					@dependency.version.should.eql('1.4.3')
+					@dependency.version.should.eql('1.4.4')
 					done()
 			it 'should set the highest version that satisfies `1.3.x`', (done) ->
 				@dependency.version = '1.3.x'
@@ -90,7 +90,7 @@ describe 'dependencies', ->
 			it 'should set the highest version that satisfies `1.x`', (done) ->
 				@dependency.version = '1.x'
 				@dependency.validateVersion (err) =>
-					@dependency.version.should.eql('1.4.3')
+					@dependency.version.should.eql('1.4.4')
 					done()
 			it 'should set the highest version that satisfies `~1.3.2`', (done) ->
 				@dependency.version = '~1.3.2'
