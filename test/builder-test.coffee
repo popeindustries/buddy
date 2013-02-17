@@ -55,7 +55,7 @@ describe 'Builder', ->
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/init'))
 			@builder = new Builder()
 			@builder.options.processors = processors
-			@builder.sources.js = {locations:[path.resolve('target')]}
+			@builder.sources.js = {locations:[path.resolve('target')], add:-> true}
 		it 'should not return an error for an input file that doesn`t exist', (done) ->
 			@builder._parseTargets 'js', [{'input': 'none.coffee', 'output': ''}], (err, instances) ->
 				should.not.exist(err)

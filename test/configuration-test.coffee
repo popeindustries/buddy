@@ -3,7 +3,7 @@ fs = require('fs')
 should = require('should')
 configuration = require('../lib/core/configuration')
 
-describe.only 'configuration', ->
+describe 'configuration', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/configuration'))
 

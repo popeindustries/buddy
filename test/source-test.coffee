@@ -22,8 +22,8 @@ describe 'Source', ->
 		it 'should not add a File instance to the cache if passed an invalid filename', ->
 			@jsSource.add('invalid/main.doc')
 			@jsSource.length.should.eql(1)
-		it 'should not add a File instance to the cache if passed a valid filename from outside it\'s locations', ->
-			@jsSource.add('src-nested/main.coffee')
+		it 'should not add a File instance to the cache if passed a valid filename from outside the project root', ->
+			@jsSource.add('../target/src/basic.coffee')
 			@jsSource.length.should.eql(1)
 
 	describe 'removing', ->

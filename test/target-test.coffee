@@ -23,8 +23,12 @@ describe 'target', ->
 			target 'js', {input: 'src/package', output: 'js/main.js', source: {locations: ['src/package']}, processors: processors.js}, (err, instance) ->
 				should.exist(err)
 				done()
-		it 'should return an error if input isnt in sources', (done) ->
-			target 'js', {input: 'src/main.coffee', output: 'js/main.js', source: {locations: ['src/package']}, processors: processors.js}, (err, instance) ->
+		it 'should return an error if input file isnt in project', (done) ->
+			target 'js', {input: 'src/main.coffee', output: 'js/main.js', source: {locations: ['src/package'], add: -> false}, processors: processors.js}, (err, instance) ->
+				should.exist(err)
+				done()
+		it 'should return an error if input directory isnt in sources', (done) ->
+			target 'js', {input: 'src', output: 'js', source: {locations: ['src/package'], add: -> false}, processors: processors.js}, (err, instance) ->
 				should.exist(err)
 				done()
 
