@@ -2,7 +2,7 @@
 
 **buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (CoffeeScript/Stylus/Less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.7.2
+**Current version:** 0.7.3
 *[the 0.5.x+ branch is not backwards compatible with earlier versions. See [Change Log](#a1) below for more details]*
 
 ## Features
@@ -88,7 +88,7 @@ The only requirement for adding **buddy** support to a project is the presence o
 exports.build = {
   js: {
     // Directories containing potential js source files for this project.
-    sources: ['a/coffeescript/source/directory', 'a/js/source/directory'],
+    sources: ['a/coffeescript/source/directory', 'a/js/source/directory', '!a/js/source/directory/ignored'],
     // One or more js build targets.
     targets: [
       {
@@ -98,6 +98,8 @@ exports.build = {
         // A destination in which to save the processed input.
         // If a directory is specified, the input file name will be used.
         output: 'a/js/file/or/directory',
+        // An alternate destination in which to save the compressed output.
+        output_compressed: 'a/js/file/or/directory',
         // Targets can have children.
         // Any sources included in the parent target will NOT be included in the child.
         targets: [
@@ -385,6 +387,11 @@ exports.build = {
 
 <a name="a1"/>
 ## Changelog
+
+**0.7.3** - February 18, 2013
+* added ignore syntax for build sources: `["a/source/directory", "!a/source/directory/ignored"]`
+* added build target property to specify the name and location of compressed output: `output_compressed`
+* fixed an error related to index.js module renaming so that it only affects files in the root of source folders. Avoids multiple `index` modules
 
 **0.7.2** - February 17, 2013
 * build target input files that are not in an existing source location, but in the project path, are added automatically
