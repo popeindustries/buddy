@@ -1,10 +1,11 @@
 exports.build = {
   js: {
-    sources: ['a/coffeescript/source/directory', 'a/js/source/directory'],
+    sources: ['a/coffeescript/source/directory', 'a/js/source/directory', '!a/js/source/directory/ignored'],
     targets: [
       {
         input: 'a/coffeescript/or/js/file',
         output: 'a/js/file/or/directory',
+        output_compressed: 'a/js/file/or/directory'
       },
       {
         input: 'a/coffeescript/or/js/directory',
