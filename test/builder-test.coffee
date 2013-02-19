@@ -215,3 +215,21 @@ describe 'Builder', ->
 					@builder.build 'buddy_empty.js', false, false, false, false, false, (err) =>
 						gatherFiles(@builder.targets.js[0].output).should.have.length(2)
 						done()
+		describe 'css project', ->
+			before ->
+				process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-css'))
+			describe 'with 2 stylus files referencing a shared dependency', ->
+				it 'should build 2 css files', (done) ->
+					@builder.build 'buddy.js', false, false, false, false, false, (err) =>
+						fs.existsSync(path.resolve(@builder.targets.css[0].output, 'one.css')).should.be.true
+						fs.existsSync(path.resolve(@builder.targets.css[0].output, 'two.css')).should.be.true
+						fs.existsSync(path.resolve(@builder.targets.css[0].output, 'three.css')).should.be.false
+						done()
+				it 'should import the dependency into both files', (done) ->
+					@builder.build 'buddy.js', false, false, false, false, false, (err) =>
+						contents1 = fs.readFileSync(path.resolve(@builder.targets.css[0].output, 'one.css'), 'utf8')
+						contents2 = fs.readFileSync(path.resolve(@builder.targets.css[0].output, 'two.css'), 'utf8')
+						contents1.should.eql(contents2)
+						contents1.should.include("colour: '#ffffff';")
+						contents2.should.include("colour: '#ffffff';")
+						done()

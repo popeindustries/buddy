@@ -57,7 +57,7 @@ describe 'target', ->
 					instance.options.concat.should.be.true
 					done()
 
-		describe 'parsing sources', ->
+		describe 'parsing js sources', ->
 			before (done) ->
 				@tgt = null
 				@src = new Source('js', ['src'], {processors:processors.js})
@@ -148,6 +148,25 @@ describe 'target', ->
 					@tgt._parse (err) =>
 						@tgt.sources.should.have.length(3)
 						done()
+
+		describe 'parsing css sources', ->
+			before (done) ->
+				@tgt = null
+				@src = new Source('css', ['src-css'], {processors:processors.css})
+				@src.parse (err) =>
+					target 'css', {input: 'src-css', output: 'temp', source: @src, processors: processors.css}, (err, instance) =>
+						@tgt = instance
+						done()
+			describe 'with a directory of 2 files and 1 shared dependency', ->
+				it 'should increase \'sources\' by 2', (done) ->
+					@tgt.input = path.resolve('src-css')
+					@tgt.options.concat = true
+					@tgt.isDir = true
+					@tgt._parse (err) =>
+						@tgt.sources.should.have.length(2)
+						done()
+				it 'should add the shared dependency to both files', ->
+					@tgt.sources[0].dependencies.should.eql(@tgt.sources[1].dependencies)
 
 		describe 'outputing sources', ->
 			before (done) ->
