@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/popeindustries/buddy.png)](https://travis-ci.org/popeindustries/buddy)
-
+<!-- [![Build Status](https://travis-ci.org/popeindustries/buddy.png)](https://travis-ci.org/popeindustries/buddy)
+ -->
 # buddy(1)
 
 **buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (CoffeeScript/Stylus/Less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
