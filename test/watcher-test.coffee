@@ -1,7 +1,7 @@
 path = require('path')
 fs = require('fs')
 rimraf = require('rimraf')
-Watcher = require('../lib/utils/watcher')
+Watcher = require('../lib/utils/Watcher')
 {cp, rm} = require('../lib/utils/fs')
 
 describe 'Watcher', ->

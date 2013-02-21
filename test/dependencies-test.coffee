@@ -3,7 +3,7 @@ fs = require('fs')
 rimraf = require('rimraf')
 should = require('should')
 dependencies = require('../lib/core/dependencies')
-Dependency = require('../lib/core/dependency')
+Dependency = require('../lib/core/Dependency')
 processors = require('../lib/processors')
 {mv} = require('../lib/utils/fs')
 
