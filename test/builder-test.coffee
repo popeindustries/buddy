@@ -233,3 +233,11 @@ describe 'Builder', ->
 						contents1.should.include("colour: '#ffffff';")
 						contents2.should.include("colour: '#ffffff';")
 						done()
+		describe.only 'html project', ->
+			before ->
+				process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-html'))
+			describe 'with 1 jade file', ->
+				it 'should build 1 html file', (done) ->
+					@builder.build 'buddy.js', false, false, false, false, false, (err) =>
+						fs.existsSync(path.resolve(@builder.targets.html[0].output)).should.be.true
+						done()
