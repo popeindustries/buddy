@@ -3,8 +3,8 @@
 var program = require('commander')
 	, fs = require('fs')
 	, path = require('path')
-	, indent = require('../lib/utils/notify').indent
-	, Builder = require('../lib/Builder');
+	, indent = require('buddy-term').indent
+	, Builder = require('../lib/builder');
 
 var exampleHeader = [
 	'  Configuration:'

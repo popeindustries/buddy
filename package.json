@@ -23,7 +23,11 @@
 		"semver": "1.1.3",
 		"async": "0.2.5",
 		"livereload-protocol": "0.2.2",
-		"websocket.io": "0.2.1"
+		"websocket.io": "0.2.1",
+		"recur-fs": "0.1.0",
+		"buddy-term": "0.1.0",
+		"buddy-dependencies": "0.1.0",
+		"yaw": "0.1.0"
 	},
 	"devDependencies": {
 		"should": "*",

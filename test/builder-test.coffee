@@ -5,9 +5,8 @@ should = require('should')
 Builder = require('../lib/builder')
 configuration = require('../lib/core/configuration')
 processors = require('../lib/processors')
-notify = require('../lib/utils/notify')
 
-notify.silent = true
+term = require('buddy-term').silent = true
 
 gatherFiles = (dir, files) ->
 	files ||= []
@@ -233,7 +232,7 @@ describe 'Builder', ->
 						contents1.should.include("colour: '#ffffff';")
 						contents2.should.include("colour: '#ffffff';")
 						done()
-		describe.only 'html project', ->
+		describe 'html project', ->
 			before ->
 				process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-html'))
 			describe 'with 1 jade file', ->
