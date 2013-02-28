@@ -1,7 +1,7 @@
 {
 	"name": "buddy",
-	"description": "A build tool for js/css projects. Manages third-party dependencies, compiles source code, automatically modularizes js sources, statically resolves module dependencies, and lints/concatenates/compresses output.",
-	"version": "0.8.0",
+	"description": "A build tool for js/css/html projects. Manages third-party dependencies, compiles source code, automatically modularizes js sources, statically resolves module dependencies, and lints/concatenates/compresses output.",
+	"version": "0.9.0",
 	"author": "popeindustries <alex@pope-industries.com>",
 	"keywords": ["build", "buildtool", "modules", "javascript", "coffeescript", "css", "styus", "less", "livescript", "handlebars"],
 	"dependencies": {
