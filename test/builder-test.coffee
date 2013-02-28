@@ -116,6 +116,11 @@ describe 'Builder', ->
 					@builder.build 'buddy_single-ls-file.js', false, false, false, false, false, (err) =>
 						fs.existsSync(@builder.targets.js[0].output).should.be.true
 						done()
+			# describe.only 'with a single typescript file', ->
+			# 	it 'should build 1 js file', (done) ->
+			# 		@builder.build 'buddy_single-ts-file.js', false, false, false, false, false, (err) =>
+			# 			fs.existsSync(@builder.targets.js[0].output).should.be.true
+			# 			done()
 			describe 'with a single stylus file', ->
 				it 'should build 1 css file', (done) ->
 					@builder.build 'buddy_single-styl-file.js', false, false, false, false, false, (err) =>
