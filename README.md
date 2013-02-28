@@ -4,7 +4,7 @@
 
 **buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (CoffeeScript/Stylus/Less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.8.0
+**Current version:** 0.9.0
 *[the 0.5.x+ branch is not backwards compatible with earlier versions. See [Change Log](#a1) below for more details]*
 
 ## Features
@@ -16,6 +16,7 @@
 - __Concatenates__ js modules into a single file
 - Runs js and css code through __linters__ to check for syntax errors
 - __Watches__ for source changes and builds automatically
+- __Serves__ static files from specified directory on specified port
 - __Refreshes__ connected browsers after each change
 - __Inlines__ css `@imports` automatically
 - Supports execution of a ___test___ script after each build
@@ -41,9 +42,8 @@ Or, optionally, add **buddy** as a dependency in your project's *package.json* f
     "buddy": "0.5.0"
   },
   "scripts": {
-    "install": "./node_modules/buddy/bin/buddy install",
-    "build": "./node_modules/buddy/bin/buddy build",
-    "deploy": "./node_modules/buddy/bin/buddy deploy"
+    "build": "buddy build",
+    "deploy": "buddy deploy"
   }
 }
 ```
@@ -76,6 +76,7 @@ Options:
   -c, --compress  compress output for production deployment
   -l, --lint      check output for syntax and logic errors
   -r, --reload    reload all connected live-reload clients on file change during watch
+  -s, --serve     create a webserver to serve static files during watch
   -t, --test      run test command on build completion
   -L, --lazy      convert js modules for lazy evaluation
   -v, --verbose   print all messages for debugging
@@ -177,6 +178,13 @@ exports.dependencies = {
 exports.settings = {
   // Run a command after build
   test: 'command --flags',
+  // Configure webserver
+  server: {
+    // Defaults to project root
+    directory: 'a/project/directory',
+    // Defaults to 8080
+    port: 8000
+  },
   // Override the default plugins, and/or include custom plugins.
   plugins: {
     js: {
@@ -389,6 +397,9 @@ exports.build = {
 
 <a name="a1"/>
 ## Changelog
+
+**0.9.0** - February 28, 2013
+* added basic webserver with `-s --serve` flag
 
 **0.8.0** - February 27, 2013
 * moved dependency installer, terminal printing, file watching, and fs utils into separate projects
