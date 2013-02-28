@@ -19,10 +19,6 @@ describe 'file', ->
 			file 'js', 'src/main.coffee', 'src', {processors: processors.js}, (err, instance) ->
 				should.exist(instance)
 				done()
-		it 'should allow typescript files for a js type source', (done) ->
-			file 'js', 'src/main.ts', 'src', {processors: processors.js}, (err, instance) ->
-				should.exist(instance)
-				done()
 		it 'should allow css files for a css type source', (done) ->
 			file 'css', 'src/main.css', 'src', {processors: processors.css}, (err, instance) ->
 				should.exist(instance)
