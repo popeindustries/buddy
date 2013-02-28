@@ -111,6 +111,11 @@ describe 'Builder', ->
 					@builder.build 'buddy_single-file-with-wrapper.js', false, false, false, false, false, (err) =>
 						fs.existsSync(@builder.targets.js[0].output).should.be.true
 						done()
+			describe 'with a single livescript file', ->
+				it 'should build 1 js file', (done) ->
+					@builder.build 'buddy_single-ls-file.js', false, false, false, false, false, (err) =>
+						fs.existsSync(@builder.targets.js[0].output).should.be.true
+						done()
 			describe 'with a single stylus file', ->
 				it 'should build 1 css file', (done) ->
 					@builder.build 'buddy_single-styl-file.js', false, false, false, false, false, (err) =>
@@ -238,5 +243,10 @@ describe 'Builder', ->
 			describe 'with 1 jade file', ->
 				it 'should build 1 html file', (done) ->
 					@builder.build 'buddy.js', false, false, false, false, false, (err) =>
+						fs.existsSync(path.resolve(@builder.targets.html[0].output)).should.be.true
+						done()
+			describe 'with 1 jade file with 2 includes', ->
+				it 'should build 1 html file', (done) ->
+					@builder.build 'buddy-include.js', false, false, false, false, false, (err) =>
 						fs.existsSync(path.resolve(@builder.targets.html[0].output)).should.be.true
 						done()

@@ -17,12 +17,12 @@ describe 'processors', ->
 		it 'should load and add a custom processor to the defaults', (done) ->
 			config = require(path.resolve('buddy_custom_append.js'))
 			processors.load config.settings.plugins, (err, installed) ->
-				installed.js.compilers.should.have.length(3)
+				installed.js.compilers.should.have.length(4)
 				done()
 		it 'should load and add an array of custom processors to the defaults', (done) ->
 			config = require(path.resolve('buddy_custom_append_array.js'))
 			processors.load config.settings.plugins, (err, installed) ->
-				installed.js.compilers.should.have.length(3)
+				installed.js.compilers.should.have.length(4)
 				done()
 		it 'should load and override the default processor with another default processor', (done) ->
 			config = require(path.resolve('buddy_default_override.js'))
