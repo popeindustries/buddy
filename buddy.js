@@ -41,6 +41,10 @@ exports.dependencies = {
 
 exports.settings = {
   test: 'command --flags',
+  server: {
+    directory: 'a/directory',
+    port: 8000
+  }
   processors: {
     js: {
       compilers: ['a/file', 'another/file'],
