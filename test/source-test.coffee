@@ -2,7 +2,7 @@ path = require('path')
 fs = require('fs')
 rimraf = require('rimraf')
 processors = require('../lib/processors')
-Source = require('../lib/core/Source')
+Source = require('../lib/core/source')
 
 describe 'Source', ->
 

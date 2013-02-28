@@ -3,7 +3,7 @@ fs = require('fs')
 should = require('should')
 rimraf = require('rimraf')
 processors = require('../lib/processors')
-Source = require('../lib/core/Source')
+Source = require('../lib/core/source')
 file = require('../lib/core/file')
 target = require('../lib/core/target')
 
