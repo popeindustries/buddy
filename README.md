@@ -2,7 +2,7 @@
  -->
 # buddy(1)
 
-**buddy(1)** is a build tool for js/css projects. It helps you manage third-party dependencies, compiles source code from higher order js/css languages (CoffeeScript/Stylus/Less), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
+**buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies, compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Stylus/Less/Jade), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
 **Current version:** 0.9.0
 *[the 0.5.x+ branch is not backwards compatible with earlier versions. See [Change Log](#a1) below for more details]*
@@ -12,7 +12,7 @@
 - Allows you to write js __modules__ without the module boilerplate (similar to Node.js)
 - Resolves js module __dependencies__ automatically
 - Supports ___lazy___ runtime evaluation by storing js modules as strings
-- __Compiles__ _CoffeeScript_, _Stylus_, and _Less_ source files
+- __Compiles__ _CoffeeScript_, _LiveScript_, _Handlebars_, _Stylus_, _Less_, and _Jade_ source files
 - __Concatenates__ js modules into a single file
 - Runs js and css code through __linters__ to check for syntax errors
 - __Watches__ for source changes and builds automatically
@@ -400,6 +400,8 @@ exports.build = {
 
 **0.9.0** - February 28, 2013
 * added basic webserver with `-s --serve` flag
+* added support for LiveScript js files
+* added support for precompiling Handlebars templates to .js
 
 **0.8.0** - February 27, 2013
 * moved dependency installer, terminal printing, file watching, and fs utils into separate projects
