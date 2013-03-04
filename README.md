@@ -4,8 +4,7 @@
 
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies, compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Stylus/Less/Jade), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.9.0
-*See [Change Log](#a1) below for more details]*
+**Current version:** 0.9.0 *[See [Change Log](#a1) below for more details]*
 
 ## Features
 
@@ -27,14 +26,14 @@
 
 It is generally preferrable to install the **buddy(1)** command locally for each project to ensure that future changes don't impact older projects.
 
-Add **buddy** as a dependency in your project's *package.json* file:
+Add **buddy** as a devDependency in your project's *package.json* file:
 
 ```json
 {
   "name": "myproject",
   "description": "This is my web project",
   "version": "0.0.1",
-  "dependencies": {
+  "devDependencies": {
     "buddy": "0.9.0"
   },
   "scripts": {
@@ -334,7 +333,7 @@ Download `visionmedia/nib` Stylus sources, specifying a specific directory to be
 $ buddy install
 ```
 
-Start a basic web server and refresh the browser (using the live-reload browser plugin) after each build triggered by source file changes:
+Start a basic web server and refresh the browser (using the Live-Reload browser plugin) after each build triggered by source file changes:
 
 ```json
 {
@@ -360,7 +359,7 @@ $ buddy watch -rs
 
 ### Configuration
 
-Complete annotated configuration:
+Complete annotated `buddy.js` configuration file:
 
 ```js
 // Project build configuration.
