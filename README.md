@@ -94,6 +94,7 @@ Options:
 Generate `www/main.js` by concatenating and modularizing all dependencies in `src` or `libs/js` referenced in `src/main.js`:
 
 ```json
+package.json
 {
   "name": "myproject",
   "description": "This is my web project",
@@ -126,6 +127,7 @@ $ buddy build
 Generate `www/main.js` with references to dependencies installed via npm, ignoring Buddy specific packages:
 
 ```json
+package.json
 {
   "name": "myproject",
   "description": "This is my web project",
@@ -159,6 +161,7 @@ $ buddy build
 First compile all CoffeeScript files in `libs/src/coffee`, then generate `www/main.js` by concatenating and modularizing all dependencies referenced in 'src/main.js':
 
 ```json
+package.json
 {
   "name": "myproject",
   "description": "This is my web project",
@@ -195,6 +198,7 @@ $ buddy build
 Generate `www/main.js` and an additional widget `www/widget.js` using shared sources (avoid duplicating dependencies):
 
 ```json
+package.json
 {
   "name": "myproject",
   "description": "This is my web project",
@@ -233,6 +237,7 @@ $ buddy build
 Compile a CoffeeScript project for Node.js, skipping module wrapping and concatenation:
 
 ```json
+package.json
 {
   "name": "myproject",
   "description": "This is my node project",
@@ -263,6 +268,7 @@ $ buddy build
 Copy project boilerplate from a local directory into the project root:
 
 ```json
+package.json
 {
   "name": "myproject",
   "description": "This is my web project",
@@ -285,6 +291,7 @@ $ buddy install
 Download js dependencies `browser-require` and `jQuery`, then concatenate and compress to `www/libs.js` for inclusion in html:
 
 ```json
+package.json
 {
   "name": "myproject",
   "description": "This is my web project",
@@ -311,6 +318,7 @@ $ buddy install
 Download `visionmedia/nib` Stylus sources, specifying a specific directory to be referenced in your builds:
 
 ```json
+package.json
 {
   "name": "myproject",
   "description": "This is my web project",
@@ -336,6 +344,7 @@ $ buddy install
 Start a basic web server and refresh the browser (using the Live-Reload browser plugin) after each build triggered by source file changes:
 
 ```json
+package.json
 {
   "name": "myproject",
   "description": "This is my web project",
