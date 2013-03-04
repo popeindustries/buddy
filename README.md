@@ -5,7 +5,7 @@
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies, compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Stylus/Less/Jade), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
 **Current version:** 0.9.0
-*[the 0.5.x+ branch is not backwards compatible with earlier versions. See [Change Log](#a1) below for more details]*
+*See [Change Log](#a1) below for more details]*
 
 ## Features
 
@@ -25,13 +25,9 @@
 
 ## Installation
 
-Use the *-g* global flag to make the **buddy(1)** command available system-wide:
+It is generally preferrable to install the **buddy(1)** command locally for each project to ensure that future changes don't impact older projects.
 
-```bash
-$ npm -g install buddy
-```
-
-Or, optionally, add **buddy** as a dependency in your project's *package.json* file:
+Add **buddy** as a dependency in your project's *package.json* file:
 
 ```json
 {
@@ -39,7 +35,7 @@ Or, optionally, add **buddy** as a dependency in your project's *package.json* f
   "description": "This is my web project",
   "version": "0.0.1",
   "dependencies": {
-    "buddy": "0.5.0"
+    "buddy": "0.9.0"
   },
   "scripts": {
     "build": "buddy build",
@@ -55,10 +51,22 @@ $ cd path/to/project
 $ npm install
 ```
 
+**TIP:** add the following to your `$PATH` in order to run local bin versions from the project root:
+
+```bash
+export PATH=./node_modules/.bin/:$PATH
+```
+
+Alternatively, use the *-g* global flag to make the **buddy(1)** command available system-wide:
+
+```bash
+$ npm -g install buddy
+```
+
 ## Usage
 
 ```text
-Usage: buddy [options] <command> [path/to/buddy.js or path/to/buddy.json or path/to/package.json]>
+Usage: buddy [options] <command> [path/to/package.json or path/to/buddy.js or path/to/buddy.json]>
 
 Commands:
 
@@ -82,9 +90,277 @@ Options:
   -v, --verbose   print all messages for debugging
 ```
 
+### Examples
+
+Generate `www/main.js` by concatenating and modularizing all dependencies in `src` or `libs/js` referenced in `src/main.js`:
+
+```json
+{
+  "name": "myproject",
+  "description": "This is my web project",
+  "version": "0.0.1",
+  "dependencies": {
+    "browser-require": "git://github.com/popeindustries/browser-require.git"
+  },
+  "devDependencies": {
+    "buddy": "0.9.0"
+  },
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src", "libs/js"],
+        "targets": [
+          {
+            "input": "src/main.js",
+            "output": "www/main.js"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+```bash
+$ buddy build
+```
+
+Generate `www/main.js` with references to dependencies installed via npm, ignoring Buddy specific packages:
+
+```json
+{
+  "name": "myproject",
+  "description": "This is my web project",
+  "version": "0.0.1",
+  "dependencies": {
+    "browser-require": "git://github.com/popeindustries/browser-require.git",
+    "underscore": "1.4.4"
+  },
+  "devDependencies": {
+    "buddy": "0.9.0"
+  },
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src", "node_modules", "!node_modules/buddy", "!node_modules/browser-require"],
+        "targets": [
+          {
+            "input": "src/main.js",
+            "output": "www/main.js"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+```bash
+$ buddy build
+```
+
+First compile all CoffeeScript files in `libs/src/coffee`, then generate `www/main.js` by concatenating and modularizing all dependencies referenced in 'src/main.js':
+
+```json
+{
+  "name": "myproject",
+  "description": "This is my web project",
+  "version": "0.0.1",
+  "dependencies": {
+    "browser-require": "git://github.com/popeindustries/browser-require.git"
+  },
+  "devDependencies": {
+    "buddy": "0.9.0"
+  },
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src", "libs/js", "libs/src/coffee"],
+        "targets": [
+          {
+            "input": "libs/src/coffee",
+            "output": "libs/js"
+          },
+          {
+            "input": "src/main.js",
+            "output": "www/main.js"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+```bash
+$ buddy build
+```
+
+Generate `www/main.js` and an additional widget `www/widget.js` using shared sources (avoid duplicating dependencies):
+
+```json
+{
+  "name": "myproject",
+  "description": "This is my web project",
+  "version": "0.0.1",
+  "dependencies": {
+    "browser-require": "git://github.com/popeindustries/browser-require.git"
+  },
+  "devDependencies": {
+    "buddy": "0.9.0"
+  },
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src", "libs/js"],
+        "targets": [
+          {
+            "input": "src/main.js",
+            "output": "www/main.js",
+            "targets": [
+              {
+                "input": "src/widget.js",
+                "output": "www/widget.js"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+```
+```bash
+$ buddy build
+```
+
+Compile a CoffeeScript project for Node.js, skipping module wrapping and concatenation:
+
+```json
+{
+  "name": "myproject",
+  "description": "This is my node project",
+  "version": "0.0.1",
+  "devDependencies": {
+    "buddy": "0.9.0"
+  },
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src/coffee"],
+        "targets": [
+          {
+            "input": "src/coffee",
+            "output": "js",
+            "modular": false
+          }
+        ]
+      }
+    }
+  }
+}
+```
+```bash
+$ buddy build
+```
+
+Copy project boilerplate from a local directory into the project root:
+
+```json
+{
+  "name": "myproject",
+  "description": "This is my web project",
+  "version": "0.0.1",
+  "devDependencies": {
+    "buddy": "0.9.0"
+  },
+  "buddy": {
+    "dependencies": {
+      ".": {
+        "sources": ["../../boilerplate/project"]
+      }
+    }
+  }
+```
+```bash
+$ buddy install
+```
+
+Download js dependencies `browser-require` and `jQuery`, then concatenate and compress to `www/libs.js` for inclusion in html:
+
+```json
+{
+  "name": "myproject",
+  "description": "This is my web project",
+  "version": "0.0.1",
+  "devDependencies": {
+    "buddy": "0.9.0"
+  },
+  "buddy": {
+    "dependencies": {
+      "libs/vendor": {
+        "sources": [
+          "popeindustries/browser-require",
+          "jquery@1.9.1"
+        ],
+        "output": "www/libs.js"
+      }
+    }
+  }
+```
+```bash
+$ buddy install
+```
+
+Download `visionmedia/nib` Stylus sources, specifying a specific directory to be referenced in your builds:
+
+```json
+{
+  "name": "myproject",
+  "description": "This is my web project",
+  "version": "0.0.1",
+  "devDependencies": {
+    "buddy": "0.9.0"
+  },
+  "buddy": {
+    "dependencies": {
+      "libs/src/css": {
+        "sources": [
+          "visionmedia/nib#lib/nib"
+        ]
+      }
+    }
+  }
+}
+```
+```bash
+$ buddy install
+```
+
+Start a basic web server and refresh the browser (using the live-reload browser plugin) after each build triggered by source file changes:
+
+```json
+{
+  "name": "myproject",
+  "description": "This is my web project",
+  "version": "0.0.1",
+  "devDependencies": {
+    "buddy": "0.9.0"
+  },
+  "buddy": {
+    "settings": {
+      "server": {
+        "directory": "www",
+        "port": 8080
+      }
+    }
+  }
+}
+```
+```bash
+$ buddy watch -rs
+```
+
 ### Configuration
 
-The only requirement for adding **buddy** support to a project is the presence of a **buddy.js/buddy.json/package.json(with `buddy` entry)** file in your project root:
+Complete annotated configuration:
 
 ```js
 // Project build configuration.
@@ -135,7 +411,7 @@ exports.build = {
         output: 'a/css/file/or/directory'
       },
       {
-        // Files are batch processed when a directory is used as input.
+        // Files are batch processed when a directory is used as input, though @import'ed dependencies are still resolved.
         input: 'a/stylus/less/or/css/directory',
         output: 'a/css/directory'
       }
@@ -213,7 +489,7 @@ exports.settings = {
 
 ### BUILD
 
-**Project Root**: The directory from which all paths resolve to. Determined by location of the *buddy.js* configuration file.
+**Project Root**: The directory from which all paths resolve to. Determined by location of the configuration file.
 
 **Sources**: An array of directories from which all referenced files are retrieved from. ***Note:*** A *js* module's id is derived from it's relative path to it's source directory.
 
@@ -230,9 +506,11 @@ If directory, all compileable files will be compiled, wrapped in module definiti
 
 - *modular*: a flag to prevent js files from being wrapped with a module definition.
 
+- *output_compressed*: an alternate file or directory to use for compressed output.
+
 ### MODULES
 
-Each js file is wrapped in a module declaration based on the file's location. Dependencies (and concatenation order) are determined by the use of ```require()``` statements:
+Each js file is wrapped in a module declaration based on the file's location. Dependencies are determined by the use of ```require()``` statements:
 
 ```javascript
 var lib = require('./my/lib'); // in current package
@@ -272,7 +550,7 @@ Each module is provided with a ```module```, ```exports```, and ```require``` re
 
 When ```require()```-ing a module, keep in mind that the module id is resolved based on the following rules:
 
- * packages begin at the root folder specified in *buddy.js > js > sources*:
+ * packages begin at the root folder specified in *build > js > sources*:
 ```
 'Users/alex/project/src/package/main.js' > 'package/main'
 ```
@@ -300,100 +578,6 @@ Dependency resources are installed from local locations or remotely from Github.
 - **resources**: specific resources can be specified by appending ```#``` and a list of ```|``` separated relative file or directory locations: ```'username/repo#a/file/or/directory|another/file/or/directory'```
 
 **Output**: A file destination to concatenate and compress the source contents. The order of *sources* determines the content order.
-
-## Examples
-
-Copy project boilerplate from a local directory:
-
-```js
-exports.dependencies = {
-  '.': {
-    sources: ['../../boilerplate/project']
-  }
-}
-```
-
-Grab js dependencies to be installed and packaged for inclusion in html:
-
-```js
-exports.dependencies = {
-  // install location
-  'libs/vendor': {
-    sources: [
-      // library for require boilerplate
-      'popeindustries/browser-require',
-      // jquery at specific version
-      'jquery@1.8.2'
-    ],
-    // packaged and compressed
-    output: 'www/assets/js/libs.js'
-  }
-}
-```
-
-Grab sources to be referenced in your builds:
-
-```js
-exports.dependencies = {
-  // install location
-  'libs/src/css': {
-    sources: [
-      // reference the lib/nib directory for installation
-      'visionmedia/nib#lib/nib'
-    ]
-  }
-}
-```
-
-Compile a library, then reference some library files in your project:
-
-```js
-exports.build = {
-  js: {
-    sources: ['libs/src/coffee', 'libs/js', 'src'],
-    targets: [
-      {
-        // a folder of coffee files (including nested folders)
-        input: 'libs/src/coffee',
-        // a folder of compiled js files
-        output: 'libs/js'
-      },
-      {
-        // the application entry point referencing library dependencies
-        input: 'src/main.js',
-        // a concatenation of referenced dependencies
-        output: 'js/main.js'
-      }
-    ]
-  }
-}
-```
-
-Compile a site with an additional widget using shared sources:
-
-```js
-exports.build = {
-  js: {
-    sources: ['src/coffee'],
-    targets: [
-      {
-        // the application entry point
-        input: 'src/coffee/main.coffee',
-        // output to main.js (includes all referenced dependencies)
-        output: 'js',
-        targets: [
-          {
-            // references some of the same sources as main.coffee
-            input: 'src/coffee/widget.coffee',
-            // includes only referenced dependencies not in main.js
-            output: 'js'
-          }
-        ]
-      }
-    ]
-  }
-}
-```
 
 <a name="a1"/>
 ## Changelog
