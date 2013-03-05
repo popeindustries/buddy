@@ -15,17 +15,18 @@
 		"clean-css": "0.10.1",
 		"csslint": "0.9.10",
 		"jshint": "0.9.1",
-		"commander": "1.1.1",
 		"async": "0.2.5",
 		"recur-fs": "0.1.0",
 		"buddy-term": "0.1.0",
 		"buddy-dependencies": "0.1.0",
 		"buddy-server": "0.2.0",
+		"buddy-cli": "0.1.0",
 		"yaw": "0.1.0"
 	},
 	"devDependencies": {
 		"should": "*",
-		"mocha": "*"
+		"mocha": "*",
+		"rimraf": "*"
 	},
 	"directories": {
 		"lib": "./lib"
