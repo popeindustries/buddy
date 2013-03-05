@@ -4,7 +4,7 @@
 
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies, compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Stylus/Less/Jade), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.9.1 *[See [Change Log](#a1) below for more details]*
+**Current version:** 0.9.2 *[See [Change Log](#a1) below for more details]*
 
 ## Features
 
@@ -574,6 +574,9 @@ Dependency resources are installed from local locations or remotely from Github.
 
 <a name="a1"/>
 ## Changelog
+
+**0.9.2** - March 5, 2013
+* fixed bug that prevented file dependencies from being reset between builds during watch
 
 **0.9.1** - March 5, 2013
 * added support for using [buddy-cli](https://github.com/popeindustries/buddy-cli)
