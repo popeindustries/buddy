@@ -4,7 +4,7 @@
 
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies, compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Stylus/Less/Jade), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.9.0 *[See [Change Log](#a1) below for more details]*
+**Current version:** 0.9.1 *[See [Change Log](#a1) below for more details]*
 
 ## Features
 
@@ -24,9 +24,13 @@
 
 ## Installation
 
-It is generally preferrable to install the **buddy(1)** command locally for each project to ensure that future changes don't impact older projects.
+To avoid running **buddy(1)** directly as a global command, and thus avoid versioning problems across different projects, it is highly recommended that you instead install the separate [buddy-cli](https://github.com/popeindustries/buddy-cli) command line interface system-wide:
 
-Add **buddy** as a devDependency in your project's *package.json* file:
+```bash
+$ npm -g install buddy-cli
+```
+
+...then create a *package.json* file for each project, locally installing **buddy** as a devDependency:
 
 ```json
 {
@@ -35,31 +39,12 @@ Add **buddy** as a devDependency in your project's *package.json* file:
   "version": "0.0.1",
   "devDependencies": {
     "buddy": "0.9.0"
-  },
-  "scripts": {
-    "build": "buddy build",
-    "deploy": "buddy deploy"
   }
 }
 ```
-
-...then install:
-
 ```bash
 $ cd path/to/project
 $ npm install
-```
-
-**TIP:** add the following to your `$PATH` in order to run local bin versions from the project root:
-
-```bash
-export PATH=./node_modules/.bin/:$PATH
-```
-
-Alternatively, use the *-g* global flag to make the **buddy(1)** command available system-wide:
-
-```bash
-$ npm -g install buddy
 ```
 
 ## Usage
@@ -589,6 +574,9 @@ Dependency resources are installed from local locations or remotely from Github.
 
 <a name="a1"/>
 ## Changelog
+
+**0.9.1** - March 5, 2013
+* added support for using [buddy-cli](https://github.com/popeindustries/buddy-cli)
 
 **0.9.0** - February 28, 2013
 * added basic webserver with `-s --serve` flag
