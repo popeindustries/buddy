@@ -20,7 +20,7 @@
 		"buddy-term": "0.1.0",
 		"buddy-dependencies": "0.1.0",
 		"buddy-server": "0.2.0",
-		"buddy-cli": "0.1.0",
+		"buddy-cli": "0.2.0",
 		"yaw": "0.1.0"
 	},
 	"devDependencies": {
