@@ -48,7 +48,7 @@ describe 'file', ->
 					done()
 			it 'should prepend it`s directory when a root filename is \`index\`', (done) ->
 				file 'js', path.resolve('src/index.coffee'), path.resolve('src'), {processors: processors.js}, (err, instance) ->
-					instance.qualifiedName.should.equal('src/index')
+					instance.qualifiedName.should.equal('src' + path.sep + 'index')
 					done()
 		describe '"compile" property', ->
 			it 'should be true for compileable file types', (done) ->
