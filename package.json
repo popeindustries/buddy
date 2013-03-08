@@ -18,9 +18,9 @@
 		"async": "0.2.6",
 		"recur-fs": "0.1.1",
 		"buddy-term": "0.1.0",
-		"buddy-dependencies": "0.1.1",
+		"buddy-dependencies": "0.1.2",
 		"buddy-server": "0.2.0",
-		"buddy-cli": "0.3.1",
+		"buddy-cli": "0.4.0",
 		"yaw": "0.1.0"
 	},
 	"devDependencies": {
