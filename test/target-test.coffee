@@ -181,10 +181,11 @@ describe 'target', ->
 			describe 'with 1 js file and no dependencies', ->
 				it 'should write 1 file to disk', (done) ->
 					@tgt.input = path.resolve('src/basic.coffee')
-					@tgt.options.concat = true
+					@tgt.options.concat = false
 					@tgt.isDir = false
 					file =
 						moduleID: 'basic'
+						qualifiedName: 'basic'
 						getContent: -> fs.readFileSync(path.resolve('src/basic.coffee'), 'utf8')
 						filepath: path.resolve('src/basic.coffee')
 						dependencies: []
@@ -192,7 +193,6 @@ describe 'target', ->
 							compile: true
 							compiler: processors.js.compilers.coffee
 							module: processors.js.module
-						qualifiedName: 'basic'
 					@tgt._outputFile file, (err) =>
 						fs.existsSync(path.resolve('temp/basic.js')).should.be.true
 						done()
@@ -203,24 +203,24 @@ describe 'target', ->
 					@tgt.isDir = false
 					file =
 						moduleID: 'package/classcamelcase'
+						qualifiedName: 'package/ClassCamelCase'
 						filepath: path.resolve('src/package/ClassCamelCase.coffee')
 						getContent: -> fs.readFileSync(path.resolve('src/package/ClassCamelCase.coffee'), 'utf8')
 						dependencies: [
 							{
 								moduleID: 'package/class'
+								qualifiedName: 'package/Class'
 								filepath: path.resolve('src/package/Class.coffee')
 								getContent: -> fs.readFileSync(path.resolve('src/package/Class.coffee'), 'utf8')
 								dependencies: []
 								options:
 									compiler: processors.js.compilers.coffee
 									module: processors.js.module
-								qualifiedName: 'package/Class'
 							}
 						]
 						options:
 							compiler: processors.js.compilers.coffee
 							module: processors.js.module
-						qualifiedName: 'package/ClassCamelCase'
 					@tgt._outputFile file, (err) =>
-						fs.existsSync(path.resolve('temp/package/classcamelcase.js')).should.be.true
+						fs.existsSync(path.resolve('temp/package/ClassCamelCase.js')).should.be.true
 						done()
