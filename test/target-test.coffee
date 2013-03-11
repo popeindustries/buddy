@@ -186,6 +186,7 @@ describe 'target', ->
 					file =
 						moduleID: 'basic'
 						getContent: -> fs.readFileSync(path.resolve('src/basic.coffee'), 'utf8')
+						filepath: path.resolve('src/basic.coffee')
 						dependencies: []
 						options:
 							compile: true
@@ -202,10 +203,12 @@ describe 'target', ->
 					@tgt.isDir = false
 					file =
 						moduleID: 'package/classcamelcase'
+						filepath: path.resolve('src/package/ClassCamelCase.coffee')
 						getContent: -> fs.readFileSync(path.resolve('src/package/ClassCamelCase.coffee'), 'utf8')
 						dependencies: [
 							{
 								moduleID: 'package/class'
+								filepath: path.resolve('src/package/Class.coffee')
 								getContent: -> fs.readFileSync(path.resolve('src/package/Class.coffee'), 'utf8')
 								dependencies: []
 								options:
