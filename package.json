@@ -39,7 +39,7 @@
 		"test": "mocha --compilers coffee:coffee-script --reporter spec --require should -t 40000"
 	},
 	"engines": {
-		"node": ">=0.6.0"
+		"node": ">=0.8.0"
 	},
 	"repository": {
 		"type": "git",
