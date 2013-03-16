@@ -1,0 +1,66 @@
+1.1 src/js -> www/js
+	- transfigure
+	- wrap [modular=true]
+	- write
+1.2 src/js -> www/js --map
+	- transfigure
+	- wrap [modular=true]
+	- write transfigured
+	- write original
+1.3 src/js -> www/js --map --compress
+	- transfigure
+	- wrap [modular=true]
+	- compress
+	- write compressed transfigured
+	- write original
+2.1 src/js/main.js -> www/js/main.js
+	- transfigure
+	- resolve [modular=true]
+		- wrap
+	- concat [modular=true]
+	- write
+2.2 src/js/main.js -> www/js/main.js --lazy
+	- transfigure
+	- resolve [modular=true]
+		- escape
+		- wrap
+	- concat [modular=true]
+	- write
+2.3 src/js/main.js -> www/js/main.js --lazy --compress
+	- transfigure
+	- resolve [modular=true]
+		- escape
+		- compress
+		- wrap
+	- concat [modular=true]
+	- compress
+	- write
+2.4 src/js/main.js -> www/js/main.js --map
+	- transfigure
+	- resolve [modular=true]
+		- wrap
+	- concat [modular=true]
+	- write transfigured
+	- write originals
+2.5 src/js/main.js -> www/js/main.js --map --compress
+	- transfigure
+	- resolve [modular=true]
+		- wrap
+	- concat [modular=true]
+	- compress
+	- write compressed transfigured
+	- write originals
+3.1 src/css -> www/css
+	- resolve
+	- concat
+	- transfigure
+	- write
+3.2 src/css -> www/css --compress
+	- resolve
+	- concat
+	- transfigure
+	- compress
+	- write
+4.1 src/html -> www
+	- transfigure
+	- write
