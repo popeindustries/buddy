@@ -57,6 +57,9 @@ describe.only('configuration', function() {
 			before(function() {
 				process.chdir(path.resolve('nested'));
 			});
+			after(function() {
+				process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
+			});
 			it('should return a path to the default file in a parent of the cwd when no name is specified', function(done) {
 				configuration.locate(null, function(err, url) {
 					url.should.equal(path.resolve('buddy.js'));
@@ -68,6 +71,9 @@ describe.only('configuration', function() {
 			before(function() {
 				process.chdir('/');
 			});
+			after(function() {
+				process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
+			});
 			it('should return an error', function(done) {
 				configuration.locate(null, function(err, url) {
 					should.exist(err);
@@ -77,10 +83,48 @@ describe.only('configuration', function() {
 		});
 	});
 
-	describe('load', function() {
-		before(function() {
-			process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
+	describe('parse', function() {
+		it('should return null when passed build data missing "sources"', function() {
+			should.not.exist(configuration.parse({js:{targets:[{input:'src/main.js',output:'js'}]}}));
 		});
+		it('should return null when passed build data with no "sources"', function() {
+			should.not.exist(configuration.parse({js:{sources:[],targets:[{input:'src/main.js',output:'js'}]}}));
+		});
+		it('should return null when passed build data missing "targets"', function() {
+			should.not.exist(configuration.parse({js:{sources:['src']}}));
+		});
+		it('should return null when passed build data with no "targets"', function() {
+			should.not.exist(configuration.parse({js:{sources:['src'],targets:[]}}));
+		});
+		it('should return null when passed build data "input" that doesn\'t exist', function() {
+			should.not.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/hey.js',output:'js'}]}}));
+		});
+		it('should return null when passed build data with directory "input" and a file "output"', function() {
+			should.not.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js/main.js'}]}}));
+		});
+		it('should return an object when passed valid build data', function() {
+			should.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js'}]}}));
+		});
+		it('should return an object excluding invalid "targets"', function() {
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js'},{input:'src/hey.js',output:'js'}]}}).targets.should.have.length(1);
+		});
+		it('should return an object including valid child "targets"', function() {
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js',targets:[{input:'src/sub.js',output:'js'}]}]}}).targets[0].targets.should.have.length(1);
+		});
+		it('should return an object with resolved "inputpath" and "outputpath" properties', function() {
+			var data = configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}});
+			data.targets[0].inputpath.should.include('buddy/test/fixtures/configuration/src');
+			data.targets[0].outputpath.should.include('buddy/test/fixtures/configuration/js');
+		});
+		it('should return an object with resolved "outputpath" when "input" is file and "output" is directory', function() {
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}).targets[0].outputpath.should.include('main.js');
+		});
+		it('should return an object with "isDir" set to TRUE when "input" is a directory', function() {
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}).targets[0].isDir.should.be.ok;
+		});
+	});
+
+	describe('load', function() {
 		it('should return validated file data', function(done) {
 			configuration.load('buddy.js', function(err, config) {
 				should.exist(config.build);
