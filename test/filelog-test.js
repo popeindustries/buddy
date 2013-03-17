@@ -4,11 +4,9 @@ var path = require('path')
 	, filelog = require('../lib/utils/filelog');
 
 describe('filelog', function() {
-	before(function(done) {
+	before(function() {
 		process.chdir(path.resolve(__dirname, 'fixtures/filelog'));
-		filelog.load(function(err) {
-			done();
-		});
+		filelog.load();
 	});
 	afterEach(function() {
 		filelog.clean();
