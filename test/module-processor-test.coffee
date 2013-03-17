@@ -3,7 +3,7 @@ fs = require('fs')
 node = require('../lib/processors/module/node')
 css = require('../lib/processors/module/css')
 
-describe 'Module processor', ->
+describe.skip 'Module processor', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/processors/module'))
 

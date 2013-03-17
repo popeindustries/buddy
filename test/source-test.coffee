@@ -4,7 +4,7 @@ rimraf = require('rimraf')
 processors = require('../lib/processors')
 Source = require('../lib/core/source')
 
-describe 'Source', ->
+describe.skip 'Source', ->
 
 	before (done) ->
 		process.chdir(path.resolve(__dirname, 'fixtures/source'))

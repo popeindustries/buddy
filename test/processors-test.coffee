@@ -3,7 +3,7 @@ fs = require('fs')
 should = require('should')
 processors = require('../lib/processors')
 
-describe 'processors', ->
+describe.skip 'processors', ->
 	before ->
 		process.chdir(path.resolve(__dirname, 'fixtures/processors/load'))
 
