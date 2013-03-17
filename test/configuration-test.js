@@ -3,7 +3,7 @@ var path = require('path')
 	, should = require('should')
 	, configuration = require('../lib/core/configuration');
 
-describe('configuration', function() {
+describe.only('configuration', function() {
 	before(function() {
 		process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
 	});
@@ -121,6 +121,17 @@ describe('configuration', function() {
 		});
 		it('should return an object with "isDir" set to TRUE when "input" is a directory', function() {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}).targets[0].isDir.should.be.ok;
+		});
+		it('should return an object with "modular" defaulted to TRUE for js and css targets', function() {
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}).targets[0].modular.should.be.ok;
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}).targets[0].modular.should.not.be.ok;
+		});
+		it('should return an object with "concat" set to TRUE for css directory targets', function() {
+			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}).targets[0].concat.should.be.ok;
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}).targets[0].concat.should.not.be.ok;
+		});
+		it('should return an object with "concat" set to FALSE for js file targets with "modular" set to FALSE', function() {
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',modular:false}]}}).targets[0].concat.should.not.be.ok;
 		});
 	});
 
