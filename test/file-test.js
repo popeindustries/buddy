@@ -1,10 +1,20 @@
 var path = require('path')
 	, should = require('should')
-	, file = require('../lib/core/file');
+	, fileFactory = require('../lib/core/file');
 
 describe('file', function() {
 	before(function() {
 		process.chdir(path.resolve(__dirname, 'fixtures/file'));
+	});
+	describe('transfigure', function() {
+		it('should store compiled and original content', function(done) {
+			var file = fileFactory(path.resolve('src/main.coffee'));
+			file.transfigure(function(err) {
+				file._content.should.eql("Class = require('./package/class')\nClassCamelCase = require('./package/classcamelcase')\n\ninstance = new Class\n");
+				file._transfiguredContent.should.eql("var Class, ClassCamelCase, instance;\n\nClass = require('./package/class');\n\nClassCamelCase = require('./package/classcamelcase');\n\ninstance = new Class;\n");
+				done();
+			});
+		});
 	});
 });
 

@@ -84,12 +84,6 @@ describe('configuration', function() {
 	});
 
 	describe('parse', function() {
-		it('should return null when passed build data missing "sources"', function() {
-			should.not.exist(configuration.parse({js:{targets:[{input:'src/main.js',output:'js'}]}}));
-		});
-		it('should return null when passed build data with no "sources"', function() {
-			should.not.exist(configuration.parse({js:{sources:[],targets:[{input:'src/main.js',output:'js'}]}}));
-		});
 		it('should return null when passed build data missing "targets"', function() {
 			should.not.exist(configuration.parse({js:{sources:['src']}}));
 		});
