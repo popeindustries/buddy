@@ -3,7 +3,7 @@ var path = require('path')
 	, should = require('should')
 	, rimraf = require('rimraf')
 	, file = require('../lib/core/file')
-	, target = require('../lib/core/target');
+	, targetFactory = require('../lib/core/target');
 
 describe('target', function() {
 	before(function() {
@@ -12,7 +12,7 @@ describe('target', function() {
 
 	describe('factory', function() {
 		it('should decorate a new Target instance with passed data', function() {
-			target({input: 'src/some.coffee', output: 'js'}).should.have.property('output', 'js');
+			targetFactory({input: 'src/some.coffee', output: 'js'}).should.have.property('output', 'js');
 		});
 	});
 });
