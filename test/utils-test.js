@@ -6,7 +6,7 @@ var path = require('path')
 	, parse = require('../lib/utils/parse')
 	, wrap = require('../lib/utils/wrap');
 
-describe.only('utils', function() {
+describe('utils', function() {
 	before(function() {
 		process.chdir(path.resolve(__dirname, 'fixtures/utils'));
 	});
@@ -28,7 +28,7 @@ describe.only('utils', function() {
 		it('should compress css file contents', function(done) {
 			compress('css', fs.readFileSync(path.resolve('main.css'), 'utf8'), function(err, content) {
 				should.not.exist(err);
-				content.should.eql("body{background-color:#000}");
+				content.should.eql("@import 'foo';body{background-color:#000}");
 				done();
 			});
 		});
@@ -36,14 +36,19 @@ describe.only('utils', function() {
 
 	describe('wrap', function() {
 		it('should wrap js file contents in a module definition', function() {
-			wrap('js', 'main', fs.readFileSync(path.resolve('main.js'), 'utf8'), false).should.eql("require.register(\'main\', function(module, exports, require) {\n  var bar = require(\'./package/bar\')\n  \t, foo = require(\'./package/foo\');\n});");
+			wrap('main', fs.readFileSync(path.resolve('main.js'), 'utf8'), false).should.eql("require.register(\'main\', function(module, exports, require) {\n  var bar = require(\'./package/bar\')\n  \t, foo = require(\'./package/foo\');\n});");
 		});
 		it('should wrap js file contents in a lazy module definition', function() {
-			wrap('js', 'main', fs.readFileSync(path.resolve('main.js'), 'utf8'), true).should.eql("require.register(\'main\', var bar = require(\'./package/bar\')\n\t, foo = require(\'./package/foo\'););");
+			wrap('main', fs.readFileSync(path.resolve('main.js'), 'utf8'), true).should.eql("require.register(\'main\', var bar = require(\'./package/bar\')\n\t, foo = require(\'./package/foo\'););");
 		});
 	});
 
 	describe('parse', function() {
-
+		it('should return an array of js dependency ids', function() {
+			parse('js', fs.readFileSync(path.resolve('main.js'), 'utf8')).should.eql(['./package/bar', './package/foo']);
+		});
+		it('should return an array of css dependency ids', function() {
+			parse('css', fs.readFileSync(path.resolve('main.css'), 'utf8')).should.eql(['foo']);
+		});
 	});
 });

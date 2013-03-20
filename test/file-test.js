@@ -3,11 +3,11 @@ var path = require('path')
 	, should = require('should')
 	, fileFactory = require('../lib/core/file');
 
-describe.only('file', function() {
+describe('file', function() {
 	before(function() {
 		process.chdir(path.resolve(__dirname, 'fixtures/file'));
 	});
-	describe('factory', function() {
+	describe	('factory', function() {
 		it('should decorate a new File instance with passed data', function() {
 			fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
 				instance.should.have.property('type', 'js');
@@ -29,7 +29,7 @@ describe.only('file', function() {
 			});
 		});
 		it('should resolve a module id for a node_modules package.json "main" File instance', function() {
-			fileFactory(path.resolve('node_modules/bar/bar.js'), {type:'js', sources:[path.resolve('node_modules')]}, function(err, instance) {
+			fileFactory(path.resolve('node_modules/bar/lib/bar.js'), {type:'js', sources:[path.resolve('node_modules')]}, function(err, instance) {
 				instance.should.have.property('id', 'bar');
 			});
 		});
@@ -47,6 +47,15 @@ describe.only('file', function() {
 		});
 	});
 
-	describe('resolve', function() {
+	describe.only('resolve', function() {
+		it('should generate and store dependency File instances', function(done) {
+			fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
+				instance._transContent = fs.readFileSync(path.resolve('src/main.js'), 'utf8');
+				instance.resolve(function(err) {
+					instance.dependencies.should.have.length(2);
+					done();
+				});
+			});
+		});
 	});
 });
