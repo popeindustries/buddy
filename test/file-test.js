@@ -3,11 +3,11 @@ var path = require('path')
 	, should = require('should')
 	, fileFactory = require('../lib/core/file');
 
-describe('file', function() {
+describe.only('file', function() {
 	before(function() {
 		process.chdir(path.resolve(__dirname, 'fixtures/file'));
 	});
-	describe	('factory', function() {
+	describe('factory', function() {
 		it('should decorate a new File instance with passed data', function() {
 			fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
 				instance.should.have.property('type', 'js');
@@ -47,7 +47,7 @@ describe('file', function() {
 		});
 	});
 
-	describe.only('resolve', function() {
+	describe('resolve', function() {
 		it('should generate and store dependency File instances', function(done) {
 			fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
 				instance._transContent = fs.readFileSync(path.resolve('src/main.js'), 'utf8');
