@@ -16,20 +16,20 @@
 
 2.1 src/js/main.js -> www/js/main.js
 	- transfigure
-	- resolve [modular=true]
+	- parse [modular=true]
 		- wrap
 	- concat [modular=true; main=true]
 	- write [main=true]
 2.2 src/js/main.js -> www/js/main.js --lazy
 	- transfigure
-	- resolve [modular=true]
+	- parse [modular=true]
 		- escape
 		- wrap
 	- concat [modular=true; main=true]
 	- write [main=true]
 2.3 src/js/main.js -> www/js/main.js --lazy --compress
 	- transfigure
-	- resolve [modular=true]
+	- parse [modular=true]
 		- escape
 		- compress
 		- wrap
@@ -38,14 +38,14 @@
 	- write [main=true]
 2.4 src/js/main.js -> www/js/main.js --map
 	- transfigure
-	- resolve [modular=true]
+	- parse [modular=true]
 		- wrap
 	- concat [modular=true; main=true]
 	- write transfigured [main=true]
 	- write originals
 2.5 src/js/main.js -> www/js/main.js --map --compress
 	- transfigure
-	- resolve [modular=true]
+	- parse [modular=true]
 		- wrap
 	- concat [modular=true; main=true]
 	- compress [main=true]
@@ -53,12 +53,12 @@
 	- write originals
 
 3.1 src/css -> www/css
-	- resolve
+	- parse
 	- concat
 	- transfigure
 	- write
 3.2 src/css -> www/css --compress
-	- resolve
+	- parse
 	- concat
 	- transfigure
 	- compress
