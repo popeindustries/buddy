@@ -39,7 +39,7 @@ describe('file', function() {
 		});
 	});
 
-	describe.only('workflow', function() {
+	describe('workflow', function() {
 		describe('read', function() {
 			it('should read and store js file contents', function(done) {
 				fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
@@ -189,9 +189,11 @@ describe('file', function() {
 					sources: [path.resolve('src')]
 				}
 				fileFactory(path.resolve('src/package/foo.css'), opts, function(err, foo) {
+					foo.reset();
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [];
 					fileFactory(path.resolve('src/main.css'), opts, function(err, main) {
+						main.reset();
 						main.content = fs.readFileSync(main.filepath, 'utf8');
 						main.dependencies = [{id:'package/foo', filepath:foo.filepath, instance:foo}];
 						main.concat(null, function(err) {
@@ -207,13 +209,82 @@ describe('file', function() {
 					sources: [path.resolve('src')]
 				}
 				fileFactory(path.resolve('src/package/foo.css'), opts, function(err, foo) {
+					foo.reset();
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [];
 					fileFactory(path.resolve('src/package/bar.css'), opts, function(err, main) {
+						main.reset();
 						main.content = fs.readFileSync(main.filepath, 'utf8');
 						main.dependencies = [{id:'foo', filepath:foo.filepath, instance:foo}];
 						main.concat(null, function(err) {
 							main.content.should.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
+							done();
+						});
+					});
+				})
+			});
+			it('should combine js file contents', function(done) {
+				var opts = {
+					type: 'js',
+					sources: [path.resolve('src')]
+				}
+				fileFactory(path.resolve('src/package/foo.js'), opts, function(err, foo) {
+					foo.reset();
+					foo.content = fs.readFileSync(foo.filepath, 'utf8');
+					foo.dependencies = [];
+					fileFactory(path.resolve('src/package/bar.js'), opts, function(err, bar) {
+						bar.reset();
+						bar.content = fs.readFileSync(bar.filepath, 'utf8');
+						bar.dependencies = [{id:'./foo', filepath:foo.filepath, instance:foo}];
+						bar.concat(null, function(err) {
+							bar.content.should.eql("// var bat = require('./bat')\n\nmodule.exports = function(){};\nvar foo = require('./foo');\n\nmodule.exports = function() {};");
+							done();
+						});
+					});
+				})
+			});
+			it('should combine js file contents, avoiding duplicates', function(done) {
+				var opts = {
+					type: 'js',
+					sources: [path.resolve('src')]
+				}
+				fileFactory(path.resolve('src/package/foo.js'), opts, function(err, foo) {
+					foo.reset();
+					foo.content = fs.readFileSync(foo.filepath, 'utf8');
+					foo.dependencies = [];
+					fileFactory(path.resolve('src/package/bar.js'), opts, function(err, bar) {
+						bar.reset();
+						bar.content = fs.readFileSync(bar.filepath, 'utf8');
+						bar.dependencies = [{id:'./foo', filepath:foo.filepath, instance:foo}];
+						fileFactory(path.resolve('src/main.js'), opts, function(err, main) {
+							main.reset();
+							main.content = fs.readFileSync(main.filepath, 'utf8');
+							main.dependencies = [{id:'./package/bar', filepath:bar.filepath, instance:bar}, {id:'./package/foo', filepath:foo.filepath, instance:foo}];
+							main.concat(null, function(err) {
+								main.content.should.eql("// var bat = require('./bat')\n\nmodule.exports = function(){};\nvar foo = require('./foo');\n\nmodule.exports = function() {};\nvar bar = require('./package/bar')\n\t, foo = require('./package/foo');");
+								done();
+							});
+						});
+					});
+				})
+			});
+			it('should combine js contents, avoiding circular dependencies', function(done) {
+				var opts = {
+					type: 'js',
+					sources: [path.resolve('src')]
+				}
+				fileFactory(path.resolve('src/package/circ.js'), opts, function(err, foo) {
+					foo.reset();
+					foo.content = fs.readFileSync(foo.filepath, 'utf8');
+					foo.dependencies = [{id:'../main-circ', filepath:null, instance:null}];
+					fileFactory(path.resolve('src/main-circ.js'), opts, function(err, main) {
+						main.reset();
+						main.content = fs.readFileSync(main.filepath, 'utf8');
+						main.dependencies = [{id:'foo', filepath:foo.filepath, instance:foo}];
+						foo.dependencies[0].filepath = main.filepath;
+						foo.dependencies[0].instance = main;
+						main.concat(null, function(err) {
+							main.content.should.eql("var main = require('../main-circ')\n\t, circ = this;\nvar circ = require('./package/circ')\n\t, main = this;");
 							done();
 						});
 					});

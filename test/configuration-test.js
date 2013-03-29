@@ -121,18 +121,18 @@ describe('configuration', function() {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].modular.should.not.be.ok;
 		});
 		it('should return an object with the correct processing workflow set for an html target', function() {
-			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql(['all:transfigure', 'all:write']);
+			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql(['transfigure', 'write']);
 		});
 		it('should return an object with the correct processing workflow set for a css target', function() {
-			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}, {compress:false}).targets[0].workflow.should.eql(['all:parse', 'all:concat', 'target:filter', 'main:transfigure', 'main:write']);
+			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}, {compress:false}).targets[0].workflow.should.eql(['parse', 'concat', 'target:filter', 'transfigure', 'write']);
 		});
 		it('should return an object with the correct processing workflow set for a js directory target', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['all:transfigure', 'all:wrap', 'all:write']);
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['all:transfigure', 'all:write']);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['transfigure', 'wrap', 'write']);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['transfigure', 'write']);
 		});
 		it('should return an object with the correct processing workflow set for a js file target', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['all:transfigure', 'all:parse', 'all:wrap', 'target:resolve', 'main:concat', 'main:write']);
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['all:transfigure', 'all:write']);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['transfigure', 'parse', 'wrap', 'target:resolve', 'concat', 'write']);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['transfigure', 'write']);
 		});
 	});
 
