@@ -85,54 +85,54 @@ describe('configuration', function() {
 
 	describe('parse', function() {
 		it('should return null when passed build data missing "targets"', function() {
-			should.not.exist(configuration.parse({js:{sources:['src']}}));
+			should.not.exist(configuration.parse({js:{sources:['src']}}, {compress:false}));
 		});
 		it('should return null when passed build data with no "targets"', function() {
-			should.not.exist(configuration.parse({js:{sources:['src'],targets:[]}}));
+			should.not.exist(configuration.parse({js:{sources:['src'],targets:[]}}, {compress:false}));
 		});
 		it('should return null when passed build data "input" that doesn\'t exist', function() {
-			should.not.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/hey.js',output:'js'}]}}));
+			should.not.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/hey.js',output:'js'}]}}, {compress:false}));
 		});
 		it('should return null when passed build data with directory "input" and a file "output"', function() {
-			should.not.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js/main.js'}]}}));
+			should.not.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js/main.js'}]}}, {compress:false}));
 		});
 		it('should return an object when passed valid build data', function() {
-			should.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js'}]}}));
+			should.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js'}]}}, {compress:false}));
 		});
 		it('should return an object excluding invalid "targets"', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js'},{input:'src/hey.js',output:'js'}]}}).targets.should.have.length(1);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js'},{input:'src/hey.js',output:'js'}]}}, {compress:false}).targets.should.have.length(1);
 		});
 		it('should return an object including valid child "targets"', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js',targets:[{input:'src/sub.js',output:'js'}]}]}}).targets[0].targets.should.have.length(1);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js',targets:[{input:'src/sub.js',output:'js'}]}]}}, {compress:false}).targets[0].targets.should.have.length(1);
 		});
 		it('should return an object with resolved "inputpath" and "outputpath" properties', function() {
-			var data = configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}});
+			var data = configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false});
 			data.targets[0].inputpath.should.include('buddy/test/fixtures/configuration/src');
 			data.targets[0].outputpath.should.include('buddy/test/fixtures/configuration/js');
 		});
 		it('should return an object with resolved "outputpath" when "input" is file and "output" is directory', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}).targets[0].outputpath.should.include('main.js');
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false}).targets[0].outputpath.should.include('main.js');
 		});
 		it('should return an object with "isDir" set to TRUE when "input" is a directory', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}).targets[0].isDir.should.be.ok;
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].isDir.should.be.ok;
 		});
 		it('should return an object with "modular" defaulted to TRUE for js and css targets', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}).targets[0].modular.should.be.ok;
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}).targets[0].modular.should.not.be.ok;
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].modular.should.be.ok;
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].modular.should.not.be.ok;
 		});
-		it('should return an object with the correct processing steps set for an html target', function() {
-			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}).targets[0].steps.should.eql(['transfigure', 'write']);
+		it('should return an object with the correct processing workflow set for an html target', function() {
+			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql(['all:transfigure', 'all:write']);
 		});
-		it('should return an object with the correct processing steps set for a css target', function() {
-			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}).targets[0].steps.should.eql(['resolve', 'concat', 'transfigure', 'write']);
+		it('should return an object with the correct processing workflow set for a css target', function() {
+			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}, {compress:false}).targets[0].workflow.should.eql(['all:parse', 'all:concat', 'target:filter', 'main:transfigure', 'main:write']);
 		});
-		it('should return an object with the correct processing steps set for a js directory target', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}).targets[0].steps.should.eql(['transfigure', 'wrap', 'write']);
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}).targets[0].steps.should.eql(['transfigure', 'write']);
+		it('should return an object with the correct processing workflow set for a js directory target', function() {
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['all:transfigure', 'all:wrap', 'all:write']);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['all:transfigure', 'all:write']);
 		});
-		it('should return an object with the correct processing steps set for a js file target', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}).targets[0].steps.should.eql(['transfigure', 'resolve', 'wrap', 'concat', 'write']);
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',modular:false}]}}).targets[0].steps.should.eql(['transfigure', 'write']);
+		it('should return an object with the correct processing workflow set for a js file target', function() {
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['all:transfigure', 'all:parse', 'all:wrap', 'target:resolve', 'main:concat', 'main:write']);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['all:transfigure', 'all:write']);
 		});
 	});
 
