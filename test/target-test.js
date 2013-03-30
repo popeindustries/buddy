@@ -114,7 +114,7 @@ describe('target', function() {
 		});
 		it('should parse a file "input" and process a basic read/write workflow', function(done) {
 			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = ['transfigure', 'write'];
+			this.target.workflow = ['compile', 'write'];
 			this.target.parse(function(err) {
 				this.target.sourceFiles.should.have.length(1);
 				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
@@ -124,7 +124,7 @@ describe('target', function() {
 		it('should parse a directory "input" and process a basic read/write workflow', function(done) {
 			this.target.inputPath = path.resolve('src/js');
 			this.target.isDir = true;
-			this.target.workflow = ['transfigure', 'write'];
+			this.target.workflow = ['compile', 'write'];
 			this.target.parse(function(err) {
 				this.target.sourceFiles.should.have.length(4);
 				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
