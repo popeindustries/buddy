@@ -13,7 +13,7 @@ describe('target', function() {
 		if (!fs.existsSync(path.resolve('temp'))) fs.mkdirSync(path.resolve('temp'));
 	});
 	afterEach(function() {
-		// rimraf.sync(path.resolve('temp'));
+		rimraf.sync(path.resolve('temp'));
 	});
 
 	describe('factory', function() {
@@ -41,11 +41,11 @@ describe('target', function() {
 				fn();
 			};
 			this.target = targetFactory({type:'js', fileExtensions:[], sources:[]});
-			this.target.action1 = function(fn) {
+			this.target.action1 = function(files, fn) {
 				this.files.pop();
 				fn();
 			}
-			this.target.action2 = function(fn) {
+			this.target.action2 = function(files, fn) {
 				this.files.push(new File('3'));
 				fn();
 			}
@@ -87,14 +87,14 @@ describe('target', function() {
 			this.target = targetFactory({type:'js', fileExtensions:[], sources:['src']});
 		});
 		it('should add a file to "inputFiles", and update the file contents', function(done) {
-			this.target.getFile(path.resolve('src/js/simple/foo.js'), function(err, file) {
+			this.target.getFile(path.resolve('src/js/foo.js'), function(err, file) {
 				this.target.inputFiles.should.have.length(1);
 				file.content.should.be.ok;
 				done();
 			}.bind(this));
 		});
 		it('should return a cached file and not store duplicates', function(done) {
-			this.target.getFile(path.resolve('src/js/simple/foo.js'), function(err, file) {
+			this.target.getFile(path.resolve('src/js/foo.js'), function(err, file) {
 				this.target.inputFiles.should.have.length(1);
 				done();
 			}.bind(this));
@@ -107,34 +107,34 @@ describe('target', function() {
 		});
 	});
 
-	describe.only('parse', function() {
+	describe('parse', function() {
 		beforeEach(function() {
 			this.target = targetFactory({type:'js', fileExtensions:['js', 'coffee'], sources:['src'], options:{}});
 			this.target.outputpath = this.target.options.outputpath = path.resolve('temp');
 		});
 		it('should parse a file "input" and process a basic read/write workflow', function(done) {
-			this.target.inputpath = path.resolve('src/js/simple/foo.js');
+			this.target.inputpath = path.resolve('src/js/foo.js');
 			this.target.workflow = ['transfigure', 'write'];
 			this.target.parse(function(err) {
 				this.target.inputFiles.should.have.length(1);
-				fs.existsSync(path.resolve('temp/js/simple/foo.js')).should.be.ok;
+				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
 				done();
 			}.bind(this));
 		});
 		it('should parse a directory "input" and process a basic read/write workflow', function(done) {
-			this.target.inputpath = path.resolve('src/js/simple');
+			this.target.inputpath = path.resolve('src/js');
 			this.target.isDir = true;
 			this.target.workflow = ['transfigure', 'write'];
 			this.target.parse(function(err) {
 				this.target.inputFiles.should.have.length(4);
-				fs.existsSync(path.resolve('temp/js/simple/foo.js')).should.be.ok;
-				fs.existsSync(path.resolve('temp/js/simple/bar.js')).should.be.ok;
-				fs.existsSync(path.resolve('temp/js/simple/bat.js')).should.be.ok;
-				fs.existsSync(path.resolve('temp/js/simple/baz.js')).should.be.ok;
+				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
+				fs.existsSync(path.resolve('temp/js/bar.js')).should.be.ok;
+				fs.existsSync(path.resolve('temp/js/bat.js')).should.be.ok;
+				fs.existsSync(path.resolve('temp/js/baz.js')).should.be.ok;
 				done();
 			}.bind(this));
 		});
-		it('should parse a directory "input" and process a workflow that filters the number of output files', function(done) {
+		it('should parse a directory "input" and process a workflow that filters the number of source files', function(done) {
 			this.target.type = this.target.fileFactoryOptions.type = 'css';
 			this.target.inputpath = path.resolve('src/css');
 			this.target.isDir = true;
@@ -142,6 +142,20 @@ describe('target', function() {
 			this.target.parse(function(err) {
 				this.target.inputFiles.should.have.length(1);
 				fs.existsSync(path.resolve('temp/css/foo.css')).should.be.ok;
+				done();
+			}.bind(this));
+		});
+		it.only('should parse a file "input" and process a workflow that resolves and increases the number of source files', function(done) {
+			this.target.type = this.target.fileFactoryOptions.type = 'js';
+			this.target.inputpath = path.resolve('src/js/foo.js');
+			this.target.isDir = false;
+			this.target.workflow = ['parse', 'target:resolve', 'write'];
+			this.target.parse(function(err) {
+				this.target.inputFiles.should.have.length(4);
+				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
+				fs.existsSync(path.resolve('temp/js/bar.js')).should.be.ok;
+				fs.existsSync(path.resolve('temp/js/bat.js')).should.be.ok;
+				fs.existsSync(path.resolve('temp/js/baz.js')).should.be.ok;
 				done();
 			}.bind(this));
 		});
