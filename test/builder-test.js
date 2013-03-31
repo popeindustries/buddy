@@ -178,82 +178,129 @@ describe('Builder', function() {
 			});
 		});
 	});
+
+	describe('building a complex project', function() {
+		before(function() {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-complex'));
+		});
+		describe('with 2 js targets and 1 child target sharing assets', function() {
+			it('should build 3 concatenated js files', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					fs.existsSync(this.builder.targets[1].outputPaths[0]).should.be.true;
+					fs.existsSync(this.builder.targets[2].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+			it('should build a child js file without source shared with it`s parent', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					var contents = fs.readFileSync(path.resolve('output/section.js'), 'utf8');
+					contents.should.not.include("require.module('utils/util',");
+					done();
+				}.bind(this));
+			});
+			it('should build a child js file that is different than the same file built without a parent target', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					var contents = fs.readFileSync(path.resolve('output/section.js'), 'utf8');
+					fs.readFileSync(path.resolve('output/section.js'), 'utf8').should.not.eql(fs.readFileSync(path.resolve('output/section/somesection.js'), 'utf8'));
+					done();
+				}.bind(this));
+			});
+		});
+	});
+
+	describe('building a js project', function() {
+		before(function() {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-js'));
+		});
+		describe('with a single js file requiring 1 dependency', function() {
+			it('should build 1 js file', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+			it('should contain 2 modules', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					var contents = fs.readFileSync(this.builder.targets[0].outputPaths[0], 'utf8');
+					contents.should.include("require.register('main'");
+					contents.should.include("require.register('package/classcamelcase'");
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with a single js file requiring 1 wrapped dependency', function() {
+			it('should build 1 js file', function(done) {
+				this.builder.build('buddy_wrapped.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+			it('should contain 2 modules', function(done) {
+				this.builder.build('buddy_wrapped.js', {}, function(err) {
+					var contents = fs.readFileSync(this.builder.targets[0].outputPaths[0], 'utf8');
+					contents.should.include("require.register('mainwrapped'");
+					contents.should.include("require.register('package/prewrapped'");
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with a directory of empty js files', function() {
+			it('should build 2 js files', function(done) {
+				this.builder.build('buddy_empty.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					fs.existsSync(this.builder.targets[0].outputPaths[1]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+	});
+
+	describe('building a css project', function() {
+		before(function() {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-css'));
+		});
+		describe('with 2 stylus files referencing a shared dependency', function() {
+			it('should build 2 css files', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					fs.existsSync(path.resolve(this.builder.targets[0].output, 'one.css')).should.be.true;
+					fs.existsSync(path.resolve(this.builder.targets[0].output, 'two.css')).should.be.true;
+					fs.existsSync(path.resolve(this.builder.targets[0].output, 'three.css')).should.be.false;
+					done();
+				}.bind(this));
+			});
+			it('should import the dependency into both files', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					var contents1 = fs.readFileSync(path.resolve(this.builder.targets[0].output, 'one.css'), 'utf8');
+					var contents2 = fs.readFileSync(path.resolve(this.builder.targets[0].output, 'two.css'), 'utf8');
+					contents1.should.eql(contents2);
+					contents1.should.include("colour: '#ffffff';");
+					contents2.should.include("colour: '#ffffff';");
+					done();
+				}.bind(this));
+			});
+		});
+	});
+
+	describe('building an html project', function() {
+		before(function() {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-html'));
+		});
+		describe('with 1 jade file', function() {
+			it('should build 1 html file', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with 1 jade file with 2 includes', function() {
+			it('should build 1 html file', function(done) {
+				this.builder.build('buddy-include.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+	});
 });
-	// 	describe 'complex project', ->
-	// 		before ->
-	// 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-complex'))
-	// 		describe 'with 2 js targets and 1 child target sharing assets', ->
-	// 			it 'should build 3 concatenated js files', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					gatherFiles(path.resolve('output')).should.have.length(3)
-	// 					done()
-	// 			it 'should build a child js file without source shared with it`s parent', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					contents = fs.readFileSync(path.resolve('output/section.js'), 'utf8')
-	// 					contents.should.not.include("require.module('utils/util',")
-	// 					done()
-	// 			it 'should build a child js file that is different than the same file built without a parent target', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					fs.readFileSync(path.resolve('output/section.js'), 'utf8').should.not.eql(fs.readFileSync(path.resolve('output/section/someSection.js'), 'utf8'))
-	// 					done()
-	// 	describe 'js project', ->
-	// 		before ->
-	// 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-js'))
-	// 		describe 'with a single js file requiring 1 dependency', ->
-	// 			it 'should build 1 js file', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.js[0].output).should.be.true
-	// 					done()
-	// 			it 'should contain 2 modules', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					contents = fs.readFileSync(@builder.targets.js[0].output, 'utf8')
-	// 					contents.should.include("require.register('main'")
-	// 					contents.should.include("require.register('package/classcamelcase'")
-	// 					done()
-	// 		describe 'with a single js file requiring 1 wrapped dependency', ->
-	// 			it 'should build 1 js file', (done) ->
-	// 				@builder.build 'buddy_wrapped.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.js[0].output).should.be.true
-	// 					done()
-	// 			it 'should contain 2 modules', (done) ->
-	// 				@builder.build 'buddy_wrapped.js', false, false, false, false, false, (err) =>
-	// 					contents = fs.readFileSync(@builder.targets.js[0].output, 'utf8')
-	// 					contents.should.include("require.register('mainwrapped'")
-	// 					contents.should.include("require.register('package/prewrapped'")
-	// 					done()
-	// 		describe 'with a directory of empty js files', ->
-	// 			it 'should build 2 js files', (done) ->
-	// 				@builder.build 'buddy_empty.js', false, false, false, false, false, (err) =>
-	// 					gatherFiles(@builder.targets.js[0].output).should.have.length(2)
-	// 					done()
-	// 	describe 'css project', ->
-	// 		before ->
-	// 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-css'))
-	// 		describe 'with 2 stylus files referencing a shared dependency', ->
-	// 			it 'should build 2 css files', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(path.resolve(@builder.targets.css[0].output, 'one.css')).should.be.true
-	// 					fs.existsSync(path.resolve(@builder.targets.css[0].output, 'two.css')).should.be.true
-	// 					fs.existsSync(path.resolve(@builder.targets.css[0].output, 'three.css')).should.be.false
-	// 					done()
-	// 			it 'should import the dependency into both files', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					contents1 = fs.readFileSync(path.resolve(@builder.targets.css[0].output, 'one.css'), 'utf8')
-	// 					contents2 = fs.readFileSync(path.resolve(@builder.targets.css[0].output, 'two.css'), 'utf8')
-	// 					contents1.should.eql(contents2)
-	// 					contents1.should.include("colour: '#ffffff';")
-	// 					contents2.should.include("colour: '#ffffff';")
-	// 					done()
-	// 	describe 'html project', ->
-	// 		before ->
-	// 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-html'))
-	// 		describe 'with 1 jade file', ->
-	// 			it 'should build 1 html file', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(path.resolve(@builder.targets.html[0].output)).should.be.true
-	// 					done()
-	// 		describe 'with 1 jade file with 2 includes', ->
-	// 			it 'should build 1 html file', (done) ->
-	// 				@builder.build 'buddy-include.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(path.resolve(@builder.targets.html[0].output)).should.be.true
-	// 					done()

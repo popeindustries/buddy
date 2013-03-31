@@ -14,7 +14,7 @@ exports.build = {
 			},
 			{
 				"input": "src/coffee/section/someSection.coffee",
-				"output": "output/section/"
+				"output": "output"
 			}
 		]
 	}
