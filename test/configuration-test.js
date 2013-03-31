@@ -121,18 +121,18 @@ describe('configuration', function() {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].modular.should.not.be.ok;
 		});
 		it('should return an object with the correct processing workflow set for an html target', function() {
-			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'target:output']);
+			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'target:write']);
 		});
 		it('should return an object with the correct processing workflow set for a css target', function() {
-			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}, {compress:false}).targets[0].workflow.should.eql(['parse', 'concat', 'target:filter', 'compile', 'target:output']);
+			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}, {compress:false}).targets[0].workflow.should.eql(['parse', 'concat', 'target:filter', 'compile', 'target:write']);
 		});
 		it('should return an object with the correct processing workflow set for a js directory target', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'wrap', 'target:output']);
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'target:output']);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'wrap', 'target:write']);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'target:write']);
 		});
 		it('should return an object with the correct processing workflow set for a js file target', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'parse', 'wrap', 'target:resolve', 'concat', 'target:filter', 'target:output']);
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'target:output']);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'parse', 'wrap', 'target:resolve', 'concat', 'target:filter', 'target:write']);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'target:write']);
 		});
 	});
 
@@ -151,6 +151,12 @@ describe('configuration', function() {
 		});
 		it('should return an error when passed a reference to a malformed file', function(done) {
 			configuration.load('buddy_bad.js', function(err, config) {
+				should.exist(err);
+				done();
+			});
+		});
+		it('should return an error when passed an invalid build configuration', function(done) {
+			configuration.load('buddy_bad_build.js', function(err, config) {
 				should.exist(err);
 				done();
 			});

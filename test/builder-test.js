@@ -21,128 +21,164 @@ function gatherFiles (dir, files) {
 }
 
 describe('Builder', function() {
+	beforeEach(function() {
+		this.builder = new Builder();
+	});
+	afterEach(function() {
+		this.builder = null;
+		rimraf.sync(path.resolve('output'));
+	});
 
 	describe('parsing build target', function() {
 		before(function() {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/init'));
 		});
-		beforeEach(function() {
-			this.builder = new Builder();
-		});
 		it('should result in a target count of 1 for valid target data', function() {
-			this.builder._initializeTargets([{'input': 'target/main.coffee', 'output': 'main.js'}]);
+			this.builder._initializeTargets([{'input': 'target/foo.js', 'output': 'main.js'}]);
 			this.builder.targets.should.have.length(1);
 		});
 		it('should result in a target count of 2 with valid target data containing a child target', function() {
-			this.builder._initializeTargets([{'input': 'target/main.coffee', 'output': 'main.js', 'hasChildren': true, 'targets':[{'input':'target/class', 'output':'../js'}]}]);
+			this.builder._initializeTargets([{'input': 'target/foo.js', 'output': 'main.js', 'hasChildren': true, 'targets':[{'input':'target/lib', 'output':'../js'}]}]);
 			this.builder.targets.should.have.length(2);
 		});
 	});
+
+	describe('building file targets', function() {
+		before(function() {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project'));
+		});
+		describe('with a single coffee file', function() {
+			it('should build 1 js file', function(done) {
+				this.builder.build('buddy_single-file.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with a single coffee file requiring 1 dependency', function() {
+			it('should build 1 js file with 2 modules', function(done) {
+				this.builder.build('buddy_single-file-with-dependency.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					var contents = fs.readFileSync(this.builder.targets[0].outputPaths[0], 'utf8');
+					contents.should.include("require.register('package/class'");
+					contents.should.include("require.register('package/classcamelcase'");
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with a single coffee file containing a module wrapper', function() {
+			it('should build 1 js file containing only 1 module wrapper', function(done) {
+				this.builder.build('buddy_single-file-with-wrapper.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					var contents = fs.readFileSync(this.builder.targets[0].outputPaths[0], 'utf8');
+					contents.indexOf('require.register').should.eql(contents.lastIndexOf('require.register'));
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with a single livescript file', function() {
+			it('should build 1 js file', function(done) {
+				this.builder.build('buddy_single-ls-file.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with a single handlebars template file', function() {
+			it('should build 1 js file', function(done) {
+				this.builder.build('buddy_single-handlebars-file.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with a single stylus file', function() {
+			it('should build 1 css file', function(done) {
+				this.builder.build('buddy_single-styl-file.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with a single less file', function() {
+			it('should build 1 css file', function(done) {
+				this.builder.build('buddy_single-less-file.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+	});
+
+	describe('building directory targets', function() {
+		before(function() {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/library'));
+		});
+		describe('with 3 coffee files', function() {
+			it('should build 3 js files', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					var files = this.builder.targets[0].outputPaths;
+					files.should.have.length(3);
+					files.forEach(function(file) {
+						fs.readFileSync(file, 'utf8').should.include('require.register(');
+					});
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with 3 coffee files and the "modular" property set to false', function() {
+			it('should build 3 js files without module wrappers', function(done) {
+				this.builder.build('buddy-nodejs.js', {}, function(err) {
+					var files = this.builder.targets[0].outputPaths;
+					files.should.have.length(3);
+					files.forEach(function(file) {
+						fs.readFileSync(file, 'utf8').should.not.include('require.register(');
+					});
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with 2 stylus files', function() {
+			it('should build 2 css files', function(done) {
+				this.builder.build('buddy_styl.js', {}, function(err) {
+					var files = this.builder.targets[0].outputPaths;
+					files.should.have.length(2);
+					done();
+				}.bind(this));
+			});
+		});
+	});
+
+	describe('building a project', function() {
+		before(function() {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project'));
+		});
+		describe('with a single coffee file and a stylus directory', function() {
+			it('should build 1 concatenated js file and 2 css files', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					this.builder.targets[1].outputPaths.should.have.length(2);
+					done();
+				}.bind(this));
+			});
+		});
+	});
+
+	describe('building a partial project', function() {
+		before(function() {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-partial'));
+		});
+		describe('with a single coffee file and a missing stylus directory', function() {
+			it('should build 1 concatenated js file ', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					should.not.exist(err);
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+	});
 });
-
-	// describe 'build', ->
-	// 	beforeEach ->
-	// 		@builder = new Builder
-	// 		@builder.options.processors = processors
-	// 	afterEach ->
-	// 		@builder = null
-	// 		rimraf.sync(path.resolve('output'))
-
-	// 	describe 'file target', ->
-	// 		before ->
-	// 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project'))
-	// 		describe 'with a single coffee file', ->
-	// 			it 'should build 1 js file', (done) ->
-	// 				@builder.build 'buddy_single-file.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.js[0].output).should.be.true
-	// 					done()
-	// 		describe 'with a single coffee file requiring 1 dependency', ->
-	// 			it 'should build 1 js file', (done) ->
-	// 				@builder.build 'buddy_single-file-with-dependency.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.js[0].output).should.be.true
-	// 					done()
-	// 			it 'should contain 2 modules', (done) ->
-	// 				@builder.build 'buddy_single-file-with-dependency.js', false, false, false, false, false, (err) =>
-	// 					contents = fs.readFileSync(@builder.targets.js[0].output, 'utf8')
-	// 					contents.should.include("require.register('package/class'")
-	// 					contents.should.include("require.register('package/classcamelcase'")
-	// 					done()
-	// 		describe 'with a single coffee file containing a module wrapper', ->
-	// 			it 'should build 1 js file containing only 1 module wrapper', (done) ->
-	// 				@builder.build 'buddy_single-file-with-wrapper.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.js[0].output).should.be.true
-	// 					done()
-	// 		describe 'with a single livescript file', ->
-	// 			it 'should build 1 js file', (done) ->
-	// 				@builder.build 'buddy_single-ls-file.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.js[0].output).should.be.true
-	// 					done()
-	// 		describe 'with a single handlebars template file', ->
-	// 			it 'should build 1 js file', (done) ->
-	// 				@builder.build 'buddy_single-handlebars-file.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.js[0].output).should.be.true
-	// 					done()
-	// 		# describe.only 'with a single typescript file', ->
-	// 		# 	it 'should build 1 js file', (done) ->
-	// 		# 		@builder.build 'buddy_single-ts-file.js', false, false, false, false, false, (err) =>
-	// 		# 			fs.existsSync(@builder.targets.js[0].output).should.be.true
-	// 		# 			done()
-	// 		describe 'with a single stylus file', ->
-	// 			it 'should build 1 css file', (done) ->
-	// 				@builder.build 'buddy_single-styl-file.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.css[0].output).should.be.true
-	// 					done()
-	// 		describe 'with a single less file', ->
-	// 			it 'should build 1 css file', (done) ->
-	// 				@builder.build 'buddy_single-less-file.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.css[0].output).should.be.true
-	// 					done()
-	// 	describe 'directory target', ->
-	// 		before ->
-	// 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/library'))
-	// 		describe 'with 3 coffee files', ->
-	// 			it 'should build 3 js files', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					(files = gatherFiles(@builder.targets.js[0].output)).should.have.length(3)
-	// 					for f in files
-	// 						fs.readFileSync(f, 'utf8').should.include('require.register(')
-	// 					done()
-	// 		describe 'with 3 coffee files and the "modular" flag set to false', ->
-	// 			it 'should build 3 js files without module wrappers', (done) ->
-	// 				@builder.build 'buddy-nodejs.js', false, false, false, false, false, (err) =>
-	// 					files = gatherFiles(@builder.targets.js[0].output)
-	// 					for f in files
-	// 						fs.readFileSync(f, 'utf8').should.not.include('require.register(')
-	// 					done()
-	// 		describe 'with 2 stylus files', ->
-	// 			it 'should build 2 css files', (done) ->
-	// 				@builder.build 'buddy_styl.js', false, false, false, false, false, (err) =>
-	// 					gatherFiles(@builder.targets.css[0].output).should.have.length(2)
-	// 					done()
-	// 	describe 'project', ->
-	// 		before ->
-	// 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project'))
-	// 		describe 'with a single coffee file and a stylus directory', ->
-	// 			it 'should build 1 concatenated js file', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.js[0].output).should.be.true
-	// 					done()
-	// 			it 'should build 2 css files', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					gatherFiles(@builder.targets.css[0].output).should.have.length(2)
-	// 					done()
-	// 	describe 'project partial', ->
-	// 		before ->
-	// 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-partial'))
-	// 		describe 'with a single coffee file and a missing stylus directory', ->
-	// 			it 'should skip and not throw an error', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					should.not.exist(err)
-	// 					done()
-	// 			it 'should build 1 concatenated js file', (done) ->
-	// 				@builder.build 'buddy.js', false, false, false, false, false, (err) =>
-	// 					fs.existsSync(@builder.targets.js[0].output).should.be.true
-	// 					done()
 	// 	describe 'complex project', ->
 	// 		before ->
 	// 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-complex'))

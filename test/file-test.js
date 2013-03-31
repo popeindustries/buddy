@@ -128,8 +128,8 @@ describe('file', function() {
 					instance.parse(null, function(err, instance) {
 						should.not.exist(err);
 						instance.dependencies.should.eql([
-							{id:'./package/bar', filepath:path.resolve('src/package/bar.js'), instance:null},
-							{id:'./package/foo', filepath:path.resolve('src/package/foo.js'), instance:null}
+							{id:'./package/bar', filepath:path.resolve('src/package/bar.js')},
+							{id:'./package/foo', filepath:path.resolve('src/package/foo.js')}
 						]);
 						done();
 					});
@@ -141,8 +141,8 @@ describe('file', function() {
 					instance.parse(null, function(err, instance) {
 						should.not.exist(err);
 						instance.dependencies.should.eql([
-							{id:'./package/class', filepath:path.resolve('src/package/class.coffee'), instance:null},
-							{id:'./package/classcamelcase', filepath:path.resolve('src/package/classcamelcase.coffee'), instance:null}
+							{id:'./package/class', filepath:path.resolve('src/package/class.coffee')},
+							{id:'./package/classcamelcase', filepath:path.resolve('src/package/classcamelcase.coffee')}
 						]);
 						done();
 					});
@@ -154,7 +154,7 @@ describe('file', function() {
 					instance.parse(null, function(err, instance) {
 						should.not.exist(err);
 						instance.dependencies.should.eql([
-							{id:'package/foo', filepath:path.resolve('src/package/foo.css'), instance:null}
+							{id:'package/foo', filepath:path.resolve('src/package/foo.css')}
 						]);
 						done();
 					});
@@ -176,7 +176,7 @@ describe('file', function() {
 					instance.content = fs.readFileSync(instance.filepath, 'utf8');
 					instance.parse(null, function(err, instance) {
 						should.not.exist(err);
-						instance.dependencies.should.eql([{id:'./foo', filepath:path.resolve('src/package/foo.js'), instance:null}]);
+						instance.dependencies.should.eql([{id:'./foo', filepath:path.resolve('src/package/foo.js')}]);
 						done();
 					});
 				});
@@ -195,7 +195,7 @@ describe('file', function() {
 					fileFactory(path.resolve('src/main.css'), opts, function(err, main) {
 						main.reset();
 						main.content = fs.readFileSync(main.filepath, 'utf8');
-						main.dependencies = [{id:'package/foo', filepath:foo.filepath, instance:foo}];
+						main.dependencies = [{id:'package/foo', filepath:foo.filepath}];
 						main.concat(null, function(err) {
 							main.content.should.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
 							done();
@@ -215,7 +215,7 @@ describe('file', function() {
 					fileFactory(path.resolve('src/package/bar.css'), opts, function(err, main) {
 						main.reset();
 						main.content = fs.readFileSync(main.filepath, 'utf8');
-						main.dependencies = [{id:'foo', filepath:foo.filepath, instance:foo}];
+						main.dependencies = [{id:'foo', filepath:foo.filepath}];
 						main.concat(null, function(err) {
 							main.content.should.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
 							done();
@@ -235,7 +235,7 @@ describe('file', function() {
 					fileFactory(path.resolve('src/package/bar.js'), opts, function(err, bar) {
 						bar.reset();
 						bar.content = fs.readFileSync(bar.filepath, 'utf8');
-						bar.dependencies = [{id:'./foo', filepath:foo.filepath, instance:foo}];
+						bar.dependencies = [{id:'./foo', filepath:foo.filepath}];
 						bar.concat(null, function(err) {
 							bar.content.should.eql("// var bat = require('./bat')\n\nmodule.exports = function(){};\nvar foo = require('./foo');\n\nmodule.exports = function() {};");
 							done();
@@ -255,11 +255,11 @@ describe('file', function() {
 					fileFactory(path.resolve('src/package/bar.js'), opts, function(err, bar) {
 						bar.reset();
 						bar.content = fs.readFileSync(bar.filepath, 'utf8');
-						bar.dependencies = [{id:'./foo', filepath:foo.filepath, instance:foo}];
+						bar.dependencies = [{id:'./foo', filepath:foo.filepath}];
 						fileFactory(path.resolve('src/main.js'), opts, function(err, main) {
 							main.reset();
 							main.content = fs.readFileSync(main.filepath, 'utf8');
-							main.dependencies = [{id:'./package/bar', filepath:bar.filepath, instance:bar}, {id:'./package/foo', filepath:foo.filepath, instance:foo}];
+							main.dependencies = [{id:'./package/bar', filepath:bar.filepath}, {id:'./package/foo', filepath:foo.filepath}];
 							main.concat(null, function(err) {
 								main.content.should.eql("// var bat = require('./bat')\n\nmodule.exports = function(){};\nvar foo = require('./foo');\n\nmodule.exports = function() {};\nvar bar = require('./package/bar')\n\t, foo = require('./package/foo');");
 								done();
@@ -276,11 +276,11 @@ describe('file', function() {
 				fileFactory(path.resolve('src/package/circ.js'), opts, function(err, foo) {
 					foo.reset();
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
-					foo.dependencies = [{id:'../main-circ', filepath:null, instance:null}];
+					foo.dependencies = [{id:'../main-circ', filepath:null}];
 					fileFactory(path.resolve('src/main-circ.js'), opts, function(err, main) {
 						main.reset();
 						main.content = fs.readFileSync(main.filepath, 'utf8');
-						main.dependencies = [{id:'foo', filepath:foo.filepath, instance:foo}];
+						main.dependencies = [{id:'foo', filepath:foo.filepath}];
 						foo.dependencies[0].filepath = main.filepath;
 						foo.dependencies[0].instance = main;
 						main.concat(null, function(err) {
