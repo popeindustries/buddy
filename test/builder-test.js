@@ -26,7 +26,7 @@ describe('Builder', function() {
 	});
 	afterEach(function() {
 		this.builder = null;
-		rimraf.sync(path.resolve('output'));
+		// rimraf.sync(path.resolve('output'));
 	});
 
 	describe('parsing build target', function() {
@@ -179,13 +179,16 @@ describe('Builder', function() {
 		});
 	});
 
-	describe('building a complex project', function() {
+	describe.only('building a complex project', function() {
 		before(function() {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-complex'));
 		});
 		describe('with 2 js targets and 1 child target sharing assets', function() {
 			it('should build 3 concatenated js files', function(done) {
 				this.builder.build('buddy.js', {}, function(err) {
+					console.log(this.builder.targets.map(function(target) {
+						return target.outputPaths;
+					}));
 					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
 					fs.existsSync(this.builder.targets[1].outputPaths[0]).should.be.true;
 					fs.existsSync(this.builder.targets[2].outputPaths[0]).should.be.true;

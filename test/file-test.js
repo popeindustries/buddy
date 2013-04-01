@@ -2,15 +2,13 @@ var path = require('path')
 	, fs = require('fs')
 	, should = require('should')
 	, fileFactory = require('../lib/core/file')
-	, compress = require('../lib/core/file/compress')
-	, escape = require('../lib/core/file/escape')
-	, parse = require('../lib/core/file/parse')
-	, wrap = require('../lib/core/file/wrap');
+	, Cache = require('../lib/utils/cache');
 
 describe('file', function() {
 	before(function() {
 		process.chdir(path.resolve(__dirname, 'fixtures/file'));
 	});
+
 	describe('factory', function() {
 		it('should decorate a new File instance with passed data', function() {
 			fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
@@ -61,6 +59,7 @@ describe('file', function() {
 				});
 			});
 		});
+
 		describe('escape', function() {
 			it('should transform js file contents into an escaped string', function(done) {
 				fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
@@ -72,6 +71,7 @@ describe('file', function() {
 				});
 			});
 		});
+
 		describe('compress', function() {
 			it('should compress js file contents', function(done) {
 				fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
@@ -94,33 +94,32 @@ describe('file', function() {
 				});
 			});
 		});
+
 		describe('wrap', function() {
-			var instance = null;
-			before(function(done) {
-				fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, file) {
-					instance = file;
-					file.id = 'main';
-					done();
-				});
-			});
-			beforeEach(function() {
-				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-			});
 			it('should wrap js file contents in a module definition', function(done) {
-				instance.wrap({lazy:false}, function(err, file) {
-					should.not.exist(err);
-					file.content.should.eql("require.register(\'main\', function(module, exports, require) {\n  var bar = require(\'./package/bar\')\n  \t, foo = require(\'./package/foo\');\n});");
-					done();
+				fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')], runtimeOptions:{lazy:false}}, function(err, instance) {
+					instance.id = 'main';
+					instance.content = fs.readFileSync(instance.filepath, 'utf8');
+					instance.wrap(null, function(err, file) {
+						should.not.exist(err);
+						file.content.should.eql("require.register(\'main\', function(module, exports, require) {\n  var bar = require(\'./package/bar\')\n  \t, foo = require(\'./package/foo\');\n});");
+						done();
+					});
 				});
 			});
 			it('should wrap js file contents in a lazy module definition', function(done) {
-				instance.wrap({lazy:true}, function(err, file) {
-					should.not.exist(err);
-					file.content.should.eql("require.register(\'main\', var bar = require(\'./package/bar\')\n\t, foo = require(\'./package/foo\'););");
-					done();
+				fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')], runtimeOptions:{lazy:true}}, function(err, instance) {
+					instance.id = 'main';
+					instance.content = fs.readFileSync(instance.filepath, 'utf8');
+					instance.wrap(null, function(err, file) {
+						should.not.exist(err);
+						file.content.should.eql("require.register(\'main\', var bar = require(\'./package/bar\')\n\t, foo = require(\'./package/foo\'););");
+						done();
+					});
 				});
 			});
 		});
+
 		describe('parse', function() {
 			it('should store an array of js dependency objects', function(done) {
 				fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
@@ -182,21 +181,24 @@ describe('file', function() {
 				});
 			});
 		});
+
 		describe('concat', function() {
 			it('should replace css @import rules with file contents', function(done) {
 				var opts = {
 					type: 'css',
-					sources: [path.resolve('src')]
-				}
+					sources: [path.resolve('src')],
+					runtimeOptions: {}
+				};
+				var cache = new Cache();
 				fileFactory(path.resolve('src/package/foo.css'), opts, function(err, foo) {
-					foo.reset();
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [];
+					cache.addItem(foo.filepath, foo);
 					fileFactory(path.resolve('src/main.css'), opts, function(err, main) {
-						main.reset();
 						main.content = fs.readFileSync(main.filepath, 'utf8');
 						main.dependencies = [{id:'package/foo', filepath:foo.filepath}];
-						main.concat(null, function(err) {
+						cache.addItem(main.filepath, main);
+						main.concat({fileCache:cache}, function(err) {
 							main.content.should.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
 							done();
 						});
@@ -206,17 +208,19 @@ describe('file', function() {
 			it('should replace css @import rules with file contents, allowing duplicates', function(done) {
 				var opts = {
 					type: 'css',
-					sources: [path.resolve('src')]
-				}
+					sources: [path.resolve('src')],
+					runtimeOptions: {}
+				};
+				var cache = new Cache();
 				fileFactory(path.resolve('src/package/foo.css'), opts, function(err, foo) {
-					foo.reset();
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [];
+					cache.addItem(foo.filepath, foo);
 					fileFactory(path.resolve('src/package/bar.css'), opts, function(err, main) {
-						main.reset();
 						main.content = fs.readFileSync(main.filepath, 'utf8');
 						main.dependencies = [{id:'foo', filepath:foo.filepath}];
-						main.concat(null, function(err) {
+						cache.addItem(main.filepath, main);
+						main.concat({fileCache:cache}, function(err) {
 							main.content.should.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
 							done();
 						});
@@ -226,17 +230,19 @@ describe('file', function() {
 			it('should combine js file contents', function(done) {
 				var opts = {
 					type: 'js',
-					sources: [path.resolve('src')]
-				}
+					sources: [path.resolve('src')],
+					runtimeOptions: {}
+				};
+				var cache = new Cache();
 				fileFactory(path.resolve('src/package/foo.js'), opts, function(err, foo) {
-					foo.reset();
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [];
+					cache.addItem(foo.filepath, foo);
 					fileFactory(path.resolve('src/package/bar.js'), opts, function(err, bar) {
-						bar.reset();
 						bar.content = fs.readFileSync(bar.filepath, 'utf8');
 						bar.dependencies = [{id:'./foo', filepath:foo.filepath}];
-						bar.concat(null, function(err) {
+						cache.addItem(bar.filepath, bar);
+						bar.concat({fileCache:cache}, function(err) {
 							bar.content.should.eql("// var bat = require('./bat')\n\nmodule.exports = function(){};\nvar foo = require('./foo');\n\nmodule.exports = function() {};");
 							done();
 						});
@@ -246,21 +252,24 @@ describe('file', function() {
 			it('should combine js file contents, avoiding duplicates', function(done) {
 				var opts = {
 					type: 'js',
-					sources: [path.resolve('src')]
-				}
+					sources: [path.resolve('src')],
+					runtimeOptions: {}
+				};
+				var cache = new Cache();
 				fileFactory(path.resolve('src/package/foo.js'), opts, function(err, foo) {
-					foo.reset();
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [];
+					cache.addItem(foo.filepath, foo);
 					fileFactory(path.resolve('src/package/bar.js'), opts, function(err, bar) {
-						bar.reset();
 						bar.content = fs.readFileSync(bar.filepath, 'utf8');
 						bar.dependencies = [{id:'./foo', filepath:foo.filepath}];
+						cache.addItem(bar.filepath, bar);
 						fileFactory(path.resolve('src/main.js'), opts, function(err, main) {
 							main.reset();
 							main.content = fs.readFileSync(main.filepath, 'utf8');
 							main.dependencies = [{id:'./package/bar', filepath:bar.filepath}, {id:'./package/foo', filepath:foo.filepath}];
-							main.concat(null, function(err) {
+							cache.addItem(main.filepath, main);
+							main.concat({fileCache:cache}, function(err) {
 								main.content.should.eql("// var bat = require('./bat')\n\nmodule.exports = function(){};\nvar foo = require('./foo');\n\nmodule.exports = function() {};\nvar bar = require('./package/bar')\n\t, foo = require('./package/foo');");
 								done();
 							});
@@ -271,19 +280,21 @@ describe('file', function() {
 			it('should combine js contents, avoiding circular dependencies', function(done) {
 				var opts = {
 					type: 'js',
-					sources: [path.resolve('src')]
-				}
+					sources: [path.resolve('src')],
+					runtimeOptions: {}
+				};
+				var cache = new Cache();
 				fileFactory(path.resolve('src/package/circ.js'), opts, function(err, foo) {
-					foo.reset();
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [{id:'../main-circ', filepath:null}];
+					cache.addItem(foo.filepath, foo);
 					fileFactory(path.resolve('src/main-circ.js'), opts, function(err, main) {
-						main.reset();
 						main.content = fs.readFileSync(main.filepath, 'utf8');
 						main.dependencies = [{id:'foo', filepath:foo.filepath}];
+						cache.addItem(main.filepath, main);
 						foo.dependencies[0].filepath = main.filepath;
 						foo.dependencies[0].instance = main;
-						main.concat(null, function(err) {
+						main.concat({fileCache:cache}, function(err) {
 							main.content.should.eql("var main = require('../main-circ')\n\t, circ = this;\nvar circ = require('./package/circ')\n\t, main = this;");
 							done();
 						});
