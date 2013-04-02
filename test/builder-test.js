@@ -5,7 +5,7 @@ var path = require('path')
 	, Builder = require('../lib/builder')
 	, configuration = require('../lib/core/configuration');
 
-term = require('buddy-term').silent = true;
+require('buddy-term').silent = true;
 
 function gatherFiles (dir, files) {
 	files = files || [];

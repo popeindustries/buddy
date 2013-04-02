@@ -124,7 +124,7 @@ describe('configuration', function() {
 			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'target:write']);
 		});
 		it('should return an object with the correct processing workflow set for a css target', function() {
-			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}, {compress:false}).targets[0].workflow.should.eql(['parse', 'concat', 'target:filter', 'compile', 'target:write']);
+			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}, {compress:false}).targets[0].workflow.should.eql(['parse', 'target:resolve', 'concat', 'target:filter', 'compile', 'target:write']);
 		});
 		it('should return an object with the correct processing workflow set for a js directory target', function() {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql(['compile', 'wrap', 'target:write']);
