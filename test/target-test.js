@@ -4,7 +4,7 @@ var path = require('path')
 	, rimraf = require('rimraf')
 	, fileFactory = require('../lib/core/file')
 	, targetFactory = require('../lib/core/target')
-	, cache = new (require('../lib/utils/cache'));
+	, cache = new (require('../lib/core/filecache'));
 
 describe('target', function() {
 	before(function() {

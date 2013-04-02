@@ -2,7 +2,7 @@ var path = require('path')
 	, fs = require('fs')
 	, should = require('should')
 	, fileFactory = require('../lib/core/file')
-	, Cache = require('../lib/utils/cache');
+	, Cache = require('../lib/core/filecache');
 
 describe('file', function() {
 	before(function() {
@@ -182,11 +182,11 @@ describe('file', function() {
 				fileFactory(path.resolve('src/package/foo.css'), opts, function(err, foo) {
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [];
-					cache.addItem(foo.filepath, foo);
+					cache.addFile(foo.filepath, foo);
 					fileFactory(path.resolve('src/main.css'), opts, function(err, main) {
 						main.content = fs.readFileSync(main.filepath, 'utf8');
 						main.dependencies = [{id:'package/foo', filepath:foo.filepath}];
-						cache.addItem(main.filepath, main);
+						cache.addFile(main.filepath, main);
 						main.concat({fileCache:cache}, function(err) {
 							main.content.should.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
 							done();
@@ -204,11 +204,11 @@ describe('file', function() {
 				fileFactory(path.resolve('src/package/foo.css'), opts, function(err, foo) {
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [];
-					cache.addItem(foo.filepath, foo);
+					cache.addFile(foo.filepath, foo);
 					fileFactory(path.resolve('src/package/bar.css'), opts, function(err, main) {
 						main.content = fs.readFileSync(main.filepath, 'utf8');
 						main.dependencies = [{id:'foo', filepath:foo.filepath}];
-						cache.addItem(main.filepath, main);
+						cache.addFile(main.filepath, main);
 						main.concat({fileCache:cache}, function(err) {
 							main.content.should.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
 							done();
@@ -226,11 +226,11 @@ describe('file', function() {
 				fileFactory(path.resolve('src/package/foo.js'), opts, function(err, foo) {
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [];
-					cache.addItem(foo.filepath, foo);
+					cache.addFile(foo.filepath, foo);
 					fileFactory(path.resolve('src/package/bar.js'), opts, function(err, bar) {
 						bar.content = fs.readFileSync(bar.filepath, 'utf8');
 						bar.dependencies = [{id:'./foo', filepath:foo.filepath}];
-						cache.addItem(bar.filepath, bar);
+						cache.addFile(bar.filepath, bar);
 						bar.concat({fileCache:cache}, function(err) {
 							bar.content.should.eql("// var bat = require('./bat')\n\nmodule.exports = function(){};\nvar foo = require('./foo');\n\nmodule.exports = function() {};");
 							done();
@@ -248,16 +248,16 @@ describe('file', function() {
 				fileFactory(path.resolve('src/package/foo.js'), opts, function(err, foo) {
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [];
-					cache.addItem(foo.filepath, foo);
+					cache.addFile(foo.filepath, foo);
 					fileFactory(path.resolve('src/package/bar.js'), opts, function(err, bar) {
 						bar.content = fs.readFileSync(bar.filepath, 'utf8');
 						bar.dependencies = [{id:'./foo', filepath:foo.filepath}];
-						cache.addItem(bar.filepath, bar);
+						cache.addFile(bar.filepath, bar);
 						fileFactory(path.resolve('src/main.js'), opts, function(err, main) {
 							main.reset();
 							main.content = fs.readFileSync(main.filepath, 'utf8');
 							main.dependencies = [{id:'./package/bar', filepath:bar.filepath}, {id:'./package/foo', filepath:foo.filepath}];
-							cache.addItem(main.filepath, main);
+							cache.addFile(main.filepath, main);
 							main.concat({fileCache:cache}, function(err) {
 								main.content.should.eql("// var bat = require('./bat')\n\nmodule.exports = function(){};\nvar foo = require('./foo');\n\nmodule.exports = function() {};\nvar bar = require('./package/bar')\n\t, foo = require('./package/foo');");
 								done();
@@ -276,11 +276,11 @@ describe('file', function() {
 				fileFactory(path.resolve('src/package/circ.js'), opts, function(err, foo) {
 					foo.content = fs.readFileSync(foo.filepath, 'utf8');
 					foo.dependencies = [{id:'../main-circ', filepath:null}];
-					cache.addItem(foo.filepath, foo);
+					cache.addFile(foo.filepath, foo);
 					fileFactory(path.resolve('src/main-circ.js'), opts, function(err, main) {
 						main.content = fs.readFileSync(main.filepath, 'utf8');
 						main.dependencies = [{id:'foo', filepath:foo.filepath}];
-						cache.addItem(main.filepath, main);
+						cache.addFile(main.filepath, main);
 						foo.dependencies[0].filepath = main.filepath;
 						foo.dependencies[0].instance = main;
 						main.concat({fileCache:cache}, function(err) {
