@@ -159,17 +159,6 @@ describe('file', function() {
 					});
 				});
 			});
-			it('should not overwrite previously parsed dependencies', function(done) {
-				fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
-					instance.content = fs.readFileSync(instance.filepath, 'utf8');
-					instance.dependencies = ['foo', 'bar']
-					instance.parse(null, function(err, instance) {
-						should.not.exist(err);
-						instance.dependencies.should.eql(['foo', 'bar']);
-						done();
-					});
-				});
-			});
 			it('should only store 1 dependency object when there are duplicates', function(done) {
 				fileFactory(path.resolve('src/package/bat.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
 					instance.content = fs.readFileSync(instance.filepath, 'utf8');

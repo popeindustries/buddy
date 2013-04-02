@@ -26,7 +26,7 @@ describe('Builder', function() {
 	});
 	afterEach(function() {
 		this.builder = null;
-		// rimraf.sync(path.resolve('output'));
+		rimraf.sync(path.resolve('output'));
 	});
 
 	describe('parsing build target', function() {
@@ -34,11 +34,11 @@ describe('Builder', function() {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/init'));
 		});
 		it('should result in a target count of 1 for valid target data', function() {
-			this.builder._initializeTargets([{'input': 'target/foo.js', 'output': 'main.js'}]);
+			this.builder._initializeTargets([{input: 'target/foo.js', output: 'main.js', runtimeOptions: {}}]);
 			this.builder.targets.should.have.length(1);
 		});
 		it('should result in a target count of 2 with valid target data containing a child target', function() {
-			this.builder._initializeTargets([{'input': 'target/foo.js', 'output': 'main.js', 'hasChildren': true, 'targets':[{'input':'target/lib', 'output':'../js'}]}]);
+			this.builder._initializeTargets([{input: 'target/foo.js', output: 'main.js', hasChildren: true, runtimeOptions: {}, targets:[{input:'target/lib', output:'../js', runtimeOptions: {}}]}]);
 			this.builder.targets.should.have.length(2);
 		});
 	});
@@ -179,16 +179,13 @@ describe('Builder', function() {
 		});
 	});
 
-	describe.only('building a complex project', function() {
+	describe('building a complex project', function() {
 		before(function() {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-complex'));
 		});
 		describe('with 2 js targets and 1 child target sharing assets', function() {
 			it('should build 3 concatenated js files', function(done) {
 				this.builder.build('buddy.js', {}, function(err) {
-					console.log(this.builder.targets.map(function(target) {
-						return target.outputPaths;
-					}));
 					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
 					fs.existsSync(this.builder.targets[1].outputPaths[0]).should.be.true;
 					fs.existsSync(this.builder.targets[2].outputPaths[0]).should.be.true;
@@ -197,15 +194,15 @@ describe('Builder', function() {
 			});
 			it('should build a child js file without source shared with it`s parent', function(done) {
 				this.builder.build('buddy.js', {}, function(err) {
-					var contents = fs.readFileSync(path.resolve('output/section.js'), 'utf8');
-					contents.should.not.include("require.module('utils/util',");
+					var contents = fs.readFileSync(path.resolve('output/somesection.js'), 'utf8');
+					contents.should.not.include("require.register('utils/util',");
 					done();
 				}.bind(this));
 			});
 			it('should build a child js file that is different than the same file built without a parent target', function(done) {
 				this.builder.build('buddy.js', {}, function(err) {
 					var contents = fs.readFileSync(path.resolve('output/section.js'), 'utf8');
-					fs.readFileSync(path.resolve('output/section.js'), 'utf8').should.not.eql(fs.readFileSync(path.resolve('output/section/somesection.js'), 'utf8'));
+					fs.readFileSync(path.resolve('output/section.js'), 'utf8').should.not.eql(fs.readFileSync(path.resolve('output/somesection.js'), 'utf8'));
 					done();
 				}.bind(this));
 			});

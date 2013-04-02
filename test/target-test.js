@@ -20,7 +20,7 @@ describe('target', function() {
 
 	describe('factory', function() {
 		it('should decorate a new Target instance with passed data', function() {
-			targetFactory(cache, {input: 'src/some.coffee', output: 'js'}).should.have.property('output', 'js');
+			targetFactory(cache, {input: 'src/some.coffee', output: 'js', runtimeOptions: {}}).should.have.property('output', 'js');
 		});
 	});
 
@@ -42,7 +42,7 @@ describe('target', function() {
 				this.total++;
 				fn();
 			};
-			this.target = targetFactory(cache, {type:'js', fileExtensions:[], sources:[]});
+			this.target = targetFactory(cache, {type:'js', fileExtensions:[], sources:[], runtimeOptions: {}});
 			this.target.action1 = function(files, fn) {
 				this.files.pop();
 				fn();
@@ -132,7 +132,7 @@ describe('target', function() {
 			this.target.isDir = true;
 			this.target.workflow = ['compile', 'write'];
 			this.target.parse(function(err) {
-				this.target.sourceFiles.should.have.length(4);
+				this.target.outputFiles.should.have.length(4);
 				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
 				fs.existsSync(path.resolve('temp/js/bar.js')).should.be.ok;
 				fs.existsSync(path.resolve('temp/js/bat.js')).should.be.ok;
@@ -148,20 +148,6 @@ describe('target', function() {
 			this.target.parse(function(err) {
 				this.target.outputFiles.should.have.length(1);
 				fs.existsSync(path.resolve('temp/css/foo.css')).should.be.ok;
-				done();
-			}.bind(this));
-		});
-		it('should parse a file "input" and process a workflow that resolves and increases the number of source files', function(done) {
-			this.target.type = this.target.fileFactoryOptions.type = 'js';
-			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.isDir = false;
-			this.target.workflow = ['parse', 'target:resolve', 'write'];
-			this.target.parse(function(err) {
-				this.target.outputFiles.should.have.length(4);
-				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
-				fs.existsSync(path.resolve('temp/js/bar.js')).should.be.ok;
-				fs.existsSync(path.resolve('temp/js/bat.js')).should.be.ok;
-				fs.existsSync(path.resolve('temp/js/baz.js')).should.be.ok;
 				done();
 			}.bind(this));
 		});
