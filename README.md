@@ -4,13 +4,13 @@
 
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies, compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Stylus/Less/Jade), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.9.3 *[See [Change Log](#a1) below for more details]*
+**Current version:** 0.10.0 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
 
 ## Features
 
 - Allows you to write js __modules__ without the module boilerplate (similar to Node.js)
 - Resolves js module __dependencies__ automatically
-- Supports ___lazy___ runtime evaluation by storing js modules as strings
+- Supports efficient ___lazy___ runtime evaluation by storing js modules as strings
 - __Compiles__ _CoffeeScript_, _LiveScript_, _Handlebars_, _Stylus_, _Less_, and _Jade_ source files
 - __Concatenates__ js modules into a single file
 - Runs js and css code through __linters__ to check for syntax errors
@@ -36,9 +36,9 @@ $ npm -g install buddy-cli
 {
   "name": "myproject",
   "description": "This is my web project",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.9.0"
+    "buddy": "0.10.0"
   }
 }
 ```
@@ -83,12 +83,12 @@ package.json
 {
   "name": "myproject",
   "description": "This is my web project",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "dependencies": {
-    "browser-require": "git://github.com/popeindustries/browser-require.git"
+    "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.9.0"
+    "buddy": "0.10.0"
   },
   "buddy": {
     "build": {
@@ -109,25 +109,25 @@ package.json
 $ buddy build
 ```
 
-Generate `www/main.js` with references to dependencies installed via npm, ignoring Buddy specific packages:
+Generate `www/main.js` with references to dependencies installed via npm:
 
 ```json
 package.json
 {
   "name": "myproject",
   "description": "This is my web project",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "dependencies": {
-    "browser-require": "git://github.com/popeindustries/browser-require.git",
+    "simple-browser-require": "*"
     "underscore": "1.4.4"
   },
   "devDependencies": {
-    "buddy": "0.9.0"
+    "buddy": "0.10.0"
   },
   "buddy": {
     "build": {
       "js": {
-        "sources": ["src", "node_modules", "!node_modules/buddy", "!node_modules/browser-require"],
+        "sources": ["src"],
         "targets": [
           {
             "input": "src/main.js",
@@ -150,12 +150,12 @@ package.json
 {
   "name": "myproject",
   "description": "This is my web project",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "dependencies": {
-    "browser-require": "git://github.com/popeindustries/browser-require.git"
+    "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.9.0"
+    "buddy": "0.10.0"
   },
   "buddy": {
     "build": {
@@ -187,12 +187,12 @@ package.json
 {
   "name": "myproject",
   "description": "This is my web project",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "dependencies": {
-    "browser-require": "git://github.com/popeindustries/browser-require.git"
+    "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.9.0"
+    "buddy": "0.10.0"
   },
   "buddy": {
     "build": {
@@ -225,10 +225,10 @@ Compile a CoffeeScript project for Node.js, skipping module wrapping and concate
 package.json
 {
   "name": "myproject",
-  "description": "This is my node project",
-  "version": "0.0.1",
+  "description": "This is my server project",
+  "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.9.0"
+    "buddy": "0.10.0"
   },
   "buddy": {
     "build": {
@@ -257,9 +257,9 @@ package.json
 {
   "name": "myproject",
   "description": "This is my web project",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.9.0"
+    "buddy": "0.10.0"
   },
   "buddy": {
     "dependencies": {
@@ -280,9 +280,9 @@ package.json
 {
   "name": "myproject",
   "description": "This is my web project",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.9.0"
+    "buddy": "0.10.0"
   },
   "buddy": {
     "dependencies": {
@@ -307,9 +307,9 @@ package.json
 {
   "name": "myproject",
   "description": "This is my web project",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.9.0"
+    "buddy": "0.10.0"
   },
   "buddy": {
     "dependencies": {
@@ -333,9 +333,9 @@ package.json
 {
   "name": "myproject",
   "description": "This is my web project",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.9.0"
+    "buddy": "0.10.0"
   },
   "buddy": {
     "settings": {
@@ -359,8 +359,8 @@ Complete annotated `buddy.js` configuration file:
 // Project build configuration.
 exports.build = {
   js: {
-    // Directories containing potential js source files for this project.
-    sources: ['a/coffeescript/source/directory', 'a/js/source/directory', '!a/js/source/directory/ignored'],
+    // Directories containing potential js source files for this project ('node_modules' are added by default).
+    sources: ['a/coffeescript/source/directory', 'a/js/source/directory'],
     // One or more js build targets.
     targets: [
       {
@@ -404,7 +404,8 @@ exports.build = {
         output: 'a/css/file/or/directory'
       },
       {
-        // Files are batch processed when a directory is used as input, though @import'ed dependencies are still resolved.
+        // Files are batch processed when a directory is used as input,
+        // though @import'ed dependencies are still resolved and inlined.
         input: 'a/stylus/less/or/css/directory',
         output: 'a/css/directory'
       }
@@ -432,13 +433,13 @@ exports.dependencies = {
   'a/source/directory': {
     sources: [
       // A github user/repo.
-      // Will use the 'main' or 'scripts' properties of
+      // Will use the 'main' properties of
       // components.json or package.json to identify the file to install.
       'username/repo',
       // A github user/repo with specific file or directory locations.
       'username/repo#a/file/or/directory|another/file/or/directory',
       // A local file or directory to copy and install.
-      'a/file/or/directory'
+      '../a/file/or/directory'
     ]
   }
 }
@@ -453,27 +454,6 @@ exports.settings = {
     directory: 'a/project/directory',
     // Defaults to 8080
     port: 8000
-  },
-  // Override the default plugins, and/or include custom plugins.
-  plugins: {
-    js: {
-      // Append one or more js compilers to the default 'coffeescript'.
-      compilers: ['a/file', 'another/file'],
-      // Change the default 'uglifyjs' compressor to a custom specification.
-      compressor: 'a/file',
-      // Change the default 'jshint' linter to a custom specification.
-      linter: 'a/file',
-      // Change the default 'node' module type to 'amd' or a custom specification.
-      module: 'amd'
-    },
-    css: {
-      // Append one or more css compilers to the default 'stylus' and 'less'.
-      compilers: ['a/file', 'another/file'],
-      // Change the default 'cleancss' compressor to a custom specification.
-      compressor: 'a/file',
-      // Change the default 'csslint' linter to a custom specification.
-      linter: 'a/file'
-    }
   }
 }
 ```
@@ -552,9 +532,9 @@ When ```require()```-ing a module, keep in mind that the module id is resolved b
 'my/package/Class.js' > 'my/package/class'
 ```
 
-See [node.js modules](http://nodejs.org/docs/v0.8.0/api/modules.html) for more info on modules.
+See [node.js modules](http://nodejs.org/api/modules.html) for more info on modules.
 
-***NOTE***: ```require``` boilerplate needs to be included on the page to enable module loading. It's recommended to ```install``` a library like *popeindustries/browser-require*.
+***NOTE***: ```require``` boilerplate needs to be included in the browser to enable module loading. It's recommended to ```install``` a library like *popeindustries/browser-require* (npm: simple-browser-require).
 
 ### DEPENDENCIES
 
@@ -564,135 +544,13 @@ Dependency resources are installed from local locations or remotely from Github.
 
 - **destination**: each group of sources will be installed to the project relative location specified.
 
-- **identifier**: github ```username/repo``` identifiers are preferred, but it is also possible to use identifiers from the [bower](https://github.com/twitter/bower) package manager: ```'jquery', 'backbone', 'underscore'```
+- **identifier**: github ```username/repo``` identifiers are preferred, but it is also possible to use identifiers from the [bower](https://github.com/twitter/bower) package manager: ```'jquery', 'backbone', 'underscore'```, etc.
 
 - **versioning**: github sources can specify a version by appending ```@``` and a npm-style symantic version: ```'*', '1.2.3', '1.x', '~1.2.0', '>=1.2.3'```
 
 - **resources**: specific resources can be specified by appending ```#``` and a list of ```|``` separated relative file or directory locations: ```'username/repo#a/file/or/directory|another/file/or/directory'```
 
 **Output**: A file destination to concatenate and compress the source contents. The order of *sources* determines the content order.
-
-<a name="a1"/>
-## Changelog
-
-**0.9.3** - March 11, 2013
-* fixed bug that prevented file changes from refreshing the browser during live-reload `watch`
-
-**0.9.2** - March 5, 2013
-* fixed bug that prevented file dependencies from being reset between builds during `watch`
-
-**0.9.1** - March 5, 2013
-* added support for using [buddy-cli](https://github.com/popeindustries/buddy-cli)
-
-**0.9.0** - February 28, 2013
-* added basic webserver with `-s --serve` flag
-* added support for LiveScript js files
-* added support for precompiling Handlebars templates to .js
-
-**0.8.0** - February 27, 2013
-* moved dependency installer, terminal printing, file watching, and fs utils into separate projects
-* added basic jade html template support
-* css dependencies are now able to be imported multiple times in the same build target
-
-**0.7.3** - February 18, 2013
-* added ignore syntax for build sources: `["a/source/directory", "!a/source/directory/ignored"]`
-* added build target property to specify the name and location of compressed output: `output_compressed`
-* fixed an error related to index.js module renaming so that it only affects files in the root of source folders. Avoids multiple `index` modules
-
-**0.7.2** - February 17, 2013
-* build target input files that are not in an existing source location, but in the project path, are added automatically
-* `package/index.js` files are now given a module name of `package` instead of `package/index`
-
-**0.7.1** - February 16, 2013
-* added support for definining configuration in package.json under a `buddy` entry
-* fixed dependency install error for zipballs that don't match their unzipped folder names
-* upgraded dependencies
-
-**0.7.0** - January 7, 2013
-* bye bye CoffeeScript - migrated to js only source
-* upgraded dependencies
-
-**0.6.11** - December 21, 2012
-* fix css comment removal deleting base64 content
-
-**0.6.10** - December 21, 2012
-* updated _Uglify-js_ compressor to 2.0
-
-**0.6.9** - December 14, 2012
-* fixed _watch_ not adding new file during renames
-
-**0.6.8** - December 13, 2012
-* fixed _install_ crash
-* _install_ now overwrites previously downloaded resources
-* properly handle duplicate `@import` rules while inlining
-
-**0.6.7** - December 11, 2012
-* added _--lazy_ option for generating js modules for lazy evaluation; module contents are encoded as strings to be passed to a Function constructor on first require()
-
-**0.6.6** - December 6, 2012
-* added live-reload support for _watch_ command with _--reload_
-* re-enabled linting support
-
-**0.6.5** - December 5, 2012
-* fix for *watch* command firing repeated change events
-* fix for *watch* command not properly building targets on change
-* fix for child target building shared resources
-
-**0.6.4** - December 4, 2012
-* fix for _--test_ not displaying both stdout and stderr
-* added wrapping of batch files in module definitions if _options.modular_ is not false
-* fix for building targets that contain no source
-
-**0.6.3** - December 4, 2012
-* fix for _watch_ command attempting to watch a source that doesn't exist
-* added support for default json config file type
-
-**0.6.2** - December 4, 2012
-* fix for css _@import_ inlining
-
-**0.6.1** - December 3, 2012
-* added _--test_ to watch command
-
-**0.6.0** - December 3, 2012
-* complete rewrite for async file operations
-* added _--test_ flag for executing a command after build
-* added _--verbose_ flag for outputting detailed notifications during build
-* added _ls_ command to list all generated files
-* added inlining of '@import' rules for all css source types
-* simplified dependency resource parsing on install; only parse 'main' field in component.json/package.json
-
-**0.5.4** - November 23, 2012
-* regression fix for _clean_ command
-* improved _.buddy-filelog_ force clean
-* improved notifications for _install_ and *clean* commands
-
-**0.5.3** - November 23, 2012
-* refactored _install_ command behaviour; no longer uses git operations, changed syntax for specifying version ('@') and resources ('#'), added ability to list several resources __[breaking change]__
-* _.buddy-filelog_ now stores relative paths for compatibility on different systems
-* file deletions limited to resources under the project root
-
-**0.5.2** - Novemver 20, 2012
-* added _watch_ command; handle add, remove, and change of source files
-
-**0.5.1** - Novemver 14, 2012
-* added _clean_ command to remove all generated files
-* added hidden _.buddy-filelog_ file for tracking files changes between sessions
-* fix for false-negative module wrapping test
-
-**0.5.0** - November 13, 2012
-* _compile_ command renamed to *build* __[breaking change]__
-* changed module naming for compatibility with recent versions of Node.js (camel case no longer converted to underscores) __[breaking change]__
-* changed configuration file type to 'js' from 'json'; added _dependencies_ and _settings_ __[breaking change]__
-* changed configuration _target_ parameters to _input/output_ from _in/out_ __[breaking change]__
-* changed configuration _target_ parameter to _modular_ from _nodejs_ __[breaking change]__
-* concatenated js modules no longer self-booting; need to ```require('main');``` manually __[breaking change]__
-* _require_ boilerplate no longer included in generated source; install _popeindustries/browser-require_ or equivalent __[breaking change]__
-* removed _watch_ command (temporarily) __[breaking change]__
-* added _install_ command and project dependency management
-* added plugin support for compilers, compressors, linters, and modules; added support for custom plugins
-* added code linting
-* all errors now throw
-* complete code base refactor
 
 ## License
 

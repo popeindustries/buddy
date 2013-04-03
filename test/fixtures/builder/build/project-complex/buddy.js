@@ -8,13 +8,13 @@ exports.build = {
 				"targets": [
 					{
 						"input": "src/coffee/section/someSection.coffee",
-						"output": "output/section.js"
+						"output": "output/somesection.js"
 					}
 				]
 			},
 			{
 				"input": "src/coffee/section/someSection.coffee",
-				"output": "output/section/"
+				"output": "output/section.js"
 			}
 		]
 	}
