@@ -25,16 +25,16 @@ describe('file', function() {
 				instance.should.have.property('id', 'src');
 			});
 		});
-		it('should resolve a module id for a node_module "index" File instance ', function() {
-			fileFactory(path.resolve('node_modules/foo/index.js'), {type:'js', sources:[path.resolve('node_modules')]}, function(err, instance) {
-				instance.should.have.property('id', 'foo');
-			});
-		});
-		it('should resolve a module id for a node_modules package.json "main" File instance', function() {
-			fileFactory(path.resolve('node_modules/bar/bar.js'), {type:'js', sources:[path.resolve('node_modules')]}, function(err, instance) {
-				instance.should.have.property('id', 'bar');
-			});
-		});
+		// it('should resolve a module id for a node_module "index" File instance ', function() {
+		// 	fileFactory(path.resolve('node_modules/foo/index.js'), {type:'js', sources:[path.resolve('node_modules')]}, function(err, instance) {
+		// 		instance.should.have.property('id', 'foo');
+		// 	});
+		// });
+		// it('should resolve a module id for a node_modules package.json "main" File instance', function() {
+		// 	fileFactory(path.resolve('node_modules/bar/bar.js'), {type:'js', sources:[path.resolve('node_modules')]}, function(err, instance) {
+		// 		instance.should.have.property('id', 'bar');
+		// 	});
+		// });
 	});
 
 	describe('workflow', function() {
