@@ -179,8 +179,8 @@ describe('file', function() {
 					instance.parse(null, function(err, instance) {
 						should.not.exist(err);
 						instance.dependencies.should.eql([
-							{id:'./package/class', filepath:path.resolve('src/package/class.coffee')},
-							{id:'./package/classcamelcase', filepath:path.resolve('src/package/classcamelcase.coffee')}
+							{id:'./package/class', filepath:path.resolve('src/package/Class.coffee')},
+							{id:'./package/classcamelcase', filepath:path.resolve('src/package/ClassCamelCase.coffee')}
 						]);
 						done();
 					});

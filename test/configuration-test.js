@@ -107,8 +107,8 @@ describe('configuration', function() {
 		});
 		it('should return an object with resolved "inputPath" and "outputPath" properties', function() {
 			var data = configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false});
-			data.targets[0].inputPath.should.include('buddy/test/fixtures/configuration/src');
-			data.targets[0].outputPath.should.include('buddy/test/fixtures/configuration/js');
+			data.targets[0].inputPath.should.eql(path.resolve('src/main.js'));
+			data.targets[0].outputPath.should.eql(path.resolve('js/main.js'));
 		});
 		it('should return an object with resolved "outputPath" when "input" is file and "output" is directory', function() {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false}).targets[0].outputPath.should.include('main.js');
