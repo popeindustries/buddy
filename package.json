@@ -17,7 +17,7 @@
 		"buddy-cli": "0.4.0",
 		"yaw": "0.1.1",
 		"transfigure": "0.4.0",
-		"identify-resource": "0.4.0"
+		"identify-resource": "0.4.1"
 	},
 	"devDependencies": {
 		"should": "*",
