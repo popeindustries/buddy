@@ -11,13 +11,12 @@
 		"jshint": "1.1.0",
 		"async": "0.2.6",
 		"lodash": "1.0.1",
-		"recur-fs": "0.1.1",
-		"buddy-term": "0.1.0",
-		"buddy-dependencies": "0.1.2",
-		"buddy-server": "0.2.0",
+		"recur-fs": "0.1.2",
+		"buddy-term": "0.2.0",
+		"buddy-server": "0.3.0",
 		"buddy-cli": "0.4.0",
-		"yaw": "0.1.0",
-		"transfigure": "0.3.0",
+		"yaw": "0.1.1",
+		"transfigure": "0.4.0",
 		"identify-resource": "0.3.0"
 	},
 	"devDependencies": {
