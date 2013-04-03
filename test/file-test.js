@@ -72,6 +72,45 @@ describe('file', function() {
 			});
 		});
 
+		describe('lint', function() {
+			it('should skip compileable files', function(done) {
+				fileFactory(path.resolve('src/main.coffee'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
+					instance.content = fs.readFileSync(instance.filepath, 'utf8');
+					instance.lint(null, function(err, instance) {
+						should.not.exist(err);
+						done();
+					});
+				});
+			});
+			it('should not return lint errors for well written js content', function(done) {
+				fileFactory(path.resolve('src/main-good.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
+					instance.content = fs.readFileSync(instance.filepath, 'utf8');
+					instance.lint(null, function(err, instance) {
+						should.not.exist(err);
+						done();
+					});
+				});
+			});
+			it('should return lint errors for badly written js content', function(done) {
+				fileFactory(path.resolve('src/main-bad.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
+					instance.content = fs.readFileSync(instance.filepath, 'utf8');
+					instance.lint(null, function(err, instance) {
+						should.exist(err);
+						done();
+					});
+				});
+			});
+			it('should return lint errors for badly written css content', function(done) {
+				fileFactory(path.resolve('src/main-bad.css'), {type:'css', sources:[path.resolve('src')]}, function(err, instance) {
+					instance.content = fs.readFileSync(instance.filepath, 'utf8');
+					instance.lint(null, function(err, instance) {
+						should.exist(err);
+						done();
+					});
+				});
+			});
+		});
+
 		describe('compress', function() {
 			it('should compress js file contents', function(done) {
 				fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]}, function(err, instance) {
