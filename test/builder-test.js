@@ -55,6 +55,14 @@ describe('Builder', function() {
 				}.bind(this));
 			});
 		});
+		describe('with a single coffee file containing a multi-line comment', function() {
+			it('should build 1 js file', function(done) {
+				this.builder.build('buddy_single-file-multi-comment.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
 		describe('with a single coffee file requiring 1 dependency', function() {
 			it('should build 1 js file with 2 modules', function(done) {
 				this.builder.build('buddy_single-file-with-dependency.js', {}, function(err) {
