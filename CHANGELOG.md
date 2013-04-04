@@ -1,5 +1,8 @@
 # Changelog
 
+**0.11.2** - April 4, 2013
+* fix for file processing race conditions that prevented proper compilation of source files
+
 **0.11.1** - April 4, 2013
 * fix for watch builds not correctly parsing dependency content
 
