@@ -1,5 +1,8 @@
 # Changelog
 
+**0.10.1** - April 4, 2013
+* `install` command enabled
+
 **0.10.0** - April 3, 2013
 * `install` command temporarily disabled until downstream fixes for Node 0.10 arrive
 * total makeover to simplify and optimize the codebase
