@@ -14,7 +14,6 @@
 		"recur-fs": "0.1.2",
 		"buddy-term": "0.2.0",
 		"buddy-server": "0.3.0",
-		"buddy-dependencies": "0.1.4",
 		"buddy-cli": "0.5.x",
 		"yaw": "0.1.1",
 		"transfigure": "0.4.0",
