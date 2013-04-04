@@ -2,7 +2,7 @@
 
 # buddy(1)
 
-**buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies, compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Stylus/Less/Jade), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
+**buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies (optional add-on), compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Stylus/Less/Jade), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
 **Current version:** 0.10.1 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
 
@@ -19,8 +19,8 @@
 - __Refreshes__ connected browsers after each change
 - __Inlines__ css `@imports` automatically
 - Supports execution of a ___test___ script after each build
-- Copies __libraries__ from GitHub to your project
-- Copies __assets__ from a local destination to your project
+- Copies __libraries__ from GitHub to your project (via buddy-dependencies add-on)
+- Copies __assets__ from a local destination to your project (via buddy-dependencies add-on)
 
 ## Installation
 
@@ -38,7 +38,7 @@ $ npm -g install buddy-cli
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.10.0"
+    "buddy": "0.11.0"
   }
 }
 ```
@@ -54,6 +54,7 @@ Usage: buddy [options] <command> [path/to/package.json or path/to/buddy.js or pa
 
 Commands:
 
+  init                   set up a basic buddy project
   install [config]       install dependencies
   build [config]         build js and css sources
   watch [config]         watch js and css source files and build changes
@@ -88,7 +89,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.10.0"
+    "buddy": "0.11.0"
   },
   "buddy": {
     "build": {
@@ -122,7 +123,7 @@ package.json
     "underscore": "1.4.4"
   },
   "devDependencies": {
-    "buddy": "0.10.0"
+    "buddy": "0.11.0"
   },
   "buddy": {
     "build": {
@@ -155,7 +156,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.10.0"
+    "buddy": "0.11.0"
   },
   "buddy": {
     "build": {
@@ -192,7 +193,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.10.0"
+    "buddy": "0.11.0"
   },
   "buddy": {
     "build": {
@@ -228,7 +229,7 @@ package.json
   "description": "This is my server project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.10.0"
+    "buddy": "0.11.0"
   },
   "buddy": {
     "build": {
@@ -259,7 +260,8 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.10.0"
+    "buddy": "0.11.0",
+    "buddy-dependencies": "0.1.4"
   },
   "buddy": {
     "dependencies": {
@@ -282,7 +284,8 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.10.0"
+    "buddy": "0.11.0",
+    "buddy-dependencies": "0.1.4"
   },
   "buddy": {
     "dependencies": {
@@ -309,7 +312,8 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.10.0"
+    "buddy": "0.11.0",
+    "buddy-dependencies": "0.1.4"
   },
   "buddy": {
     "dependencies": {
@@ -335,7 +339,7 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.10.0"
+    "buddy": "0.11.0"
   },
   "buddy": {
     "settings": {

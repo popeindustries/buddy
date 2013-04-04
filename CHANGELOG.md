@@ -1,5 +1,8 @@
 # Changelog
 
+**0.11.0** - April 4, 2013
+* `install` command now optional add-on with separate `buddy-dependencies` install via npm
+
 **0.10.1** - April 4, 2013
 * `install` command enabled
 
