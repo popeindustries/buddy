@@ -1,5 +1,8 @@
 # Changelog
 
+**0.11.1** - April 4, 2013
+* fix for watch builds not correctly parsing dependency content
+
 **0.11.0** - April 4, 2013
 * `install` command now optional add-on with separate `buddy-dependencies` install via npm
 
