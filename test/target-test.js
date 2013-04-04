@@ -91,26 +91,14 @@ describe('target', function() {
 		afterEach(function() {
 			this.target.reset();
 		})
-		it('should add a file to "sourceFiles", and update the file contents', function(done) {
-			this.target.getFile(path.resolve('src/js/foo.js'), function(err, file) {
-				this.target.sourceFiles.should.have.length(1);
-				file.content.should.be.ok;
-				done();
-			}.bind(this));
+		it('should add a file to "sourceFiles", and update the file contents', function() {
+			var file = this.target.getFile(path.resolve('src/js/foo.js'));
+			this.target.sourceFiles[path.resolve('src/js/foo.js')].should.be.ok;
+			file.content.should.be.ok;
 		});
-		it('should return a cached file and not store duplicates', function(done) {
-			this.target.getFile(path.resolve('src/js/foo.js'), function(err, file1) {
-				this.target.getFile(path.resolve('src/js/foo.js'), function(err, file2) {
-					this.target.sourceFiles.should.have.length(1);
-					done();
-				}.bind(this));
-			}.bind(this));
-		});
-		it('should return an error if file doesn\'t exist', function(done) {
-			this.target.getFile(path.resolve('src/bar.js'), function(err, file) {
-				should.exist(err);
-				done();
-			}.bind(this));
+		it('should return null if file doesn\'t exist', function() {
+			var file = this.target.getFile(path.resolve('src/bar.js'));
+			should.not.exist(file);
 		});
 	});
 
@@ -122,7 +110,7 @@ describe('target', function() {
 			this.target.inputPath = path.resolve('src/js/foo.js');
 			this.target.workflow = ['compile', 'write'];
 			this.target.parse(function(err) {
-				this.target.sourceFiles.should.have.length(1);
+				this.target.outputFiles.should.have.length(1);
 				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
 				done();
 			}.bind(this));
