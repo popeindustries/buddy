@@ -264,6 +264,47 @@ describe('Builder', function() {
 		});
 	});
 
+	describe('building a js project with node_modules', function() {
+		before(function() {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-node_modules'));
+		});
+		describe('with a single js file requiring 1 npm dependency', function() {
+			it('should build 1 js file', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+			it('should contain 2 modules', function(done) {
+				this.builder.build('buddy.js', {}, function(err) {
+					var contents = fs.readFileSync(this.builder.targets[0].outputPaths[0], 'utf8');
+					contents.should.include("require.register('main'");
+					contents.should.include("require.register('baz'");
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with a single js file requiring 1 local dependency requiring 1 npm dependency requiring 1 npm dependency', function() {
+			it('should build 1 js file', function(done) {
+				this.builder.build('buddy-sub.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+			it('should contain 4 modules', function(done) {
+				this.builder.build('buddy-sub.js', {}, function(err) {
+					var contents = fs.readFileSync(this.builder.targets[0].outputPaths[0], 'utf8');
+					contents.should.include("require.register('main-sub'");
+					contents.should.include("require.register('nested/baz'");
+					contents.should.include("require.register('foo'");
+					contents.should.include("require.register('bar'");
+					done();
+				}.bind(this));
+			});
+		});
+
+	});
+
 	describe('building a css project', function() {
 		before(function() {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-css'));
