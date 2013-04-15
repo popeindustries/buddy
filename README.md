@@ -4,13 +4,14 @@
 
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies (optional add-on), compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Stylus/Less/Jade), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.10.1 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
+**Current version:** 0.12.0 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
 
 ## Features
 
 - Allows you to write js __modules__ without the module boilerplate (similar to Node.js)
 - Resolves js module __dependencies__ automatically
 - Supports efficient ___lazy___ runtime evaluation by storing js modules as strings
+- Resolves all relative dependencies on __deploy__
 - __Compiles__ _CoffeeScript_, _LiveScript_, _Handlebars_, _Stylus_, _Less_, and _Jade_ source files
 - __Concatenates__ js modules into a single file
 - Runs js and css code through __linters__ to check for syntax errors
@@ -19,8 +20,8 @@
 - __Refreshes__ connected browsers after each change
 - __Inlines__ css `@imports` automatically
 - Supports execution of a ___test___ script after each build
-- Copies __libraries__ from GitHub to your project (via buddy-dependencies add-on)
-- Copies __assets__ from a local destination to your project (via buddy-dependencies add-on)
+- [Add-on] Copies __libraries__ from GitHub to your project
+- [Add-on] Copies __assets__ from a local destination to your project
 
 ## Installation
 
@@ -38,7 +39,7 @@ $ npm -g install buddy-cli
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.11.0"
+    "buddy": "0.12.0"
   }
 }
 ```
@@ -89,7 +90,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.11.0"
+    "buddy": "0.12.0"
   },
   "buddy": {
     "build": {
@@ -123,7 +124,7 @@ package.json
     "underscore": "1.4.4"
   },
   "devDependencies": {
-    "buddy": "0.11.0"
+    "buddy": "0.12.0"
   },
   "buddy": {
     "build": {
@@ -156,7 +157,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.11.0"
+    "buddy": "0.12.0"
   },
   "buddy": {
     "build": {
@@ -193,7 +194,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.11.0"
+    "buddy": "0.12.0"
   },
   "buddy": {
     "build": {
@@ -229,7 +230,7 @@ package.json
   "description": "This is my server project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.11.0"
+    "buddy": "0.12.0"
   },
   "buddy": {
     "build": {
@@ -260,7 +261,7 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.11.0",
+    "buddy": "0.12.0",
     "buddy-dependencies": "0.1.4"
   },
   "buddy": {
@@ -284,7 +285,7 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.11.0",
+    "buddy": "0.12.0",
     "buddy-dependencies": "0.1.4"
   },
   "buddy": {
@@ -312,7 +313,7 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.11.0",
+    "buddy": "0.12.0",
     "buddy-dependencies": "0.1.4"
   },
   "buddy": {
@@ -339,7 +340,7 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.11.0"
+    "buddy": "0.12.0"
   },
   "buddy": {
     "settings": {

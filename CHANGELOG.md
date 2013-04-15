@@ -1,5 +1,9 @@
 # Changelog
 
+**0.12.0** - April 15, 2013
+* reduce runtime module lookup time by converting all relative ids used in `require` calls to absolute on execution of `deploy` command
+* fix for lazy-loading module escaping when compressing
+
 **0.11.3** - April 12, 2013
 * improve handing of 'require'-ing node_modules with dependencies
 
