@@ -25,16 +25,16 @@ describe('file', function() {
 				instance.should.have.property('id', 'src');
 			});
 		});
-		// it('should resolve a module id for a node_module "index" File instance ', function() {
-		// 	fileFactory(path.resolve('node_modules/foo/index.js'), {type:'js', sources:[path.resolve('node_modules')]}, function(err, instance) {
-		// 		instance.should.have.property('id', 'foo');
-		// 	});
-		// });
-		// it('should resolve a module id for a node_modules package.json "main" File instance', function() {
-		// 	fileFactory(path.resolve('node_modules/bar/bar.js'), {type:'js', sources:[path.resolve('node_modules')]}, function(err, instance) {
-		// 		instance.should.have.property('id', 'bar');
-		// 	});
-		// });
+		it('should resolve a module id for a node_module "index" File instance ', function() {
+			fileFactory(path.resolve('node_modules/foo/index.js'), {type:'js', sources:[]}, function(err, instance) {
+				instance.should.have.property('id', 'foo');
+			});
+		});
+		it('should resolve a module id for a node_modules package.json "main" File instance', function() {
+			fileFactory(path.resolve('node_modules/bar/bar.js'), {type:'js', sources:[]}, function(err, instance) {
+				instance.should.have.property('id', 'bar');
+			});
+		});
 	});
 
 	describe('workflow', function() {
@@ -52,6 +52,34 @@ describe('file', function() {
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
 				instance.escape(null, function(err, instance) {
 					instance.content.should.eql("\"var bar = require('./package/bar')\\n\t, foo = require('./package/foo');\"");
+					done();
+				});
+			});
+		});
+
+		describe('replace', function() {
+			it('should replace relative require ids with absolute ones', function(done) {
+				var opts = {
+					type: 'js',
+					sources: [path.resolve('src')],
+					runtimeOptions: {}
+				};
+				var cache = new Cache();
+				var foo = fileFactory(path.resolve('src/package/foo.js'), opts);
+				foo.content = fs.readFileSync(foo.filepath, 'utf8');
+				foo.dependencies = [];
+				cache.addFile(foo.filepath, foo);
+				var bar = fileFactory(path.resolve('src/package/bar.js'), opts);
+				bar.content = fs.readFileSync(bar.filepath, 'utf8');
+				bar.dependencies = [{id:'./foo', idFull:'package/foo', filepath:foo.filepath}];
+				cache.addFile(bar.filepath, bar);
+				var main = fileFactory(path.resolve('src/main.js'), opts);
+				main.reset();
+				main.content = fs.readFileSync(main.filepath, 'utf8');
+				main.dependencies = [{id:'./package/bar', idFull:'package/bar', filepath:bar.filepath}, {id:'./package/foo', idFull:'package/foo', filepath:foo.filepath}];
+				cache.addFile(main.filepath, main);
+				main.replace({fileCache:cache}, function(err, instance) {
+					instance.content.should.eql("var bar = require('package/bar')\n\t, foo = require('package/foo');");
 					done();
 				});
 			});
@@ -143,20 +171,20 @@ describe('file', function() {
 				instance.parse(null, function(err, instance) {
 					should.not.exist(err);
 					instance.dependencies.should.eql([
-						{id:'./package/bar', filepath:path.resolve('src/package/bar.js')},
-						{id:'./package/foo', filepath:path.resolve('src/package/foo.js')}
+						{id:'./package/bar', idFull:'package/bar', filepath:path.resolve('src/package/bar.js')},
+						{id:'./package/foo', idFull:'package/foo', filepath:path.resolve('src/package/foo.js')}
 					]);
 					done();
 				});
 			});
 			it('should store an array of coffee dependency objects', function(done) {
 				var instance = fileFactory(path.resolve('src/main.coffee'), {type:'js', sources:[path.resolve('src')], fileExtensions:['coffee']});
-			instance.content = fs.readFileSync(instance.filepath, 'utf8');
+				instance.content = fs.readFileSync(instance.filepath, 'utf8');
 				instance.parse(null, function(err, instance) {
 					should.not.exist(err);
 					instance.dependencies.should.eql([
-						{id:'./package/class', filepath:path.resolve('src/package/Class.coffee')},
-						{id:'./package/classcamelcase', filepath:path.resolve('src/package/ClassCamelCase.coffee')}
+						{id:'./package/class', idFull:'package/class', filepath:path.resolve('src/package/Class.coffee')},
+						{id:'./package/classcamelcase', idFull:'package/classcamelcase', filepath:path.resolve('src/package/ClassCamelCase.coffee')}
 					]);
 					done();
 				});
@@ -167,7 +195,7 @@ describe('file', function() {
 				instance.parse(null, function(err, instance) {
 					should.not.exist(err);
 					instance.dependencies.should.eql([
-						{id:'package/foo', filepath:path.resolve('src/package/foo.css')}
+						{id:'package/foo', idFull:'package/foo', filepath:path.resolve('src/package/foo.css')}
 					]);
 					done();
 				});
@@ -177,7 +205,7 @@ describe('file', function() {
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
 				instance.parse(null, function(err, instance) {
 					should.not.exist(err);
-					instance.dependencies.should.eql([{id:'./foo', filepath:path.resolve('src/package/foo.js')}]);
+					instance.dependencies.should.eql([{id:'./foo', idFull:'package/foo', filepath:path.resolve('src/package/foo.js')}]);
 					done();
 				});
 			});
