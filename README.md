@@ -20,8 +20,8 @@
 - __Refreshes__ connected browsers after each change
 - __Inlines__ css `@imports` automatically
 - Supports execution of a ___test___ script after each build
-- [_Add-on_] Copies __packages__ from GitHub to your project
-- [_Add-on_] Copies __assets__ from a local destination to your project
+- [Add-on] Copies __packages__ from GitHub to your project
+- [Add-on] Copies __assets__ from a local destination to your project
 
 ## Installation
 
