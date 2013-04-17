@@ -20,8 +20,8 @@
 - __Refreshes__ connected browsers after each change
 - __Inlines__ css `@imports` automatically
 - Supports execution of a ___test___ script after each build
-- [Add-on] Copies __libraries__ from GitHub to your project
-- [Add-on] Copies __assets__ from a local destination to your project
+- [_Add-on_] Copies __packages__ from GitHub to your project
+- [_Add-on_] Copies __assets__ from a local destination to your project
 
 ## Installation
 
@@ -77,6 +77,8 @@ Options:
 ```
 
 ### Examples
+
+*See [buddy-dependencies](https://github.com/popeindustries/buddy-dependencies) for `install` command examples.*
 
 Generate `www/main.js` by concatenating and modularizing all dependencies in `src` or `libs/js` referenced in `src/main.js`:
 
@@ -252,85 +254,6 @@ package.json
 $ buddy build
 ```
 
-Copy project boilerplate from a local directory into the project root:
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my web project",
-  "version": "0.1.0",
-  "devDependencies": {
-    "buddy": "0.12.0",
-    "buddy-dependencies": "0.1.4"
-  },
-  "buddy": {
-    "dependencies": {
-      ".": {
-        "sources": ["../../boilerplate/project"]
-      }
-    }
-  }
-```
-```bash
-$ buddy install
-```
-
-Download js dependencies `browser-require` and `jQuery`, then concatenate and compress to `www/libs.js` for inclusion in html:
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my web project",
-  "version": "0.1.0",
-  "devDependencies": {
-    "buddy": "0.12.0",
-    "buddy-dependencies": "0.1.4"
-  },
-  "buddy": {
-    "dependencies": {
-      "libs/vendor": {
-        "sources": [
-          "popeindustries/browser-require",
-          "jquery@1.9.1"
-        ],
-        "output": "www/libs.js"
-      }
-    }
-  }
-```
-```bash
-$ buddy install
-```
-
-Download `visionmedia/nib` Stylus sources, specifying a specific directory to be referenced in your builds:
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my web project",
-  "version": "0.1.0",
-  "devDependencies": {
-    "buddy": "0.12.0",
-    "buddy-dependencies": "0.1.4"
-  },
-  "buddy": {
-    "dependencies": {
-      "libs/src/css": {
-        "sources": [
-          "visionmedia/nib#lib/nib"
-        ]
-      }
-    }
-  }
-}
-```
-```bash
-$ buddy install
-```
-
 Start a basic web server and refresh the browser (using the Live-Reload browser plugin) after each build triggered by source file changes:
 
 ```json
@@ -421,6 +344,7 @@ exports.build = {
 // Project dependency configuration.
 exports.dependencies = {
   // A destination directory in which to place third-party library dependencies.
+  // Alternatively, a destination file for packaging/minification
   'a/vendor/directory': {
     // An ordered list of dependencies
     sources: [
@@ -543,25 +467,13 @@ See [node.js modules](http://nodejs.org/api/modules.html) for more info on modul
 
 ### DEPENDENCIES
 
-Dependency resources are installed from local locations or remotely from Github.
-
-**Sources**: An array of local or remote resource locations.
-
-- **destination**: each group of sources will be installed to the project relative location specified.
-
-- **identifier**: github ```username/repo``` identifiers are preferred, but it is also possible to use identifiers from the [bower](https://github.com/twitter/bower) package manager: ```'jquery', 'backbone', 'underscore'```, etc.
-
-- **versioning**: github sources can specify a version by appending ```@``` and a npm-style symantic version: ```'*', '1.2.3', '1.x', '~1.2.0', '>=1.2.3'```
-
-- **resources**: specific resources can be specified by appending ```#``` and a list of ```|``` separated relative file or directory locations: ```'username/repo#a/file/or/directory|another/file/or/directory'```
-
-**Output**: A file destination to concatenate and compress the source contents. The order of *sources* determines the content order.
+*See [buddy-dependencies](https://github.com/popeindustries/buddy-dependencies).*
 
 ## License
 
 (The MIT License)
 
-Copyright (c) 2011 Pope-Industries &lt;alex@pope-industries.com&gt;
+Copyright (c) 2011-2013 Pope-Industries &lt;alex@pope-industries.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
