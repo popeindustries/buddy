@@ -1,5 +1,8 @@
 # Changelog
 
+**0.12.2** - April 17, 2013
+* udpates for version 0.2.0 of [buddy-dependencies](https://github.com/popeindustries/buddy-dependencies)
+
 **0.12.1** - April 15, 2013
 * fix dependency resolution for css `@import` calls
 
