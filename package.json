@@ -3,7 +3,7 @@
 	"description": "A build tool for js/css/html projects.",
 	"version": "0.12.2",
 	"author": "popeindustries <alex@pope-industries.com>",
-	"keywords": ["build", "buildtool", "modules", "javascript", "coffeescript", "css", "styus", "less", "livescript", "handlebars", "jade"],
+	"keywords": ["build", "buildtool", "modules", "javascript", "coffeescript", "css", "styus", "less", "livescript", "handlebars", "jade", "twig"],
 	"dependencies": {
 		"uglify-js": "2.2.5",
 		"clean-css": "0.10.2",
