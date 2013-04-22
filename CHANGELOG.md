@@ -1,5 +1,9 @@
 # Changelog
 
+**0.12.4** - April 22, 2013
+* fix for Twig template includes [@superunrelated](https://github.com/superunrelated)
+* update dependencies
+
 **0.12.3** - April 19, 2013
 * added support for compiling Twig templates [@superunrelated](https://github.com/superunrelated)
 
