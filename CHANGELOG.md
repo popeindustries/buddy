@@ -1,5 +1,8 @@
 # Changelog
 
+**0.13.0** - April 23, 2013
+* added support for compiling Dust.js templates
+
 **0.12.4** - April 22, 2013
 * fix for Twig template includes [@superunrelated](https://github.com/superunrelated)
 * update dependencies
