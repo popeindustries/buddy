@@ -1,5 +1,8 @@
 # Changelog
 
+**0.13.1** - April 23, 2013
+* fix for error when running `--test`
+
 **0.13.0** - April 23, 2013
 * added support for compiling Dust.js templates
 
