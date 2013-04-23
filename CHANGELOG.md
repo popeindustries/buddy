@@ -1,5 +1,12 @@
 # Changelog
 
+**0.12.4** - April 22, 2013
+* fix for Twig template includes [@superunrelated](https://github.com/superunrelated)
+* update dependencies
+
+**0.12.3** - April 19, 2013
+* added support for compiling Twig templates [@superunrelated](https://github.com/superunrelated)
+
 **0.12.2** - April 17, 2013
 * udpates for version 0.2.0 of [buddy-dependencies](https://github.com/popeindustries/buddy-dependencies)
 
