@@ -3,8 +3,8 @@ exports.build = {
 		"sources": ["src/jade"],
 		"targets": [
 			{
-				"input": "src/jade/index2.jade",
-				"output": "output/html"
+				"input": "src/jade/index.jade",
+				"output": "output/html/jade"
 			}
 		]
 	}

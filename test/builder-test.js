@@ -337,7 +337,7 @@ describe('Builder', function() {
 		});
 		describe('with 1 jade file', function() {
 			it('should build 1 html file', function(done) {
-				this.builder.build('buddy.js', {}, function(err) {
+				this.builder.build('buddy-jade.js', {}, function(err) {
 					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
 					done();
 				}.bind(this));
@@ -345,7 +345,23 @@ describe('Builder', function() {
 		});
 		describe('with 1 jade file with 2 includes', function() {
 			it('should build 1 html file', function(done) {
-				this.builder.build('buddy-include.js', {}, function(err) {
+				this.builder.build('buddy-jade-include.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with 1 twig file', function() {
+			it('should build 1 html file', function(done) {
+				this.builder.build('buddy-twig.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
+		describe('with 1 twig file with 2 includes', function() {
+			it('should build 1 html file', function(done) {
+				this.builder.build('buddy-twig-include.js', {}, function(err) {
 					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
 					done();
 				}.bind(this));
