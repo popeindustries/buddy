@@ -4,7 +4,7 @@
 
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies (optional add-on), compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Dust/Stylus/Less/Jade/Twig), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.13.1 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
+**Current version:** 0.14.0 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
 
 ## Features
 
@@ -19,6 +19,7 @@
 - __Serves__ static files from specified directory on specified port
 - __Refreshes__ connected browsers after each change
 - __Inlines__ css `@imports` automatically
+- __Inlines__ html <script> and <link> tags when flagged with `inline` attributes
 - Supports execution of a ___test___ script after each build
 - [Add-on] Copies __packages__ from GitHub to your project
 - [Add-on] Copies __assets__ from a local destination to your project
@@ -416,7 +417,7 @@ Each js file is wrapped in a module declaration based on the file's location. De
 
 ```javascript
 var lib = require('./my/lib'); // in current package
-var SomeClass = require('../someclass'); // in parent package
+var SomeClass = require('../SomeClass'); // in parent package
 var util = require('utils/util'); // from root package
 
 lib.doSomething();
@@ -456,10 +457,10 @@ When ```require()```-ing a module, keep in mind that the module id is resolved b
 ```
 'Users/alex/project/src/package/main.js' > 'package/main'
 ```
- * uppercase filenames are converted to lowercase module ids:
-```
-'my/package/Class.js' > 'my/package/class'
-```
+ * ids are case-sensitive:
+ ```
+ 'package/MyClass.js' > 'package/MyClass'
+ ```
 
 See [node.js modules](http://nodejs.org/api/modules.html) for more info on modules.
 

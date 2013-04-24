@@ -1,5 +1,10 @@
 # Changelog
 
+**0.14.0** - April 24, 2013
+* added support for inlining html `<script>` and `<link>` tag sources when an `inline` attribute is used
+* `require` ids are now case-sensitive and no longer automatically lower-cased (conforms with Node.js standard)
+* improve handling of Node.js module `require`s
+
 **0.13.1** - April 23, 2013
 * fix for error when running `--test`
 
