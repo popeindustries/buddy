@@ -68,8 +68,8 @@ describe('Builder', function() {
 				this.builder.build('buddy_single-file-with-dependency.js', {}, function(err) {
 					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
 					var contents = fs.readFileSync(this.builder.targets[0].outputPaths[0], 'utf8');
-					contents.should.include("require.register('package/class'");
-					contents.should.include("require.register('package/classcamelcase'");
+					contents.should.include("require.register('package/Class'");
+					contents.should.include("require.register('package/ClassCamelCase'");
 					done();
 				}.bind(this));
 			});
@@ -232,7 +232,7 @@ describe('Builder', function() {
 				this.builder.build('buddy.js', {}, function(err) {
 					var contents = fs.readFileSync(this.builder.targets[0].outputPaths[0], 'utf8');
 					contents.should.include("require.register('main'");
-					contents.should.include("require.register('package/classcamelcase'");
+					contents.should.include("require.register('package/ClassCamelCase'");
 					done();
 				}.bind(this));
 			});
@@ -247,7 +247,7 @@ describe('Builder', function() {
 			it('should contain 2 modules', function(done) {
 				this.builder.build('buddy_wrapped.js', {}, function(err) {
 					var contents = fs.readFileSync(this.builder.targets[0].outputPaths[0], 'utf8');
-					contents.should.include("require.register('mainwrapped'");
+					contents.should.include("require.register('mainWrapped'");
 					contents.should.include("require.register('package/prewrapped'");
 					done();
 				}.bind(this));

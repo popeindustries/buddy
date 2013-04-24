@@ -1,4 +1,4 @@
-var ClassCamelCase = require('./package/classcamelcase');
+var ClassCamelCase = require('./package/ClassCamelCase');
 
 var ccc = new ClassCamelCase();
 var arr = [1,2,3,4,5];

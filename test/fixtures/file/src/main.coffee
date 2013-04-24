@@ -1,4 +1,4 @@
-Class = require './package/class'
-ClassCamelCase = require './package/classcamelcase'
+Class = require './package/Class'
+ClassCamelCase = require './package/ClassCamelCase'
 
 instance = new Class

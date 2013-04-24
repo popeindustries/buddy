@@ -1,4 +1,4 @@
-Class = require './class'
+Class = require './Class'
 
 module.exports = class ClassCamelCase extends Class
 

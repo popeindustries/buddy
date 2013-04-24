@@ -1,7 +1,7 @@
 {
 	"name": "buddy",
 	"description": "A build tool for js/css/html projects.",
-	"version": "0.13.1",
+	"version": "0.14.0",
 	"author": "popeindustries <alex@pope-industries.com>",
 	"keywords": ["build", "buildtool", "modules", "javascript", "coffeescript", "css", "styus", "less", "livescript", "handlebars", "dust", "jade", "twig"],
 	"dependencies": {
@@ -17,7 +17,7 @@
 		"buddy-cli": "0.5.x",
 		"yaw": "0.1.1",
 		"transfigure": "0.6.0",
-		"identify-resource": "0.5.0"
+		"identify-resource": "0.6.1",
 		"inline-source": "0.2.0"
 	},
 	"devDependencies": {
