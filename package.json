@@ -18,7 +18,7 @@
 		"yaw": "0.1.1",
 		"transfigure": "0.6.0",
 		"identify-resource": "0.6.1",
-		"inline-source": "0.2.0"
+		"inline-source": "0.3.0"
 	},
 	"devDependencies": {
 		"should": "*",
