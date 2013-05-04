@@ -19,7 +19,7 @@
 - __Serves__ static files from specified directory on specified port
 - __Refreshes__ connected browsers after each change
 - __Inlines__ css `@imports` automatically
-- __Inlines__ html <script> and <link> tags when flagged with `inline` attributes
+- __Inlines__ html `<script>` and `<link>` tags when flagged with `inline` attributes
 - Supports execution of a ___test___ script after each build
 - [Add-on] Copies __packages__ from GitHub to your project
 - [Add-on] Copies __assets__ from a local destination to your project
