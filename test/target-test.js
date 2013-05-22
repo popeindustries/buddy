@@ -54,7 +54,7 @@ describe('target', function() {
 		});
 		it('should serially apply a set of commands to a collection of items', function(done) {
 			var files = [new this.File('1'), new this.File('2')];
-			var commands = ['action1', 'action2'];
+			var commands = ['file:action1', 'file:action2'];
 			this.target.process(files, commands, function(err) {
 				should.not.exist(err);
 				files[0].total.should.eql(2);
@@ -63,7 +63,7 @@ describe('target', function() {
 		});
 		it('should apply commands to a collection of items, including commands that reduce the collection', function(done) {
 			var files = this.target.files = [new this.File('1'), new this.File('2')];
-			var commands = ['action1', 'action2', 'target:action1', 'action3'];
+			var commands = ['file:action1', 'file:action2', 'target:action1', 'file:action3'];
 			this.target.process(files, commands, function(err) {
 				should.not.exist(err);
 				files[0].total.should.eql(3);
@@ -73,7 +73,7 @@ describe('target', function() {
 		});
 		it('should apply commands to a collection of items, including commands that expand the collection', function(done) {
 			var files = this.target.files = [new this.File('1'), new this.File('2')];
-			var commands = ['action1', 'action2', 'target:action2', 'action3'];
+			var commands = ['file:action1', 'file:action2', 'target:action2', 'file:action3'];
 			this.target.process(files, commands, function(err) {
 				should.not.exist(err);
 				files[0].total.should.eql(3);
@@ -108,7 +108,7 @@ describe('target', function() {
 		});
 		it('should parse a file "input" and process a basic read/write workflow', function(done) {
 			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = ['compile', 'write'];
+			this.target.workflow = ['file:compile', 'file:write'];
 			this.target.parse(function(err) {
 				this.target.outputFiles.should.have.length(1);
 				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
@@ -118,7 +118,7 @@ describe('target', function() {
 		it('should parse a directory "input" and process a basic read/write workflow', function(done) {
 			this.target.inputPath = path.resolve('src/js');
 			this.target.isDir = true;
-			this.target.workflow = ['compile', 'write'];
+			this.target.workflow = ['file:compile', 'file:write'];
 			this.target.parse(function(err) {
 				this.target.outputFiles.should.have.length(4);
 				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
@@ -132,7 +132,7 @@ describe('target', function() {
 			this.target.type = this.target.fileFactoryOptions.type = 'css';
 			this.target.inputPath = path.resolve('src/css');
 			this.target.isDir = true;
-			this.target.workflow = ['parse', 'concat', 'target:filter', 'write'];
+			this.target.workflow = ['file:parse', 'file:concat', 'target:filter', 'file:write'];
 			this.target.parse(function(err) {
 				this.target.outputFiles.should.have.length(1);
 				fs.existsSync(path.resolve('temp/css/foo.css')).should.be.ok;
