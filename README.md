@@ -72,7 +72,7 @@ Options:
   -l, --lint      check output for syntax and logic errors
   -r, --reload    reload all connected live-reload clients on file change during watch
   -s, --serve     create a webserver to serve static files during watch
-  -t, --test      run test command on build completion
+  -t, --script    run script on build completion
   -L, --lazy      convert js modules for lazy evaluation
   -v, --verbose   print all messages for debugging
 ```
@@ -377,7 +377,7 @@ exports.dependencies = {
 // Project settings configuration.
 exports.settings = {
   // Run a command after build
-  test: 'command --flags',
+  script: 'command --flags',
   // Configure webserver
   server: {
     // Defaults to project root
