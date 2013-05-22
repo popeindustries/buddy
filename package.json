@@ -1,7 +1,7 @@
 {
 	"name": "buddy",
 	"description": "A build tool for js/css/html projects.",
-	"version": "0.14.0",
+	"version": "0.14.1",
 	"author": "popeindustries <alex@pope-industries.com>",
 	"keywords": ["build", "buildtool", "modules", "javascript", "coffeescript", "css", "styus", "less", "livescript", "handlebars", "dust", "jade", "twig"],
 	"dependencies": {
