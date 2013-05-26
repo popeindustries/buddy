@@ -4,7 +4,7 @@
 
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies (optional add-on), compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Dust/Stylus/Less/Jade/Twig), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.14.1 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
+**Current version:** 0.15.0 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
 
 ## Features
 
@@ -20,7 +20,8 @@
 - __Refreshes__ connected browsers after each change
 - __Inlines__ css `@imports` automatically
 - __Inlines__ html `<script>` and `<link>` tags when flagged with `inline` attributes
-- Supports execution of a ___test___ script after each build
+- Supports execution of a ___script___ after each build
+- Supports execution of ___hook___ scripts `afterEach` file is processed, and `before` and `after` a target is built
 - [Add-on] Copies __packages__ from GitHub to your project
 - [Add-on] Copies __assets__ from a local destination to your project
 
@@ -40,7 +41,7 @@ $ npm -g install buddy-cli
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.12.0"
+    "buddy": "0.15.x"
   }
 }
 ```
@@ -93,7 +94,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.12.0"
+    "buddy": "0.15.x"
   },
   "buddy": {
     "build": {
@@ -127,7 +128,7 @@ package.json
     "underscore": "1.4.4"
   },
   "devDependencies": {
-    "buddy": "0.12.0"
+    "buddy": "0.15.x"
   },
   "buddy": {
     "build": {
@@ -160,7 +161,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.12.0"
+    "buddy": "0.15.x"
   },
   "buddy": {
     "build": {
@@ -197,7 +198,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.12.0"
+    "buddy": "0.15.x"
   },
   "buddy": {
     "build": {
@@ -233,7 +234,7 @@ package.json
   "description": "This is my server project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.12.0"
+    "buddy": "0.15.x"
   },
   "buddy": {
     "build": {
@@ -255,6 +256,37 @@ package.json
 $ buddy build
 ```
 
+Modify the file output with an `afterEach` hook:
+
+```json
+package.json
+{
+  "name": "myproject",
+  "description": "This is my server project",
+  "version": "0.1.0",
+  "devDependencies": {
+    "buddy": "0.15.x"
+  },
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src"],
+        "targets": [
+          {
+            "input": "src/main.js",
+            "output": "www/main.js",
+            "afterEach": "context.content = require('fs').readFileSync(require('path').resolve('./scripts/header.js'), 'utf8') + context.content; callback(null);"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+```bash
+$ buddy build
+```
+
 Start a basic web server and refresh the browser (using the Live-Reload browser plugin) after each build triggered by source file changes:
 
 ```json
@@ -264,7 +296,7 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.12.0"
+    "buddy": "0.15.x"
   },
   "buddy": {
     "settings": {
@@ -301,6 +333,12 @@ exports.build = {
         output: 'a/js/file/or/directory',
         // An alternate destination in which to save the compressed output.
         output_compressed: 'a/js/file/or/directory',
+        // A script to run before a target is built.
+        before: 'console.log(context); callback(null);'
+        // A script to run after a target is built.
+        after: './hooks/after.js'
+        // A script to run after each output file is written to disk.
+        afterEach: 'context.content = "foo"; callback(null);'
         // Targets can have children.
         // Any sources included in the parent target will NOT be included in the child.
         targets: [
@@ -465,6 +503,39 @@ When ```require()```-ing a module, keep in mind that the module id is resolved b
 See [node.js modules](http://nodejs.org/api/modules.html) for more info on modules.
 
 ***NOTE***: ```require``` boilerplate needs to be included in the browser to enable module loading. It's recommended to ```install``` a library like *popeindustries/browser-require* (npm: simple-browser-require).
+
+### HOOKS
+
+It is possible to intervene in the build process through the use of *hooks*. Hooks are assigned to specific targets and defined in the target configuration. There are three types available:
+
+- *before*: executed before a **target** is built
+
+- *after*: executed after a **target** is built
+
+- *afterEach*: executed after an output **file** is processed, but before it is written to disk
+
+Hooks can be written as inline JavaScript, or loaded from a file if a path is specified:
+
+```json
+...
+  targets: [
+    {
+      input: 'somefile.js',
+      output: 'somedir',
+      before: 'console.log("before hook"); callback(null);',
+      after: 'path/to/afterHook.js'
+    }
+  ]
+...
+```
+
+All hooks are passed the following arguments:
+
+- *context*: the `target` (*before* and *after*) or `file` (*afterEach*) instance
+
+- *options*: the runtime options used to execute buddy (`compress`, `lazy`, `reload`, `watch`, `deploy`, etc)
+
+- *callback*: a callback function that accepts an optional `error`. **MUST** be called in order to return control back to the program.
 
 ### DEPENDENCIES
 

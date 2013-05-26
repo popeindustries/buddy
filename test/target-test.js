@@ -4,7 +4,7 @@ var path = require('path')
 	, rimraf = require('rimraf')
 	, fileFactory = require('../lib/core/file')
 	, targetFactory = require('../lib/core/target')
-	, cache = new (require('../lib/core/filecache'));
+	, cache = new (require('../lib/core/filecache'))();
 
 describe('target', function() {
 	before(function() {
@@ -46,11 +46,11 @@ describe('target', function() {
 			this.target.action1 = function(files, fn) {
 				this.files.pop();
 				fn();
-			}
+			};
 			this.target.action2 = function(files, fn) {
 				this.files.push(new File('3'));
 				fn();
-			}
+			};
 		});
 		it('should serially apply a set of commands to a collection of items', function(done) {
 			var files = [new this.File('1'), new this.File('2')];
@@ -135,7 +135,7 @@ describe('target', function() {
 		});
 	});
 
-	describe.only('build', function() {
+	describe('build', function() {
 		beforeEach(function() {
 			this.target = targetFactory(cache, {type:'js', outputPath: path.resolve('temp'), fileExtensions:['js', 'coffee'], sources:['src'], runtimeOptions:{}});
 		});

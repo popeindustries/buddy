@@ -1,7 +1,7 @@
 # Changelog
 
-**0.14.1** - May 22, 2013
-* renamed `--test` option and `settings.test` to `--script` and `settings.script`
+**0.15.0** - May 26, 2013
+* added support for `before`, `after`, and `afterEach` hooks (see [readme](https://github.com/popeindustries/buddy/#hooks))
 
 **0.14.0** - April 24, 2013
 * added support for inlining html `<script>` and `<link>` tag sources when an `inline` attribute is used
