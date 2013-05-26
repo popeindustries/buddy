@@ -1,6 +1,9 @@
 # Changelog
 
-**0.16.** - May 26, 2013
+**0.16.1** - May 26, 2013
+* fix for improperly cleared identity cache returning wrong resource during sequential target builds
+
+**0.16.0** - May 26, 2013
 * add support for aliasing module ids (see [readme](https://github.com/popeindustries/buddy/#aliases))
 
 **0.15.1** - May 26, 2013
