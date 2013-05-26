@@ -140,7 +140,7 @@ describe('target', function() {
 			this.target = targetFactory(cache, {type:'js', outputPath: path.resolve('temp'), fileExtensions:['js', 'coffee'], sources:['src'], runtimeOptions:{}});
 		});
 		it('should execute a "before" hook before running the build', function(done) {
-			this.target.before = new Function('context', 'options', 'callback', 'context.foo="foo";callback();');
+			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'context.foo="foo";callback();');
 			this.target.inputPath = path.resolve('src/js/foo.js');
 			this.target.workflow = ['file:compile'];
 			this.target.foo = 'bar';
@@ -150,7 +150,7 @@ describe('target', function() {
 			}.bind(this));
 		});
 		it('should execute an "after" hook after running the build', function(done) {
-			this.target.before = new Function('context', 'options', 'callback', 'context.foo="foo";callback();');
+			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'context.foo="foo";callback();');
 			this.target.inputPath = path.resolve('src/js/foo.js');
 			this.target.workflow = ['file:compile'];
 			this.target.foo = 'bar';
@@ -160,7 +160,7 @@ describe('target', function() {
 			}.bind(this));
 		});
 		it('should execute an "afterEach" hook after each processed file is ready to write to disk', function(done) {
-			this.target.afterEach = new Function('context', 'options', 'callback', 'context.content="foo";callback();');
+			this.target.afterEach = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'context.content="foo";callback();');
 			this.target.inputPath = path.resolve('src/js/foo.js');
 			this.target.workflow = ['file:compile', 'target:write'];
 			this.target.build(function(err, paths) {
@@ -169,7 +169,7 @@ describe('target', function() {
 			}.bind(this));
 		});
 		it('should return an error if a "before" hook returns an error', function(done) {
-			this.target.before = new Function('context', 'options', 'callback', 'callback("oops");');
+			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'callback("oops");');
 			this.target.inputPath = path.resolve('src/js/foo.js');
 			this.target.workflow = ['file:compile'];
 			this.target.build(function(err, paths) {
@@ -178,7 +178,7 @@ describe('target', function() {
 			}.bind(this));
 		});
 		it('should return an error if an "after" hook returns an error', function(done) {
-			this.target.after = new Function('context', 'options', 'callback', 'callback("oops");');
+			this.target.after = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'callback("oops");');
 			this.target.inputPath = path.resolve('src/js/foo.js');
 			this.target.workflow = ['file:compile'];
 			this.target.build(function(err, paths) {
