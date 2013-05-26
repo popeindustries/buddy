@@ -106,25 +106,20 @@ describe('target', function() {
 		beforeEach(function() {
 			this.target = targetFactory(cache, {type:'js', outputPath: path.resolve('temp'), fileExtensions:['js', 'coffee'], sources:['src'], runtimeOptions:{}});
 		});
-		it('should parse a file "input" and process a basic read/write workflow', function(done) {
+		it('should parse a file "input" and process a basic workflow', function(done) {
 			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = ['file:compile', 'file:write'];
+			this.target.workflow = ['file:compile'];
 			this.target.parse(function(err) {
 				this.target.outputFiles.should.have.length(1);
-				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
 				done();
 			}.bind(this));
 		});
-		it('should parse a directory "input" and process a basic read/write workflow', function(done) {
+		it('should parse a directory "input" and process a basic workflow', function(done) {
 			this.target.inputPath = path.resolve('src/js');
 			this.target.isDir = true;
-			this.target.workflow = ['file:compile', 'file:write'];
+			this.target.workflow = ['file:compile'];
 			this.target.parse(function(err) {
 				this.target.outputFiles.should.have.length(4);
-				fs.existsSync(path.resolve('temp/js/foo.js')).should.be.ok;
-				fs.existsSync(path.resolve('temp/js/bar.js')).should.be.ok;
-				fs.existsSync(path.resolve('temp/js/bat.js')).should.be.ok;
-				fs.existsSync(path.resolve('temp/js/baz.js')).should.be.ok;
 				done();
 			}.bind(this));
 		});
@@ -132,10 +127,62 @@ describe('target', function() {
 			this.target.type = this.target.fileFactoryOptions.type = 'css';
 			this.target.inputPath = path.resolve('src/css');
 			this.target.isDir = true;
-			this.target.workflow = ['file:parse', 'file:concat', 'target:filter', 'file:write'];
+			this.target.workflow = ['file:parse', 'file:concat', 'target:filter'];
 			this.target.parse(function(err) {
 				this.target.outputFiles.should.have.length(1);
-				fs.existsSync(path.resolve('temp/css/foo.css')).should.be.ok;
+				done();
+			}.bind(this));
+		});
+	});
+
+	describe.only('build', function() {
+		beforeEach(function() {
+			this.target = targetFactory(cache, {type:'js', outputPath: path.resolve('temp'), fileExtensions:['js', 'coffee'], sources:['src'], runtimeOptions:{}});
+		});
+		it('should execute a "before" hook before running the build', function(done) {
+			this.target.before = new Function('context', 'options', 'callback', 'context.foo="foo";callback();');
+			this.target.inputPath = path.resolve('src/js/foo.js');
+			this.target.workflow = ['file:compile'];
+			this.target.foo = 'bar';
+			this.target.build(function(err, paths) {
+				this.target.foo.should.eql('foo');
+				done();
+			}.bind(this));
+		});
+		it('should execute an "after" hook after running the build', function(done) {
+			this.target.before = new Function('context', 'options', 'callback', 'context.foo="foo";callback();');
+			this.target.inputPath = path.resolve('src/js/foo.js');
+			this.target.workflow = ['file:compile'];
+			this.target.foo = 'bar';
+			this.target.build(function(err, paths) {
+				this.target.foo.should.eql('foo');
+				done();
+			}.bind(this));
+		});
+		it('should execute an "afterEach" hook after each processed file is ready to write to disk', function(done) {
+			this.target.afterEach = new Function('context', 'options', 'callback', 'context.content="foo";callback();');
+			this.target.inputPath = path.resolve('src/js/foo.js');
+			this.target.workflow = ['file:compile', 'target:write'];
+			this.target.build(function(err, paths) {
+				fs.readFileSync(path.resolve('temp/js/foo.js'), 'utf8').should.eql('foo');
+				done();
+			}.bind(this));
+		});
+		it('should return an error if a "before" hook returns an error', function(done) {
+			this.target.before = new Function('context', 'options', 'callback', 'callback("oops");');
+			this.target.inputPath = path.resolve('src/js/foo.js');
+			this.target.workflow = ['file:compile'];
+			this.target.build(function(err, paths) {
+				should.exist(err);
+				done();
+			}.bind(this));
+		});
+		it('should return an error if an "after" hook returns an error', function(done) {
+			this.target.after = new Function('context', 'options', 'callback', 'callback("oops");');
+			this.target.inputPath = path.resolve('src/js/foo.js');
+			this.target.workflow = ['file:compile'];
+			this.target.build(function(err, paths) {
+				should.exist(err);
 				done();
 			}.bind(this));
 		});
