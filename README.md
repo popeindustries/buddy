@@ -517,7 +517,8 @@ It is possible to intervene in the build process through the use of *hooks*. Hoo
 Hooks can be written as inline JavaScript, or loaded from a file if a path is specified:
 
 ```json
-...
+{
+  ...
   "targets": [
     {
       "input": "somefile.js",
@@ -526,7 +527,8 @@ Hooks can be written as inline JavaScript, or loaded from a file if a path is sp
       "after": "path/to/afterHook.js"
     }
   ]
-...
+  ...
+}
 ```
 
 All hooks are passed the following arguments:
