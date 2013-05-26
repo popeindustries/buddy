@@ -518,12 +518,12 @@ Hooks can be written as inline JavaScript, or loaded from a file if a path is sp
 
 ```json
 ...
-  targets: [
+  "targets": [
     {
-      input: 'somefile.js',
-      output: 'somedir',
-      before: 'console.log("before hook"); callback(null);',
-      after: 'path/to/afterHook.js'
+      "input": "somefile.js",
+      "output": "somedir",
+      "before": "console.log('before hook'); callback(null);",
+      "after": "path/to/afterHook.js"
     }
   ]
 ...
@@ -531,7 +531,7 @@ Hooks can be written as inline JavaScript, or loaded from a file if a path is sp
 
 All hooks are passed the following arguments:
 
-- *context*: the `target` (*before* and *after*) or `file` (*afterEach*) instance
+- *context*: the `target` (before and after) or `file` (afterEach) instance
 
 - *options*: the runtime options used to execute buddy (`compress`, `lazy`, `reload`, `watch`, `deploy`, etc)
 
