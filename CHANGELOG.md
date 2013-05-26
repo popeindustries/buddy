@@ -1,5 +1,8 @@
 # Changelog
 
+**0.15.1** - May 26, 2013
+* make sure that global objects are available in the hook execution context
+
 **0.15.0** - May 26, 2013
 * added support for `before`, `after`, and `afterEach` hooks (see [readme](https://github.com/popeindustries/buddy/#hooks))
 
