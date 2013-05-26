@@ -1,5 +1,8 @@
 # Changelog
 
+**0.16.2** - May 26, 2013
+* fix for lost aliases on watch changes
+
 **0.16.1** - May 26, 2013
 * fix for improperly cleared identity cache returning wrong resource during sequential target builds
 
