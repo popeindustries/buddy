@@ -4,7 +4,7 @@
 
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies (optional add-on), compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Dust/Stylus/Less/Jade/Twig), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.15.1 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
+**Current version:** 0.16.0 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
 
 ## Features
 
@@ -41,7 +41,7 @@ $ npm -g install buddy-cli
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.15.x"
+    "buddy": "0.16.x"
   }
 }
 ```
@@ -94,7 +94,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.15.x"
+    "buddy": "0.16.x"
   },
   "buddy": {
     "build": {
@@ -128,7 +128,7 @@ package.json
     "underscore": "1.4.4"
   },
   "devDependencies": {
-    "buddy": "0.15.x"
+    "buddy": "0.16.x"
   },
   "buddy": {
     "build": {
@@ -161,7 +161,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.15.x"
+    "buddy": "0.16.x"
   },
   "buddy": {
     "build": {
@@ -198,7 +198,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.15.x"
+    "buddy": "0.16.x"
   },
   "buddy": {
     "build": {
@@ -234,7 +234,7 @@ package.json
   "description": "This is my server project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.15.x"
+    "buddy": "0.16.x"
   },
   "buddy": {
     "build": {
@@ -265,7 +265,40 @@ package.json
   "description": "This is my server project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.15.x"
+    "buddy": "0.16.x"
+  },
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src"],
+        "targets": [
+          {
+            "input": "src/main.js",
+            "output": "www/main.js",
+            "alias": {
+              "jquery": "./lib/js/jquery-custom-2.0.js"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+```javascript
+var jquery = require('jquery');
+```
+
+Alias a custom build of **jquery**:
+
+```json
+package.json
+{
+  "name": "myproject",
+  "description": "This is my server project",
+  "version": "0.1.0",
+  "devDependencies": {
+    "buddy": "0.16.x"
   },
   "buddy": {
     "build": {
@@ -296,7 +329,7 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.15.x"
+    "buddy": "0.16.x"
   },
   "buddy": {
     "settings": {
@@ -438,16 +471,18 @@ exports.settings = {
 
 **Target parameters**:
 
-- *input*: file or directory to build. If js (or equivalent) file, all dependencies referenced will be concatenated together for output.
+- **input**: file or directory to build. If js (or equivalent) file, all dependencies referenced will be concatenated together for output.
 If directory, all compileable files will be compiled, wrapped in module definitions (js), and output to individual js/css files.
 
-- *output*: file or directory to output to.
+- **output**: file or directory to output to.
 
-- *targets*: a nested target that prevents the duplication of source code with it's parent target.
+- **targets**: a nested target that prevents the duplication of source code with it's parent target.
 
-- *modular*: a flag to prevent js files from being wrapped with a module definition.
+- **modular**: a flag to prevent js files from being wrapped with a module definition.
 
-- *output_compressed*: an alternate file or directory to use for compressed output.
+- **output_compressed**: an alternate file or directory to use for compressed output.
+
+- **before**, **after**, **afterEach**: hooks for modifying the build process (see [hooks](https://github.com/popeindustries/buddy/#hooks))
 
 ### MODULES
 
@@ -508,11 +543,11 @@ See [node.js modules](http://nodejs.org/api/modules.html) for more info on modul
 
 It is possible to intervene in the build process through the use of *hooks*. Hooks are assigned to specific targets and defined in the target configuration. There are three types available:
 
-- *before*: executed before a **target** is built
+- **before**: executed before a *target* is built
 
-- *after*: executed after a **target** is built
+- **after**: executed after a *target* is built
 
-- *afterEach*: executed after an output **file** is processed, but before it is written to disk
+- **afterEach**: executed after an output *file* is processed, but before it is written to disk
 
 Hooks can be written as inline JavaScript, or loaded from a file if a path is specified:
 
@@ -533,11 +568,36 @@ Hooks can be written as inline JavaScript, or loaded from a file if a path is sp
 
 All hooks are passed the following arguments:
 
-- *context*: the `target` (before and after) or `file` (afterEach) instance
+- **context**: the `target` (before and after) or `file` (afterEach) instance
 
-- *options*: the runtime options used to execute buddy (`compress`, `lazy`, `reload`, `watch`, `deploy`, etc)
+- **options**: the runtime options used to execute buddy (`compress`, `lazy`, `reload`, `watch`, `deploy`, etc)
 
-- *callback*: a callback function that accepts an optional `error`. **MUST** be called in order to return control back to the program.
+- **callback**: a callback function that accepts an optional `error`. **MUST** be called in order to return control back to the program.
+
+### ALIASES
+
+Specifying aliases allow you to override the default behaviour for automatically resolving module ids. Aliases are defined in the target configuration:
+
+```json
+{
+  ...
+  "targets": [
+    {
+      "input": "somefile.js",
+      "output": "somedir",
+      "alias": {
+        "jquery": "./lib/js/jquery-custom-2.0.js",
+        "dust": "./node_modules/dustjs-linkedin/dist/dust-core-1.2.3.js"
+      }
+    }
+  ]
+  ...
+}
+```
+```javascript
+var jquery = require('jquery')
+  , dust = require('dust');
+```
 
 ### DEPENDENCIES
 

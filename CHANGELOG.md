@@ -1,5 +1,8 @@
 # Changelog
 
+**0.16.** - May 26, 2013
+* add support for aliasing module ids (see [readme](https://github.com/popeindustries/buddy/#aliases))
+
 **0.15.1** - May 26, 2013
 * make sure that global objects are available in the hook execution context
 
