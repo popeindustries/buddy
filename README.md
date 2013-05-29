@@ -256,7 +256,7 @@ package.json
 $ buddy build
 ```
 
-Modify the file output with an `afterEach` hook:
+Alias a custom build of **jquery**:
 
 ```json
 package.json
@@ -289,7 +289,7 @@ package.json
 var jquery = require('jquery');
 ```
 
-Alias a custom build of **jquery**:
+Modify the file output with an `afterEach` hook:
 
 ```json
 package.json
