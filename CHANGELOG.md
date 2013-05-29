@@ -1,5 +1,8 @@
 # Changelog
 
+**0.16.4** - May 29, 2013
+* upgrade buddy-server to allow basic file and directory rerouting during `--serve`
+
 **0.16.3** - May 29, 2013
 * fix for empty file on watch change
 

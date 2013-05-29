@@ -1,7 +1,7 @@
 {
 	"name": "buddy",
 	"description": "A build tool for js/css/html projects.",
-	"version": "0.16.3",
+	"version": "0.16.4",
 	"author": "popeindustries <alex@pope-industries.com>",
 	"keywords": ["build", "buildtool", "modules", "javascript", "coffeescript", "css", "styus", "less", "livescript", "handlebars", "dust", "jade", "twig"],
 	"dependencies": {
@@ -13,7 +13,7 @@
 		"lodash": "1.2.1",
 		"recur-fs": "0.1.2",
 		"buddy-term": "0.2.0",
-		"buddy-server": "0.3.0",
+		"buddy-server": "0.4.1",
 		"buddy-cli": "0.6.x",
 		"yaw": "0.1.1",
 		"transfigure": "0.6.0",
