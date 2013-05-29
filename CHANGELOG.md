@@ -1,5 +1,8 @@
 # Changelog
 
+**0.16.3** - May 29, 2013
+* fix for empty file on watch change
+
 **0.16.2** - May 26, 2013
 * fix for lost aliases on watch changes
 
