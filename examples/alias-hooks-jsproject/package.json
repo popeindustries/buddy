@@ -1,0 +1,45 @@
+{
+	"name": "alias-hooks-jsproject",
+	"version": "0.1.0",
+	"dependencies": {
+		"backbone": "1.0.x",
+		"underscore": "1.4.4",
+		"simple-browser-require": "0.1.7"
+	},
+	"devDependencies": {
+		"buddy": "0.16.x"
+	},
+	"private": true,
+	"scripts": {
+		"start": "buddy build --script"
+	},
+	"buddy": {
+		"build": {
+			"js": {
+				"sources": [
+					"src",
+					"lib"
+				],
+				"targets": [
+					{
+						"input": "src/libs.js",
+						"output": "www/libs.js",
+						"afterEach": "context.content = require('fs').readFileSync(require('path').resolve('./node_modules/simple-browser-require/require.min.js'), 'utf8') + '\\n' + context.content; callback();",
+						"alias": {
+							"jquery": "./lib/jquery-custom-2.0.js"
+						},
+						"targets": [
+							{
+								"input": "src/main.js",
+								"output": "www/main.js"
+							}
+						]
+					}
+				]
+			}
+		},
+		"settings": {
+			"script": "open www/index.html"
+		}
+	}
+}

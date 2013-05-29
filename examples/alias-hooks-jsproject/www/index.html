@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>alias-hooks-jsproject</title>
+  </head>
+  <body>
+    <h1>alias-hooks-jsproject</h1>
+    <p>This JavaScript-only example makes use of <em>hooks</em>, <em>aliases</em>, and <em>nested</em> targets in order to generate a <strong>libs.js</strong> file containing all third-party library code, separate from the <strong>main.js</strong> application code.</p>
+    <p>Be sure to look at <em>package.json</em> and the .js files generated in <em>www/</em></p>
+    <h2>nesting</h2>
+    <p>This separation allows infrequently updated library code to be cached more aggressively than application code, and relies upon <strong>nested</strong> build targets to make sure that code is not duplicated between the two files:</p>
+    <code>
+      [package.json]
+      <pre>
+...
+"targets": [
+  {
+    "input": "src/libs.js",
+    "output": "www/libs.js",
+    ...
+    "targets": [
+      {
+        "input": "src/main.js",
+        "output": "www/main.js"
+      }
+    ]
+  }
+]
+...
+      </pre>
+    </code>
+    <h2>aliasing</h2>
+    <p>Although most browser-based npm packages are usable without any changes, it is sometimes desirable to override a package name in order to point to a specific distribution file, or when a custom version has been generated. In this example, a custom version of <em>JQuery</em> has been generated, and <strong>aliased</strong> as "<em>jquery</em>":</p>
+    <code>
+      [package.json]
+      <pre>
+...
+"targets": [
+  {
+    "input": "src/libs.js",
+    "output": "www/libs.js",
+    "alias": {
+       "jquery": "./lib/jquery-custom-2.0.js"
+    },
+    ...
+]
+...
+      </pre>
+    </code>
+    <code>
+      [main.js]
+      <pre>
+var $ = require('jquery');
+      </pre>
+    </code>
+    <h2>hooks</h2>
+    <p>Hooks allow us to intervene in the build process in order to manipulate the generated output. In this case, in order to include the <em>browser-require</em> code in our library bundle, we need to <strong>hook</strong> into the process before the built file is written to disk. Using the <em>afterEach</em> attribute with an inline script makes it possible to prepend the contents of <em>require.min.js</em> to the file (because <em>require.js</em> provides the code necessary to <em>require()</em> modules, it can't be included via a normal <em>require('require')</em> call):</p>
+    <code>
+      [package.json]
+      <pre>
+...
+"targets": [
+  {
+    "input": "src/libs.js",
+    "output": "www/libs.js",
+    "afterEach": "context.content = require('fs').readFileSync(require('path').resolve('./node_modules/simple-browser-require/require.min.js'), 'utf8') + '\\n' + context.content; callback();",
+    ...
+]
+...
+      </pre>
+    </code>
+    <script src="libs.js"></script>
+    <script src="main.js"></script>
+    <script>
+      (function() {
+        require('main').init();
+      })();
+    </script>
+  </body>
+</html>

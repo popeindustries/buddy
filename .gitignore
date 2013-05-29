@@ -7,3 +7,4 @@ node_modules
 !test/*/*/*/*/*/node_modules
 !test/*/*/*/*/*/*/node_modules
 .buddy-filelog
+examples/**/www/*.js
