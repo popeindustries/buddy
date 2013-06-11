@@ -1,5 +1,8 @@
 # Changelog
 
+**0.17.0** - June 11, 2013
+* add inlining of json content via `require("path/to/my.json")`
+
 **0.16.4** - May 29, 2013
 * upgrade buddy-server to allow basic file and directory rerouting during `--serve`
 
