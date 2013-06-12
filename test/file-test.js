@@ -223,7 +223,7 @@ describe('file', function() {
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
 				instance.parse(null, function(err, instance) {
 					should.not.exist(err);
-					instance.content.should.eql('var foo = "";');
+					instance.content.should.eql('var foo = {};');
 					done();
 				});
 			});
