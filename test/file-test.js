@@ -218,12 +218,12 @@ describe('file', function() {
 					done();
 				});
 			});
-			it('should inline an empty string when unable to locate json content', function(done) {
+			it.only('should inline an empty string when unable to locate json content', function(done) {
 				var instance = fileFactory(path.resolve('src/main-bad-json.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
 				instance.parse(null, function(err, instance) {
 					should.not.exist(err);
-					instance.content.should.eql('var foo = {};');
+					instance.content.should.eql('var foo = {};\nvar bar = {};');
 					done();
 				});
 			});
