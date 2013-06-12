@@ -1,5 +1,8 @@
 # Changelog
 
+**0.17.3** - June 12, 2013
+* fixed compiled `.dust` module registration
+
 **0.17.2** - June 12, 2013
 * updated compilers to latest
 * fixed error handling for `.less` compiling
