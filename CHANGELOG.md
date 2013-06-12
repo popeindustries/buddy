@@ -1,5 +1,9 @@
 # Changelog
 
+**0.17.1** - June 12, 2013
+* return empty object instead of string when json inlining fails
+* warn when json inlining fails
+
 **0.17.0** - June 11, 2013
 * add inlining of json content via `require("path/to/my.json")`
 
