@@ -1,5 +1,9 @@
 # Changelog
 
+**0.17.2** - June 12, 2013
+* updated compilers to latest
+* fixed error handling for `.less` compiling
+
 **0.17.1** - June 12, 2013
 * return empty object instead of string when json inlining fails
 * warn when json inlining fails
