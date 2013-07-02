@@ -1,5 +1,8 @@
 # Changelog
 
+**0.17.4** - July 2, 2013
+* fix for backslashes in module id on Win32
+
 **0.17.3** - June 12, 2013
 * fixed compiled `.dust` module registration
 
