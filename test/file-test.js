@@ -135,7 +135,7 @@ describe('file', function() {
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
 				instance.compress(null, function(err, instance) {
 					should.not.exist(err);
-					instance.content.should.eql("@import 'package/foo';body{background-color:#000}");
+					instance.content.should.eql("body{background-color:#000}");
 					done();
 				});
 			});
