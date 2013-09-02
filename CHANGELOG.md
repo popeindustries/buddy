@@ -1,5 +1,8 @@
 # Changelog
 
+**0.17.5** - Sept 2, 2013
+* updated dependencies for all packages
+
 **0.17.4** - July 2, 2013
 * fix for backslashes in module id on Win32
 
