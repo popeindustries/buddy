@@ -1,5 +1,8 @@
 # Changelog
 
+**0.17.6** - Sept 3, 2013
+* swallow all server errors emitted during `watch --reload --serve`
+
 **0.17.5** - Sept 2, 2013
 * updated dependencies for all packages
 
