@@ -1,5 +1,8 @@
 # Changelog
 
+**0.17.7** - Sept 28, 2013
+* fix error resolving paths in `use(...)` calls for `.styl` compilation
+
 **0.17.6** - Sept 3, 2013
 * swallow all server errors emitted during `watch --reload --serve`
 
