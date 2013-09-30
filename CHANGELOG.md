@@ -1,5 +1,8 @@
 # Changelog
 
+**0.17.8** - Sept 30, 2013
+* fix for module id generation on windows with multiple backslashes
+
 **0.17.7** - Sept 28, 2013
 * fix error resolving paths in `use(...)` calls for `.styl` compilation
 
