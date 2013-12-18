@@ -1,5 +1,8 @@
 # Changelog
 
+**0.17.9** - Dec 18, 2013
+* (still another) fix for module id generation on windows with multiple backslashes [@andersaloof](https://github.com/andersaloof)
+
 **0.17.8** - Sept 30, 2013
 * fix for module id generation on windows with multiple backslashes
 
