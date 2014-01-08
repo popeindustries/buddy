@@ -135,10 +135,12 @@ describe('configuration', function() {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql(['file:compile', 'target:write']);
 		});
 		it('should return an object with an executable "before" hook function', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',before:'console.log(context);'}]}}).targets[0].before.should.be.a('function');
+			var func = configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',before:'console.log(context);'}]}}).targets[0].before;
+			(typeof func == 'function').should.be.true;
 		});
 		it('should return an object with an executable "before" hook function when passed a path', function() {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',before:'./hooks/before.js'}]}}).targets[0].before.should.be.a('function');
+			var func = configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',before:'./hooks/before.js'}]}}).targets[0].before;
+			(typeof func == 'function').should.be.true;
 		});
 	});
 
