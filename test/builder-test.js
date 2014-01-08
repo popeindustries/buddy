@@ -84,14 +84,6 @@ describe('Builder', function() {
 				}.bind(this));
 			});
 		});
-		describe('with a single livescript file', function() {
-			it('should build 1 js file', function(done) {
-				this.builder.build('buddy_single-ls-file.js', {}, function(err) {
-					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
-					done();
-				}.bind(this));
-			});
-		});
 		describe('with a single handlebars template file', function() {
 			it('should build 1 js file', function(done) {
 				this.builder.build('buddy_single-handlebars-file.js', {}, function(err) {
