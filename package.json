@@ -13,7 +13,7 @@
 		"lodash": "2.4.1",
 		"recur-fs": "0.1.4",
 		"buddy-term": "0.2.1",
-		"buddy-cli": "0.6.x",
+		"buddy-cli": "0.7.x",
 		"yaw": "0.1.1",
 		"transfigure": "0.8.0",
 		"identify-resource": "0.8.0",
