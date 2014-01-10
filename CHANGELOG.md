@@ -1,6 +1,6 @@
 # Changelog
 
-**1.0.0** - Jan x, 2014
+**1.0.0** - Jan 10, 2014
 * updated `buddy-cli` to fix errors with `buddy init`
 * added `boilerplate` target option to automatically include the [browser-require](https://github.com/popeindustries/browser-require) source
 * added `bootstrap` target option to automatically call `require('module');` at the end of the file
