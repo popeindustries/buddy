@@ -1,5 +1,16 @@
 # Changelog
 
+**1.0.0** - Jan x, 2014
+* updated `buddy-cli` to fix errors with `buddy init`
+* added `boilerplate` target option to automatically include the [browser-require](https://github.com/popeindustries/browser-require) source
+* added `bootstrap` target option to automatically call `require('module');` at the end of the file
+* removed `settings` from configuration, moving `server` and `script` to the top level
+* improved `--script` execution handling
+* improved handling of nested node_modules dependencies resolution
+* `--serve` and `--reload` behaviour during `watch` is now an optional add-on with separate `buddy-server` install via npm
+* removed *LiveScript* support
+* update dependencies for all packages
+
 **0.17.9** - Dec 18, 2013
 * (still another) fix for module id generation on windows with multiple backslashes [@andersaloof](https://github.com/andersaloof)
 

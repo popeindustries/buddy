@@ -2,9 +2,9 @@
 
 # buddy(1)
 
-**buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies (optional add-on), compiles source code from higher order js/css/html languages (CoffeeScript/LiveScript/Handlebars/Dust/Stylus/Less/Jade/Twig), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
+**buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies (optional add-on), compiles source code from higher order js/css/html languages (CoffeeScript/Handlebars/Dust/Stylus/Less/Jade/Twig), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 0.17.9 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
+**Current version:** 1.0.0 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
 
 ## Features
 
@@ -12,12 +12,12 @@
 - Resolves js module __dependencies__ automatically
 - Supports efficient ___lazy___ runtime evaluation by storing js modules as strings
 - Resolves all relative dependencies on __deploy__
-- __Compiles__ _CoffeeScript_, _LiveScript_, _Handlebars_, _Dust_, _Stylus_, _Less_, _Twig_, and _Jade_ source files
+- __Compiles__ _CoffeeScript_, _Handlebars_, _Dust_, _Stylus_, _Less_, _Twig_, and _Jade_ source files
 - __Concatenates__ js modules into a single file
 - Runs js and css code through __linters__ to check for syntax errors
 - __Watches__ for source changes and builds automatically
-- __Serves__ static files from specified directory on specified port
-- __Refreshes__ connected browsers after each change
+- [Add-on] __Serves__ static files from specified directory on specified port
+- [Add-on] __Refreshes__ connected browsers after each change
 - __Inlines__ css `@imports` automatically
 - __Inlines__ html `<script>` and `<link>` tags when flagged with `inline` attributes
 - __Inlines__ json content with `require("path/to/my.json")`
@@ -34,7 +34,7 @@ To avoid running **buddy(1)** directly as a global command, and thus avoid versi
 $ npm -g install buddy-cli
 ```
 
-...then create a *package.json* file for each project, locally installing **buddy** as a devDependency:
+...run `buddy init` or manually create a *package.json* file for each project, locally installing **buddy** as a devDependency:
 
 ```json
 {
@@ -42,7 +42,7 @@ $ npm -g install buddy-cli
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.16.x"
+    "buddy": "1.0.0"
   }
 }
 ```
@@ -54,12 +54,12 @@ $ npm install
 ## Usage
 
 ```text
-Usage: buddy [options] <command> [path/to/package.json or path/to/buddy.js or path/to/buddy.json]>
+Usage: buddy [options] <command> [path/to/package.json || path/to/buddy.js || path/to/buddy.json]
 
 Commands:
 
   init                   set up a basic buddy project
-  install [config]       install dependencies
+  install [config]       install dependencies [ADD-ON buddy-dependencies]
   build [config]         build js and css sources
   watch [config]         watch js and css source files and build changes
   deploy [config]        build compressed js and css sources
@@ -72,9 +72,9 @@ Options:
   -V, --version   output the version number
   -c, --compress  compress output for production deployment
   -l, --lint      check output for syntax and logic errors
-  -r, --reload    reload all connected live-reload clients on file change during watch
-  -s, --serve     create a webserver to serve static files during watch
-  -t, --script    run script on build completion
+  -r, --reload    reload all connected live-reload clients on file change during watch [ADD-ON buddy-server]
+  -s, --serve     create a webserver to serve static files during watch [ADD-ON buddy-server]
+  -S, --script    run script on build completion
   -L, --lazy      convert js modules for lazy evaluation
   -v, --verbose   print all messages for debugging
 ```
@@ -95,7 +95,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.16.x"
+    "buddy": "1.0.0"
   },
   "buddy": {
     "build": {
@@ -129,7 +129,7 @@ package.json
     "underscore": "1.4.4"
   },
   "devDependencies": {
-    "buddy": "0.16.x"
+    "buddy": "1.0.0"
   },
   "buddy": {
     "build": {
@@ -150,7 +150,7 @@ package.json
 $ buddy build
 ```
 
-First compile all CoffeeScript files in `libs/src/coffee`, then generate `www/main.js` by concatenating and modularizing all dependencies referenced in 'src/main.js':
+First compile all CoffeeScript files in `libs/src/coffee`, then generate `www/main.js` by concatenating and modularizing all dependencies referenced in `src/main.js`:
 
 ```json
 package.json
@@ -162,7 +162,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.16.x"
+    "buddy": "1.0.0"
   },
   "buddy": {
     "build": {
@@ -199,7 +199,7 @@ package.json
     "simple-browser-require": "*"
   },
   "devDependencies": {
-    "buddy": "0.16.x"
+    "buddy": "1.0.0"
   },
   "buddy": {
     "build": {
@@ -235,7 +235,7 @@ package.json
   "description": "This is my server project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.16.x"
+    "buddy": "1.0.0"
   },
   "buddy": {
     "build": {
@@ -266,7 +266,7 @@ package.json
   "description": "This is my server project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.16.x"
+    "buddy": "1.0.0"
   },
   "buddy": {
     "build": {
@@ -299,7 +299,7 @@ package.json
   "description": "This is my server project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.16.x"
+    "buddy": "1.0.0"
   },
   "buddy": {
     "build": {
@@ -321,7 +321,7 @@ package.json
 $ buddy build
 ```
 
-Start a basic web server and refresh the browser (using the Live-Reload browser plugin) after each build triggered by source file changes:
+Start a basic web server and refresh the browser (using the Live-Reload browser plugin) after each build triggered by source file changes [via add-on [buddy-server](https://github.com/popeindustries/buddy-server)]:
 
 ```json
 package.json
@@ -330,20 +330,37 @@ package.json
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "0.16.x"
+    "buddy": "1.0.0",
+    "buddy-server": "0.4.x"
   },
   "buddy": {
-    "settings": {
-      "server": {
-        "directory": "www",
-        "port": 8080
+    "build": {
+      "js": {
+        "targets": [
+          {
+            "input": "main.js",
+            "output": "www"
+          }
+        ]
+      },
+      "html": {
+        "targets": [
+          {
+            "input": "index.html",
+            "output": "www"
+          }
+        ]
       }
+    },
+    "server": {
+      "directory": "www",
+      "port": 8080
     }
   }
 }
 ```
 ```bash
-$ buddy watch -rs
+$ buddy watch --reload --serve
 ```
 
 ### Configuration
@@ -355,36 +372,40 @@ Complete annotated `buddy.js` configuration file:
 exports.build = {
   js: {
     // Directories containing potential js source files for this project ('node_modules' are added by default).
-    sources: ['a/coffeescript/source/directory', 'a/js/source/directory'],
+    sources: ['a/js/source/directory', 'another/js/source/directory'],
     // One or more js build targets.
     targets: [
       {
         // An entrypoint js (or equivalent) file to be wrapped in a module definition,
         // concatenated with all it's resolved dependencies.
-        input: 'a/coffeescript/or/js/file',
+        input: 'a/js/file',
         // A destination in which to save the processed input.
         // If a directory is specified, the input file name will be used.
         output: 'a/js/file/or/directory',
         // An alternate destination in which to save the compressed output.
         output_compressed: 'a/js/file/or/directory',
         // A script to run before a target is built.
-        before: 'console.log(context); callback(null);'
+        before: 'console.log(context); callback();',
         // A script to run after a target is built.
-        after: './hooks/after.js'
-        // A script to run after each output file is written to disk.
-        afterEach: 'context.content = "foo"; callback(null);'
+        after: './hooks/after.js',
+        // A script to run after each output file is ready to be written to disk.
+        afterEach: 'context.content = "foo"; callback();',
+        // A flag indicating that require.js boilerplate be added to the output file
+        boilerplate: true,
+        // A flag indicating that the entry point module should require itself (bootstrap)
+        bootstrap: true,
         // Targets can have children.
         // Any sources included in the parent target will NOT be included in the child.
         targets: [
           {
-            input: 'a/coffeescript/or/js/file',
+            input: 'a/js/file',
             output: 'a/js/file/or/directory'
           }
         ]
       },
       {
         // Files are batch processed when a directory is used as input.
-        input: 'a/coffeescript/or/js/directory',
+        input: 'a/js/directory',
         output: 'a/js/directory',
         // Skips module wrapping (ex: for use in server environments).
         modular: false
@@ -393,13 +414,13 @@ exports.build = {
   },
   css: {
     // Directories containing potential css source files for this project.
-    sources: ['a/stylus/directory', 'a/less/directory', 'a/css/directory'],
+    sources: ['a/css/directory', 'another/css/directory'],
     // One or more css build targets
     targets: [
       {
         // An entrypoint css (or equivalent) file to be processed,
         // concatenated with all it's resolved dependencies.
-        input: 'a/stylus/less/or/css/file',
+        input: 'a/css/file',
         // A destination in which to save the processed input.
         // If a directory is specified, the input file name will be used.
         output: 'a/css/file/or/directory'
@@ -407,12 +428,12 @@ exports.build = {
       {
         // Files are batch processed when a directory is used as input,
         // though @import'ed dependencies are still resolved and inlined.
-        input: 'a/stylus/less/or/css/directory',
+        input: 'a/css/directory',
         output: 'a/css/directory'
       }
     ]
   }
-}
+};
 
 // Project dependency configuration.
 exports.dependencies = {
@@ -444,20 +465,18 @@ exports.dependencies = {
       '../a/file/or/directory'
     ]
   }
-}
+};
 
-// Project settings configuration.
-exports.settings = {
-  // Run a command after build
-  script: 'command --flags',
-  // Configure webserver
-  server: {
-    // Defaults to project root
-    directory: 'a/project/directory',
-    // Defaults to 8080
-    port: 8000
-  }
-}
+// Run a command after build
+exports.script = 'command --flags';
+
+// Configure webserver
+exports.server = {
+  // Defaults to project root
+  directory: 'a/project/directory',
+  // Defaults to 8080
+  port: 8000
+};
 ```
 
 ## Concepts
@@ -485,6 +504,10 @@ If directory, all compileable files will be compiled, wrapped in module definiti
 
 - **before**, **after**, **afterEach**: hooks for modifying the build process (see [hooks](https://github.com/popeindustries/buddy/#hooks))
 
+- **boilerplate**: a flag to specify inclusion of [browser-require](https://github.com/popeindustries/browser-require) source code in the output file
+
+- **bootstrap**: a flag to specify that the entry-point module be automatically require'd to force application startup
+
 ### MODULES
 
 Each js file is wrapped in a module declaration based on the file's location. Dependencies are determined by the use of ```require()``` statements:
@@ -493,6 +516,7 @@ Each js file is wrapped in a module declaration based on the file's location. De
 var lib = require('./my/lib'); // in current package
 var SomeClass = require('../SomeClass'); // in parent package
 var util = require('utils/util'); // from root package
+var module = require('module'); // from node_modules
 
 lib.doSomething();
 var something = new SomeClass();
@@ -538,7 +562,7 @@ When ```require()```-ing a module, keep in mind that the module id is resolved b
 
 See [node.js modules](http://nodejs.org/api/modules.html) for more info on modules.
 
-***NOTE***: ```require``` boilerplate needs to be included in the browser to enable module loading. It's recommended to ```install``` a library like *popeindustries/browser-require* (npm: simple-browser-require).
+***NOTE***: ```require``` boilerplate needs to be included in the browser to enable module loading. It's recommended to ```install``` a library like [browser-require](https://github.com/popeindustries/browser-require) (npm: simple-browser-require), or set the `boilerplate` flag to have it included automatically.
 
 ### HOOKS
 
@@ -608,7 +632,7 @@ var jquery = require('jquery')
 
 (The MIT License)
 
-Copyright (c) 2011-2013 Pope-Industries &lt;alex@pope-industries.com&gt;
+Copyright (c) 2011-2014 Pope-Industries &lt;alex@pope-industries.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
