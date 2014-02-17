@@ -294,7 +294,23 @@ describe('Builder', function() {
 				}.bind(this));
 			});
 		});
-
+		describe('with nested main file requiring 1 relative local dependency', function() {
+			it('should build 1 js file', function(done) {
+				this.builder.build('buddy-nested.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+			it('should contain 2 modules', function(done) {
+				this.builder.build('buddy-nested.js', {}, function(err) {
+					var contents = fs.readFileSync(this.builder.targets[0].outputPaths[0], 'utf8');
+					contents.should.include("require.register('bar'");
+					contents.should.include("require.register('bar/dist/commonjs/lib/bar'");
+					contents.should.include("exports.bar = require('bar/dist/commonjs/lib/bar'");
+					done();
+				}.bind(this));
+			});
+		});
 	});
 
 	describe('building a css project', function() {
