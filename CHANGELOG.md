@@ -1,5 +1,8 @@
 # Changelog
 
+**1.1.0** - Feb 17, 2014
+* improved handling of nested node_modules dependencies resolution by always converting relative `require` calls to absolute
+
 **1.0.1** - Jan 10, 2014
 * updated *browser-require* dependency to better handle root module resolution
 

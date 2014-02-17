@@ -4,14 +4,14 @@
 
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies (optional add-on), compiles source code from higher order js/css/html languages (CoffeeScript/Handlebars/Dust/Stylus/Less/Jade/Twig), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 1.0.1 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
+**Current version:** 1.1.0 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
 
 ## Features
 
 - Allows you to write js __modules__ without the module boilerplate (similar to Node.js)
 - Resolves js module __dependencies__ automatically
 - Supports efficient ___lazy___ runtime evaluation by storing js modules as strings
-- Resolves all relative dependencies on __deploy__
+- Resolves all relative dependencies
 - __Compiles__ _CoffeeScript_, _Handlebars_, _Dust_, _Stylus_, _Less_, _Twig_, and _Jade_ source files
 - __Concatenates__ js modules into a single file
 - Runs js and css code through __linters__ to check for syntax errors
