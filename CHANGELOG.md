@@ -1,5 +1,8 @@
 # Changelog
 
+**1.1.1** - Mar 21, 2014
+* fix error with conversiona of repeated relative `require` calls to absolute
+
 **1.1.0** - Feb 17, 2014
 * improved handling of nested node_modules dependencies resolution by always converting relative `require` calls to absolute
 
