@@ -359,5 +359,13 @@ describe('Builder', function() {
 				}.bind(this));
 			});
 		});
+		describe('with 1 jade file and local data file', function() {
+			it('should build 1 html file', function(done) {
+				this.builder.build('buddy-data.js', {}, function(err) {
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
 	});
 });
