@@ -367,5 +367,14 @@ describe('Builder', function() {
 				}.bind(this));
 			});
 		});
+		describe.skip('with 1 dust file with 2 includes', function() {
+			it('should build 1 html file', function(done) {
+				this.builder.build('buddy-include-dust.js', {}, function(err) {
+					console.log(err)
+					fs.existsSync(this.builder.targets[0].outputPaths[0]).should.be.true;
+					done();
+				}.bind(this));
+			});
+		});
 	});
 });
