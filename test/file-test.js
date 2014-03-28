@@ -337,28 +337,6 @@ describe('file', function() {
 					done();
 				});
 			});
-			it.skip('should inline html <script>', function(done) {
-				var opts = {
-					type: 'html',
-					sources: [path.resolve('src')],
-					runtimeOptions: {}
-				};
-				var cache = new Cache();
-				var foo = fileFactory(path.resolve('src/package/circ.js'), opts);
-				foo.content = fs.readFileSync(foo.filepath, 'utf8');
-				foo.dependencies = [{id:'../main-circ', filepath:null}];
-				cache.addFile(foo.filepath, foo);
-				var main = fileFactory(path.resolve('src/main-circ.js'), opts);
-				main.content = fs.readFileSync(main.filepath, 'utf8');
-				main.dependencies = [{id:'foo', filepath:foo.filepath}];
-				cache.addFile(main.filepath, main);
-				foo.dependencies[0].filepath = main.filepath;
-				foo.dependencies[0].instance = main;
-				main.concat({fileCache:cache}, function(err) {
-					main.content.should.eql("var main = require('../main-circ')\n\t, circ = this;\nvar circ = require('./package/circ')\n\t, main = this;");
-					done();
-				});
-			});
 		});
 	});
 });

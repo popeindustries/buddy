@@ -3,7 +3,7 @@ exports.build = {
 		"sources": ["src/dust"],
 		"targets": [
 			{
-				"input": "src/dust/index.dust",
+				"input": "src/dust",
 				"output": "output/html"
 			}
 		]
