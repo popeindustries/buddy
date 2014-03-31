@@ -1,7 +1,12 @@
 # Changelog
 
+**1.2.0** - Mar, 2014
+* remove pointless LiveReload messages
+* add ability to render html templates (handlebars/dust/jade) as .html or .js (precompiled) depending on build task
+* add syntax for inlining source in html with "absolute" project paths (`src="/src/js/script.js"` => project/src/js/script.js)
+
 **1.1.1** - Mar 21, 2014
-* fix error with conversiona of repeated relative `require` calls to absolute
+* fix error with conversion of repeated relative `require` calls to absolute
 
 **1.1.0** - Feb 17, 2014
 * improved handling of nested node_modules dependencies resolution by always converting relative `require` calls to absolute
