@@ -182,10 +182,14 @@ var jquery = require('jquery')
 
 When developing locally, the **buddy-server** add-on and `buddy watch --serve` command will start a simple webserver on `localhost` to test against. Adding the `--reload` flag will take it further by enabling automatic reloading of connected browsers through a [livereload](http://livereload.com) plugin.
 
-See *[buddy-server](https://github.com/popeindustries/buddy-server)* for more info.
+Install the add-on alongside **buddy**, and see *[buddy-server](https://github.com/popeindustries/buddy-server)* for more info.
 
 ```json
 {
+  "dependencies": {
+    "buddy": "1.2.0",
+    "buddy-server": "0.4.3"
+  },
   ...
   "buddy": {
     "server": {
