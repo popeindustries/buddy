@@ -1,7 +1,9 @@
 # Changelog
 
-**1.2.0** - Mar 31, 2014
+**1.3.0** - Mar 31, 2014
 * add `--targets` flag to specify one or more targets to build (`buddy build --targets js,css`)
+
+**1.2.0** - Mar 31, 2014
 * remove pointless LiveReload messages
 * add ability to render html templates (handlebars/dust/jade) as .html or .js (precompiled) depending on build task
 * add syntax for inlining source in html with "absolute" project paths (`src="/src/js/script.js"` => project/src/js/script.js)
