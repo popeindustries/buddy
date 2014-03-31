@@ -1,5 +1,8 @@
 # Changelog
 
+**1.3.1** - Mar 31, 2014
+* update buddy-cli
+
 **1.3.0** - Mar 31, 2014
 * add `--targets` flag to specify one or more targets to build (`buddy build --targets js,css`)
 
