@@ -4,7 +4,7 @@
 
 **buddy(1)** is a build tool for js/css/html projects. It helps you manage third-party dependencies (optional add-on), compiles source code from higher order js/css/html languages (CoffeeScript/Handlebars/Dust/Stylus/Less/Jade/Twig), automatically wraps js files in module definitions, statically resolves module dependencies, and concatenates (and optionally compresses) all souces into a single file for more efficient delivery to the browser.
 
-**Current version:** 1.1.1 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
+**Current version:** 1.2.0 *[See [Change Log](https://github.com/popeindustries/buddy/blob/master/CHANGELOG.md) for more details]*
 
 ## Features
 
@@ -23,8 +23,6 @@
 - __Inlines__ json content with `require("path/to/my.json")`
 - Supports execution of a ___script___ after each build
 - Supports execution of ___hook___ scripts `afterEach` file is processed, and `before` and `after` a target is built
-- [Add-on] Copies __packages__ from GitHub to your project
-- [Add-on] Copies __assets__ from a local destination to your project
 
 ## Installation
 
@@ -42,7 +40,10 @@ $ npm -g install buddy-cli
   "description": "This is my web project",
   "version": "0.1.0",
   "devDependencies": {
-    "buddy": "1.0.0"
+    "buddy": "1.2.0"
+  },
+  "buddy": {
+    ...
   }
 }
 ```
@@ -79,409 +80,11 @@ Options:
   -v, --verbose   print all messages for debugging
 ```
 
-### Examples
+## Configuration
 
-*See [buddy-dependencies](https://github.com/popeindustries/buddy-dependencies) for `install` command examples.*
+Please refer to the annotated [buddy.js](https://github.com/popeindustries/buddy/blob/master/docs/buddy.js) configuration file for all possible configuration settings.
 
-Generate `www/main.js` by concatenating and modularizing all dependencies in `src` or `libs/js` referenced in `src/main.js`:
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my web project",
-  "version": "0.1.0",
-  "dependencies": {
-    "simple-browser-require": "*"
-  },
-  "devDependencies": {
-    "buddy": "1.0.0"
-  },
-  "buddy": {
-    "build": {
-      "js": {
-        "sources": ["src", "libs/js"],
-        "targets": [
-          {
-            "input": "src/main.js",
-            "output": "www/main.js"
-          }
-        ]
-      }
-    }
-  }
-}
-```
-```bash
-$ buddy build
-```
-
-Generate `www/main.js` with references to dependencies installed via npm:
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my web project",
-  "version": "0.1.0",
-  "dependencies": {
-    "simple-browser-require": "*"
-    "underscore": "1.4.4"
-  },
-  "devDependencies": {
-    "buddy": "1.0.0"
-  },
-  "buddy": {
-    "build": {
-      "js": {
-        "sources": ["src"],
-        "targets": [
-          {
-            "input": "src/main.js",
-            "output": "www/main.js"
-          }
-        ]
-      }
-    }
-  }
-}
-```
-```bash
-$ buddy build
-```
-
-First compile all CoffeeScript files in `libs/src/coffee`, then generate `www/main.js` by concatenating and modularizing all dependencies referenced in `src/main.js`:
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my web project",
-  "version": "0.1.0",
-  "dependencies": {
-    "simple-browser-require": "*"
-  },
-  "devDependencies": {
-    "buddy": "1.0.0"
-  },
-  "buddy": {
-    "build": {
-      "js": {
-        "sources": ["src", "libs/js", "libs/src/coffee"],
-        "targets": [
-          {
-            "input": "libs/src/coffee",
-            "output": "libs/js"
-          },
-          {
-            "input": "src/main.js",
-            "output": "www/main.js"
-          }
-        ]
-      }
-    }
-  }
-}
-```
-```bash
-$ buddy build
-```
-
-Generate `www/main.js` and an additional widget `www/widget.js` using shared sources (avoid duplicating dependencies):
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my web project",
-  "version": "0.1.0",
-  "dependencies": {
-    "simple-browser-require": "*"
-  },
-  "devDependencies": {
-    "buddy": "1.0.0"
-  },
-  "buddy": {
-    "build": {
-      "js": {
-        "sources": ["src", "libs/js"],
-        "targets": [
-          {
-            "input": "src/main.js",
-            "output": "www/main.js",
-            "targets": [
-              {
-                "input": "src/widget.js",
-                "output": "www/widget.js"
-              }
-            ]
-          }
-        ]
-      }
-    }
-  }
-}
-```
-```bash
-$ buddy build
-```
-
-Compile a CoffeeScript project for Node.js, skipping module wrapping and concatenation:
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my server project",
-  "version": "0.1.0",
-  "devDependencies": {
-    "buddy": "1.0.0"
-  },
-  "buddy": {
-    "build": {
-      "js": {
-        "sources": ["src/coffee"],
-        "targets": [
-          {
-            "input": "src/coffee",
-            "output": "js",
-            "modular": false
-          }
-        ]
-      }
-    }
-  }
-}
-```
-```bash
-$ buddy build
-```
-
-Alias a custom build of **jquery**:
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my server project",
-  "version": "0.1.0",
-  "devDependencies": {
-    "buddy": "1.0.0"
-  },
-  "buddy": {
-    "build": {
-      "js": {
-        "sources": ["src"],
-        "targets": [
-          {
-            "input": "src/main.js",
-            "output": "www/main.js",
-            "alias": {
-              "jquery": "./lib/js/jquery-custom-2.0.js"
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-```javascript
-var jquery = require('jquery');
-```
-
-Modify the file output with an `afterEach` hook:
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my server project",
-  "version": "0.1.0",
-  "devDependencies": {
-    "buddy": "1.0.0"
-  },
-  "buddy": {
-    "build": {
-      "js": {
-        "sources": ["src"],
-        "targets": [
-          {
-            "input": "src/main.js",
-            "output": "www/main.js",
-            "afterEach": "context.content = require('fs').readFileSync(require('path').resolve('./scripts/header.js'), 'utf8') + context.content; callback(null);"
-          }
-        ]
-      }
-    }
-  }
-}
-```
-```bash
-$ buddy build
-```
-
-Start a basic web server and refresh the browser (using the Live-Reload browser plugin) after each build triggered by source file changes [via add-on [buddy-server](https://github.com/popeindustries/buddy-server)]:
-
-```json
-package.json
-{
-  "name": "myproject",
-  "description": "This is my web project",
-  "version": "0.1.0",
-  "devDependencies": {
-    "buddy": "1.0.0",
-    "buddy-server": "0.4.x"
-  },
-  "buddy": {
-    "build": {
-      "js": {
-        "targets": [
-          {
-            "input": "main.js",
-            "output": "www"
-          }
-        ]
-      },
-      "html": {
-        "targets": [
-          {
-            "input": "index.html",
-            "output": "www"
-          }
-        ]
-      }
-    },
-    "server": {
-      "directory": "www",
-      "port": 8080
-    }
-  }
-}
-```
-```bash
-$ buddy watch --reload --serve
-```
-
-### Configuration
-
-Complete annotated `buddy.js` configuration file:
-
-```js
-// Project build configuration.
-exports.build = {
-  js: {
-    // Directories containing potential js source files for this project ('node_modules' are added by default).
-    sources: ['a/js/source/directory', 'another/js/source/directory'],
-    // One or more js build targets.
-    targets: [
-      {
-        // An entrypoint js (or equivalent) file to be wrapped in a module definition,
-        // concatenated with all it's resolved dependencies.
-        input: 'a/js/file',
-        // A destination in which to save the processed input.
-        // If a directory is specified, the input file name will be used.
-        output: 'a/js/file/or/directory',
-        // An alternate destination in which to save the compressed output.
-        output_compressed: 'a/js/file/or/directory',
-        // A script to run before a target is built.
-        before: 'console.log(context); callback();',
-        // A script to run after a target is built.
-        after: './hooks/after.js',
-        // A script to run after each output file is ready to be written to disk.
-        afterEach: 'context.content = "foo"; callback();',
-        // A flag indicating that require.js boilerplate be added to the output file
-        boilerplate: true,
-        // A flag indicating that the entry point module should require itself (bootstrap)
-        bootstrap: true,
-        // Targets can have children.
-        // Any sources included in the parent target will NOT be included in the child.
-        targets: [
-          {
-            input: 'a/js/file',
-            output: 'a/js/file/or/directory'
-          }
-        ]
-      },
-      {
-        // Files are batch processed when a directory is used as input.
-        input: 'a/js/directory',
-        output: 'a/js/directory',
-        // Skips module wrapping (ex: for use in server environments).
-        modular: false
-      }
-    ]
-  },
-  css: {
-    // Directories containing potential css source files for this project.
-    sources: ['a/css/directory', 'another/css/directory'],
-    // One or more css build targets
-    targets: [
-      {
-        // An entrypoint css (or equivalent) file to be processed,
-        // concatenated with all it's resolved dependencies.
-        input: 'a/css/file',
-        // A destination in which to save the processed input.
-        // If a directory is specified, the input file name will be used.
-        output: 'a/css/file/or/directory'
-      },
-      {
-        // Files are batch processed when a directory is used as input,
-        // though @import'ed dependencies are still resolved and inlined.
-        input: 'a/css/directory',
-        output: 'a/css/directory'
-      }
-    ]
-  }
-};
-
-// Project dependency configuration.
-exports.dependencies = {
-  // A destination directory in which to place third-party library dependencies.
-  // Alternatively, a destination file for packaging/minification
-  'a/vendor/directory': {
-    // An ordered list of dependencies
-    sources: [
-      // A github user/repo.
-      // Install the 'browser-require' source when using Node-style modules.
-      'popeindustries/browser-require',
-      // A named library with or without version (ex: jquery@latest, backbone, backbone@1.0.0).
-      // Version identifiers follow the npm semantic versioning rules.
-      'library@version'
-    ],
-    // Dependencies can be packaged and minified to a destination file
-    output: 'a/js/file'
-  },
-  // A destination directory in which to place source library dependencies.
-  'a/source/directory': {
-    sources: [
-      // A github user/repo.
-      // Will use the 'main' properties of
-      // components.json or package.json to identify the file to install.
-      'username/repo',
-      // A github user/repo with specific file or directory locations.
-      'username/repo#a/file/or/directory|another/file/or/directory',
-      // A local file or directory to copy and install.
-      '../a/file/or/directory'
-    ]
-  }
-};
-
-// Run a command after build
-exports.script = 'command --flags';
-
-// Configure webserver
-exports.server = {
-  // Defaults to project root
-  directory: 'a/project/directory',
-  // Defaults to 8080
-  port: 8000
-};
-```
-
-## Concepts
-
-### BUILD
+## Build concepts
 
 **Project Root**: The directory from which all paths resolve to. Determined by location of the configuration file.
 
@@ -506,65 +109,9 @@ If directory, all compileable files will be compiled, wrapped in module definiti
 
 - **boilerplate**: a flag to specify inclusion of [browser-require](https://github.com/popeindustries/browser-require) source code in the output file
 
-- **bootstrap**: a flag to specify that the entry-point module be automatically require'd to force application startup
+- **bootstrap**: a flag to specify that the entry-point module be automatically `require`'d to force application startup
 
-### MODULES
-
-Each js file is wrapped in a module declaration based on the file's location. Dependencies are determined by the use of ```require()``` statements:
-
-```javascript
-var lib = require('./my/lib'); // in current package
-var SomeClass = require('../SomeClass'); // in parent package
-var util = require('utils/util'); // from root package
-var module = require('module'); // from node_modules
-
-lib.doSomething();
-var something = new SomeClass();
-util.log('hey');
-```
-
-Specifying a module's public behaviour is achieved by decorating an ```exports``` object:
-
-```javascript
-var myModuleVar = 'my module';
-
-exports.myModuleMethod = function() {
-  return myModuleVar;
-};
-```
-
-...or overwriting the ```exports``` object completely:
-
-```javascript
-function MyModule() {
-  this.myVar = 'my instance var';
-};
-
-MyModule.prototype.myMethod = function() {
-  return this.myVar;
-};
-
-module.exports = MyModule;
-```
-
-Each module is provided with a ```module```, ```exports```, and ```require``` reference.
-
-When ```require()```-ing a module, keep in mind that the module id is resolved based on the following rules:
-
- * packages begin at the root folder specified in *build > js > sources*:
-```
-'Users/alex/project/src/package/main.js' > 'package/main'
-```
- * ids are case-sensitive:
- ```
- 'package/MyClass.js' > 'package/MyClass'
- ```
-
-See [node.js modules](http://nodejs.org/api/modules.html) for more info on modules.
-
-***NOTE***: ```require``` boilerplate needs to be included in the browser to enable module loading. It's recommended to ```install``` a library like [browser-require](https://github.com/popeindustries/browser-require) (npm: simple-browser-require), or set the `boilerplate` flag to have it included automatically.
-
-### HOOKS
+### Hooks
 
 It is possible to intervene in the build process through the use of *hooks*. Hooks are assigned to specific targets and defined in the target configuration. There are three types available:
 
@@ -579,14 +126,18 @@ Hooks can be written as inline JavaScript, or loaded from a file if a path is sp
 ```json
 {
   ...
-  "targets": [
-    {
-      "input": "somefile.js",
-      "output": "somedir",
-      "before": "console.log('before hook'); callback(null);",
-      "after": "path/to/afterHook.js"
+  "buddy": {
+    "js": {
+      "targets": [
+        {
+          "input": "somefile.js",
+          "output": "somedir",
+          "before": "console.log('before hook'); callback(null);",
+          "after": "path/to/afterHook.js"
+        }
+      ]
     }
-  ]
+  }
   ...
 }
 ```
@@ -599,24 +150,27 @@ All hooks are passed the following arguments:
 
 - **callback**: a callback function that accepts an optional `error`. **MUST** be called in order to return control back to the program.
 
-### ALIASES
+### Aliases
 
-Specifying aliases allow you to override the default behaviour for automatically resolving module ids. Aliases are defined in the target configuration:
+Specifying aliases allow you to override the default behaviour for automatically resolving JS module ids. Aliases are defined in the target configuration:
 
 ```json
 {
   ...
-  "targets": [
-    {
-      "input": "somefile.js",
-      "output": "somedir",
-      "alias": {
-        "jquery": "./lib/js/jquery-custom-2.0.js",
-        "dust": "./node_modules/dustjs-linkedin/dist/dust-core-1.2.3.js"
-      }
+  "buddy": {
+    "js": {
+      "targets": [
+        {
+          "input": "somefile.js",
+          "output": "somedir",
+          "alias": {
+            "jquery": "./lib/js/jquery-custom-2.0.js",
+            "dust": "./node_modules/dustjs-linkedin/dist/dust-core-1.2.3.js"
+          }
+        }
+      ]
     }
-  ]
-  ...
+  }
 }
 ```
 ```javascript
@@ -624,9 +178,306 @@ var jquery = require('jquery')
   , dust = require('dust');
 ```
 
-### DEPENDENCIES
+## Server
 
-*See [buddy-dependencies](https://github.com/popeindustries/buddy-dependencies).*
+When developing locally, the **buddy-server** add-on and `buddy watch --serve` command will start a simple webserver on `localhost` to test against. Adding the `--reload` flag will take it further by enabling automatic reloading of connected browsers through a [livereload](http://livereload.com) plugin.
+
+See *[buddy-server](https://github.com/popeindustries/buddy-server)* for more info.
+
+```json
+{
+  ...
+  "buddy": {
+    "server": {
+      "port": 8000,
+      "directory": "www"
+    }
+    ...
+  }
+}
+```
+```bash
+$ buddy watch --serve --reload
+```
+
+## Working with JS
+
+Each JS file is wrapped in a module declaration based on the file's location. Dependencies are determined by the use of `require()` statements:
+
+```javascript
+var lib = require('./my/lib'); // in current package
+var SomeClass = require('../SomeClass'); // in parent package
+var util = require('utils/util'); // from root package
+var module = require('module'); // from node_modules
+
+lib.doSomething();
+var something = new SomeClass();
+util.log('hey');
+```
+
+Specifying a module's public behaviour is achieved by decorating an `exports` object:
+
+```javascript
+var myModuleVar = 'my module';
+
+exports.myModuleMethod = function() {
+  return myModuleVar;
+};
+```
+
+...or overwriting the `exports` object completely:
+
+```javascript
+function MyModule() {
+  this.myVar = 'my instance var';
+};
+
+MyModule.prototype.myMethod = function() {
+  return this.myVar;
+};
+
+module.exports = MyModule;
+```
+
+Each module is provided with a `module`, `exports`, and `require` reference.
+
+When `require()`-ing a module, keep in mind that the module id is resolved based on the following rules:
+
+ * packages begin at the root folder specified in *build > js > sources*: `'Users/alex/project/src/package/main.js' > 'package/main'`
+ * ids are case-sensitive: `'package/MyClass.js' > 'package/MyClass'`
+
+See [node.js modules](http://nodejs.org/api/modules.html) for more info on modules.
+
+***NOTE***: `require()` boilerplate needs to be included in the browser to enable module loading. It's recommended to `install` a library like [browser-require](https://github.com/popeindustries/browser-require) (npm: simple-browser-require), or set the `boilerplate` flag to have it included automatically.
+
+#### PRECOMPILED TEMPLATES
+
+*dust*, *handlebars*, and *jade* support the precompilation of templates for efficient use in the browser. **buddy** precompiles the template source, wraps the content in a module definition, and exposes a `render()` method:
+
+```html
+<!-- src/js/template.dust -->
+{title}
+<ul>
+{#names}
+  <li>{name}</li>
+{/names}
+</ul>
+```
+```javascript
+// src/js/main.js
+var template = require('./template')
+  , data = {
+    title: 'Friends',
+    names: [
+      {name: 'Joe'},
+      {name: 'Bob'},
+      {name: 'Annie'}
+    ]
+  };
+
+template.render(data, function (err, html) {
+  // do something with html
+});
+```
+
+#### "LAZY" MODULES
+
+When run with the `--lazy` flag, **buddy** supports storing js modules as strings which are only evaluated on first `require('module')` call. This can significantly speed up application startup time for large bundles, especially on mobile devices.
+
+### EXAMPLES
+
+Generate `www/main.js` by concatenating and modularizing all dependencies in `src/js` or `libs/js` referenced in `src/js/main.js`, including modules installed via npm (under `node_modules` directory):
+
+```json
+{
+  "name": "myproject",
+  "description": "This is my web project",
+  "version": "0.1.0",
+  "devDependencies": {
+    "buddy": "1.2.0"
+  },
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src/js", "libs/js"],
+        "targets": [
+          {
+            "input": "src/js/main.js",
+            "output": "www/main.js"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+```javascript
+// src/main.js
+var lodash = require('lodash') // npm module (node_modules/lodash)
+  , view = require('./views/view') // src module (src/views/view.js)
+  , util = require('utils/util'); // src module (libs/js/utils/util)
+```
+
+Generate `www/main.js` and an additional widget `www/widget.js` using shared sources (avoid duplicating dependencies):
+
+```json
+{
+  ...
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src/js", "libs/js"],
+        "targets": [
+          {
+            "input": "src/js/main.js",
+            "output": "www/main.js",
+            "targets": [
+              {
+                "input": "src/js/widget.js",
+                "output": "www/widget.js"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+Compile a directory of CoffeeScript files for Node.js, skipping module wrapping and concatenation:
+
+```json
+{
+  ...
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src/coffee"],
+        "targets": [
+          {
+            "input": "src/coffee",
+            "output": "js",
+            "modular": false
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+Alias a custom build of **jquery**:
+
+```json
+{
+  ...
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src/js"],
+        "targets": [
+          {
+            "input": "src/js/main.js",
+            "output": "www/main.js",
+            "alias": {
+              "jquery": "./lib/js/jquery-custom-2.0.js"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+```javascript
+var jquery = require('jquery');
+```
+
+Generate `www/main.js` by including `require()` boilerplate and automatically bootstraping (`require('main')`) the application:
+
+```json
+{
+  ...
+  "buddy": {
+    "build": {
+      "js": {
+        "sources": ["src/js"],
+        "targets": [
+          {
+            "input": "src/js/main.js",
+            "output": "www/main.js",
+            "boilerplate": true,
+            "bootstrap": true
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+## Working with CSS
+
+Like JS modules, CSS dependencies are automatically resolved through parsing and inlining of `@import` directives.
+
+### Examples
+
+Generate `www/main.css` by concatenating all dependencies in `src/css` referenced in `src/css/main.css`:
+
+```json
+{
+  ...
+  "buddy": {
+    "build": {
+      "css": {
+        "sources": ["src/css"],
+        "targets": [
+          {
+            "input": "src/css/main.css",
+            "output": "www/main.css"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+## Working with HTML
+
+When working with *dust*, *handlebars*, or *jade* templates, dependencies (partials, includes) are automatically resolved and registered before source files are compiled to HTML. In addition, HTML files are parsed for inlineable JS and CSS sources.
+
+### Examples
+
+Resolve template partials:
+
+```html
+<!-- layout.handlebars depends on header.handlebars -->
+{{> header}}
+<body>
+  ...
+  <!-- ...and footer.handlebars -->
+  {{> footer}}
+</body>
+```
+
+Inline JS and CSS source files with `inline` attribute:
+
+```html
+<!-- project/src/html/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- inline project/src/js/inlineScript.js -->
+  <script inline src="../js/inlineScript.js"></script>
+  <!-- inline project/scripts/inlineScript.js -->
+  <script inline src="/scripts/inlineScript.js"></script>
+  <!-- inline project/src/css/inlineStyle.css -->
+  <link inline rel="../css/inlineStyle.css"></link>
+</head>
+</html>
+```
 
 ## License
 
