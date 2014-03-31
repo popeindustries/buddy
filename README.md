@@ -69,15 +69,16 @@ Commands:
 
 Options:
 
-  -h, --help      output usage information
-  -V, --version   output the version number
-  -c, --compress  compress output for production deployment
-  -l, --lint      check output for syntax and logic errors
-  -r, --reload    reload all connected live-reload clients on file change during watch [ADD-ON buddy-server]
-  -s, --serve     create a webserver to serve static files during watch [ADD-ON buddy-server]
-  -S, --script    run script on build completion
-  -L, --lazy      convert js modules for lazy evaluation
-  -v, --verbose   print all messages for debugging
+  -h, --help             output usage information
+  -V, --version          output the version number
+  -t, --targets [types]  optional comma separated list of target(s) to build [js,css,html]
+  -c, --compress         compress output for production deployment
+  -l, --lint             check output for syntax and logic errors
+  -r, --reload           reload all connected live-reload clients on file change during watch [ADD-ON buddy-server]
+  -s, --serve            create a webserver to serve static files during watch [ADD-ON buddy-server]
+  -S, --script           run script on build completion
+  -L, --lazy             convert js modules for lazy evaluation
+  -v, --verbose          print all messages for debugging
 ```
 
 ## Configuration
