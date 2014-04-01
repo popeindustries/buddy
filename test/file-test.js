@@ -227,6 +227,18 @@ describe('file', function() {
 					done();
 				});
 			});
+			it('should store an array of html dependency objects', function(done) {
+				var instance = fileFactory(path.resolve('src/main.dust'), {type:'html', sources:[path.resolve('src')], fileExtensions:[ 'html', 'dust']});
+				instance.content = fs.readFileSync(instance.filepath, 'utf8');
+				instance.parse(null, function(err, instance) {
+					should.not.exist(err);
+					instance.dependencies.should.eql([
+						{id:'package/template', idFull:'package/template', filepath:path.resolve('src/package/template.dust')},
+						{id:'template', idFull:'template', filepath:path.resolve('src/template.dust')}
+					]);
+					done();
+				});
+			});
 		});
 
 		describe('concat', function() {
