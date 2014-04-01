@@ -28,7 +28,7 @@
 		"buddy-term": "0.2.2",
 		"buddy-cli": "0.9.x",
 		"yaw": "0.1.1",
-		"transfigure": "0.10.0",
+		"transfigure": "0.10.1",
 		"identify-resource": "0.8.1",
 		"inline-source": "0.4.0",
 		"simple-browser-require": "0.2.x"
