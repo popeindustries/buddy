@@ -1,5 +1,9 @@
 # Changelog
 
+**1.3.3** - Apr 1, 2014
+* fix for precompiling dust templates
+* fix for rebuilding html directory targets on watch
+
 **1.3.2** - Apr 1, 2014
 * fix for including packaged dust partials (`{>"package/template" /}`)
 
