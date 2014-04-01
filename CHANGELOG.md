@@ -1,5 +1,8 @@
 # Changelog
 
+**1.3.2** - Apr 1, 2014
+* fix for including packaged dust partials (`{>"package/template" /}`)
+
 **1.3.1** - Mar 31, 2014
 * update buddy-cli
 
