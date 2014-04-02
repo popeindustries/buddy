@@ -1,5 +1,8 @@
 # Changelog
 
+**1.3.4** - Apr x, 2014
+* properly handle resolution of deeply nested html template includes
+
 **1.3.3** - Apr 1, 2014
 * fix for precompiling dust templates
 * fix for rebuilding html directory targets on watch

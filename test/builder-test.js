@@ -371,7 +371,7 @@ describe('Builder', function() {
 				}.bind(this));
 			});
 		});
-		describe('with 1 dust file with 2 includes', function() {
+		describe('with 1 dust file with nested includes', function() {
 			it('should build 1 html file', function(done) {
 				this.builder.build('buddy-include-dust.js', {}, function(err) {
 					var filepath = this.builder.targets[0].outputPaths[0]
