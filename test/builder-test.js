@@ -1,11 +1,13 @@
+// Debug settings
+require('buddy-term').silent = true;
+require('bluebird').longStackTraces();
+
 var path = require('path')
 	, fs = require('fs')
 	, rimraf = require('rimraf')
 	, should = require('should')
 	, Builder = require('../lib/builder')
 	, configuration = require('../lib/core/configuration');
-
-require('buddy-term').silent = true;
 
 function gatherFiles (dir, files) {
 	files = files || [];
