@@ -1,6 +1,7 @@
 # Changelog
 
-**1.3.4** - Apr x, 2014
+**2.0.0** - Apr x, 2014
+* properly handle node_module dependencies with different versions
 * properly handle resolution of deeply nested html template includes
 
 **1.3.3** - Apr 1, 2014
