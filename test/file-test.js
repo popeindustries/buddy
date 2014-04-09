@@ -281,23 +281,19 @@ describe('file', function () {
 			});
 		});
 
-		describe.skip('concat()', function () {
+		describe('concat()', function () {
 			it('should combine js file contents', function (done) {
 				var opts = {
 					type: 'js',
 					sources: [path.resolve('src')],
 					runtimeOptions: {}
 				};
-				var foo = fileFactory(path.resolve('src/package/foo.js'), opts);
-				foo.content = fs.readFileSync(foo.filepath, 'utf8');
-				foo.dependencies = [];
 				var bar = fileFactory(path.resolve('src/package/bar.js'), opts);
-				bar.content = fs.readFileSync(bar.filepath, 'utf8');
-				bar.dependencies = [{id:'./foo', filepath:foo.filepath}];
-				bar.concat({fileCache:cache}, function (err) {
-					bar.content.should.eql("// var bat = require('./bat')\n\nmodule.exports = function (){};\nvar foo = require('./foo');\n\nmodule.exports = function () {};");
-					done();
-				});
+				bar.run(['load', 'parse', 'concat'])
+					.then(function () {
+						bar.content.should.eql("module.exports = \'foo\';\nvar foo = require(\'./foo\');\n\nmodule.exports = \'bar\';");
+						done();
+					});
 			});
 			it('should combine js file contents, avoiding duplicates', function (done) {
 				var opts = {
@@ -305,20 +301,12 @@ describe('file', function () {
 					sources: [path.resolve('src')],
 					runtimeOptions: {}
 				};
-				var foo = fileFactory(path.resolve('src/package/foo.js'), opts);
-				foo.content = fs.readFileSync(foo.filepath, 'utf8');
-				foo.dependencies = [];
-				var bar = fileFactory(path.resolve('src/package/bar.js'), opts);
-				bar.content = fs.readFileSync(bar.filepath, 'utf8');
-				bar.dependencies = [{id:'./foo', filepath:foo.filepath}];
 				var main = fileFactory(path.resolve('src/main.js'), opts);
-				main.reset();
-				main.content = fs.readFileSync(main.filepath, 'utf8');
-				main.dependencies = [{id:'./package/bar', filepath:bar.filepath}, {id:'./package/foo', filepath:foo.filepath}];
-				main.concat({fileCache:cache}, function (err) {
-					main.content.should.eql("// var bat = require('./bat')\n\nmodule.exports = function (){};\nvar foo = require('./foo');\n\nmodule.exports = function () {};\nvar bar = require('./package/bar')\n\t, foo = require('./package/foo');");
-					done();
-				});
+				main.run(['load', 'parse', 'concat'])
+					.then(function () {
+						main.content.should.eql("module.exports = \'foo\';\nvar foo = require(\'./foo\');\n\nmodule.exports = \'bar\';\nvar bar = require(\'./package/bar\')\n\t, foo = require(\'./package/foo\');");
+						done();
+					});
 			});
 			it('should combine js contents, avoiding circular dependencies', function (done) {
 				var opts = {
@@ -326,18 +314,12 @@ describe('file', function () {
 					sources: [path.resolve('src')],
 					runtimeOptions: {}
 				};
-				var foo = fileFactory(path.resolve('src/package/circ.js'), opts);
-				foo.content = fs.readFileSync(foo.filepath, 'utf8');
-				foo.dependencies = [{id:'../main-circ', filepath:null}];
 				var main = fileFactory(path.resolve('src/main-circ.js'), opts);
-				main.content = fs.readFileSync(main.filepath, 'utf8');
-				main.dependencies = [{id:'foo', filepath:foo.filepath}];
-				foo.dependencies[0].filepath = main.filepath;
-				foo.dependencies[0].instance = main;
-				main.concat({fileCache:cache}, function (err) {
-					main.content.should.eql("var main = require('../main-circ')\n\t, circ = this;\nvar circ = require('./package/circ')\n\t, main = this;");
-					done();
-				});
+				main.run(['load', 'parse', 'concat'])
+					.then(function () {
+						main.content.should.eql("var main = require('../main-circ')\n\t, circ = this;\nvar circ = require('./package/circ')\n\t, main = this;");
+						done();
+					});
 			});
 		});
 

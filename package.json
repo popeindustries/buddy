@@ -48,7 +48,7 @@
     "buddy": "./bin/buddy"
   },
   "scripts": {
-    "test": "mocha --harmony --reporter spec --require should -t 40000"
+    "test": "mocha --harmony --reporter spec --require should"
   },
   "engines": {
     "node": ">=0.11.9"

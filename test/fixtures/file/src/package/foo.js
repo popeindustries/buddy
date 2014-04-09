@@ -1,3 +1,1 @@
-// var bat = require('./bat')
-
-module.exports = function(){};
+module.exports = 'foo';
