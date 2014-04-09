@@ -61,33 +61,28 @@ describe('file', function () {
 			});
 		});
 
-		describe.skip('replace()', function () {
-			// it('should replace relative require ids with absolute ones', function (done) {
-			// 	var opts = {
-			// 		type: 'js',
-			// 		sources: [path.resolve('src')],
-			// 		runtimeOptions: {}
-			// 	};
-			// 	var cache = new Cache();
-			// 	var foo = fileFactory(path.resolve('src/package/foo.js'), opts);
-			// 	foo.content = fs.readFileSync(foo.filepath, 'utf8');
-			// 	foo.dependencies = [];
-			// 	cache.addFile(foo.filepath, foo);
-			// 	var bar = fileFactory(path.resolve('src/package/bar.js'), opts);
-			// 	bar.content = fs.readFileSync(bar.filepath, 'utf8');
-			// 	bar.dependencies = [{id:'./foo', idFull:'package/foo', filepath:foo.filepath}];
-			// 	cache.addFile(bar.filepath, bar);
-			// 	var main = fileFactory(path.resolve('src/main.js'), opts);
-			// 	main.reset();
-			// 	main.content = fs.readFileSync(main.filepath, 'utf8');
-			// 	main.dependencies = [{id:'./package/bar', idFull:'package/bar', filepath:bar.filepath}, {id:'./package/foo', idFull:'package/foo', filepath:foo.filepath}];
-			// 	cache.addFile(main.filepath, main);
-			// 	main.replace({fileCache:cache})
-			// 		.then(function () {
-			// 			instance.content.should.eql("var bar = require('package/bar')\n\t, foo = require('package/foo');");
-			// 			done();
-			// 		});
-			// });
+		describe('replace()', function () {
+			it('should replace relative require ids with absolute ones', function (done) {
+				var opts = {
+					type: 'js',
+					sources: [path.resolve('src')],
+					runtimeOptions: {}
+				};
+				var foo = fileFactory(path.resolve('src/package/foo.js'), opts);
+				foo.content = fs.readFileSync(foo.filepath, 'utf8');
+				var bar = fileFactory(path.resolve('src/package/bar.js'), opts);
+				bar.content = fs.readFileSync(bar.filepath, 'utf8');
+				var main = fileFactory(path.resolve('src/main.js'), opts);
+				// main.reset();
+				main.content = fs.readFileSync(main.filepath, 'utf8');
+				main.parse()
+					.then(function () {
+						return main.replace();
+					}).then(function () {
+						main.content.should.eql("var bar = require('package/bar')\n\t, foo = require('package/foo');");
+						done();
+					});
+			});
 		});
 
 		describe('lint()', function () {
@@ -213,24 +208,6 @@ describe('file', function () {
 						done();
 					});
 			});
-			it.skip('should inline json content', function (done) {
-				var instance = fileFactory(path.resolve('src/main-json.js'), {type:'js', sources:[path.resolve('src')]});
-				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				instance.parse()
-					.then(function () {
-						instance.content.should.eql('var foo = {\"foo\":\"bar\"};');
-						done();
-					});
-			});
-			it.skip('should inline an empty string when unable to locate json content', function (done) {
-				var instance = fileFactory(path.resolve('src/main-bad-json.js'), {type:'js', sources:[path.resolve('src')]});
-				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				instance.parse()
-					.then(function () {
-						instance.content.should.eql('var foo = {};\nvar bar = {};');
-						done();
-					});
-			});
 			it('should store an array of html dependency objects', function (done) {
 				var instance = fileFactory(path.resolve('src/main.dust'), {type:'html', sources:[path.resolve('src')], fileExtensions:[ 'html', 'dust']});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
@@ -243,7 +220,29 @@ describe('file', function () {
 			});
 		});
 
-		describe.skip('concat()', function () {
+		describe('inline()', function () {
+			it('should inline require(*.json) content', function (done) {
+				var instance = fileFactory(path.resolve('src/main-json.js'), {type:'js', sources:[path.resolve('src')]});
+				instance.content = fs.readFileSync(instance.filepath, 'utf8');
+				instance.parse()
+					.then(function () {
+						return instance.inline();
+					}).then(function () {
+						instance.content.should.eql('var foo = {\"foo\":\"bar\"};');
+						done();
+					});
+			});
+			it('should inline an empty string when unable to locate require(*.json) content', function (done) {
+				var instance = fileFactory(path.resolve('src/main-bad-json.js'), {type:'js', sources:[path.resolve('src')]});
+				instance.content = fs.readFileSync(instance.filepath, 'utf8');
+				instance.parse()
+					.then(function () {
+						return instance.inline();
+					}).then(function () {
+						instance.content.should.eql('var foo = {};\nvar bar = {};');
+						done();
+					});
+			});
 			it('should replace css @import rules with file contents', function (done) {
 				var opts = {
 					type: 'css',
@@ -252,14 +251,15 @@ describe('file', function () {
 				};
 				var foo = fileFactory(path.resolve('src/package/foo.css'), opts);
 				foo.content = fs.readFileSync(foo.filepath, 'utf8');
-				foo.dependencies = [];
-				var main = fileFactory(path.resolve('src/main.css'), opts);
-				main.content = fs.readFileSync(main.filepath, 'utf8');
-				main.dependencies = [{id:'package/foo', filepath:foo.filepath}];
-				main.concat({fileCache:cache}, function (err) {
-					main.content.should.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
-					done();
-				});
+				var instance = fileFactory(path.resolve('src/main.css'), opts);
+				instance.content = fs.readFileSync(instance.filepath, 'utf8');
+				instance.parse()
+					.then(function () {
+						return instance.inline();
+					}).then(function () {
+						instance.content.should.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
+						done();
+					});
 			});
 			it('should replace css @import rules with file contents, allowing duplicates', function (done) {
 				var opts = {
@@ -269,15 +269,19 @@ describe('file', function () {
 				};
 				var foo = fileFactory(path.resolve('src/package/foo.css'), opts);
 				foo.content = fs.readFileSync(foo.filepath, 'utf8');
-				foo.dependencies = [];
-				var main = fileFactory(path.resolve('src/package/bar.css'), opts);
-				main.content = fs.readFileSync(main.filepath, 'utf8');
-				main.dependencies = [{id:'foo', filepath:foo.filepath}];
-				main.concat({fileCache:cache}, function (err) {
-					main.content.should.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
-					done();
-				});
+				var instance = fileFactory(path.resolve('src/package/bar.css'), opts);
+				instance.content = fs.readFileSync(instance.filepath, 'utf8');
+				instance.parse()
+					.then(function () {
+						return instance.inline();
+					}).then(function () {
+						instance.content.should.eql('div {\n\twidth: 50%;\n}\ndiv {\n\twidth: 50%;\n}');
+						done();
+					});
 			});
+		});
+
+		describe.skip('concat()', function () {
 			it('should combine js file contents', function (done) {
 				var opts = {
 					type: 'js',
