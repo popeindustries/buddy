@@ -76,7 +76,6 @@ describe('target', function () {
 				.then(function (filepaths) {
 					this.target.foo.should.eql('foo');
 					done();
-
 				}.bind(this));
 		});
 		it('should execute an "after" hook after running the build', function (done) {
