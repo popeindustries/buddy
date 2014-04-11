@@ -6,6 +6,7 @@ var path = require('path')
 describe('filelog', function() {
 	before(function() {
 		process.chdir(path.resolve(__dirname, 'fixtures/filelog'));
+		filelog.clean();
 		filelog.load();
 	});
 	afterEach(function() {
