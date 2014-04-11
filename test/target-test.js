@@ -65,9 +65,13 @@ describe('target', function () {
 
 	describe('build', function () {
 		beforeEach(function () {
+			fileFactory.cache.flush();
 			this.target = targetFactory({type:'js', outputPath: path.resolve('temp'), fileExtensions:['js', 'coffee'], sources:['src'], runtimeOptions:{}});
 		});
-		it.only('should execute a "before" hook before running the build', function (done) {
+		afterEach(function () {
+			this.target.reset();
+		});
+		it('should execute a "before" hook before running the build', function (done) {
 			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.foo="foo";done();');
 			this.target.inputPath = path.resolve('src/js/foo.js');
 			this.target.workflow = ['load', 'compile'];
@@ -79,41 +83,47 @@ describe('target', function () {
 				}.bind(this));
 		});
 		it('should execute an "after" hook after running the build', function (done) {
-			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'context.foo="foo";callback();');
+			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.foo="foo";done();');
 			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = ['file:compile'];
+			this.target.workflow = ['load', 'compile'];
 			this.target.foo = 'bar';
-			this.target.build(function (err, paths) {
-				this.target.foo.should.eql('foo');
-				done();
-			}.bind(this));
+			this.target.build()
+				.then(function (filepaths) {
+					filepaths[0].should.eql(path.resolve('temp/js/foo.js'))
+					this.target.foo.should.eql('foo');
+					done();
+				}.bind(this));
 		});
 		it('should execute an "afterEach" hook after each processed file is ready to write to disk', function (done) {
-			this.target.afterEach = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'context.content="foo";callback();');
+			this.target.afterEach = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.content="foo";done();');
 			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = ['file:compile', 'target:write'];
-			this.target.build(function (err, paths) {
-				fs.readFileSync(path.resolve('temp/js/foo.js'), 'utf8').should.eql('foo');
-				done();
-			}.bind(this));
+			this.target.workflow = ['load', 'compile'];
+			this.target.build()
+				.then(function (filepaths) {
+					filepaths[0].should.eql(path.resolve('temp/js/foo.js'))
+					fs.readFileSync(filepaths[0], 'utf8').should.eql('foo');
+					done();
+				}.bind(this));
 		});
 		it('should return an error if a "before" hook returns an error', function (done) {
-			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'callback("oops");');
+			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'done("oops");');
 			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = ['file:compile'];
-			this.target.build(function (err, paths) {
-				should.exist(err);
-				done();
-			}.bind(this));
+			this.target.workflow = ['load', 'compile'];
+			this.target.build()
+				.catch(function (err) {
+					should.exist(err);
+					done();
+				});
 		});
 		it('should return an error if an "after" hook returns an error', function (done) {
-			this.target.after = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'callback("oops");');
+			this.target.after = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'done("oops");');
 			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = ['file:compile'];
-			this.target.build(function (err, paths) {
-				should.exist(err);
-				done();
-			}.bind(this));
+			this.target.workflow = ['load', 'compile'];
+			this.target.build()
+				.catch(function (err) {
+					should.exist(err);
+					done();
+				});
 		});
 	});
 });
