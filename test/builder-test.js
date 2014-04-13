@@ -1,6 +1,5 @@
 // Debug settings
 require('../lib/utils/cnsl').silent = true;
-require('buddy-term').silent = true;
 require('bluebird').longStackTraces();
 
 var path = require('path')
