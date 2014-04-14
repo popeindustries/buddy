@@ -174,6 +174,12 @@ describe('configuration', function () {
 			var func = configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',before:'./hooks/before.js'}]}}).targets[0].before;
 			(typeof func == 'function').should.be.true;
 		});
+		it('should return an object with passed "sources"', function () {
+			configuration.parse({js:{sources:['foo'],targets:[{input:'src/main.js', output:'js'}]}}).targets[0].sources.should.eql([path.resolve('foo'), process.cwd()]);
+		});
+		it('should return an object with default "sources" based on "input"', function () {
+			configuration.parse({js:{targets:[{input:'src/main.js', output:'js'}]}}).targets[0].sources.should.eql([path.resolve('src'), process.cwd()]);
+		});
 	});
 
 	describe('load', function () {

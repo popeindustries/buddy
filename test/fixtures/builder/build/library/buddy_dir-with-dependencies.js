@@ -1,9 +1,9 @@
 exports.build = {
 	"js": {
-		"sources": ["src/ts"],
+		"sources": ["src/js"],
 		"targets": [
 			{
-				"input": "src/ts/main.ts",
+				"input": "src/js",
 				"output": "output"
 			}
 		]
