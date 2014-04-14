@@ -10,72 +10,30 @@ describe('configuration', function () {
 
 	describe('locate', function () {
 		describe('from a valid working directory', function () {
-			it('should return a path to the default js file when no name is specified', function (done) {
-				configuration.locate()
-					.then(function (url) {
-						url.should.equal(path.resolve('buddy.js'));
-						done();
-					}).catch(function (err) {
-						should.not.exist(err);
-						done();
-					});
+			it('should return a path to the default js file when no name is specified', function () {
+				configuration.locate().should.equal(path.resolve('buddy.js'));
 			});
-			it('should return a path to the named file when a name is specified', function (done) {
-				configuration.locate('buddy_custom_name.js')
-					.then(function (url) {
-						url.should.equal(path.resolve('buddy_custom_name.js'));
-						done();
-					}).catch(function (err) {
-						should.not.exist(err);
-						done();
-					});
+			it('should return a path to the named file when a name is specified', function () {
+				configuration.locate('buddy_custom_name.js').should.equal(path.resolve('buddy_custom_name.js'));
 			});
-			it('should return a path to the default file in the specified directory when a directory name is specified', function (done) {
-				configuration.locate('nested')
-					.then(function (url) {
-						url.should.equal(path.resolve('nested', 'buddy.js'));
-						done();
-					}).catch(function (err) {
-						should.not.exist(err);
-						done();
-					});
+			it('should return a path to the default file in the specified directory when a directory name is specified', function () {
+				configuration.locate('nested').should.equal(path.resolve('nested', 'buddy.js'));
 			});
-			it('should return a path to the default json file in the specified directory when a directory name is specified', function (done) {
-				configuration.locate('json')
-					.then(function (url) {
-						url.should.equal(path.resolve('json', 'buddy.json'));
-						done();
-					}).catch(function (err) {
-						should.not.exist(err);
-						done();
-					});
+			it('should return a path to the default json file in the specified directory when a directory name is specified', function () {
+				configuration.locate('json').should.equal(path.resolve('json', 'buddy.json'));
 			});
-			it('should return a path to the default package.json file in the specified directory when a directory name is specified', function (done) {
-				configuration.locate('pkgjson')
-					.then(function (url) {
-						url.should.equal(path.resolve('pkgjson', 'package.json'));
-						done();
-					}).catch(function (err) {
-						should.not.exist(err);
-						done();
-					});
+			it('should return a path to the default package.json file in the specified directory when a directory name is specified', function () {
+				configuration.locate('pkgjson').should.equal(path.resolve('pkgjson', 'package.json'));
 			});
-			it('should return a path to the named file in the specified directory when a directory and name are specified', function (done) {
-				configuration.locate('nested/buddy_custom_name.js')
-					.then(function (url) {
-						url.should.equal(path.resolve('nested', 'buddy_custom_name.js'));
-						done();
-					}).catch(function (err) {
-						should.not.exist(err);
-						done();
-					});
+			it('should return a path to the named file in the specified directory when a directory and name are specified', function () {
+				configuration.locate('nested/buddy_custom_name.js').should.equal(path.resolve('nested', 'buddy_custom_name.js'));
 			});
-			it('should return an error when an invalid name is specified', function (done) {
-				configuration.locate('buddy_no_name.js')
-					.catch(function (err) {
-						should.exist(err);
-						done();
-					});
+			it('should return an error when an invalid name is specified', function () {
+				try {
+					configuration.locate('buddy_no_name.js')
+				} catch (err) {
+					should.exist(err);
+				}
 			});
 		});
 
@@ -86,15 +44,8 @@ describe('configuration', function () {
 			after(function () {
 				process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
 			});
-			it('should return a path to the default file in a parent of the cwd when no name is specified', function (done) {
-				configuration.locate()
-					.then(function (url) {
-						url.should.equal(path.resolve('buddy.js'));
-						done();
-					}).catch(function (err) {
-						should.not.exist(err);
-						done();
-					});
+			it('should return a path to the default file in a parent of the cwd when no name is specified', function () {
+				configuration.locate().should.equal(path.resolve('buddy.js'));
 			});
 		});
 
@@ -105,12 +56,12 @@ describe('configuration', function () {
 			after(function () {
 				process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
 			});
-			it('should return an error', function (done) {
-				configuration.locate()
-					.catch(function (err) {
-						should.exist(err);
-						done();
-					});
+			it('should return an error', function () {
+				try {
+					configuration.locate()
+				} catch (err) {
+					should.exist(err);
+				}
 			});
 		});
 	});
@@ -183,39 +134,25 @@ describe('configuration', function () {
 	});
 
 	describe('load', function () {
-		it('should return validated file data', function (done) {
-			configuration.load('buddy.js')
-				.then(function (config) {
-					should.exist(config.build);
-					done();
-				}).catch(function (err) {
-					should.not.exist(err);
-					done();
-				});
+		it('should return validated file data', function () {
+			should.exist(configuration.load('buddy.js').build);
 		});
-		it('should return validated file data for a package.json config file', function (done) {
-			configuration.load('package.json')
-				.then(function (config) {
-					should.exist(config.build);
-					done();
-				}).catch(function (err) {
-					should.not.exist(err);
-					done();
-				});
+		it('should return validated file data for a package.json config file', function () {
+			should.exist(configuration.load('package.json').build);
 		});
-		it('should return an error when passed a reference to a malformed file', function (done) {
-			configuration.load('buddy_bad.js')
-				.catch(function (err) {
-					should.exist(err);
-					done();
-				});
+		it('should return an error when passed a reference to a malformed file', function () {
+			try {
+				configuration.load('buddy_bad.js')
+			} catch (err) {
+				should.exist(err);
+			}
 		});
-		it('should return an error when passed an invalid build configuration', function (done) {
-			configuration.load('buddy_bad_build.js')
-				.catch(function (err) {
-					should.exist(err);
-					done();
-				});
+		it('should return an error when passed an invalid build configuration', function () {
+			try {
+				configuration.load('buddy_bad_build.js')
+			} catch (err) {
+				should.exist(err);
+			}
 		});
 	});
 });
