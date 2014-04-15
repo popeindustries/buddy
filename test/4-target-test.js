@@ -1,5 +1,6 @@
 var path = require('path')
 	, fs = require('fs')
+	, co = require('co')
 	, should = require('should')
 	, rimraf = require('rimraf')
 	, fileFactory = require('../lib/core/file')
@@ -29,20 +30,20 @@ describe('target', function () {
 			this.target = targetFactory({type:'js', outputPath: path.resolve('temp'), fileExtensions:['js', 'coffee'], sources:['src'], runtimeOptions:{}});
 		});
 		it('should parse a file "input" and return a File instance', function (done) {
-			this.target.parse(false, path.resolve('src/js/foo.js'), null, this.target.runtimeOptions)
-				.then(function (files) {
-					files.should.have.length(1);
-					done();
-				});
+			co(function* () {
+				var files = yield this.target.parse(false, path.resolve('src/js/foo.js'), null, this.target.runtimeOptions);
+				files.should.have.length(1);
+				done();
+			}).call(this);
 		});
 		it('should parse a directory "input" and return several File instances', function (done) {
-			this.target.inputPath = path.resolve('src/js');
-			this.target.isDir = true;
-			this.target.parse(true, path.resolve('src/js'), null, this.target.runtimeOptions)
-				.then(function (files) {
-					files.should.have.length(4);
-					done();
-				});
+			co(function* () {
+				this.target.inputPath = path.resolve('src/js');
+				this.target.isDir = true;
+				files = yield this.target.parse(true, path.resolve('src/js'), null, this.target.runtimeOptions);
+				files.should.have.length(4);
+				done();
+			}).call(this);
 		});
 	});
 
@@ -51,23 +52,22 @@ describe('target', function () {
 			this.target = targetFactory({type:'js', fileExtensions:[], sources:[], runtimeOptions: {}});
 		});
 		it('should serially apply a set of commands to a collection of items', function (done) {
-			var file1 = fileFactory(path.resolve('src/js/foo.js'), {type: 'js'})
-				, file2 = fileFactory(path.resolve('src/js/bar.js'), {type: 'js'});
-			this.target.process([file1, file2], [['load'], ['compile']])
-				.then(function (files) {
-					files[1].content.should.eql("var bat = require(\'./bat\')\n\t, baz = require(\'./baz\')\n\t, bar = this;");
-					done();
-				});
+			co(function* () {
+				var file1 = fileFactory(path.resolve('src/js/foo.js'), {type: 'js'})
+					, file2 = fileFactory(path.resolve('src/js/bar.js'), {type: 'js'})
+					, files = yield this.target.process([file1, file2], [['load'], ['compile']]);
+				files[1].content.should.eql("var bat = require(\'./bat\')\n\t, baz = require(\'./baz\')\n\t, bar = this;");
+				done();
+			}).call(this);
 		});
 		it('should return several file references when processing a file with dependencies', function (done) {
-			var file1 = fileFactory(path.resolve('src/js/foo.js'), {type: 'js'});
-			this.target.process([file1], [['load', 'parse'], ['wrap']])
-				.then(function (files) {
-					console.log(files.map(function(file) {return file.id}))
-					files.should.have.length(4);
-					files[0].content.should.eql("require.register(\'src/js/foo\', function(module, exports, require) {\n  var bar = require(\'./bar\')\n  \t, foo = this;\n});");
-					done();
-				});
+			co(function* () {
+				var file1 = fileFactory(path.resolve('src/js/foo.js'), {type: 'js'})
+					, files = yield this.target.process([file1], [['load', 'parse'], ['wrap']]);
+				files.should.have.length(4);
+				files[0].content.should.eql("require.register(\'src/js/foo\', function(module, exports, require) {\n  var bar = require(\'./bar\')\n  \t, foo = this;\n});");
+				done();
+			}).call(this);
 		});
 	});
 
@@ -80,58 +80,64 @@ describe('target', function () {
 			this.target.reset();
 		});
 		it('should execute a "before" hook before running the build', function (done) {
-			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.foo="foo";done();');
-			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = [['load', 'compile']];
-			this.target.foo = 'bar';
-			this.target.build()
-				.then(function (filepaths) {
-					this.target.foo.should.eql('foo');
-					done();
-				}.bind(this));
+			co(function* () {
+				this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.foo="foo";done();');
+				this.target.inputPath = path.resolve('src/js/foo.js');
+				this.target.workflow = [['load', 'compile']];
+				this.target.foo = 'bar';
+				var filepaths = yield this.target.build();
+				this.target.foo.should.eql('foo');
+				done();
+			}).call(this);
 		});
 		it('should execute an "after" hook after running the build', function (done) {
-			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.foo="foo";done();');
-			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = [['load', 'compile']];
-			this.target.foo = 'bar';
-			this.target.build()
-				.then(function (filepaths) {
-					filepaths[0].should.eql(path.resolve('temp/js/foo.js'))
-					this.target.foo.should.eql('foo');
-					done();
-				}.bind(this));
+			co(function* () {
+				this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.foo="foo";done();');
+				this.target.inputPath = path.resolve('src/js/foo.js');
+				this.target.workflow = [['load', 'compile']];
+				this.target.foo = 'bar';
+				var filepaths = yield this.target.build();
+				filepaths[0].should.eql(path.resolve('temp/js/foo.js'))
+				this.target.foo.should.eql('foo');
+				done();
+			}).call(this);
 		});
 		it('should execute an "afterEach" hook after each processed file is ready to write to disk', function (done) {
-			this.target.afterEach = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.content="foo";done();');
-			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = [['load', 'compile']];
-			this.target.build()
-				.then(function (filepaths) {
-					filepaths[0].should.eql(path.resolve('temp/js/foo.js'))
-					fs.readFileSync(filepaths[0], 'utf8').should.eql('foo');
-					done();
-				}.bind(this));
+			co(function* () {
+				this.target.afterEach = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.content="foo";done();');
+				this.target.inputPath = path.resolve('src/js/foo.js');
+				this.target.workflow = [['load', 'compile']];
+				var filepaths = yield this.target.build();
+				filepaths[0].should.eql(path.resolve('temp/js/foo.js'))
+				fs.readFileSync(filepaths[0], 'utf8').should.eql('foo');
+				done();
+			}).call(this);
 		});
 		it('should return an error if a "before" hook returns an error', function (done) {
-			this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'done("oops");');
-			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = [['load', 'compile']];
-			this.target.build()
-				.catch(function (err) {
+			co(function* () {
+				this.target.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'done("oops");');
+				this.target.inputPath = path.resolve('src/js/foo.js');
+				this.target.workflow = [['load', 'compile']];
+				try {
+					yield this.target.build();
+				} catch (err) {
 					should.exist(err);
 					done();
-				});
+				}
+			}).call(this);
 		});
 		it('should return an error if an "after" hook returns an error', function (done) {
-			this.target.after = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'done("oops");');
-			this.target.inputPath = path.resolve('src/js/foo.js');
-			this.target.workflow = [['load', 'compile']];
-			this.target.build()
-				.catch(function (err) {
+			co(function* () {
+				this.target.after = new Function('global', 'process', 'console', 'require', 'context', 'options', 'callback', 'done("oops");');
+				this.target.inputPath = path.resolve('src/js/foo.js');
+				this.target.workflow = [['load', 'compile']];
+				try {
+					yield this.target.build();
+				} catch (err) {
 					should.exist(err);
 					done();
-				});
+				}
+			}).call(this);
 		});
 	});
 });

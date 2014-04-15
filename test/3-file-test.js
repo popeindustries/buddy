@@ -35,7 +35,7 @@ describe('file', function () {
 		});
 	});
 
-	describe.only('workflow', function () {
+	describe('workflow', function () {
 		describe('load()', function () {
 			it('should load and store js file contents', function (done) {
 				co(function *() {

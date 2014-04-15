@@ -22,7 +22,7 @@ function gatherFiles (dir, files) {
 	return files;
 }
 
-describe('Builder', function () {
+describe.skip('Builder', function () {
 	beforeEach(function () {
 		this.builder = new Builder();
 	});
