@@ -31,8 +31,7 @@
     "inline-source": "git://github.com/popeindustries/inline-source.git#buddy-v2",
     "simple-browser-require": "0.2.x",
     "thunkify": "0.0.1",
-    "co": "3.0.5",
-    "bluebird": "1.2.1"
+    "co": "3.0.5"
   },
   "devDependencies": {
     "should": "*",
