@@ -151,8 +151,8 @@ describe('file', function () {
 						, bar = fileFactory(path.resolve('src/bar.js'), options)
 						, instance = fileFactory(path.resolve('src/main.js'), options);
 					instance.content = "var foo = require('./foo');\nvar bar = require('./bar');"
-					var files = yield instance.parse();
-					files.should.have.length(2);
+					yield instance.parse();
+					instance.dependencies.should.have.length(2);
 					done();
 				})();
 			});
@@ -162,8 +162,8 @@ describe('file', function () {
 						, foo = fileFactory(path.resolve('src/foo.css'), options)
 						, instance = fileFactory(path.resolve('src/main.css'), options);
 					instance.content = "@import 'foo'"
-					var files = yield instance.parse();
-					files.should.have.length(1);
+					yield instance.parse();
+					instance.dependencies.should.have.length(1);
 					done();
 				})();
 			});
@@ -173,8 +173,8 @@ describe('file', function () {
 						, foo = fileFactory(path.resolve('src/foo.dust'), options)
 						, instance = fileFactory(path.resolve('src/main.dust'), options);
 					instance.content = "{>foo /}"
-					var files = yield instance.parse();
-					files.should.have.length(1);
+					yield instance.parse();
+					instance.dependencies.should.have.length(1);
 					done();
 				})();
 			});
@@ -184,8 +184,8 @@ describe('file', function () {
 						, foo = fileFactory(path.resolve('src/foo.js'), options)
 						, instance = fileFactory(path.resolve('src/main.js'), options);
 					instance.content = "var foo = require('./foo');\nvar foo = require('./foo');"
-					var files = yield instance.parse();
-					files.should.have.length(1);
+					yield instance.parse();
+					instance.dependencies.should.have.length(1);
 					done();
 				})();
 			});
@@ -306,8 +306,7 @@ describe('file', function () {
 			it('should execute a workflow in sequence', function (done) {
 				co(function* () {
 					var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
-					var files = yield instance.run(['load', 'wrap']);
-					files.should.have.length(1);
+					yield instance.run(['load', 'wrap']);
 					instance.content.should.eql("require.register('main', function(module, exports, require) {\n  module.exports = 'main';\n});");
 					done();
 				})();
@@ -315,8 +314,7 @@ describe('file', function () {
 			it('should return several files when parsing dependencies', function (done) {
 				co(function* () {
 					var instance = fileFactory(path.resolve('src/bar.js'), {type:'js', sources:[path.resolve('src')]});
-					var files = yield instance.run(['load', 'parse'])
-					files.should.have.length(2);
+					yield instance.run(['load', 'parse'])
 					instance.content.should.eql("var foo = require(\'./foo\');\n\nmodule.exports = \'bar\';");
 					done();
 				})();
