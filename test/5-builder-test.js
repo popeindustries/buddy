@@ -209,7 +209,7 @@ describe('Builder', function () {
 					done();
 				});
 			});
-			it.skip('should build a child js file that is different than the same file built without a parent target', function (done) {
+			it('should build a child js file that is different than the same file built without a parent target', function (done) {
 				this.builder.build('buddy.js', null, function (err, filepaths) {
 					filepaths.forEach(function(filepath) {
 						console.log('-----------', filepath, '\n', fs.readFileSync(filepath, 'utf8'))
@@ -339,28 +339,28 @@ describe('Builder', function () {
 		});
 	});
 
-	describe.skip('building a css project', function () {
+	describe('building a css project', function () {
 		before(function () {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-css'));
 		});
 		describe('with 2 stylus files referencing a shared dependency', function () {
 			it('should build 2 css files', function (done) {
 				this.builder.build('buddy.js', null, function (err, filepaths) {
-						fs.existsSync(path.resolve(this.builder.targets[0].output, 'one.css')).should.be.true;
-						fs.existsSync(path.resolve(this.builder.targets[0].output, 'two.css')).should.be.true;
+					fs.existsSync(path.resolve(this.builder.targets[0].output, 'one.css')).should.be.true;
+					fs.existsSync(path.resolve(this.builder.targets[0].output, 'two.css')).should.be.true;
 					fs.existsSync(path.resolve(this.builder.targets[0].output, 'three.css')).should.be.false;
 					done();
-				});
+				}.bind(this));
 			});
 			it('should import the dependency into both files', function (done) {
 				this.builder.build('buddy.js', null, function (err, filepaths) {
-						var contents1 = fs.readFileSync(path.resolve(this.builder.targets[0].output, 'one.css'), 'utf8');
-						var contents2 = fs.readFileSync(path.resolve(this.builder.targets[0].output, 'two.css'), 'utf8');
-						contents1.should.eql(contents2);
-						contents1.should.include("colour: '#ffffff';");
+					var contents1 = fs.readFileSync(path.resolve(this.builder.targets[0].output, 'one.css'), 'utf8');
+					var contents2 = fs.readFileSync(path.resolve(this.builder.targets[0].output, 'two.css'), 'utf8');
+					contents1.should.eql(contents2);
+					contents1.should.include("colour: '#ffffff';");
 					contents2.should.include("colour: '#ffffff';");
 					done();
-				});
+				}.bind(this));
 			});
 		});
 	});
