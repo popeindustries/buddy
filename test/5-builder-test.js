@@ -39,9 +39,9 @@ describe('Builder', function () {
 			var targets = this.builder._initializeTargets([{input: 'target/foo.js', output: 'main.js', runtimeOptions: {}}]);
 			targets.should.have.length(1);
 		});
-		it('should result in a target count of 2 with valid target data containing a child target', function () {
+		it('should result in a target count of 1 with valid target data containing a child target', function () {
 			var targets = this.builder._initializeTargets([{input: 'target/foo.js', output: 'main.js', hasChildren: true, runtimeOptions: {}, targets:[{input:'target/lib', output:'../js', runtimeOptions: {}}]}]);
-			targets.should.have.length(2);
+			targets.should.have.length(1);
 		});
 	});
 
@@ -188,7 +188,7 @@ describe('Builder', function () {
 		});
 	});
 
-	describe.skip('building a complex project', function () {
+	describe('building a complex project', function () {
 		before(function () {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/project-complex'));
 		});
@@ -211,9 +211,6 @@ describe('Builder', function () {
 			});
 			it('should build a child js file that is different than the same file built without a parent target', function (done) {
 				this.builder.build('buddy.js', null, function (err, filepaths) {
-					filepaths.forEach(function(filepath) {
-						console.log('-----------', filepath, '\n', fs.readFileSync(filepath, 'utf8'))
-					})
 					fs.readFileSync(path.resolve('output/section.js'), 'utf8').should.not.eql(fs.readFileSync(path.resolve('output/somesection.js'), 'utf8'));
 					done();
 				});
