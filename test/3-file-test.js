@@ -152,7 +152,7 @@ describe('file', function () {
 				instance.dependencies.should.have.length(1);
 				done();
 			});
-			it('should store an array of html "inline" dependency objects', function (done) {
+			it.only('should store an array of html "inline" dependency objects', function (done) {
 				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:[ 'html', 'dust']}
 					, foo = fileFactory(path.resolve('src/foo.js'), options)
 					, instance = fileFactory(path.resolve('src/main.dust'), options);
