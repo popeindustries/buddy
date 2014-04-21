@@ -27,8 +27,8 @@
     "buddy-cli": "git://github.com/popeindustries/buddy-cli.git#buddy-v2",
     "yaw": "0.1.1",
     "transfigure": "git://github.com/popeindustries/transfigure.git#buddy-v3",
-    "identify-resource": "0.9.1",
-    "inline-source": "git://github.com/popeindustries/inline-source.git#buddy-v2",
+    "identify-resource": "git://github.com/popeindustries/identify-resource.git#buddy-v2",
+    "inline-source": "git://github.com/popeindustries/inline-source.git#buddy-v4",
     "simple-browser-require": "0.2.x",
     "thunkify": "0.0.1",
     "co": "3.0.5"
