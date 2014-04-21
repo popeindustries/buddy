@@ -156,7 +156,7 @@ describe('file', function () {
 				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:[ 'html', 'dust']}
 					, foo = fileFactory(path.resolve('src/foo.js'), options)
 					, instance = fileFactory(path.resolve('src/main.dust'), options);
-				instance.content = "<script inline src='foo.js'></script>'"
+				instance.content = '<script inline src="foo.js"></script>';
 				instance.parse();
 				instance.dependencies.should.have.length(1);
 				done();
