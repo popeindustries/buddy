@@ -83,7 +83,7 @@ describe('file', function () {
 				should.not.exist(warnings);
 				done();
 			});
-			it('should not return lint errors for well written js content', function (done) {
+			it('should not return lint errors for well written js content configured with .eslintrc file', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
 				var warnings = instance.lint();
