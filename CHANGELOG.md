@@ -1,6 +1,9 @@
 # Changelog
 
 **2.0.0** - Apr x, 2014
+* internal re-write for node v0.12
+* default source directory derived from `input` when no sources are specified
+* handle all dependencies correctly, including `inline` html assets and `require('*.json')`
 * properly handle node_module dependencies with different versions
 * properly handle resolution of deeply nested html template includes
 
