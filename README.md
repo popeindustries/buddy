@@ -133,7 +133,7 @@ Hooks can be written as inline JavaScript, or loaded from a file if a path is sp
         {
           "input": "somefile.js",
           "output": "somedir",
-          "before": "console.log('before hook'); callback(null);",
+          "before": "console.log('before hook'); done(null);",
           "after": "path/to/afterHook.js"
         }
       ]
@@ -149,7 +149,7 @@ All hooks are passed the following arguments:
 
 - **options**: the runtime options used to execute buddy (`compress`, `lazy`, `reload`, `watch`, `deploy`, etc)
 
-- **callback**: a callback function that accepts an optional `error`. **MUST** be called in order to return control back to the program.
+- **done**: a callback function that accepts an optional `error`. **MUST** be called in order to return control back to the program.
 
 ### Aliases
 

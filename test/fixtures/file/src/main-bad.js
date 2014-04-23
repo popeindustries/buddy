@@ -1,2 +1,2 @@
-var bar = require('./package/bar')
-	, foo = require('./package/foo')
+var foo = 'foo';
+	, bar = 'bar';
