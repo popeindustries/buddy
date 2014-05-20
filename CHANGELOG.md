@@ -1,11 +1,14 @@
 # Changelog
 
-**2.0.0** - Apr x, 2014
+**2.0.0** - xx, 2014
 * internal re-write for node v0.12
 * default source directory derived from `input` when no sources are specified
 * handle all dependencies correctly, including `inline` html assets and `require('*.json')`
 * properly handle node_module dependencies with different versions
 * properly handle resolution of deeply nested html template includes
+* ignore dependency warnings for native Node modules
+* build target `output` is now optional
+* launch application server if a path is specified in `server.file` when run with `buddy watch --serve`
 
 **1.3.3** - Apr 1, 2014
 * fix for precompiling dust templates
