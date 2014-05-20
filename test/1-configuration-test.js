@@ -111,11 +111,11 @@ describe('configuration', function () {
 		});
 		it('should return an object with the correct processing workflow set for a js directory target', function () {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'compile', 'parse', 'inline', 'replace', 'wrap'], ['concat']]);
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'compile']]);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'compile', 'parse']]);
 		});
 		it('should return an object with the correct processing workflow set for a js file target', function () {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'compile', 'parse', 'inline', 'replace', 'wrap'], ['concat']]);
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'compile']]);
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',modular:false}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'compile', 'parse']]);
 		});
 		it('should return an object with an executable "before" hook function', function () {
 			var func = configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js',before:'console.log(context);'}]}}).targets[0].before;
