@@ -60,11 +60,11 @@ describe('target', function () {
 				done();
 			}).call(this);
 		});
-		it('should return several file references when processing a file with dependencies', function (done) {
+		it('should return one file references when processing a file with dependencies', function (done) {
 			co(function* () {
 				var file1 = fileFactory(path.resolve('src/js/foo.js'), {type: 'js'})
 					, files = yield this.target.process([file1], [['load', 'parse', 'wrap']]);
-				files.should.have.length(4);
+				files.should.have.length(1);
 				files[0].content.should.eql("require.register(\'src/js/foo\', function(module, exports, require) {\n  var bar = require(\'./bar\')\n  \t, foo = this;\n});");
 				done();
 			}).call(this);
