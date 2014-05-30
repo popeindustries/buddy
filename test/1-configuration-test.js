@@ -96,9 +96,6 @@ describe('configuration', function () {
 		it('should return an object with resolved "outputPath" when "input" is file and "output" is directory', function () {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false}).targets[0].outputPath.should.include('main.js');
 		});
-		it('should return an object with "outputPath" resolved relative to "input" when a relative path is used', function () {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'./foo.js'}]}}, {compress:false}).targets[0].outputPath.should.include('src/foo.js');
-		});
 		it('should return an object with "isDir" set to TRUE when "input" is a directory', function () {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].isDir.should.be.ok;
 		});

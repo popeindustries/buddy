@@ -34,7 +34,7 @@
     "co": "3.0.6"
   },
   "devDependencies": {
-    "should": "*",
+    "should": "3.3.2",
     "mocha": "*",
     "rimraf": "*"
   },
