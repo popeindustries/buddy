@@ -131,6 +131,11 @@ describe('configuration', function () {
 		it('should return an object with default "sources" based on "input"', function () {
 			configuration.parse({js:{targets:[{input:'src/main.js', output:'js'}]}}).targets[0].sources.should.eql([path.resolve('src'), process.cwd()]);
 		});
+		it('should return an object with "isAppServer" set based on "input" and "server" settings', function () {
+			configuration.data.server = {file:'src/main.js'};
+			configuration.parse({js:{targets:[{input:'src/main.js',modular:false}]}}).targets[0].isAppServer.should.be.true;
+			configuration.parse({js:{targets:[{input:'src',modular:false}]}}).targets[0].isAppServer.should.be.true;
+		});
 	});
 
 	describe('load', function () {
