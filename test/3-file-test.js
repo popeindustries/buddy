@@ -172,7 +172,7 @@ describe('file', function () {
 			});
 		});
 
-		describe('replace()', function () {
+		describe('replaceReferences()', function () {
 			it('should replace relative ids with absolute ones', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = "var foo = require('./foo');";
@@ -183,7 +183,7 @@ describe('file', function () {
 						instance: {id:'foo'}
 					}
 				];
-				instance.replace();
+				instance.replaceReferences();
 				instance.content.should.eql("var foo = require('foo');");
 				done();
 			});
@@ -202,8 +202,25 @@ describe('file', function () {
 						instance: {id: 'view/baz'}
 					}
 				];
-				instance.replace();
+				instance.replaceReferences();
 				instance.content.should.eql("var bar = require('bar@0');\nvar baz = require('view/baz');");
+				done();
+			});
+		});
+
+		describe('replaceEnvironment()', function () {
+			it('should inline calls to process.env', function (done) {
+				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
+				instance.content = "process.env.NODE_ENV process.env['NODE_ENV'] process.env[\"NODE_ENV\"]";
+				instance.replaceEnvironment();
+				instance.content.should.eql("'test' 'test' 'test'");
+				done();
+			});
+			it('should handle undefined values when inlining calls to process.env', function (done) {
+				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
+				instance.content = "process.env.FEATURE_FOO";
+				instance.replaceEnvironment();
+				instance.content.should.eql("undefined");
 				done();
 			});
 		});
