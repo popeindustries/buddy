@@ -23,14 +23,14 @@
     "eslint": "0.6.2",
     "csslint": "0.10.0",
     "lodash": "2.4.1",
-    "recur-fs": "0.1.4",
+    "recur-fs": "0.1.5",
     "buddy-cli": "0.10.0",
     "yaw": "0.1.1",
     "transfigure": "0.13.0",
     "identify-resource": "0.10.0",
     "inline-source": "0.6.0",
     "simple-browser-require": "0.2.x",
-    "thunkify": "2.1.1",
+    "thunkify": "2.1.2",
     "co": "3.0.6"
   },
   "devDependencies": {
