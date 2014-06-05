@@ -31,7 +31,8 @@
     "inline-source": "0.6.0",
     "simple-browser-require": "0.2.x",
     "thunkify": "2.1.2",
-    "co": "3.0.6"
+    "co": "3.0.6",
+    "portscanner": "0.2.3"
   },
   "devDependencies": {
     "should": "3.3.2",
