@@ -73,17 +73,44 @@ describe('configuration', function () {
 		it('should return null when passed build data with no "targets"', function () {
 			should.not.exist(configuration.parse({js:{sources:['src'],targets:[]}}, {compress:false}));
 		});
-		it('should return null when passed build data "input" that doesn\'t exist', function () {
-			should.not.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/hey.js',output:'js'}]}}, {compress:false}));
+		it('should allow passing build data "input" that doesn\'t exist', function () {
+			should.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/hey.js',output:'js'}]}}, {compress:false}));
 		});
-		it('should return null when passed build data with directory "input" and a file "output"', function () {
-			should.not.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js/main.js'}]}}, {compress:false}));
+		it('should throw an error when passed build data with directory "input" and a file "output"', function () {
+			try {
+				configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js/main.js'}]}}, {compress:false})
+			} catch (err) {
+				should.exist(err);
+			}
+			try {
+				configuration.parse({js:{sources:['src'],targets:[{input:['src/main.js','src'],output:['js/main.js','js/foo.js']}]}}, {compress:false})
+			} catch (err) {
+				should.exist(err);
+			}
+		});
+		it('should throw an error when passed build data with array of file "input" and a single file "output"', function () {
+			try {
+				configuration.parse({js:{sources:['src'],targets:[{input:['src/main.js','src/sub.js'],output:'js/main.js'}]}}, {compress:false})
+			} catch (err) {
+				should.exist(err);
+			}
+		});
+		it('should throw an error when passed build data with array of directory "input" and a single file "output"', function () {
+			try {
+				configuration.parse({js:{sources:['src'],targets:[{input:['src','src2'],output:'js/main.js'}]}}, {compress:false})
+			} catch (err) {
+				should.exist(err);
+			}
+		});
+		it('should throw an error when passed build data with file "input" and multiple "output"', function () {
+			try {
+				configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:['js/main.js', 'js/foo.js']}]}}, {compress:false})
+			} catch (err) {
+				should.exist(err);
+			}
 		});
 		it('should return an object when passed valid build data', function () {
 			should.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js'}]}}, {compress:false}));
-		});
-		it('should return an object excluding invalid "targets"', function () {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js'},{input:'src/hey.js',output:'js'}]}}, {compress:false}).targets.should.have.length(1);
 		});
 		it('should return an object including valid child "targets"', function () {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js',targets:[{input:'src/sub.js',output:'js'}]}]}}, {compress:false}).targets[0].targets.should.have.length(1);
@@ -93,15 +120,29 @@ describe('configuration', function () {
 			data.targets[0].inputPath.should.eql(path.resolve('src/main.js'));
 			data.targets[0].outputPath.should.eql(path.resolve('js/main.js'));
 		});
+		it('should return an object with several valid targets when "input" and "output" are arrays', function () {
+			var data = configuration.parse({js:{sources:['src'],targets:[{input:['src/main.js','src/sub.js'],output:['js/main.js','js/sub.js']}]}}, {compress:false});
+			data.targets.should.have.length(2);
+		});
 		it('should return an object with resolved "outputPath" when "input" is file and "output" is directory', function () {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false}).targets[0].outputPath.should.include('main.js');
 		});
-		it('should return an object with "isDir" set to TRUE when "input" is a directory', function () {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].isDir.should.be.ok;
+		it('should return an object with "isBatch" set to TRUE when "input" is a directory', function () {
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].isBatch.should.be.ok;
 		});
 		it('should return an object with "modular" defaulted to TRUE for js and css targets', function () {
 			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js'}]}}, {compress:false}).targets[0].modular.should.be.ok;
 			configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js',modular:false}]}}, {compress:false}).targets[0].modular.should.not.be.ok;
+		});
+		it('should return an object with one valid target with an array "inputPath" when passed array "input" and directory "output"', function () {
+			var data = configuration.parse({js:{sources:['src'],targets:[{input:['src','src2'],output:'js'}]}}, {compress:false});
+			data.targets[0].inputPath.should.have.length(2);
+			data.targets[0].outputPath.should.eql(path.resolve('js'));
+		});
+		it('should return an object with one valid target with an array "inputPath" when passed array "input" and array directory "output" with a single path', function () {
+			var data = configuration.parse({js:{sources:['src'],targets:[{input:['src','src2'],output:['js']}]}}, {compress:false});
+			data.targets[0].inputPath.should.have.length(2);
+			data.targets[0].outputPath.should.eql(path.resolve('js'));
 		});
 		it('should return an object with the correct processing workflow set for an html target', function () {
 			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'parse', 'compress'], ['compile', 'inline']]);
@@ -131,11 +172,13 @@ describe('configuration', function () {
 		});
 		it('should return an object with default "sources" based on "input"', function () {
 			configuration.parse({js:{targets:[{input:'src/main.js', output:'js'}]}}).targets[0].sources.should.eql([path.resolve('src'), process.cwd()]);
+			configuration.parse({js:{targets:[{input:['src/main.js','src2/main.js'], output:'js'}]}}).targets[0].sources.should.eql([path.resolve('src'), path.resolve('src2'), process.cwd()]);
 		});
 		it('should return an object with "isAppServer" set based on "input" and "server" settings', function () {
 			configuration.data.server = {file:'src/main.js'};
-			configuration.parse({js:{targets:[{input:'src/main.js',modular:false}]}}).targets[0].isAppServer.should.be.true;
-			configuration.parse({js:{targets:[{input:'src',modular:false}]}}).targets[0].isAppServer.should.be.true;
+			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',modular:false}]}}).targets[0].isAppServer.should.be.true;
+			configuration.parse({js:{sources:['src'],targets:[{input:'src',modular:false}]}}).targets[0].isAppServer.should.be.true;
+			configuration.parse({js:{sources:['src'],targets:[{input:['src','src2'],modular:false}]}}).targets[0].isAppServer.should.be.true;
 		});
 	});
 

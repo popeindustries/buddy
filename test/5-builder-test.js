@@ -276,6 +276,16 @@ describe('Builder', function () {
 				});
 			});
 		});
+		describe('with an input targeting an array of files', function () {
+			it('should build 2 js files', function (done) {
+				this.builder.build('buddy_multiple.js', null, function (err, filepaths) {
+					filepaths.should.have.length(2);
+					fs.existsSync(filepaths[0]).should.be.true;
+					fs.existsSync(filepaths[1]).should.be.true;
+					done();
+				});
+			});
+		});
 	});
 
 	describe('building a js project with node_modules', function () {
