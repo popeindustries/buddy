@@ -9,6 +9,7 @@
 * ignore dependency warnings for native Node modules
 * build target `output` is now optional
 * launch application server if a path is specified in `server.file` when run with `buddy watch --serve`
+* target `input` and `output` accept arrays of files/directories
 
 **1.3.3** - Apr 1, 2014
 * fix for precompiling dust templates
