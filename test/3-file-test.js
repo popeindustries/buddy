@@ -3,6 +3,7 @@ var path = require('path')
 	, co = require('co')
 	, should = require('should')
 	, fileFactory = require('../lib/core/file')
+	, identifyResource = require('identify-resource')
 
 describe('file', function () {
 	before(function () {
@@ -10,6 +11,7 @@ describe('file', function () {
 	});
 	beforeEach(function () {
 		fileFactory.cache.flush();
+		identifyResource.clearCache();
 	});
 
 	describe('factory', function () {
@@ -166,6 +168,14 @@ describe('file', function () {
 					, foo = fileFactory(path.resolve('src/foo.js'), options)
 					, instance = fileFactory(path.resolve('src/main.js'), options);
 				instance.content = "var foo = require('./foo');\nvar foo = require('./foo');"
+				instance.parse();
+				instance.dependencies.should.have.length(1);
+				done();
+			});
+			it('should only store 1 dependency object when there are duplicate case sensitive package references', function (done) {
+				var options = {type:'js', sources:[path.resolve('src')]}
+					, instance = fileFactory(path.resolve('src/main.js'), options);
+				instance.content = "var bat = require('bar');\nvar bat = require('BAR');"
 				instance.parse();
 				instance.dependencies.should.have.length(1);
 				done();
