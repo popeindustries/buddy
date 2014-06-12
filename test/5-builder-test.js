@@ -260,8 +260,8 @@ describe('Builder', function () {
 			});
 			it('should contain 2 modules', function (done) {
 				this.builder.build('buddy_wrapped.js', null, function (err, filepaths) {
-						var contents = fs.readFileSync(filepaths[0], 'utf8');
-						contents.should.include("require.register('mainWrapped'");
+					var contents = fs.readFileSync(filepaths[0], 'utf8');
+					contents.should.include("require.register('mainWrapped'");
 					contents.should.include("require.register('package/prewrapped'");
 					done();
 				});

@@ -10,6 +10,8 @@
 * build target `output` is now optional
 * launch application server if a path is specified in `server.file` when run with `buddy watch --serve`
 * target `input` and `output` accept arrays of files/directories
+* make sure that references to node_modules packages are case insensitive (`require('foo') === require('FOO')`)
+* don't lint/parse prebuilt buddy or browserify bundles
 
 **1.3.3** - Apr 1, 2014
 * fix for precompiling dust templates
