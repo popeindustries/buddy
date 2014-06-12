@@ -27,7 +27,7 @@
     "buddy-cli": "0.10.1",
     "yaw": "0.1.1",
     "transfigure": "0.13.0",
-    "identify-resource": "0.13.1",
+    "identify-resource": "0.13.2",
     "inline-source": "0.6.0",
     "simple-browser-require": "0.3.1",
     "thunkify": "2.1.2",
