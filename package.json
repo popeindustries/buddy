@@ -29,7 +29,7 @@
     "transfigure": "0.13.0",
     "identify-resource": "0.13.2",
     "inline-source": "0.6.0",
-    "simple-browser-require": "0.3.1",
+    "simple-browser-require": "0.3.2",
     "thunkify": "2.1.2",
     "co": "3.0.6",
     "portscanner": "0.2.3"
