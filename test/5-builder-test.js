@@ -270,7 +270,7 @@ describe('Builder', function () {
 		describe('with a directory of empty js files', function () {
 			it('should build 2 js files', function (done) {
 				this.builder.build('buddy_empty.js', null, function (err, filepaths) {
-						fs.existsSync(filepaths[0]).should.be.true;
+					fs.existsSync(filepaths[0]).should.be.true;
 					fs.existsSync(filepaths[1]).should.be.true;
 					done();
 				});
