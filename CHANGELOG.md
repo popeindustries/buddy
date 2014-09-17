@@ -7,9 +7,10 @@
 * properly handle node_module dependencies with different versions
 * properly handle resolution of deeply nested html template includes
 * ignore dependency warnings for native Node modules
-* build target `output` is now optional
 * launch application server if a path is specified in `server.file` when run with `buddy watch --serve`
+* target `output` is now optional
 * target `input` and `output` accept arrays of files/directories
+* target `input` can be glob pattern
 * make sure that references to node_modules packages are case insensitive (`require('foo') === require('FOO')`)
 * don't lint/parse prebuilt buddy or browserify bundles
 

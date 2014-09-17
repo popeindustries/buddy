@@ -139,6 +139,11 @@ describe('configuration', function () {
 			data.targets[0].inputPath.should.have.length(2);
 			data.targets[0].outputPath.should.eql(path.resolve('js'));
 		});
+		it('should return an object with one valid target with an array "inputPath" when passed glob "input" and directory "output"', function () {
+			var data = configuration.parse({js:{sources:['src'],targets:[{input:'src*/*.js',output:'js'}]}}, {compress:false});
+			data.targets[0].inputPath.should.have.length(3);
+			data.targets[0].outputPath.should.eql(path.resolve('js'));
+		});
 		it('should return an object with one valid target with an array "inputPath" when passed array "input" and array directory "output" with a single path', function () {
 			var data = configuration.parse({js:{sources:['src'],targets:[{input:['src','src2'],output:['js']}]}}, {compress:false});
 			data.targets[0].inputPath.should.have.length(2);

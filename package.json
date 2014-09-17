@@ -32,7 +32,8 @@
     "simple-browser-require": "0.3.2",
     "thunkify": "2.1.2",
     "co": "3.1.0",
-    "portscanner": "1.0.0"
+    "portscanner": "1.0.0",
+    "glob": "4.0.5"
   },
   "devDependencies": {
     "should": "3.3.2",
