@@ -43,7 +43,7 @@ describe('file', function () {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.load();
 				instance.content.should.eql(instance.originalContent);
-				instance.content.should.eql("module.exports = 'main';");
+				instance.content.should.eql("module.exports = 'main';\n");
 				done();
 			});
 		});
@@ -303,7 +303,7 @@ describe('file', function () {
 				co(function* () {
 					var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 					yield instance.run(['load', 'wrap']);
-					instance.content.should.eql("require.register('main', function(module, exports, require) {\n  module.exports = 'main';\n});");
+					instance.content.should.eql("require.register('main', function(module, exports, require) {\n  module.exports = 'main';\n  \n});");
 					done();
 				})();
 			});
