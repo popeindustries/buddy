@@ -287,9 +287,9 @@ describe('Builder', function () {
 			});
 		});
 		describe('with an input targeting a glob pattern of files', function () {
-			it('should build 2 js files', function (done) {
+			it('should build 4 js files found in nested directories', function (done) {
 				this.builder.build('buddy_glob.js', null, function (err, filepaths) {
-					filepaths.should.have.length(2);
+					filepaths.should.have.length(4);
 					fs.existsSync(filepaths[0]).should.be.true;
 					fs.existsSync(filepaths[1]).should.be.true;
 					done();

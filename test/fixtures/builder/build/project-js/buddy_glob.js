@@ -3,8 +3,8 @@ exports.build = {
 		sources: ["src"],
 		targets: [
 			{
-				"input": "src/empty/*.js",
-				"output": "output/empty"
+				"input": "src/**/{foo,bar}/*.js",
+				"output": "output"
 			}
 		]
 	}
