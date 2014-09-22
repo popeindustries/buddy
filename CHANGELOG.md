@@ -8,11 +8,12 @@
 * properly handle resolution of deeply nested html template includes
 * ignore dependency warnings for native Node modules
 * launch application server if a path is specified in `server.file` when run with `buddy watch --serve`
-* target `output` is now optional
+* target `output` is now optional, reverting to watch functionality only when run with `buddy watch`
 * target `input` and `output` accept arrays of files/directories
 * target `input` can be glob pattern
 * make sure that references to node_modules packages are case insensitive (`require('foo') === require('FOO')`)
 * don't lint/parse prebuilt buddy or browserify bundles
+* add optional boolean `server` target property to force flagging a server target for shutdown/restart during `buddy watch --reload --serve` (in most cases this can be derived from `input`)
 
 **1.3.3** - Apr 1, 2014
 * fix for precompiling dust templates
