@@ -241,7 +241,10 @@ describe('file', function () {
 				instance.content = "var foo = require('./foo.json');";
 				instance.dependencyReferences = [
 					{
-						filepath:'./foo.json',
+						instance: {
+							filepath: path.resolve('./src/foo.json'),
+						},
+						filepath: './foo.json',
 						context: "require('./foo.json')"
 					}
 				];
@@ -254,7 +257,10 @@ describe('file', function () {
 				instance.content = "var foo = require('./bar.json');";
 				instance.dependencyReferences = [
 					{
-						filepath:'./bar.json',
+						instance: {
+							filepath: path.resolve('./src/bar.json'),
+						},
+						filepath: './bar.json',
 						context: "require('./bar.json')"
 					}
 				];
