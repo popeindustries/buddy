@@ -110,6 +110,15 @@ describe('Builder', function () {
 				});
 			});
 		});
+		describe('with a single js file with unique output pattern name', function () {
+			it('should build 1 js file with unique hashed name', function (done) {
+				this.builder.build('buddy_single-unique-file.js', null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					path.basename(filepaths[0]).should.eql('foo-35a993272c713bfdda813b3e5dc78845.js');
+					done();
+				});
+			});
+		});
 	});
 
 	describe('building directory targets', function () {
