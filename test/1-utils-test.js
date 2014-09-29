@@ -45,35 +45,35 @@ describe('utils', function () {
 		});
 
 		describe('isUniquePattern()', function () {
-			it('should return true for "{hash}" patterns', function () {
-				unique.isUniquePattern('foo-{hash}.js').should.be.true;
+			it('should return true for "%hash%" patterns', function () {
+				unique.isUniquePattern('foo-%hash%.js').should.be.true;
 			});
-			it('should return true for "{date}" patterns', function () {
-				unique.isUniquePattern('foo-{hash}.js').should.be.true;
+			it('should return true for "%date%" patterns', function () {
+				unique.isUniquePattern('foo-%date%.js').should.be.true;
 			});
 			it('should return false for other patterns', function () {
-				unique.isUniquePattern('foo-{foo}.js').should.be.false;
+				unique.isUniquePattern('foo-%foo%.js').should.be.false;
 			});
 		});
 
 		describe('find()', function () {
 			it('should find a matching file', function () {
-				unique.find('foo-{hash}.js').should.eql(path.resolve('foo-00000.js'));
+				unique.find('foo-%hash%.js').should.eql(path.resolve('foo-00000.js'));
 			});
 			it('should return "" when no match', function () {
-				unique.find('bar-{hash}.js').should.eql('');
+				unique.find('bar-%hash%.js').should.eql('');
 			});
 		});
 
 		describe('generate()', function () {
 			it('should generate a date based unique filename', function () {
-				path.basename(unique.generate('foo-{date}.js')).should.match(/foo\-(\d+)\.js/);
+				path.basename(unique.generate('foo-%date%.js')).should.match(/foo\-(\d+)\.js/);
 			});
 			it('should generate a hash based unique filename', function () {
-				path.basename(unique.generate('foo-{hash}.js', 'var foo = "foo"')).should.match(/foo\-(.+)\.js/);
+				path.basename(unique.generate('foo-%hash%.js', 'var foo = "foo"')).should.match(/foo\-(.+)\.js/);
 			});
 			it('should return the passed in pattern when not hash or date', function () {
-				path.basename(unique.generate('foo-{foo}.js')).should.eql('foo-{foo}.js');
+				path.basename(unique.generate('foo-%foo%.js')).should.eql('foo-%foo%.js');
 			});
 		});
 	});

@@ -4,7 +4,7 @@ exports.build = {
 		"targets": [
 			{
 				"input": "src/js/foo.js",
-				"output": "output/foo-{hash}.js"
+				"output": "output/foo-%hash%.js"
 			}
 		]
 	}
