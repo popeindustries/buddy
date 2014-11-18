@@ -172,10 +172,10 @@ describe('file', function () {
 				instance.dependencies.should.have.length(1);
 				done();
 			});
-			it('should store 2 dependency objects when there are similar case sensitive package references', function (done) {
+			it('should store 2 dependency objects when there are case sensitive package references', function (done) {
 				var options = {type:'js', sources:[path.resolve('src')]}
 					, instance = fileFactory(path.resolve('src/main.js'), options);
-				instance.content = "var bat = require('bar');\nvar bat = require('BAR');"
+				instance.content = "var bat = require('bar');\nvar boo = require('Boo');"
 				instance.parse();
 				instance.dependencies.should.have.length(2);
 				done();
