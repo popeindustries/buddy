@@ -322,7 +322,7 @@ describe('Builder', function () {
 				this.builder.build('buddy.js', null, function (err, filepaths) {
 						var contents = fs.readFileSync(filepaths[0], 'utf8');
 						contents.should.include("require.register('main'");
-					contents.should.include("require.register('baz@0'");
+					contents.should.include("require.register('baz@0.0.0'");
 					done();
 				});
 			});
@@ -340,8 +340,8 @@ describe('Builder', function () {
 						var contents = fs.readFileSync(filepaths[0], 'utf8');
 						contents.should.include("require.register('main-sub'");
 						contents.should.include("require.register('nested/baz'");
-						contents.should.include("require.register('foo@0'");
-					contents.should.include("require.register('bar@0'");
+						contents.should.include("require.register('foo@0.0.0'");
+					contents.should.include("require.register('bar@0.0.0'");
 					done();
 				});
 			});
@@ -356,9 +356,9 @@ describe('Builder', function () {
 			it('should contain 2 modules', function (done) {
 				this.builder.build('buddy-nested.js', null, function (err, filepaths) {
 						var contents = fs.readFileSync(filepaths[0], 'utf8');
-						contents.should.include("require.register('bar@0'");
-						contents.should.include("require.register('bar/dist/commonjs/lib/bar@0'");
-					contents.should.include("exports.bar = require('bar/dist/commonjs/lib/bar@0');");
+						contents.should.include("require.register('bar@0.0.0'");
+						contents.should.include("require.register('bar/dist/commonjs/lib/bar@0.0.0'");
+					contents.should.include("exports.bar = require('bar/dist/commonjs/lib/bar@0.0.0');");
 					done();
 				});
 			});

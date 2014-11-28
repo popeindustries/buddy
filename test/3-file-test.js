@@ -29,7 +29,7 @@ describe('file', function () {
 		});
 		it('should resolve a module id for a node_module "index" File instance ', function () {
 			var instance = fileFactory(path.resolve('node_modules/foo/index.js'), {type:'js', sources:[]});
-			instance.should.have.property('id', 'foo@0');
+			instance.should.have.property('id', 'foo@0.0.0');
 		});
 		it('should resolve a module id for a node_modules package.json "main" File instance', function () {
 			var instance = fileFactory(path.resolve('node_modules/bar/bar.js'), {type:'js', sources:[]});
