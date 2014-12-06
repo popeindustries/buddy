@@ -18,6 +18,7 @@
     "twig"
   ],
   "dependencies": {
+    "bluebird": "2.3.11",
     "buddy-cli": "0.10.3",
     "co": "3.1.0",
     "csslint": "0.10.0",
