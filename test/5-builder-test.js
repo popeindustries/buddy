@@ -67,7 +67,7 @@ describe('Builder', function () {
 			});
 		});
 		describe('with a single coffee file requiring 1 dependency', function () {
-			it.only('should build 1 js file with 2 modules', function (done) {
+			it('should build 1 js file with 2 modules', function (done) {
 				this.builder.build('buddy_single-file-with-dependency.js')
 					.then(function (filepaths) {
 						fs.existsSync(filepaths[0]).should.be.true;

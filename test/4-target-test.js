@@ -6,7 +6,7 @@ var path = require('path')
 	, fileFactory = require('../lib/core/file')
 	, targetFactory = require('../lib/core/target');
 
-describe.only('target', function () {
+describe('target', function () {
 	before(function () {
 		process.chdir(path.resolve(__dirname, 'fixtures/target'));
 	});
@@ -41,27 +41,25 @@ describe.only('target', function () {
 		});
 	});
 
-	describe('process', function () {
+	describe.only('process', function () {
 		before(function () {
 			this.target = targetFactory({type:'js', fileExtensions:[], sources:[], runtimeOptions: {}});
 		});
 		it('should serially apply a set of commands to a collection of items', function (done) {
 			var file1 = fileFactory(path.resolve('src/js/foo.js'), {type: 'js'})
 				, file2 = fileFactory(path.resolve('src/js/bar.js'), {type: 'js'});
-			this.target.process([file1, file2], [['load'], ['compile']])
-				.then(function (files) {
-					files[1].content.should.eql("var bat = require(\'./bat\')\n\t, baz = require(\'./baz\')\n\t, bar = this;");
-					done();
-				});
+			this.target.process([file1, file2], [['load'], ['compile']], function (err, files) {
+				files[1].content.should.eql("var bat = require(\'./bat\')\n\t, baz = require(\'./baz\')\n\t, bar = this;");
+				done();
+			});
 		});
 		it('should return one file references when processing a file with dependencies', function (done) {
 			var file1 = fileFactory(path.resolve('src/js/foo.js'), {type: 'js'});
-			files = this.target.process([file1], [['load', 'parse', 'wrap']])
-				.then(function (files) {
-					files.should.have.length(1);
-					files[0].content.should.eql("require.register(\'src/js/foo\', function(module, exports, require) {\n  var bar = require(\'./bar\')\n  \t, foo = this;\n});");
-					done();
-				});
+			files = this.target.process([file1], [['load', 'parse', 'wrap']], function (err, files) {
+				files.should.have.length(1);
+				files[0].content.should.eql("require.register(\'src/js/foo\', function(module, exports, require) {\n  var bar = require(\'./bar\')\n  \t, foo = this;\n});");
+				done();
+			});
 		});
 	});
 
