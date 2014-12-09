@@ -30,7 +30,7 @@
     "lodash": "2.4.1",
     "MD5": "1.2.1",
     "portscanner": "1.0.0",
-    "recur-fs": "0.1.5",
+    "recur-fs": "1.0.0",
     "simple-browser-require": "0.3.2",
     "thunkify": "2.1.2",
     "transfigure": "1.0.3",

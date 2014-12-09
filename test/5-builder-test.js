@@ -3,7 +3,6 @@ require('../lib/utils/cnsl').silent = true;
 
 var path = require('path')
 	, fs = require('fs')
-	, co = require('co')
 	, rimraf = require('rimraf')
 	, should = require('should')
 	, Builder = require('../lib/builder')
@@ -51,29 +50,33 @@ describe('Builder', function () {
 		});
 		describe('with a single coffee file', function () {
 			it('should build 1 js file', function (done) {
-				this.builder.build('buddy_single-file.js', null, function (err, filepaths) {
-					fs.existsSync(filepaths[0]).should.be.true;
-					done();
-				});
+				this.builder.build('buddy_single-file.js')
+					.then(function (filepaths) {
+						fs.existsSync(filepaths[0]).should.be.true;
+						done();
+					});
 			});
 		});
 		describe('with a single coffee file containing a multi-line comment', function () {
 			it('should build 1 js file', function (done) {
-				this.builder.build('buddy_single-file-multi-comment.js', null, function (err, filepaths) {
-					fs.existsSync(filepaths[0]).should.be.true;
-					done();
-				});
+				this.builder.build('buddy_single-file-multi-comment.js')
+					.then(function (filepaths) {
+						fs.existsSync(filepaths[0]).should.be.true;
+						done();
+					});
 			});
 		});
 		describe('with a single coffee file requiring 1 dependency', function () {
-			it('should build 1 js file with 2 modules', function (done) {
-				this.builder.build('buddy_single-file-with-dependency.js', null, function (err, filepaths) {
-					fs.existsSync(filepaths[0]).should.be.true;
-					var contents = fs.readFileSync(filepaths[0], 'utf8');
-					contents.should.include("require.register('package/Class'");
-					contents.should.include("require.register('package/ClassCamelCase'");
-					done();
-				});
+			it.only('should build 1 js file with 2 modules', function (done) {
+				this.builder.build('buddy_single-file-with-dependency.js')
+					.then(function (filepaths) {
+						fs.existsSync(filepaths[0]).should.be.true;
+						var contents = fs.readFileSync(filepaths[0], 'utf8');
+						console.log(contents)
+						contents.should.include("require.register('package/Class'");
+						contents.should.include("require.register('package/ClassCamelCase'");
+						done();
+					});
 			});
 		});
 		describe('with a single coffee file containing a module wrapper', function () {
