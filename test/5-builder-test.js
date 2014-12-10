@@ -35,11 +35,11 @@ describe('Builder', function () {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/init'));
 		});
 		it('should result in a target count of 1 for valid target data', function () {
-			var targets = this.builder._initializeTargets([{input: 'target/foo.js', output: 'main.js', runtimeOptions: {}}]);
+			var targets = this.builder.initializeTargets([{inputPath: path.resolve('target/foo.js'), input: 'target/foo.js', output: 'main.js', runtimeOptions: {}}]);
 			targets.should.have.length(1);
 		});
 		it('should result in a target count of 1 with valid target data containing a child target', function () {
-			var targets = this.builder._initializeTargets([{input: 'target/foo.js', output: 'main.js', hasChildren: true, runtimeOptions: {}, targets:[{input:'target/lib', output:'../js', runtimeOptions: {}}]}]);
+			var targets = this.builder.initializeTargets([{inputPath: path.resolve('target/foo.js'), input: 'target/foo.js', output: 'main.js', hasChildren: true, runtimeOptions: {}, targets:[{inputPath: path.resolve('target/lib'), input:'target/lib', output:'../js', runtimeOptions: {}}]}]);
 			targets.should.have.length(1);
 		});
 	});
@@ -50,33 +50,29 @@ describe('Builder', function () {
 		});
 		describe('with a single coffee file', function () {
 			it('should build 1 js file', function (done) {
-				this.builder.build('buddy_single-file.js')
-					.then(function (filepaths) {
-						fs.existsSync(filepaths[0]).should.be.true;
-						done();
-					});
+				this.builder.build('buddy_single-file.js', null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					done();
+				});
 			});
 		});
 		describe('with a single coffee file containing a multi-line comment', function () {
 			it('should build 1 js file', function (done) {
-				this.builder.build('buddy_single-file-multi-comment.js')
-					.then(function (filepaths) {
-						fs.existsSync(filepaths[0]).should.be.true;
-						done();
-					});
+				this.builder.build('buddy_single-file-multi-comment.js', null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					done();
+				});
 			});
 		});
 		describe('with a single coffee file requiring 1 dependency', function () {
 			it('should build 1 js file with 2 modules', function (done) {
-				this.builder.build('buddy_single-file-with-dependency.js')
-					.then(function (filepaths) {
-						fs.existsSync(filepaths[0]).should.be.true;
-						var contents = fs.readFileSync(filepaths[0], 'utf8');
-						console.log(contents)
-						contents.should.include("require.register('package/Class'");
-						contents.should.include("require.register('package/ClassCamelCase'");
-						done();
-					});
+				this.builder.build('buddy_single-file-with-dependency.js', null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					var contents = fs.readFileSync(filepaths[0], 'utf8');
+					contents.should.include("require.register('package/Class'");
+					contents.should.include("require.register('package/ClassCamelCase'");
+					done();
+				});
 			});
 		});
 		describe('with a single coffee file containing a module wrapper', function () {

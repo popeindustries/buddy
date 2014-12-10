@@ -39,136 +39,168 @@ describe('file', function () {
 
 	describe('workflow', function () {
 		describe('load()', function () {
-			it('should load and store js file contents', function () {
+			it('should load and store js file contents', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
-				instance.load();
-				instance.content.should.eql(instance.originalContent);
-				instance.content.should.eql("module.exports = 'main';\n");
+				instance.load(function (err) {
+					instance.content.should.eql(instance.originalContent);
+					instance.content.should.eql("module.exports = 'main';\n");
+					done();
+				});
 			});
 		});
 
 		describe('wrap()', function () {
-			it('should wrap js file contents in a module definition', function () {
+			it('should wrap js file contents in a module definition', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.id = 'main';
 				instance.content = "module.exports = 'main';";
-				instance.wrap();
-				instance.content.should.eql("require.register('main', function(module, exports, require) {\n  module.exports = 'main';\n});");
+				instance.wrap(function (err) {
+					instance.content.should.eql("require.register('main', function(module, exports, require) {\n  module.exports = 'main';\n});");
+					done();
+				});
 			});
-			it('should wrap js file contents in a lazy module definition', function () {
+			it('should wrap js file contents in a lazy module definition', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')], runtimeOptions:{lazy:true}});
 				instance.id = 'main';
 				instance.content = "module.exports = 'main';";
-				instance.wrap();
-				instance.content.should.eql("require.register(\'main\', module.exports = \'main\';);");
+				instance.wrap(function (err) {
+					instance.content.should.eql("require.register(\'main\', module.exports = \'main\';);");
+					done();
+				});
 			});
 		});
 
 		describe('escape()', function () {
-			it('should transform js file contents into an escaped string', function () {
+			it('should transform js file contents into an escaped string', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = "module.exports = 'main';";
-				instance.escape();
-				instance.content.should.eql('"module.exports = \'main\';"');
+				instance.escape(function (err) {
+					instance.content.should.eql('"module.exports = \'main\';"');
+					done();
+				});
 			});
 		});
 
 		describe('lint()', function () {
-			it('should skip compileable files', function () {
+			it('should skip compileable files', function (done) {
 				var instance = fileFactory(path.resolve('src/main.coffee'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				var warnings = instance.lint();
-				should.not.exist(warnings);
+				instance.lint(function (err, warnings) {
+					should.not.exist(warnings);
+					done();
+				});
 			});
-			it('should not return lint errors for well written js content configured with .eslintrc file', function () {
+			it('should not return lint errors for well written js content configured with .eslintrc file', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				var warnings = instance.lint()
-				should.not.exist(warnings);
+				instance.lint(function (err, warnings) {
+					should.not.exist(warnings);
+					done();
+				});
 			});
-			it('should return lint errors for badly written js content', function () {
+			it('should return lint errors for badly written js content', function (done) {
 				var instance = fileFactory(path.resolve('src/main-bad.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				var warnings = instance.lint();
-				should.exist(warnings);
+				instance.lint(function (err, warnings) {
+					should.exist(warnings);
+					done();
+				});
 			});
-			it('should return lint errors for badly written css content', function () {
+			it('should return lint errors for badly written css content', function (done) {
 				var instance = fileFactory(path.resolve('src/main-bad.css'), {type:'css', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				var warnings = instance.lint();
-				should.exist(warnings);
+				instance.lint(function (err, warnings) {
+					should.exist(warnings);
+					done();
+				});
 			});
 		});
 
 		describe('compress()', function () {
-			it('should compress js file contents', function () {
+			it('should compress js file contents', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = "var foo = 'foo';\nmodule.exports = 'main';";
-				instance.compress();
-				instance.content.should.eql('var foo="foo";module.exports="main";');
+				instance.compress(function (err) {
+					instance.content.should.eql('var foo="foo";module.exports="main";');
+					done()
+				});
 			});
-			it('should compress css file contents', function () {
+			it('should compress css file contents', function (done) {
 				var instance = fileFactory(path.resolve('src/main.css'), {type:'css', sources:[path.resolve('src')]});
 				instance.content = "body {\n	background-color: black;\n}"
-				instance.compress();
-				instance.content.should.eql("body{background-color:#000}");
+				instance.compress(function (err) {
+					instance.content.should.eql("body{background-color:#000}");
+					done()
+				});
 			});
 		});
 
 		describe('parse()', function () {
-			it('should store an array of js dependencies', function () {
+			it('should store an array of js dependencies', function (done) {
 				var options = {type:'js', sources:[path.resolve('src')]}
 					, foo = fileFactory(path.resolve('src/foo.js'), options)
 					, bar = fileFactory(path.resolve('src/bar.js'), options)
 					, instance = fileFactory(path.resolve('src/main.js'), options);
 				instance.content = "var foo = require('./foo');\nvar bar = require('./bar');"
-				var dependencies = instance.parse()
-				instance.dependencies.should.eql(dependencies);
-				instance.dependencies.should.have.length(2);
+				instance.parse(function (err, dependencies) {
+					instance.dependencies.should.eql(dependencies);
+					instance.dependencies.should.have.length(2);
+					done();
+				});
 			});
-			it('should store an array of css dependency objects', function () {
+			it('should store an array of css dependency objects', function (done) {
 				var options = {type:'css', sources:[path.resolve('src')]}
 					, foo = fileFactory(path.resolve('src/foo.css'), options)
 					, instance = fileFactory(path.resolve('src/main.css'), options);
 				instance.content = "@import 'foo'"
-				instance.parse();
-				instance.dependencies.should.have.length(1);
+				instance.parse(function (err, dependencies) {
+					instance.dependencies.should.have.length(1);
+					done();
+				});
 			});
-			it('should store an array of html dependency objects', function () {
+			it('should store an array of html dependency objects', function (done) {
 				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:[ 'html', 'dust']}
 					, foo = fileFactory(path.resolve('src/foo.dust'), options)
 					, instance = fileFactory(path.resolve('src/main.dust'), options);
 				instance.content = "{>foo /}"
-				instance.parse();
-				instance.dependencies.should.have.length(1);
+				instance.parse(function (err, dependencies) {
+					instance.dependencies.should.have.length(1);
+					done();
+				});
 			});
-			it('should store an array of html "inline" dependency objects', function () {
+			it('should store an array of html "inline" dependency objects', function (done) {
 				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:[ 'html', 'dust']}
 					, foo = fileFactory(path.resolve('src/foo.js'), options)
 					, instance = fileFactory(path.resolve('src/main.dust'), options);
 				instance.content = '<script inline src="foo.js"></script>';
-				instance.parse();
-				instance.dependencies.should.have.length(1);
+				instance.parse(function (err, dependencies) {
+					instance.dependencies.should.have.length(1);
+					done();
+				});
 			});
-			it('should only store 1 dependency object when there are duplicates', function () {
+			it('should only store 1 dependency object when there are duplicates', function (done) {
 				var options = {type:'js', sources:[path.resolve('src')]}
 					, foo = fileFactory(path.resolve('src/foo.js'), options)
 					, instance = fileFactory(path.resolve('src/main.js'), options);
 				instance.content = "var foo = require('./foo');\nvar foo = require('./foo');"
-				instance.parse();
-				instance.dependencies.should.have.length(1);
+				instance.parse(function (err, dependencies) {
+					instance.dependencies.should.have.length(1);
+					done();
+				});
 			});
-			it('should store 2 dependency objects when there are case sensitive package references', function () {
+			it('should store 2 dependency objects when there are case sensitive package references', function (done) {
 				var options = {type:'js', sources:[path.resolve('src')]}
 					, instance = fileFactory(path.resolve('src/main.js'), options);
 				instance.content = "var bat = require('bar');\nvar boo = require('Boo');"
-				instance.parse();
-				instance.dependencies.should.have.length(2);
+				instance.parse(function (err, dependencies) {
+					instance.dependencies.should.have.length(2);
+					done();
+				});
 			});
 		});
 
 		describe('replaceReferences()', function () {
-			it('should replace relative ids with absolute ones', function () {
+			it('should replace relative ids with absolute ones', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = "var foo = require('./foo');";
 				instance.dependencyReferences = [
@@ -178,10 +210,12 @@ describe('file', function () {
 						instance: {id:'foo'}
 					}
 				];
-				instance.replaceReferences();
-				instance.content.should.eql("var foo = require('foo');");
+				instance.replaceReferences(function (err) {
+					instance.content.should.eql("var foo = require('foo');");
+					done();
+				});
 			});
-			it('should replace package ids with versioned ones', function () {
+			it('should replace package ids with versioned ones', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = "var bar = require('bar');\nvar baz = require('view/baz');";
 				instance.dependencyReferences = [
@@ -196,28 +230,34 @@ describe('file', function () {
 						instance: {id: 'view/baz'}
 					}
 				];
-				instance.replaceReferences();
-				instance.content.should.eql("var bar = require('bar@0');\nvar baz = require('view/baz');");
+				instance.replaceReferences(function (err) {
+					instance.content.should.eql("var bar = require('bar@0');\nvar baz = require('view/baz');");
+					done();
+				});
 			});
 		});
 
 		describe('replaceEnvironment()', function () {
-			it('should inline calls to process.env', function () {
+			it('should inline calls to process.env', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = "process.env.NODE_ENV process.env['NODE_ENV'] process.env[\"NODE_ENV\"]";
-				instance.replaceEnvironment()
-				instance.content.should.eql("'test' 'test' 'test'");
+				instance.replaceEnvironment(function (err) {
+					instance.content.should.eql("'test' 'test' 'test'");
+					done()
+				});
 			});
-			it('should handle undefined values when inlining calls to process.env', function () {
+			it('should handle undefined values when inlining calls to process.env', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = "process.env.FEATURE_FOO";
-				instance.replaceEnvironment()
-				instance.content.should.eql("undefined");
+				instance.replaceEnvironment(function (err) {
+					instance.content.should.eql("undefined");
+					done()
+				});
 			});
 		});
 
 		describe('inline()', function () {
-			it('should inline require(*.json) content', function () {
+			it('should inline require(*.json) content', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = "var foo = require('./foo.json');";
 				instance.dependencyReferences = [
@@ -229,10 +269,12 @@ describe('file', function () {
 						context: "require('./foo.json')"
 					}
 				];
-				instance.inline()
-				instance.content.should.eql('var foo = {\"foo\":\"bar\"};');
+				instance.inline(function (err) {
+					instance.content.should.eql('var foo = {\"foo\":\"bar\"};');
+					done()
+				});
 			});
-			it('should inline an empty object when unable to locate require(*.json) content', function () {
+			it('should inline an empty object when unable to locate require(*.json) content', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = "var foo = require('./bar.json');";
 				instance.dependencyReferences = [
@@ -244,10 +286,12 @@ describe('file', function () {
 						context: "require('./bar.json')"
 					}
 				];
-				instance.inline()
-				instance.content.should.eql('var foo = {};');
+				instance.inline(function (err) {
+					instance.content.should.eql('var foo = {};');
+					done()
+				});
 			});
-			it('should replace css @import rules with file contents', function () {
+			it('should replace css @import rules with file contents', function (done) {
 				var instance = fileFactory(path.resolve('src/main.css'), {type:'css', sources:[path.resolve('src')]});
 				instance.content = "@import 'foo'\nbody {\n\tbackground-color: black;\n}";
 				instance.dependencyReferences = [
@@ -260,10 +304,12 @@ describe('file', function () {
 						}
 					}
 				];
-				instance.inline()
-				instance.content.should.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
+				instance.inline(function (err) {
+					instance.content.should.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
+					done()
+				});
 			});
-			it('should replace css @import rules with file contents, allowing duplicates', function () {
+			it('should replace css @import rules with file contents, allowing duplicates', function (done) {
 				var instance = fileFactory(path.resolve('src/main.css'), {type:'css', sources:[path.resolve('src')]});
 				instance.content = "@import 'foo'\n@import 'foo'";
 				instance.dependencyReferences = [
@@ -276,8 +322,10 @@ describe('file', function () {
 						}
 					}
 				];
-				instance.inline()
-				instance.content.should.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
+				instance.inline(function (err) {
+					instance.content.should.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
+					done()
+				});
 			});
 		});
 
