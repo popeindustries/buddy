@@ -1,6 +1,5 @@
 var path = require('path')
 	, fs = require('fs')
-	, co = require('co')
 	, should = require('should')
 	, rimraf = require('rimraf')
 	, fileFactory = require('../lib/core/file')

@@ -1,6 +1,5 @@
 var path = require('path')
 	, fs = require('fs')
-	, co = require('co')
 	, should = require('should')
 	, fileFactory = require('../lib/core/file')
 	, identifyResource = require('identify-resource')

@@ -85,6 +85,16 @@ describe('Builder', function () {
 				});
 			});
 		});
+		describe('with a single es6 file', function () {
+			it('should build 1 js file', function (done) {
+				this.builder.build('buddy_single-es6-file.js', null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					var contents = fs.readFileSync(filepaths[0], 'utf8');
+					contents.should.match(/nums\.map\(function \(n\) {/);
+					done();
+				});
+			});
+		});
 		describe('with a single handlebars template file', function () {
 			it('should build 1 js file', function (done) {
 				this.builder.build('buddy_single-handlebars-file.js', null, function (err, filepaths) {
