@@ -1,17 +1,18 @@
 # Changelog
 
-**2.0.0** - xx, 2014
-* internal re-write for node v0.12
+**2.0.0** - Dec 11, 2014
+* compile es6 js files to vanilla es5 (use file extension `.es6`)
+* properly handle module aliasing in `package.json>browser`
 * default source directory derived from `input` when no sources are specified
 * handle all dependencies correctly, including `inline` html assets and `require('*.json')`
 * properly handle node_module dependencies with different versions
 * properly handle resolution of deeply nested html template includes
 * ignore dependency warnings for native Node modules
 * launch application server if a path is specified in `server.file` when run with `buddy watch --serve`
-* target `output` is now optional, reverting to watch functionality only when run with `buddy watch`
+* add specify environment vars in `server` config
+* target `output` is now optional, reverting to watch functionality when run with `buddy watch`
 * target `input` and `output` accept arrays of files/directories
-* target `input` can be glob pattern
-* make sure that references to node_modules packages are case insensitive (`require('foo') === require('FOO')`)
+* target `input` accepts glob/expansion pattern
 * don't lint/parse prebuilt buddy or browserify bundles
 * add optional boolean `server` target property to force flagging a server target for shutdown/restart during `buddy watch --reload --serve` (in most cases this can be derived from `input`)
 

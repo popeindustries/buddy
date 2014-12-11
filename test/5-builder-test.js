@@ -3,7 +3,6 @@ require('../lib/utils/cnsl').silent = true;
 
 var path = require('path')
 	, fs = require('fs')
-	, co = require('co')
 	, rimraf = require('rimraf')
 	, should = require('should')
 	, Builder = require('../lib/builder')
@@ -36,11 +35,11 @@ describe('Builder', function () {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/init'));
 		});
 		it('should result in a target count of 1 for valid target data', function () {
-			var targets = this.builder._initializeTargets([{input: 'target/foo.js', output: 'main.js', runtimeOptions: {}}]);
+			var targets = this.builder.initializeTargets([{inputPath: path.resolve('target/foo.js'), input: 'target/foo.js', output: 'main.js', runtimeOptions: {}}]);
 			targets.should.have.length(1);
 		});
 		it('should result in a target count of 1 with valid target data containing a child target', function () {
-			var targets = this.builder._initializeTargets([{input: 'target/foo.js', output: 'main.js', hasChildren: true, runtimeOptions: {}, targets:[{input:'target/lib', output:'../js', runtimeOptions: {}}]}]);
+			var targets = this.builder.initializeTargets([{inputPath: path.resolve('target/foo.js'), input: 'target/foo.js', output: 'main.js', hasChildren: true, runtimeOptions: {}, targets:[{inputPath: path.resolve('target/lib'), input:'target/lib', output:'../js', runtimeOptions: {}}]}]);
 			targets.should.have.length(1);
 		});
 	});
@@ -82,6 +81,16 @@ describe('Builder', function () {
 					fs.existsSync(filepaths[0]).should.be.true;
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
 					contents.indexOf('require.register').should.eql(contents.lastIndexOf('require.register'));
+					done();
+				});
+			});
+		});
+		describe('with a single es6 file', function () {
+			it('should build 1 js file', function (done) {
+				this.builder.build('buddy_single-es6-file.js', null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					var contents = fs.readFileSync(filepaths[0], 'utf8');
+					contents.should.match(/nums\.map\(function \(n\) {/);
 					done();
 				});
 			});
