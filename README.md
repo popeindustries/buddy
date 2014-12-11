@@ -32,7 +32,7 @@ To avoid running **buddy** directly as a global command, and thus avoid versioni
 $ npm -g install buddy-cli
 ```
 
-...run `buddy init` or manually create a *package.json* file for each project, locally installing **buddy** as a `devDependency`:
+...create a *package.json* file for each project, locally installing **buddy** as a `devDependency`:
 
 ```json
 {
@@ -55,11 +55,12 @@ $ npm install
 ## Usage
 
 ```text
-Usage: buddy [options] <command> [path/to/package.json || path/to/buddy.js || path/to/buddy.json]
+Usage: buddy [options] <command> [path/to/package.json
+                                  || path/to/buddy.js
+                                  || path/to/buddy.json]
 
 Commands:
 
-  init                   set up a basic buddy project
   build [config]         build js and css sources
   watch [config]         watch js and css source files and build changes
   deploy [config]        build compressed js and css sources
@@ -70,11 +71,14 @@ Options:
 
   -h, --help             output usage information
   -V, --version          output the version number
-  -t, --targets [types]  optional comma separated list of target(s) to build [js,css,html]
+  -t, --targets [types]  optional comma separated list of target(s) to build
+                          [js,css,html]
   -c, --compress         compress output for production deployment
   -l, --lint             check output for syntax and logic errors
-  -r, --reload           reload all connected live-reload clients on file change during watch [ADD-ON buddy-server]
-  -s, --serve            create a webserver to serve static files during watch [ADD-ON buddy-server]
+  -r, --reload           reload all connected live-reload clients on file
+                          change during watch [ADD-ON buddy-server]
+  -s, --serve            create a webserver to serve static files
+                          during watch [ADD-ON buddy-server]
   -S, --script           run script on build completion
   -L, --lazy             convert js modules for lazy evaluation
   -v, --verbose          print all messages for debugging
@@ -124,7 +128,6 @@ Specifying aliases allow you to override the default behaviour for automatically
 
 ```json
 {
-  ...
   "buddy": {
     "js": {
       "targets": [
@@ -148,9 +151,9 @@ var jquery = require('jquery')
 
 ## Server
 
-When developing locally, the **buddy-server** add-on and `buddy watch --serve` command will start a simple webserver on `localhost` to test against. Adding the `--reload` flag will take it further by enabling automatic reloading of connected browsers through a [livereload](http://livereload.com) plugin. Specifying a `file` path will start/restart a custom application server instead of the default development server.
+When developing locally, the **buddy-server** add-on and `buddy watch --serve` command will start a simple webserver on `localhost` to test against. Adding the `--reload` flag will enable automatic reloading of connected browsers through a [livereload](http://livereload.com) plugin. Specifying a `file` path will start/restart a custom application server instead of the default development server.
 
-Install the add-on alongside **buddy**, and see *[buddy-server](https://github.com/popeindustries/buddy-server)* for more info.
+Install the add-on alongside **buddy**, and see *[buddy-server](https://github.com/popeindustries/buddy-server)* for more details.
 
 ```json
 {
@@ -158,13 +161,14 @@ Install the add-on alongside **buddy**, and see *[buddy-server](https://github.c
     "buddy": "2.0.0",
     "buddy-server": "1.0.0"
   },
-  ...
   "buddy": {
     "server": {
       "port": 8000,
-      "file": "./index.js"
+      "file": "./index.js",
+      "env": {
+        "DEBUG": "*"
+      }
     }
-    ...
   }
 }
 ```
@@ -268,7 +272,6 @@ Generate `www/main.js` and an additional widget `www/widget.js` using shared sou
 
 ```json
 {
-  ...
   "buddy": {
     "build": {
       "js": {
@@ -295,7 +298,6 @@ Compile a directory of CoffeeScript files for Node.js, skipping module wrapping 
 
 ```json
 {
-  ...
   "buddy": {
     "build": {
       "js": {
@@ -317,7 +319,6 @@ Alias a custom build of *jquery*:
 
 ```json
 {
-  ...
   "buddy": {
     "build": {
       "js": {
@@ -344,7 +345,6 @@ Generate `www/main.js` by including `require()` boilerplate and automatically bo
 
 ```json
 {
-  ...
   "buddy": {
     "build": {
       "js": {
@@ -373,7 +373,6 @@ Generate `www/main.css` by concatenating all dependencies in `src/css` reference
 
 ```json
 {
-  ...
   "buddy": {
     "build": {
       "css": {
