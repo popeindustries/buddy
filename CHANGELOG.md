@@ -1,5 +1,8 @@
 # Changelog
 
+**2.1.0** - Dec 18, 2014
+* allow passing JSON config object to builder commands instead of config file (for non-CLI use)
+
 **2.0.0** - Dec 11, 2014
 * compile es6 js files to vanilla es5 (use file extension `.es6`)
 * properly handle module aliasing in `package.json>browser`

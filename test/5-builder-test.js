@@ -55,6 +55,24 @@ describe('Builder', function () {
 					done();
 				});
 			});
+			it('should build 1 js file when passed a JSON config object', function (done) {
+				this.builder.build({
+					build: {
+						"js": {
+							"sources": ["src/coffee"],
+							"targets": [
+								{
+									"input": "src/coffee/package/Class.coffee",
+									"output": "output"
+								}
+							]
+						}
+					}
+				}, null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					done();
+				});
+			});
 		});
 		describe('with a single coffee file containing a multi-line comment', function () {
 			it('should build 1 js file', function (done) {

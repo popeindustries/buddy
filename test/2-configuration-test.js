@@ -194,6 +194,30 @@ describe('configuration', function () {
 		it('should return validated file data for a package.json config file', function () {
 			should.exist(configuration.load('package.json').build);
 		});
+		it('should return validated file data for a passed in JSON object', function () {
+			should.exist(configuration.load({
+				build: {
+					js: {
+						sources: ['src'],
+						targets: [{
+							'input': 'src/main.js',
+							'output': 'js/main.js'
+						}]
+					},
+					css: {
+						sources: ['src'],
+						targets: [{
+							'input': 'src',
+							'output': 'css'
+						}]
+					},
+					html: {
+						sources: [],
+						targets: []
+					}
+				}
+			}).build);
+		});
 		it('should return an error when passed a reference to a malformed file', function () {
 			try {
 				configuration.load('buddy_bad.js')
