@@ -48,7 +48,7 @@
     "buddy": "./bin/buddy"
   },
   "scripts": {
-    "test": "NODE_ENV=test mocha --harmony --reporter spec --require should"
+    "test": "NODE_ENV=test mocha --reporter spec --require should"
   },
   "engines": {
     "node": ">=0.10.0"
