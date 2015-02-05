@@ -1,5 +1,8 @@
 # Changelog
 
+**2.2.0** - Feb 5, 2015
+* update dependencies
+
 **2.1.0** - Dec 18, 2014
 * allow passing JSON config object to builder commands instead of config file (for non-CLI use)
 
