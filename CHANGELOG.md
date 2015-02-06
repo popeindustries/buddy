@@ -1,5 +1,8 @@
 # Changelog
 
+**2.2.1** - Feb 6, 2015
+* fix for app server livereload
+
 **2.2.0** - Feb 5, 2015
 * update dependencies
 
