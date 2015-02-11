@@ -1,5 +1,8 @@
 # Changelog
 
+**2.3.0** - Feb 11, 2015
+* expose all system environment variables to forked app server during `buddy watch --serve`
+
 **2.2.1** - Feb 6, 2015
 * fix for app server livereload
 
