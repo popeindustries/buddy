@@ -1,7 +1,7 @@
 {
   "name": "buddy",
   "description": "A simple build tool for js/css/html projects.",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "build",
