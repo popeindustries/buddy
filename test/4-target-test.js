@@ -35,7 +35,7 @@ describe('target', function () {
 		it('should parse a directory "input" and return several File instances', function () {
 			this.target.inputPath = path.resolve('src/js');
 			this.target.isDir = true;
-			files = this.target.parse(true, path.resolve('src/js'), null, this.target.runtimeOptions);
+			files = this.target.parse(true, path.resolve('src/js'), /.js$/, this.target.runtimeOptions);
 			files.should.have.length(4);
 		});
 	});
