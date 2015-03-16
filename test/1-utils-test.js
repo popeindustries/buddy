@@ -67,10 +67,13 @@ describe('utils', function () {
 
 		describe('generate()', function () {
 			it('should generate a date based unique filename', function () {
-				path.basename(unique.generate('foo-%date%.js')).should.match(/foo\-(\d+)\.js/);
+				path.basename(unique.generate('foo-%date%.js', 'var foo = "foo"')).should.match(/foo\-(\d+)\.js/);
 			});
 			it('should generate a hash based unique filename', function () {
 				path.basename(unique.generate('foo-%hash%.js', 'var foo = "foo"')).should.match(/foo\-(.+)\.js/);
+			});
+			it('should remove the unique pattern if no content passed', function () {
+				path.basename(unique.generate('foo-%hash%.js')).should.eql('foo-.js');
 			});
 			it('should return the passed in pattern when not hash or date', function () {
 				path.basename(unique.generate('foo-%foo%.js')).should.eql('foo-%foo%.js');
