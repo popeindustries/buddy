@@ -138,7 +138,7 @@ describe('Builder', function () {
 			it('should build 1 js file with unique hashed name', function (done) {
 				this.builder.build('buddy_single-unique-file.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
-					path.basename(filepaths[0]).should.eql('foo-35a993272c713bfdda813b3e5dc78845.js');
+					path.basename(filepaths[0]).should.eql('foo-5d647a5ecf8c555d43302186c2a568b8.js');
 					done();
 				});
 			});
@@ -258,7 +258,7 @@ describe('Builder', function () {
 		it('should build 1 concatenated js file', function (done) {
 			this.builder.build('buddy.js', null, function (err, filepaths) {
 				filepaths.should.have.length(1);
-				fs.readFileSync(filepaths[0], 'utf8').should.endWith("require.register('model', function(module, exports, require) {\n  var app = require('app');\n  \n  module.exports = 'model';\n});\nrequire.register('view', function(module, exports, require) {\n  var app = require('app')\n  \t, model = require('model');\n  \n  module.exports = 'view';\n});\nrequire.register('app', function(module, exports, require) {\n  module.exports = 'app';\n  \n  var view = require('view')\n  \t, model = require('model');\n  \n});")
+				fs.readFileSync(filepaths[0], 'utf8').should.endWith('require.register(\'model\', function(module, exports, require) {\n  var app = require("app");\n  \n  module.exports = "model";\n});\nrequire.register(\'view\', function(module, exports, require) {\n  var app = require("app"),\n      model = require("model");\n  \n  module.exports = "view";\n});\nrequire.register(\'app\', function(module, exports, require) {\n  module.exports = "app";\n  \n  var view = require("view"),\n      model = require("model");\n});')
 				done();
 			});
 		});
@@ -295,7 +295,7 @@ describe('Builder', function () {
 				this.builder.build('buddy_wrapped.js', null, function (err, filepaths) {
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
 					contents.should.include("require.register('mainWrapped'");
-					contents.should.include("require.register('package/prewrapped'");
+					contents.should.include("require.register(\"package/prewrapped\"");
 					done();
 				});
 			});
@@ -344,8 +344,8 @@ describe('Builder', function () {
 			});
 			it('should contain 2 modules', function (done) {
 				this.builder.build('buddy.js', null, function (err, filepaths) {
-						var contents = fs.readFileSync(filepaths[0], 'utf8');
-						contents.should.include("require.register('main'");
+					var contents = fs.readFileSync(filepaths[0], 'utf8');
+					contents.should.include("require.register('main'");
 					contents.should.include("require.register('baz@0.0.0'");
 					done();
 				});
@@ -354,17 +354,17 @@ describe('Builder', function () {
 		describe('with a single js file requiring 1 local dependency requiring 1 npm dependency requiring 1 npm dependency', function () {
 			it('should build 1 js file', function (done) {
 				this.builder.build('buddy-sub.js', null, function (err, filepaths) {
-						filepaths.should.have.length(1);
+					filepaths.should.have.length(1);
 					fs.existsSync(filepaths[0]).should.be.true;
 					done();
 				});
 			});
 			it('should contain 4 modules', function (done) {
 				this.builder.build('buddy-sub.js', null, function (err, filepaths) {
-						var contents = fs.readFileSync(filepaths[0], 'utf8');
-						contents.should.include("require.register('main-sub'");
-						contents.should.include("require.register('nested/baz'");
-						contents.should.include("require.register('foo@0.0.0'");
+					var contents = fs.readFileSync(filepaths[0], 'utf8');
+					contents.should.include("require.register('main-sub'");
+					contents.should.include("require.register('nested/baz'");
+					contents.should.include("require.register('foo@0.0.0'");
 					contents.should.include("require.register('bar@0.0.0'");
 					done();
 				});
@@ -379,10 +379,10 @@ describe('Builder', function () {
 			});
 			it('should contain 2 modules', function (done) {
 				this.builder.build('buddy-nested.js', null, function (err, filepaths) {
-						var contents = fs.readFileSync(filepaths[0], 'utf8');
-						contents.should.include("require.register('bar@0.0.0'");
-						contents.should.include("require.register('bar/dist/commonjs/lib/bar@0.0.0'");
-					contents.should.include("exports.bar = require('bar/dist/commonjs/lib/bar@0.0.0');");
+					var contents = fs.readFileSync(filepaths[0], 'utf8');
+					contents.should.include("require.register('bar@0.0.0'");
+					contents.should.include("require.register('bar/dist/commonjs/lib/bar@0.0.0'");
+					contents.should.include("exports.bar = require(\"bar/dist/commonjs/lib/bar@0.0.0\");");
 					done();
 				});
 			});
