@@ -92,7 +92,7 @@ describe('file', function () {
 			it('should not return lint errors for well written js content configured with .eslintrc file', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				instance.lint(function (err, warnings) {
+				instance.lint(function (err, dependencies, warnings) {
 					should.not.exist(warnings);
 					done();
 				});
@@ -100,7 +100,7 @@ describe('file', function () {
 			it('should return lint errors for badly written js content', function (done) {
 				var instance = fileFactory(path.resolve('src/main-bad.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				instance.lint(function (err, warnings) {
+				instance.lint(function (err, dependencies, warnings) {
 					should.exist(warnings);
 					done();
 				});
@@ -108,7 +108,7 @@ describe('file', function () {
 			it('should return lint errors for badly written css content', function (done) {
 				var instance = fileFactory(path.resolve('src/main-bad.css'), {type:'css', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				instance.lint(function (err, warnings) {
+				instance.lint(function (err, dependencies, warnings) {
 					should.exist(warnings);
 					done();
 				});
