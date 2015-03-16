@@ -1,6 +1,3 @@
-// Debug settings
-require('../lib/utils/cnsl').silent = true;
-
 var path = require('path')
 	, fs = require('fs')
 	, rimraf = require('rimraf')
