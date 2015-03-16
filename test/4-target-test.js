@@ -35,7 +35,7 @@ describe('target', function () {
 		it('should parse a directory "input" and return several File instances', function () {
 			this.target.inputPath = path.resolve('src/js');
 			this.target.isDir = true;
-			files = this.target.parse(true, path.resolve('src/js'), null, this.target.runtimeOptions);
+			files = this.target.parse(true, path.resolve('src/js'), /.js$/, this.target.runtimeOptions);
 			files.should.have.length(4);
 		});
 	});
@@ -48,7 +48,7 @@ describe('target', function () {
 			var file1 = fileFactory(path.resolve('src/js/foo.js'), {type: 'js'})
 				, file2 = fileFactory(path.resolve('src/js/bar.js'), {type: 'js'});
 			this.target.process([file1, file2], [['load'], ['compile']], function (err, files) {
-				files[1].content.should.eql("var bat = require(\'./bat\')\n\t, baz = require(\'./baz\')\n\t, bar = this;");
+				files[1].content.should.eql('var bat = require("./bat"),\n    baz = require("./baz"),\n    bar = this;');
 				done();
 			});
 		});
