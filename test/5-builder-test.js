@@ -100,7 +100,7 @@ describe('Builder', function () {
 				});
 			});
 		});
-		describe('with a single es6 file', function () {
+		describe.skip('with a single es6 file', function () {
 			it('should build 1 js file', function (done) {
 				this.builder.build('buddy_single-es6-file.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
@@ -138,7 +138,7 @@ describe('Builder', function () {
 			it('should build 1 js file with unique hashed name', function (done) {
 				this.builder.build('buddy_single-unique-file.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
-					path.basename(filepaths[0]).should.eql('foo-5d647a5ecf8c555d43302186c2a568b8.js');
+					path.basename(filepaths[0]).should.eql('foo-35a993272c713bfdda813b3e5dc78845.js');
 					done();
 				});
 			});
@@ -258,7 +258,7 @@ describe('Builder', function () {
 		it('should build 1 concatenated js file', function (done) {
 			this.builder.build('buddy.js', null, function (err, filepaths) {
 				filepaths.should.have.length(1);
-				fs.readFileSync(filepaths[0], 'utf8').should.endWith('require.register(\'model\', function(module, exports, require) {\n  var app = require("app");\n  \n  module.exports = "model";\n});\nrequire.register(\'view\', function(module, exports, require) {\n  var app = require("app"),\n      model = require("model");\n  \n  module.exports = "view";\n});\nrequire.register(\'app\', function(module, exports, require) {\n  module.exports = "app";\n  \n  var view = require("view"),\n      model = require("model");\n});')
+				fs.readFileSync(filepaths[0], 'utf8').should.endWith('require.register(\'model\', function(module, exports, require) {\n  var app = require(\'app\');\n  \n  module.exports = \'model\';\n});\nrequire.register(\'view\', function(module, exports, require) {\n  var app = require(\'app\')\n  \t, model = require(\'model\');\n  \n  module.exports = \'view\';\n});\nrequire.register(\'app\', function(module, exports, require) {\n  module.exports = \'app\';\n  \n  var view = require(\'view\')\n  \t, model = require(\'model\');\n  \n});')
 				done();
 			});
 		});
@@ -295,7 +295,7 @@ describe('Builder', function () {
 				this.builder.build('buddy_wrapped.js', null, function (err, filepaths) {
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
 					contents.should.include("require.register('mainWrapped'");
-					contents.should.include("require.register(\"package/prewrapped\"");
+					contents.should.include("require.register('package/prewrapped'");
 					done();
 				});
 			});
@@ -382,7 +382,7 @@ describe('Builder', function () {
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
 					contents.should.include("require.register('bar@0.0.0'");
 					contents.should.include("require.register('bar/dist/commonjs/lib/bar@0.0.0'");
-					contents.should.include("exports.bar = require(\"bar/dist/commonjs/lib/bar@0.0.0\");");
+					contents.should.include("exports.bar = require('bar/dist/commonjs/lib/bar@0.0.0');");
 					done();
 				});
 			});

@@ -80,38 +80,34 @@ describe('file', function () {
 			});
 		});
 
-		describe('lint()', function () {
+		describe.only('lint()', function () {
 			it('should skip compileable files', function (done) {
 				var instance = fileFactory(path.resolve('src/main.coffee'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				instance.lint(function (err, warnings) {
-					should.not.exist(warnings);
-					done();
-				});
+				var warnings = instance.lint();
+				should.not.exist(warnings);
+				done();
 			});
 			it('should not return lint errors for well written js content configured with .eslintrc file', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				instance.lint(function (err, dependencies, warnings) {
-					should.not.exist(warnings);
-					done();
-				});
+				var warnings = instance.lint();
+				should.not.exist(warnings);
+				done();
 			});
 			it('should return lint errors for badly written js content', function (done) {
 				var instance = fileFactory(path.resolve('src/main-bad.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				instance.lint(function (err, dependencies, warnings) {
-					should.exist(warnings);
-					done();
-				});
+				var warnings = instance.lint();
+				should.exist(warnings);
+				done();
 			});
 			it('should return lint errors for badly written css content', function (done) {
 				var instance = fileFactory(path.resolve('src/main-bad.css'), {type:'css', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
-				instance.lint(function (err, dependencies, warnings) {
-					should.exist(warnings);
-					done();
-				});
+				var warnings = instance.lint();
+				should.exist(warnings);
+				done();
 			});
 		});
 
