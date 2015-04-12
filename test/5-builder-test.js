@@ -3,7 +3,7 @@ var path = require('path')
 	, rimraf = require('rimraf')
 	, should = require('should')
 	, Builder = require('../lib/builder')
-	, configuration = require('../lib/core/configuration');
+	, configuration = require('../lib/configuration');
 
 function gatherFiles (dir, files) {
 	files = files || [];
@@ -258,7 +258,7 @@ describe('Builder', function () {
 		it('should build 1 concatenated js file', function (done) {
 			this.builder.build('buddy.js', null, function (err, filepaths) {
 				filepaths.should.have.length(1);
-				fs.readFileSync(filepaths[0], 'utf8').should.endWith('require.register(\'model\', function(module, exports, require) {\n  var app = require(\'app\');\n  \n  module.exports = \'model\';\n});\nrequire.register(\'view\', function(module, exports, require) {\n  var app = require(\'app\')\n  \t, model = require(\'model\');\n  \n  module.exports = \'view\';\n});\nrequire.register(\'app\', function(module, exports, require) {\n  module.exports = \'app\';\n  \n  var view = require(\'view\')\n  \t, model = require(\'model\');\n  \n});')
+				fs.readFileSync(filepaths[0], 'utf8').should.endWith("require.register(\'model\', function(module, exports, require) {\n  var app = require(\'app\');\n  \n  module.exports = \'model\';\n});\nrequire.register(\'view\', function(module, exports, require) {\n  var app = require(\'app\'),\n      model = require(\'model\');\n  \n  module.exports = \'view\';\n});\nrequire.register(\'app\', function(module, exports, require) {\n  module.exports = \'app\';\n  \n  var view = require(\'view\'),\n      model = require(\'model\');\n});")
 				done();
 			});
 		});

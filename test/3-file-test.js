@@ -1,7 +1,7 @@
 var path = require('path')
 	, fs = require('fs')
 	, should = require('should')
-	, fileFactory = require('../lib/core/file')
+	, fileFactory = require('../lib/file')
 	, identifyResource = require('identify-resource')
 
 describe('file', function () {
@@ -80,7 +80,7 @@ describe('file', function () {
 			});
 		});
 
-		describe.only('lint()', function () {
+		describe('lint()', function () {
 			it('should skip compileable files', function (done) {
 				var instance = fileFactory(path.resolve('src/main.coffee'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = fs.readFileSync(instance.filepath, 'utf8');
