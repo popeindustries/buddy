@@ -41,7 +41,7 @@ describe('file', function () {
 			it('should load and store js file contents', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.load(function (err) {
-					instance.content.should.eql(instance.originalContent);
+					instance.content.should.eql(instance.fileContent);
 					instance.content.should.eql("module.exports = 'main';\n");
 					done();
 				});
@@ -154,7 +154,7 @@ describe('file', function () {
 				});
 			});
 			it('should store an array of html dependency objects', function (done) {
-				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:[ 'html', 'dust']}
+				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:['html', 'dust']}
 					, foo = fileFactory(path.resolve('src/foo.dust'), options)
 					, instance = fileFactory(path.resolve('src/main.dust'), options);
 				instance.content = "{>foo /}"
@@ -164,10 +164,9 @@ describe('file', function () {
 				});
 			});
 			it('should store an array of html "inline" dependency objects', function (done) {
-				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:[ 'html', 'dust']}
-					, foo = fileFactory(path.resolve('src/foo.js'), options)
+				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:['html', 'dust']}
 					, instance = fileFactory(path.resolve('src/main.dust'), options);
-				instance.content = '<script inline src="foo.js"></script>';
+				instance.content = '<script inline src="src/foo.js"></script>';
 				instance.parse(function (err, dependencies) {
 					instance.dependencies.should.have.length(1);
 					done();
@@ -201,7 +200,7 @@ describe('file', function () {
 				instance.dependencyReferences = [
 					{
 						filepath:'./foo',
-						context: "require('./foo')",
+						match: "require('./foo')",
 						instance: {id:'foo'}
 					}
 				];
@@ -216,12 +215,12 @@ describe('file', function () {
 				instance.dependencyReferences = [
 					{
 						filepath:'bar',
-						context: "require('bar')",
+						match: "require('bar')",
 						instance: {id:'bar@0'}
 					},
 					{
 						filepath:'view/baz',
-						context: "require('view/baz')",
+						match: "require('view/baz')",
 						instance: {id: 'view/baz'}
 					}
 				];
@@ -261,7 +260,7 @@ describe('file', function () {
 							filepath: path.resolve('./src/foo.json'),
 						},
 						filepath: './foo.json',
-						context: "require('./foo.json')"
+						match: "require('./foo.json')"
 					}
 				];
 				instance.inline(function (err) {
@@ -278,7 +277,7 @@ describe('file', function () {
 							filepath: path.resolve('./src/bar.json'),
 						},
 						filepath: './bar.json',
-						context: "require('./bar.json')"
+						match: "require('./bar.json')"
 					}
 				];
 				instance.inline(function (err) {
@@ -292,7 +291,7 @@ describe('file', function () {
 				instance.dependencyReferences = [
 					{
 						filepath:'foo',
-						context: "@import 'foo'",
+						match: "@import 'foo'",
 						instance: {
 							dependencyReferences: [],
 							content: 'div {\n\twidth: 50%;\n}\n'
@@ -310,7 +309,7 @@ describe('file', function () {
 				instance.dependencyReferences = [
 					{
 						filepath:'foo',
-						context: "@import 'foo'",
+						match: "@import 'foo'",
 						instance: {
 							dependencyReferences: [],
 							content: 'div {\n\twidth: 50%;\n}\n'

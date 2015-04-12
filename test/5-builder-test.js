@@ -428,7 +428,7 @@ describe('Builder', function () {
 			});
 		});
 		describe('with 1 jade file with 2 includes', function () {
-			it('should build 1 html file', function (done) {
+			it.only('should build 1 html file', function (done) {
 				this.builder.build('buddy-include.js', null, function (err, filepaths) {
 						var filepath = filepaths[0]
 							, content = fs.readFileSync(filepath, 'utf8');
