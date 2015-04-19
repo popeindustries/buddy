@@ -6,7 +6,7 @@ var fs = require('fs')
 	, truncate = require('../lib/utils/truncate')
 	, unique = require('../lib/utils/unique');
 
-describe.only('utils', function () {
+describe('utils', function () {
 	describe('path', function () {
 		it('should return the dir/file name of a file', function () {
 			pathUtil.name(__filename).should.equal('test/1-utils-test.js');
