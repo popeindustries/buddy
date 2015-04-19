@@ -1,41 +1,37 @@
-var path = require('path')
-	, fs = require('fs')
+var fs = require('fs')
+	, path = require('path')
+	, pathUtil = require('../lib/utils/path')
+	, reEscape = require('../lib/utils/reEscape')
 	, rimraf = require('rimraf')
-	, filelog = require('../lib/utils/filelog')
+	, truncate = require('../lib/utils/truncate')
 	, unique = require('../lib/utils/unique');
 
-describe('utils', function () {
-	describe('filelog', function () {
-		before(function () {
-			process.chdir(path.resolve(__dirname, 'fixtures/utils/filelog'));
-			filelog.clean();
-			filelog.load();
+describe.only('utils', function () {
+	describe('path', function () {
+		it('should return the dir/file name of a file', function () {
+			pathUtil.name(__filename).should.equal('test/1-utils-test.js');
 		});
-		afterEach(function () {
-			filelog.clean();
+		it('should return the dir/file name of a file relative to current directory', function () {
+			pathUtil.name('package.json').should.equal('./package.json');
 		});
+	});
 
-		describe('add()', function () {
-			it('should persist added file references to disk', function () {
-				var f = ['some' + path.sep + 'file.js', 'some' + path.sep + 'other' + path.sep + 'file.js'];
-				var files = filelog.add(f);
-				var log = JSON.parse(fs.readFileSync(filelog.filename, 'utf8'));
-				log.should.eql(f);
-			});
-			it('should persist relative file paths to disk', function () {
-				var f = [path.resolve('some' + path.sep + 'absolute' + path.sep + 'file.js')];
-				var files = filelog.add(f);
-				var log = JSON.parse(fs.readFileSync(filelog.filename, 'utf8'));
-				log.should.eql(['some' + path.sep + 'absolute' + path.sep + 'file.js']);
-			});
+	describe('reEscape', function () {
+		it('should ignore valid characters', function () {
+			reEscape('foo').should.equal('foo');
 		});
+		it('should escape special RegExp characters', function () {
+			reEscape('foo/.&').should.equal('foo\\/\\.&');
+		});
+	});
 
-		describe('clean()', function () {
-			it('should clear all references from disk', function () {
-				filelog.clean();
-				var log = JSON.parse(fs.readFileSync(filelog.filename, 'utf8'));
-				log.should.eql([]);
-			});
+	describe('truncate', function () {
+		it('should ignore short strings', function () {
+			truncate('foo/bar').should.equal('foo/bar');
+		});
+		it('should truncate long strings', function () {
+			truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung').should.equal('foo/bar/boo/bat/bing/boooooooo...oooong/buuuuuuuuuuuuuuuuuuuung');
+			truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung').should.have.length(63);
 		});
 	});
 
