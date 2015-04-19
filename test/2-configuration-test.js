@@ -3,7 +3,7 @@ var path = require('path')
 	, should = require('should')
 	, configuration = require('../lib/configuration');
 
-describe('configuration', function () {
+describe.only('configuration', function () {
 	before(function () {
 		process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
 	});
