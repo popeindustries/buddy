@@ -3,7 +3,7 @@ var path = require('path')
 	, should = require('should')
 	, configuration = require('../lib/configuration');
 
-describe.only('configuration', function () {
+describe('configuration', function () {
 	before(function () {
 		process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
 	});
@@ -28,7 +28,7 @@ describe.only('configuration', function () {
 			it('should return a path to the named file in the specified directory when a directory and name are specified', function () {
 				configuration.locate('nested/buddy_custom_name.js').should.equal(path.resolve('nested', 'buddy_custom_name.js'));
 			});
-			it('should return an error when an invalid name is specified', function () {
+			it('should throw an error when an invalid name is specified', function () {
 				try {
 					configuration.locate('buddy_no_name.js')
 				} catch (err) {
@@ -39,13 +39,13 @@ describe.only('configuration', function () {
 
 		describe('from a valid child working directory', function () {
 			before(function () {
-				process.chdir(path.resolve('nested'));
+				process.chdir(path.resolve('src'));
 			});
 			after(function () {
 				process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
 			});
 			it('should return a path to the default file in a parent of the cwd when no name is specified', function () {
-				configuration.locate().should.equal(path.resolve('buddy.js'));
+				configuration.locate().should.equal(path.resolve('../buddy.js'));
 			});
 		});
 
@@ -70,7 +70,7 @@ describe.only('configuration', function () {
 		it('should return null when passed build data missing "targets"', function () {
 			should.not.exist(configuration.parse({js:{sources:['src']}}, {compress:false}));
 		});
-		it('should return null when passed build data with no "targets"', function () {
+		it('should return null when passed build data with empty "targets"', function () {
 			should.not.exist(configuration.parse({js:{sources:['src'],targets:[]}}, {compress:false}));
 		});
 		it('should allow passing build data "input" that doesn\'t exist', function () {
