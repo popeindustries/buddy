@@ -19,6 +19,9 @@ function gatherFiles (dir, files) {
 }
 
 describe('Builder', function () {
+	before(function () {
+		process.chdir(path.resolve(__dirname, 'fixtures/builder'));
+	});
 	beforeEach(function () {
 		this.builder = new Builder();
 	});
@@ -100,7 +103,7 @@ describe('Builder', function () {
 				});
 			});
 		});
-		describe.skip('with a single es6 file', function () {
+		describe('with a single es6 file', function () {
 			it('should build 1 js file', function (done) {
 				this.builder.build('buddy_single-es6-file.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
@@ -427,7 +430,7 @@ describe('Builder', function () {
 				});
 			});
 		});
-		describe('with 1 jade file with 2 includes', function () {
+		describe.skip('with 1 jade file with 2 includes', function () {
 			it('should build 1 html file', function (done) {
 				this.builder.build('buddy-include.js', null, function (err, filepaths) {
 						var filepath = filepaths[0]

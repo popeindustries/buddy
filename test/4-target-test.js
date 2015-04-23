@@ -48,7 +48,7 @@ describe('target', function () {
 			var file1 = fileFactory(path.resolve('src/js/foo.js'), {type: 'js'})
 				, file2 = fileFactory(path.resolve('src/js/bar.js'), {type: 'js'});
 			this.target.process([file1, file2], [['load'], ['compile']], function (err, files) {
-				files[1].content.should.eql("var bat = require('./bat'),\n    baz = require('./baz'),\n    bar = this;");
+				files[1].content.should.eql("var bat = require('./bat')\n	, baz = require('./baz')\n	, bar = this;");
 				done();
 			});
 		});
