@@ -433,10 +433,10 @@ describe('Builder', function () {
 		describe.skip('with 1 jade file with 2 includes', function () {
 			it('should build 1 html file', function (done) {
 				this.builder.build('buddy-include.js', null, function (err, filepaths) {
-						var filepath = filepaths[0]
-							, content = fs.readFileSync(filepath, 'utf8');
+					var filepath = filepaths[0]
+						, content = fs.readFileSync(filepath, 'utf8');
 
-						fs.existsSync(filepath).should.be.true;
+					fs.existsSync(filepath).should.be.true;
 					content.indexOf('<footer>').should.not.equal(-1);
 					done();
 				});
@@ -445,8 +445,8 @@ describe('Builder', function () {
 		describe('with 1 jade file and local data file', function () {
 			it('should build 1 html file', function (done) {
 				this.builder.build('buddy-data.js', null, function (err, filepaths) {
-						content = fs.readFileSync(filepaths[0], 'utf8');
-						fs.existsSync(filepaths[0]).should.be.true;
+					content = fs.readFileSync(filepaths[0], 'utf8');
+					fs.existsSync(filepaths[0]).should.be.true;
 					content.should.include('<h1>Title</h1>');
 					done();
 				});
@@ -455,11 +455,24 @@ describe('Builder', function () {
 		describe('with 1 dust file with nested includes', function () {
 			it('should build 1 html file', function (done) {
 				this.builder.build('buddy-include-dust.js', null, function (err, filepaths) {
-						var filepath = filepaths[0]
-							, content = fs.readFileSync(filepath, 'utf8');
+					var filepath = filepaths[0]
+						, content = fs.readFileSync(filepath, 'utf8');
 
-						fs.existsSync(filepath).should.be.true;
+					fs.existsSync(filepath).should.be.true;
 					content.should.include('<footer>');
+					done();
+				});
+			});
+		});
+		describe('with 1 nunjucks file with nested includes and inlineable content', function () {
+			it.skip('should build 1 html file', function (done) {
+				this.builder.build('buddy-include-inline.js', null, function (err, filepaths) {
+					console.log(err)
+					var filepath = filepaths[0]
+						, content = fs.readFileSync(filepath, 'utf8');
+
+					fs.existsSync(filepath).should.be.true;
+					content.should.include('var foo=\'foo\';');
 					done();
 				});
 			});
