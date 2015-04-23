@@ -209,6 +209,37 @@ describe('file', function () {
 					done();
 				});
 			});
+			it('should replace relative html include paths with absolute ones', function (done) {
+				var instance = fileFactory(path.resolve('src/main.dust'), {type:'html', sources:[path.resolve('src')]});
+				instance.content = "{>foo /}";
+				instance.dependencyReferences = [
+					{
+						filepath:'foo',
+						match: "{>foo ",
+						instance: {filepath:path.resolve('src/foo.dust')}
+					}
+				];
+				instance.replaceReferences(function (err) {
+					instance.content.should.eql('{>' + path.resolve('src/foo.dust') + ' /}');
+					done();
+				});
+			});
+			it('should replace relative html inline paths with absolute ones', function (done) {
+				var instance = fileFactory(path.resolve('src/main.dust'), {type:'html', sources:[path.resolve('src')]});
+				instance.content = '<script inline src="./main.js"></script>';
+				instance.dependencyReferences = [
+					{
+						filepath:'main.js',
+						match: '<script inline src="./main.js"></script>',
+						stack: [],
+						instance: {filepath:path.resolve('src/main.js')}
+					}
+				];
+				instance.replaceReferences(function (err) {
+					instance.dependencyReferences[0].filepath.should.eql(path.resolve('src/main.js'));
+					done();
+				});
+			});
 			it('should replace package ids with versioned ones', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.content = "var bar = require('bar');\nvar baz = require('view/baz');";

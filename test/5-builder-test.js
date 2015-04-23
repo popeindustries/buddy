@@ -452,7 +452,7 @@ describe('Builder', function () {
 				});
 			});
 		});
-		describe('with 1 dust file with nested includes', function () {
+		describe('with 1 dust file with nested includes and sidecar data file', function () {
 			it('should build 1 html file', function (done) {
 				this.builder.build('buddy-include-dust.js', null, function (err, filepaths) {
 					var filepath = filepaths[0]
@@ -460,6 +460,7 @@ describe('Builder', function () {
 
 					fs.existsSync(filepath).should.be.true;
 					content.should.include('<footer>');
+					content.should.include('<div>foo</div>');
 					done();
 				});
 			});
@@ -467,7 +468,7 @@ describe('Builder', function () {
 		describe('with 1 nunjucks file with nested includes and inlineable content', function () {
 			it.skip('should build 1 html file', function (done) {
 				this.builder.build('buddy-include-inline.js', null, function (err, filepaths) {
-					console.log(err)
+					console.log(err.stack)
 					var filepath = filepaths[0]
 						, content = fs.readFileSync(filepath, 'utf8');
 

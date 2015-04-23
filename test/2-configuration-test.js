@@ -150,7 +150,7 @@ describe('configuration', function () {
 			data.targets[0].outputPath.should.eql(path.resolve('js'));
 		});
 		it('should return an object with the correct processing workflow set for an html target', function () {
-			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'parse', 'compress'], ['compile', 'inline']]);
+			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'parse', 'replaceReferences', 'compress'], ['compile', 'inline']]);
 		});
 		it('should return an object with the correct processing workflow set for a css target', function () {
 			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'parse'], ['inline', 'compile']]);
