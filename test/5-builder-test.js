@@ -94,7 +94,7 @@ describe('Builder', function () {
 			});
 		});
 		describe('with a single coffee file containing a module wrapper', function () {
-			it('should build 1 js file containing only 1 module wrapper', function (done) {
+			it('should build 1 js file containing 1 module wrapper', function (done) {
 				this.builder.build('buddy_single-file-with-wrapper.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
@@ -466,14 +466,14 @@ describe('Builder', function () {
 			});
 		});
 		describe('with 1 nunjucks file with nested includes and inlineable content', function () {
-			it.skip('should build 1 html file', function (done) {
+			it('should build 1 html file', function (done) {
 				this.builder.build('buddy-include-inline.js', null, function (err, filepaths) {
-					console.log(err.stack)
 					var filepath = filepaths[0]
 						, content = fs.readFileSync(filepath, 'utf8');
 
 					fs.existsSync(filepath).should.be.true;
-					content.should.include('var foo=\'foo\';');
+					content.should.include('var foo = \'foo\';');
+					content.should.include('<div>foo</div>');
 					done();
 				});
 			});

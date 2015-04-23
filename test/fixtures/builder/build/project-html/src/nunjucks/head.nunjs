@@ -1,5 +1,5 @@
 <head>
 	<meta charset="utf-8">
 	<title>foo</title>
-	<script inline src="/test/fixtures/builder/project-html/foo.js"></script>
+	<script inline src="../bar.js"></script>
 </head>
