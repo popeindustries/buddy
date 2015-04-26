@@ -20,11 +20,11 @@ describe('file', function () {
 		});
 		it('should resolve a module id for a File instance', function () {
 			var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
-			instance.should.have.property('id', 'main');
+			instance.should.have.property('id', 'main.js');
 		});
 		it('should resolve a module id for an "index" File instance', function () {
 			var instance = fileFactory(path.resolve('src/index.js'), {type:'js', sources:[path.resolve('src')]});
-			instance.should.have.property('id', 'src');
+			instance.should.have.property('id', 'src/index.js');
 		});
 		it('should resolve a module id for a node_module "index" File instance ', function () {
 			var instance = fileFactory(path.resolve('node_modules/foo/index.js'), {type:'js', sources:[]});
@@ -358,7 +358,7 @@ describe('file', function () {
 			it('should execute a workflow in sequence', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.run(['load', 'wrap'], function () {
-					instance.content.should.eql("require.register('main', function(module, exports, require) {\n  module.exports = 'main';\n  \n});");
+					instance.content.should.eql("require.register('main.js', function(module, exports, require) {\n  module.exports = 'main';\n  \n});");
 					done();
 				});
 			});

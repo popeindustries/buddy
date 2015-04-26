@@ -56,7 +56,7 @@ describe('target', function () {
 			var file1 = fileFactory(path.resolve('src/js/foo.js'), {type: 'js'});
 			files = this.target.process([file1], [['load', 'parse', 'wrap']], function (err, files) {
 				files.should.have.length(1);
-				files[0].content.should.eql("require.register(\'src/js/foo\', function(module, exports, require) {\n  var bar = require(\'./bar\')\n  \t, foo = this;\n});");
+				files[0].content.should.eql("require.register(\'src/js/foo.js\', function(module, exports, require) {\n  var bar = require(\'./bar\')\n  \t, foo = this;\n});");
 				done();
 			});
 		});
