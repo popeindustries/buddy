@@ -28,7 +28,7 @@ describe('configuration', function () {
 			it('should return a path to the named file in the specified directory when a directory and name are specified', function () {
 				configuration.locate('nested/buddy_custom_name.js').should.equal(path.resolve('nested', 'buddy_custom_name.js'));
 			});
-			it('should return an error when an invalid name is specified', function () {
+			it('should throw an error when an invalid name is specified', function () {
 				try {
 					configuration.locate('buddy_no_name.js')
 				} catch (err) {
@@ -39,13 +39,13 @@ describe('configuration', function () {
 
 		describe('from a valid child working directory', function () {
 			before(function () {
-				process.chdir(path.resolve('nested'));
+				process.chdir(path.resolve('src'));
 			});
 			after(function () {
 				process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
 			});
 			it('should return a path to the default file in a parent of the cwd when no name is specified', function () {
-				configuration.locate().should.equal(path.resolve('buddy.js'));
+				configuration.locate().should.equal(path.resolve('../buddy.js'));
 			});
 		});
 
@@ -70,7 +70,7 @@ describe('configuration', function () {
 		it('should return null when passed build data missing "targets"', function () {
 			should.not.exist(configuration.parse({js:{sources:['src']}}, {compress:false}));
 		});
-		it('should return null when passed build data with no "targets"', function () {
+		it('should return null when passed build data with empty "targets"', function () {
 			should.not.exist(configuration.parse({js:{sources:['src'],targets:[]}}, {compress:false}));
 		});
 		it('should allow passing build data "input" that doesn\'t exist', function () {
@@ -150,7 +150,7 @@ describe('configuration', function () {
 			data.targets[0].outputPath.should.eql(path.resolve('js'));
 		});
 		it('should return an object with the correct processing workflow set for an html target', function () {
-			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'parse', 'compress'], ['compile', 'inline']]);
+			configuration.parse({html:{sources:['src'],targets:[{input:'src',output:'html'}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'parse', 'replaceReferences', 'compress'], ['compile', 'inline']]);
 		});
 		it('should return an object with the correct processing workflow set for a css target', function () {
 			configuration.parse({css:{sources:['src'],targets:[{input:'src',output:'css'}]}}, {compress:false}).targets[0].workflow.should.eql([['load', 'parse'], ['inline', 'compile']]);

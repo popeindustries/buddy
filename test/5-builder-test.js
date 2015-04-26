@@ -19,6 +19,9 @@ function gatherFiles (dir, files) {
 }
 
 describe('Builder', function () {
+	before(function () {
+		process.chdir(path.resolve(__dirname, 'fixtures/builder'));
+	});
 	beforeEach(function () {
 		this.builder = new Builder();
 	});
@@ -84,14 +87,14 @@ describe('Builder', function () {
 				this.builder.build('buddy_single-file-with-dependency.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
-					contents.should.include("require.register('package/Class'");
-					contents.should.include("require.register('package/ClassCamelCase'");
+					contents.should.include("require.register('package/Class.coffee'");
+					contents.should.include("require.register('package/ClassCamelCase.coffee'");
 					done();
 				});
 			});
 		});
 		describe('with a single coffee file containing a module wrapper', function () {
-			it('should build 1 js file containing only 1 module wrapper', function (done) {
+			it('should build 1 js file containing 1 module wrapper', function (done) {
 				this.builder.build('buddy_single-file-with-wrapper.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
@@ -100,7 +103,7 @@ describe('Builder', function () {
 				});
 			});
 		});
-		describe.skip('with a single es6 file', function () {
+		describe('with a single es6 file', function () {
 			it('should build 1 js file', function (done) {
 				this.builder.build('buddy_single-es6-file.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
@@ -138,7 +141,7 @@ describe('Builder', function () {
 			it('should build 1 js file with unique hashed name', function (done) {
 				this.builder.build('buddy_single-unique-file.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
-					path.basename(filepaths[0]).should.eql('foo-35a993272c713bfdda813b3e5dc78845.js');
+					path.basename(filepaths[0]).should.eql('foo-8a8ba6ffdabc4eb6087a7759f9733490.js');
 					done();
 				});
 			});
@@ -258,7 +261,7 @@ describe('Builder', function () {
 		it('should build 1 concatenated js file', function (done) {
 			this.builder.build('buddy.js', null, function (err, filepaths) {
 				filepaths.should.have.length(1);
-				fs.readFileSync(filepaths[0], 'utf8').should.endWith("require.register(\'model\', function(module, exports, require) {\n  var app = require(\'app\');\n  \n  module.exports = \'model\';\n});\nrequire.register(\'view\', function(module, exports, require) {\n  var app = require(\'app\'),\n      model = require(\'model\');\n  \n  module.exports = \'view\';\n});\nrequire.register(\'app\', function(module, exports, require) {\n  module.exports = \'app\';\n  \n  var view = require(\'view\'),\n      model = require(\'model\');\n});")
+				fs.readFileSync(filepaths[0], 'utf8').should.endWith("require.register(\'model.js\', function(module, exports, require) {\n  var app = require(\'app.js\');\n  \n  module.exports = \'model\';\n});\nrequire.register(\'view.js\', function(module, exports, require) {\n  var app = require(\'app.js\'),\n      model = require(\'model.js\');\n  \n  module.exports = \'view\';\n});\nrequire.register(\'app.js\', function(module, exports, require) {\n  module.exports = \'app\';\n  \n  var view = require(\'view.js\'),\n      model = require(\'model.js\');\n});")
 				done();
 			});
 		});
@@ -278,8 +281,8 @@ describe('Builder', function () {
 			it('should contain 2 modules', function (done) {
 				this.builder.build('buddy.js', null, function (err, filepaths) {
 						var contents = fs.readFileSync(filepaths[0], 'utf8');
-						contents.should.include("require.register('main'");
-					contents.should.include("require.register('package/ClassCamelCase'");
+						contents.should.include("require.register('main.js'");
+					contents.should.include("require.register('package/ClassCamelCase.js'");
 					done();
 				});
 			});
@@ -294,8 +297,8 @@ describe('Builder', function () {
 			it('should contain 2 modules', function (done) {
 				this.builder.build('buddy_wrapped.js', null, function (err, filepaths) {
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
-					contents.should.include("require.register('mainWrapped'");
-					contents.should.include("require.register('package/prewrapped'");
+					contents.should.include("require.register('mainWrapped.js'");
+					contents.should.include("require.register('package/prewrapped.js'");
 					done();
 				});
 			});
@@ -345,8 +348,8 @@ describe('Builder', function () {
 			it('should contain 2 modules', function (done) {
 				this.builder.build('buddy.js', null, function (err, filepaths) {
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
-					contents.should.include("require.register('main'");
-					contents.should.include("require.register('baz@0.0.0'");
+					contents.should.include("require.register('main.js'");
+					contents.should.include("require.register('baz#0.0.0'");
 					done();
 				});
 			});
@@ -362,10 +365,10 @@ describe('Builder', function () {
 			it('should contain 4 modules', function (done) {
 				this.builder.build('buddy-sub.js', null, function (err, filepaths) {
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
-					contents.should.include("require.register('main-sub'");
-					contents.should.include("require.register('nested/baz'");
-					contents.should.include("require.register('foo@0.0.0'");
-					contents.should.include("require.register('bar@0.0.0'");
+					contents.should.include("require.register('main-sub.js'");
+					contents.should.include("require.register('nested/baz.js'");
+					contents.should.include("require.register('foo#0.0.0'");
+					contents.should.include("require.register('bar#0.0.0'");
 					done();
 				});
 			});
@@ -380,9 +383,9 @@ describe('Builder', function () {
 			it('should contain 2 modules', function (done) {
 				this.builder.build('buddy-nested.js', null, function (err, filepaths) {
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
-					contents.should.include("require.register('bar@0.0.0'");
-					contents.should.include("require.register('bar/dist/commonjs/lib/bar@0.0.0'");
-					contents.should.include("exports.bar = require('bar/dist/commonjs/lib/bar@0.0.0');");
+					contents.should.include("require.register('bar#0.0.0'");
+					contents.should.include("require.register('bar/dist/commonjs/lib/bar.js#0.0.0'");
+					contents.should.include("exports.bar = require('bar/dist/commonjs/lib/bar.js#0.0.0');");
 					done();
 				});
 			});
@@ -427,13 +430,13 @@ describe('Builder', function () {
 				});
 			});
 		});
-		describe('with 1 jade file with 2 includes', function () {
+		describe.skip('with 1 jade file with 2 includes', function () {
 			it('should build 1 html file', function (done) {
 				this.builder.build('buddy-include.js', null, function (err, filepaths) {
-						var filepath = filepaths[0]
-							, content = fs.readFileSync(filepath, 'utf8');
+					var filepath = filepaths[0]
+						, content = fs.readFileSync(filepath, 'utf8');
 
-						fs.existsSync(filepath).should.be.true;
+					fs.existsSync(filepath).should.be.true;
 					content.indexOf('<footer>').should.not.equal(-1);
 					done();
 				});
@@ -442,21 +445,35 @@ describe('Builder', function () {
 		describe('with 1 jade file and local data file', function () {
 			it('should build 1 html file', function (done) {
 				this.builder.build('buddy-data.js', null, function (err, filepaths) {
-						content = fs.readFileSync(filepaths[0], 'utf8');
-						fs.existsSync(filepaths[0]).should.be.true;
+					content = fs.readFileSync(filepaths[0], 'utf8');
+					fs.existsSync(filepaths[0]).should.be.true;
 					content.should.include('<h1>Title</h1>');
 					done();
 				});
 			});
 		});
-		describe('with 1 dust file with nested includes', function () {
+		describe('with 1 dust file with nested includes and sidecar data file', function () {
 			it('should build 1 html file', function (done) {
 				this.builder.build('buddy-include-dust.js', null, function (err, filepaths) {
-						var filepath = filepaths[0]
-							, content = fs.readFileSync(filepath, 'utf8');
+					var filepath = filepaths[0]
+						, content = fs.readFileSync(filepath, 'utf8');
 
-						fs.existsSync(filepath).should.be.true;
+					fs.existsSync(filepath).should.be.true;
 					content.should.include('<footer>');
+					content.should.include('<div>foo</div>');
+					done();
+				});
+			});
+		});
+		describe('with 1 nunjucks file with nested includes and inlineable content', function () {
+			it('should build 1 html file', function (done) {
+				this.builder.build('buddy-include-inline.js', null, function (err, filepaths) {
+					var filepath = filepaths[0]
+						, content = fs.readFileSync(filepath, 'utf8');
+
+					fs.existsSync(filepath).should.be.true;
+					content.should.include('var foo = \'foo\';');
+					content.should.include('<div>foo</div>');
 					done();
 				});
 			});

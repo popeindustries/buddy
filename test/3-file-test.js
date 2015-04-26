@@ -20,19 +20,19 @@ describe('file', function () {
 		});
 		it('should resolve a module id for a File instance', function () {
 			var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
-			instance.should.have.property('id', 'main');
+			instance.should.have.property('id', 'main.js');
 		});
 		it('should resolve a module id for an "index" File instance', function () {
 			var instance = fileFactory(path.resolve('src/index.js'), {type:'js', sources:[path.resolve('src')]});
-			instance.should.have.property('id', 'src');
+			instance.should.have.property('id', 'src/index.js');
 		});
 		it('should resolve a module id for a node_module "index" File instance ', function () {
 			var instance = fileFactory(path.resolve('node_modules/foo/index.js'), {type:'js', sources:[]});
-			instance.should.have.property('id', 'foo@0.0.0');
+			instance.should.have.property('id', 'foo#0.0.0');
 		});
 		it('should resolve a module id for a node_modules package.json "main" File instance', function () {
 			var instance = fileFactory(path.resolve('node_modules/bar/bar.js'), {type:'js', sources:[]});
-			instance.should.have.property('id', 'bar@1.0.0');
+			instance.should.have.property('id', 'bar#1.0.0');
 		});
 	});
 
@@ -41,7 +41,7 @@ describe('file', function () {
 			it('should load and store js file contents', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.load(function (err) {
-					instance.content.should.eql(instance.originalContent);
+					instance.content.should.eql(instance.fileContent);
 					instance.content.should.eql("module.exports = 'main';\n");
 					done();
 				});
@@ -154,7 +154,7 @@ describe('file', function () {
 				});
 			});
 			it('should store an array of html dependency objects', function (done) {
-				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:[ 'html', 'dust']}
+				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:['html', 'dust']}
 					, foo = fileFactory(path.resolve('src/foo.dust'), options)
 					, instance = fileFactory(path.resolve('src/main.dust'), options);
 				instance.content = "{>foo /}"
@@ -164,10 +164,9 @@ describe('file', function () {
 				});
 			});
 			it('should store an array of html "inline" dependency objects', function (done) {
-				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:[ 'html', 'dust']}
-					, foo = fileFactory(path.resolve('src/foo.js'), options)
+				var options = {type:'html', sources:[path.resolve('src')], fileExtensions:['html', 'dust']}
 					, instance = fileFactory(path.resolve('src/main.dust'), options);
-				instance.content = '<script inline src="foo.js"></script>';
+				instance.content = '<script inline src="src/foo.js"></script>';
 				instance.parse(function (err, dependencies) {
 					instance.dependencies.should.have.length(1);
 					done();
@@ -201,12 +200,43 @@ describe('file', function () {
 				instance.dependencyReferences = [
 					{
 						filepath:'./foo',
-						context: "require('./foo')",
+						match: "require('./foo')",
 						instance: {id:'foo'}
 					}
 				];
 				instance.replaceReferences(function (err) {
 					instance.content.should.eql("var foo = require('foo');");
+					done();
+				});
+			});
+			it('should replace relative html include paths with absolute ones', function (done) {
+				var instance = fileFactory(path.resolve('src/main.dust'), {type:'html', sources:[path.resolve('src')]});
+				instance.content = "{>foo /}";
+				instance.dependencyReferences = [
+					{
+						filepath:'foo',
+						match: "{>foo ",
+						instance: {filepath:path.resolve('src/foo.dust')}
+					}
+				];
+				instance.replaceReferences(function (err) {
+					instance.content.should.eql('{>' + path.resolve('src/foo.dust') + ' /}');
+					done();
+				});
+			});
+			it('should replace relative html inline paths with absolute ones', function (done) {
+				var instance = fileFactory(path.resolve('src/main.dust'), {type:'html', sources:[path.resolve('src')]});
+				instance.content = '<script inline src="./main.js"></script>';
+				instance.dependencyReferences = [
+					{
+						filepath:'main.js',
+						match: '<script inline src="./main.js"></script>',
+						stack: [],
+						instance: {filepath:path.resolve('src/main.js')}
+					}
+				];
+				instance.replaceReferences(function (err) {
+					instance.dependencyReferences[0].filepath.should.eql(path.resolve('src/main.js'));
 					done();
 				});
 			});
@@ -216,12 +246,12 @@ describe('file', function () {
 				instance.dependencyReferences = [
 					{
 						filepath:'bar',
-						context: "require('bar')",
+						match: "require('bar')",
 						instance: {id:'bar@0'}
 					},
 					{
 						filepath:'view/baz',
-						context: "require('view/baz')",
+						match: "require('view/baz')",
 						instance: {id: 'view/baz'}
 					}
 				];
@@ -261,7 +291,7 @@ describe('file', function () {
 							filepath: path.resolve('./src/foo.json'),
 						},
 						filepath: './foo.json',
-						context: "require('./foo.json')"
+						match: "require('./foo.json')"
 					}
 				];
 				instance.inline(function (err) {
@@ -278,7 +308,7 @@ describe('file', function () {
 							filepath: path.resolve('./src/bar.json'),
 						},
 						filepath: './bar.json',
-						context: "require('./bar.json')"
+						match: "require('./bar.json')"
 					}
 				];
 				instance.inline(function (err) {
@@ -292,7 +322,7 @@ describe('file', function () {
 				instance.dependencyReferences = [
 					{
 						filepath:'foo',
-						context: "@import 'foo'",
+						match: "@import 'foo'",
 						instance: {
 							dependencyReferences: [],
 							content: 'div {\n\twidth: 50%;\n}\n'
@@ -310,7 +340,7 @@ describe('file', function () {
 				instance.dependencyReferences = [
 					{
 						filepath:'foo',
-						context: "@import 'foo'",
+						match: "@import 'foo'",
 						instance: {
 							dependencyReferences: [],
 							content: 'div {\n\twidth: 50%;\n}\n'
@@ -328,7 +358,7 @@ describe('file', function () {
 			it('should execute a workflow in sequence', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), {type:'js', sources:[path.resolve('src')]});
 				instance.run(['load', 'wrap'], function () {
-					instance.content.should.eql("require.register('main', function(module, exports, require) {\n  module.exports = 'main';\n  \n});");
+					instance.content.should.eql("require.register('main.js', function(module, exports, require) {\n  module.exports = 'main';\n  \n});");
 					done();
 				});
 			});

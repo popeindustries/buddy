@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+
+	{% include "./head.nunjs" %}
+
+	<body>
+	{% if foo %}
+		{% include "../foo.html" %}
+	{% endif %}
+
+		<div>
+			<p>bar</p>
+		</div>
+	</body>
+</html>
