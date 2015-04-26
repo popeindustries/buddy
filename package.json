@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "async": "0.9.0",
-    "buddy-cli": "popeindustries/buddy-cli",
+    "buddy-cli": "2.0.0",
     "chalk": "1.0.0",
     "csslint": "0.10.0",
     "csso": "1.3.11",
