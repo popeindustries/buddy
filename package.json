@@ -51,7 +51,8 @@
     "buddy": "./bin/buddy"
   },
   "scripts": {
-    "test": "NODE_ENV=test mocha --reporter spec --require should -t 10000"
+    "test": "NODE_ENV=test mocha --reporter spec --require should -t 10000",
+    "test-windows": "set NODE_ENV=test&&node.exe ./node_modules/mocha/bin/mocha --reporter spec --require should -t 20000"
   },
   "engines": {
     "node": ">=0.10.0"
