@@ -11,22 +11,22 @@ describe('configuration', function () {
 	describe('locate', function () {
 		describe('from a valid working directory', function () {
 			it('should return a path to the default js file when no name is specified', function () {
-				configuration.locate().should.equal(path.resolve('buddy.js'));
+				configuration.locate().toLowerCase().should.equal(path.resolve('buddy.js').toLowerCase());
 			});
 			it('should return a path to the named file when a name is specified', function () {
-				configuration.locate('buddy_custom_name.js').should.equal(path.resolve('buddy_custom_name.js'));
+				configuration.locate('buddy_custom_name.js').toLowerCase().should.equal(path.resolve('buddy_custom_name.js').toLowerCase());
 			});
 			it('should return a path to the default file in the specified directory when a directory name is specified', function () {
-				configuration.locate('nested').should.equal(path.resolve('nested', 'buddy.js'));
+				configuration.locate('nested').toLowerCase().should.equal(path.resolve('nested', 'buddy.js').toLowerCase());
 			});
 			it('should return a path to the default json file in the specified directory when a directory name is specified', function () {
-				configuration.locate('json').should.equal(path.resolve('json', 'buddy.json'));
+				configuration.locate('json').toLowerCase().should.equal(path.resolve('json', 'buddy.json').toLowerCase());
 			});
 			it('should return a path to the default package.json file in the specified directory when a directory name is specified', function () {
-				configuration.locate('pkgjson').should.equal(path.resolve('pkgjson', 'package.json'));
+				configuration.locate('pkgjson').toLowerCase().should.equal(path.resolve('pkgjson', 'package.json').toLowerCase());
 			});
 			it('should return a path to the named file in the specified directory when a directory and name are specified', function () {
-				configuration.locate('nested/buddy_custom_name.js').should.equal(path.resolve('nested', 'buddy_custom_name.js'));
+				configuration.locate('nested/buddy_custom_name.js').toLowerCase().should.equal(path.resolve('nested', 'buddy_custom_name.js').toLowerCase());
 			});
 			it('should throw an error when an invalid name is specified', function () {
 				try {
@@ -45,7 +45,7 @@ describe('configuration', function () {
 				process.chdir(path.resolve(__dirname, 'fixtures/configuration'));
 			});
 			it('should return a path to the default file in a parent of the cwd when no name is specified', function () {
-				configuration.locate().should.equal(path.resolve('../buddy.js'));
+				configuration.locate().toLowerCase().should.equal(path.resolve('../buddy.js').toLowerCase());
 			});
 		});
 
@@ -117,8 +117,8 @@ describe('configuration', function () {
 		});
 		it('should return an object with resolved "inputPath" and "outputPath" properties', function () {
 			var data = configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false});
-			data.targets[0].inputPath.should.eql(path.resolve('src/main.js'));
-			data.targets[0].outputPath.should.eql(path.resolve('js/main.js'));
+			data.targets[0].inputPath.toLowerCase().should.eql(path.resolve('src/main.js').toLowerCase());
+			data.targets[0].outputPath.toLowerCase().should.eql(path.resolve('js/main.js').toLowerCase());
 		});
 		it('should return an object with several valid targets when "input" and "output" are arrays', function () {
 			var data = configuration.parse({js:{sources:['src'],targets:[{input:['src/main.js','src/sub.js'],output:['js/main.js','js/sub.js']}]}}, {compress:false});
