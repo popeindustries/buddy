@@ -104,11 +104,11 @@ describe('Builder', function () {
 			});
 		});
 		describe('with a single es6 file', function () {
-			it('should build 1 js file', function (done) {
+			it.only('should build 1 js file', function (done) {
 				this.builder.build('buddy_single-es6-file.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
-					contents.should.match(/nums\.map\(function \(n\) {/);
+					contents.should.match(/\[1\, 2\, 3\, 4\]\.map\(function \(\) \{/);
 					done();
 				});
 			});
@@ -141,7 +141,7 @@ describe('Builder', function () {
 			it('should build 1 js file with unique hashed name', function (done) {
 				this.builder.build('buddy_single-unique-file.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
-					path.basename(filepaths[0]).should.eql('foo-8a8ba6ffdabc4eb6087a7759f9733490.js');
+					path.basename(filepaths[0]).should.eql('foo-9152f0e8901491238e526b1e458af83e.js');
 					done();
 				});
 			});
