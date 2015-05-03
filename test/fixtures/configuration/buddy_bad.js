@@ -12,10 +12,5 @@ exports = {
 			sources: [],
 			targets: []
 		}
-	},
-	config: {
-		plugins: {
-
-		}
 	}
 }

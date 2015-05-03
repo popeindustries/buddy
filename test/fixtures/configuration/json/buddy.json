@@ -1,22 +1,13 @@
 {
 	"build": {
-		"js": {
-			"sources": ["src/coffee"],
-			"targets": [{
-				"input": "src/coffee/main.coffee",
-				"output": "js/main.js"
-			}]
+		"sources": ["src/coffee", "src/stylus"],
+		"targets": [{
+			"input": "src/coffee/main.coffee",
+			"output": "js/main.js"
 		},
-		"css": {
-			"sources": ["src/stylus"],
-			"targets": [{
-				"input": "src/stylus",
-				"output": "css/main.css"
-			}]
-		},
-		"html": {
-			"sources": [],
-			"targets": []
-		}
+		{
+			"input": "src/stylus",
+			"output": "css/main.css"
+		}]
 	}
 }

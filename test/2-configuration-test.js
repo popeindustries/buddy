@@ -68,55 +68,55 @@ describe('configuration', function () {
 
 	describe('parse', function () {
 		it('should return null when passed build data missing "targets"', function () {
-			should.not.exist(configuration.parse({js:{sources:['src']}}, {compress:false}));
+			should.not.exist(configuration.parse({sources:['src']}, {compress:false}));
 		});
 		it('should return null when passed build data with empty "targets"', function () {
-			should.not.exist(configuration.parse({js:{sources:['src'],targets:[]}}, {compress:false}));
+			should.not.exist(configuration.parse({sources:['src'],targets:[]}, {compress:false}));
 		});
 		it('should allow passing build data "input" that doesn\'t exist', function () {
-			should.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/hey.js',output:'js'}]}}, {compress:false}));
+			should.exist(configuration.parse({sources:['src'],targets:[{input:'src/hey.js',output:'js'}]}, {compress:false}));
 		});
 		it('should throw an error when passed build data with directory "input" and a file "output"', function () {
 			try {
-				configuration.parse({js:{sources:['src'],targets:[{input:'src',output:'js/main.js'}]}}, {compress:false})
+				configuration.parse({sources:['src'],targets:[{input:'src',output:'js/main.js'}]}, {compress:false})
 			} catch (err) {
 				should.exist(err);
 			}
 			try {
-				configuration.parse({js:{sources:['src'],targets:[{input:['src/main.js','src'],output:['js/main.js','js/foo.js']}]}}, {compress:false})
+				configuration.parse({sources:['src'],targets:[{input:['src/main.js','src'],output:['js/main.js','js/foo.js']}]}, {compress:false})
 			} catch (err) {
 				should.exist(err);
 			}
 		});
 		it('should throw an error when passed build data with array of file "input" and a single file "output"', function () {
 			try {
-				configuration.parse({js:{sources:['src'],targets:[{input:['src/main.js','src/sub.js'],output:'js/main.js'}]}}, {compress:false})
+				configuration.parse({sources:['src'],targets:[{input:['src/main.js','src/sub.js'],output:'js/main.js'}]}, {compress:false})
 			} catch (err) {
 				should.exist(err);
 			}
 		});
 		it('should throw an error when passed build data with array of directory "input" and a single file "output"', function () {
 			try {
-				configuration.parse({js:{sources:['src'],targets:[{input:['src','src2'],output:'js/main.js'}]}}, {compress:false})
+				configuration.parse({sources:['src'],targets:[{input:['src','src2'],output:'js/main.js'}]}, {compress:false})
 			} catch (err) {
 				should.exist(err);
 			}
 		});
 		it('should throw an error when passed build data with file "input" and multiple "output"', function () {
 			try {
-				configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:['js/main.js', 'js/foo.js']}]}}, {compress:false})
+				configuration.parse({sources:['src'],targets:[{input:'src/main.js',output:['js/main.js', 'js/foo.js']}]}, {compress:false})
 			} catch (err) {
 				should.exist(err);
 			}
 		});
 		it('should return an object when passed valid build data', function () {
-			should.exist(configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js'}]}}, {compress:false}));
+			should.exist(configuration.parse({sources:['src'],targets:[{input:'src/main.js',output:'js/main.js'}]}, {compress:false}));
 		});
 		it('should return an object including valid child "targets"', function () {
-			configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js/main.js',targets:[{input:'src/sub.js',output:'js'}]}]}}, {compress:false}).targets[0].targets.should.have.length(1);
+			configuration.parse({sources:['src'],targets:[{input:'src/main.js',output:'js/main.js',targets:[{input:'src/sub.js',output:'js'}]}]}, {compress:false}).targets[0].targets.should.have.length(1);
 		});
-		it('should return an object with resolved "inputPath" and "outputPath" properties', function () {
-			var data = configuration.parse({js:{sources:['src'],targets:[{input:'src/main.js',output:'js'}]}}, {compress:false});
+		it.only('should return an object with resolved "inputPath" and "outputPath" properties', function () {
+			var data = configuration.parse({sources:['src'],targets:[{input:'src/main.js',output:'js'}]}, {compress:false});
 			data.targets[0].inputPath.toLowerCase().should.eql(path.resolve('src/main.js').toLowerCase());
 			data.targets[0].outputPath.toLowerCase().should.eql(path.resolve('js/main.js').toLowerCase());
 		});
