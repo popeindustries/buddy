@@ -1,6 +1,0 @@
-exports = {
-	build: {
-		sources: [],
-		targets: []
-	}
-}

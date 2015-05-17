@@ -1,0 +1,12 @@
+{
+	"build": {
+		"targets": [
+			{
+				"input": ["src/main.js", "src/main.css"],
+				"output": "www",
+				"bootstrap": true,
+				"boilerplate": true
+			}
+		]
+	}
+}

@@ -1,21 +1,12 @@
+'use strict';
+
 var fs = require('fs')
 	, path = require('path')
-	, pathUtil = require('../lib/utils/path')
 	, reEscape = require('../lib/utils/reEscape')
-	, rimraf = require('rimraf')
 	, truncate = require('../lib/utils/truncate')
 	, unique = require('../lib/utils/unique');
 
 describe('utils', function () {
-	describe('path', function () {
-		it('should return the dir/file name of a file', function () {
-			pathUtil.name(__filename).should.equal('test/1-utils-test.js');
-		});
-		it('should return the dir/file name of a file relative to current directory', function () {
-			pathUtil.name('package.json').should.equal('./package.json');
-		});
-	});
-
 	describe('reEscape', function () {
 		it('should ignore valid characters', function () {
 			reEscape('foo').should.equal('foo');
