@@ -142,3 +142,31 @@
 		]
 	}
 }
+
+{
+	build: {
+		targets: [
+			{
+				input: ['libs.js', 'node_modules/@yr/{gateway,extreme,search}/libs.js'],
+				output: 'www/libs.js',
+				alias: {
+					react: 'dist/react.js'
+				},
+				bootstrap: true,
+				targets: [
+					{
+						input: ['client.js', 'node_modules/@yr/{gateway,extreme,search}/client.js'],
+						output: 'www/%dirname%.js'
+					}
+				]
+			},
+			{
+				input: ['client.styl', 'node_modules/@yr/{gateway,extreme,search}/client.styl'],
+				output: 'www/index.css'
+			},
+			{
+				input: 'index.js'
+			}
+		]
+	}
+}
