@@ -21,7 +21,7 @@
     "eslint": "0.21.1",
     "glob": "5.0.6",
     "identify-resource": "4.1.0",
-    "inline-source": "2.1.0",
+    "inline-source": "4.0.0",
     "lodash": "3.8.0",
     "MD5": "1.2.1",
     "portscanner": "1.0.0",
