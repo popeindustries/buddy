@@ -67,4 +67,65 @@ describe('config', function () {
 			});
 		});
 	});
+
+	describe.only('parse', function () {
+		it('should allow passing build data "input" that doesn\'t exist', function () {
+			should.exist(config.parse({targets:[{input:'src/hey.js',output:'js'}]}));
+		});
+		it('should parse target "input"', function () {
+			var target = config.parse({input:'src/hey.js',output:'js'});
+			target.input.should.eql('src/hey.js');
+			target.inputPath.should.eql(path.resolve('src/hey.js'));
+		});
+		it('should parse target array "input"', function () {
+			var target = config.parse({input:['src/hey.js', 'src/ho.js'],output:'js'});
+			target.input.should.eql(['src/hey.js', 'src/ho.js']);
+			target.inputPath.should.eql([path.resolve('src/hey.js'), path.resolve('src/ho.js')]);
+		});
+		it('should parse target glob pattern "input"', function () {
+			var target = config.parse({input:'src/ma*.js',output:'js'});
+			target.input.should.eql('src/main.js');
+			target.inputPath.should.eql(path.resolve('src/main.js'));
+		});
+		it('should parse target glob pattern array "input"', function () {
+			var target = config.parse({input:'src/m*.js',output:'js'});
+			target.input.should.eql(['src/main.js', 'src/module.js']);
+			target.inputPath.should.eql([path.resolve('src/main.js'), path.resolve('src/module.js')]);
+		});
+		it('should parse target "output"', function () {
+			var target = config.parse({input:'src/hey.js',output:'js'});
+			target.output.should.eql('js');
+			target.outputPath.should.eql(path.resolve('js'));
+		});
+		it('should parse target array "output"', function () {
+			var target = config.parse({input:['src/hey.js', 'src/ho.js'],output:['js', 'js2']});
+			target.output.should.eql(['js', 'js2']);
+			target.outputPath.should.eql([path.resolve('js'), path.resolve('js2')]);
+		});
+		it('should parse target array "output_compressed"', function () {
+			var target = config.parse({input:['src/hey.js', 'src/ho.js'],output:['js', 'js2'], output_compressed:['c', 'c2']}, {runtimeOptions:{compress: true}});
+			target.output.should.eql(['js', 'js2']);
+			target.outputPath.should.eql([path.resolve('c'), path.resolve('c2')]);
+		});
+		it('should throw an error when passed build data with directory "input" and a file "output"', function () {
+			try {
+				config.parse({input:'src',output:'js/main.js'});
+			} catch (err) {
+				should.exist(err);
+			}
+			// try {
+			// 	config.parse({input:['src/main.js','src'],output:['js/main.js','js/foo.js']});
+			// } catch (err) {
+			// 	should.exist(err);
+			// }
+		});
+		it('should throw an error when passed build data with single file "input" and multiple file "output"', function () {
+			try {
+				configuration.parse({input:'src/main.js',output:['js/main.js', 'js/foo.js']});
+			} catch (err) {
+				should.exist(err);
+			}
+		});
+
+	});
 });

@@ -145,6 +145,7 @@
 
 {
 	build: {
+		sources: ['src'],
 		targets: [
 			{
 				input: ['libs.js', 'node_modules/@yr/{gateway,extreme,search}/libs.js'],
@@ -156,7 +157,8 @@
 				targets: [
 					{
 						input: ['client.js', 'node_modules/@yr/{gateway,extreme,search}/client.js'],
-						output: 'www/%dirname%.js'
+						output: 'www/%dirname%.js',
+						sources: ['node_modules/nib/nib']
 					}
 				]
 			},
