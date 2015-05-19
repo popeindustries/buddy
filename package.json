@@ -18,7 +18,7 @@
     "chalk": "1.0.0",
     "csslint": "0.10.0",
     "csso": "1.3.11",
-    "eslint": "0.21.1",
+    "eslint": "0.21.2",
     "glob": "5.0.6",
     "identify-resource": "4.1.0",
     "inline-source": "4.0.0",
@@ -28,7 +28,7 @@
     "recur-fs": "2.2.0",
     "simple-browser-require": "1.0.0",
     "transfigure": "3.2.1",
-    "uglify-js": "2.4.21",
+    "uglify-js": "2.4.22",
     "yaw": "0.1.1"
   },
   "devDependencies": {
@@ -52,6 +52,7 @@
   },
   "scripts": {
     "test": "NODE_ENV=test mocha --reporter spec --require should -t 10000",
+    "lint": "eslint lib",
     "test-windows": "set NODE_ENV=test&&node.exe ./node_modules/mocha/bin/mocha --reporter spec --require should -t 20000"
   },
   "engines": {
