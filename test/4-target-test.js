@@ -7,7 +7,7 @@ var path = require('path')
 
 	, target;
 
-describe.only('target', function () {
+describe('target', function () {
 	before(function () {
 		process.chdir(path.resolve(__dirname, 'fixtures/target'));
 	});

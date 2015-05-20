@@ -93,10 +93,10 @@ describe('utils', function () {
 
 	describe('pathname', function () {
 		it('should return the dir/file name of a file', function () {
-			pathname.name(__filename).should.equal('test/1-utils-test.js');
+			pathname(__filename).should.equal('test/1-utils-test.js');
 		});
 		it('should return the dir/file name of a file relative to current directory', function () {
-			pathname.name('package.json').should.equal('./package.json');
+			pathname('package.json').should.equal('./package.json');
 		});
 	});
 });
