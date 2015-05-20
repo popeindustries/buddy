@@ -3,6 +3,7 @@
 var filetype = require('../lib/utils/filetype')
 	, fs = require('fs')
 	, path = require('path')
+	, pathname = require('../lib/utils/pathname')
 	, reEscape = require('../lib/utils/reEscape')
 	, truncate = require('../lib/utils/truncate')
 	, unique = require('../lib/utils/unique');
@@ -87,6 +88,15 @@ describe('utils', function () {
 		});
 		it('should return the correct type for a precompiled html template filepath', function () {
 			filetype('foo.nunjs', false, 'js', {js:['js','json','nunjs'],css:['css'],html:['html','nunjs']}).should.eql('js');
+		});
+	});
+
+	describe('pathname', function () {
+		it('should return the dir/file name of a file', function () {
+			pathname.name(__filename).should.equal('test/1-utils-test.js');
+		});
+		it('should return the dir/file name of a file relative to current directory', function () {
+			pathname.name('package.json').should.equal('./package.json');
 		});
 	});
 });
