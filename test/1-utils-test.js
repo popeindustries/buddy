@@ -1,6 +1,7 @@
 'use strict';
 
-var fs = require('fs')
+var filetype = require('../lib/utils/filetype')
+	, fs = require('fs')
 	, path = require('path')
 	, reEscape = require('../lib/utils/reEscape')
 	, truncate = require('../lib/utils/truncate')
@@ -65,6 +66,27 @@ describe('utils', function () {
 			it('should return the passed in pattern when not hash or date', function () {
 				path.basename(unique.generate('foo-%foo%.js')).should.eql('foo-%foo%.js');
 			});
+		});
+	});
+
+	describe('filetype', function () {
+		it('should return the correct type for a js filepath', function () {
+			filetype('foo.js', false, null, {js:['js','json'],css:['css'],html:['html']}).should.eql('js');
+		});
+		it('should return the correct type for a css filepath', function () {
+			filetype('foo.css', false, null, {js:['js','json'],css:['css'],html:['html']}).should.eql('css');
+		});
+		it('should return the correct type for a html filepath', function () {
+			filetype('foo.html', false, null, {js:['js','json'],css:['css'],html:['html']}).should.eql('html');
+		});
+		it('should return the correct type for a root html template filepath', function () {
+			filetype('foo.nunjs', true, null, {js:['js','json','nunjs'],css:['css'],html:['html','nunjs']}).should.eql('html');
+		});
+		it('should return the correct type for a dependency html template filepath', function () {
+			filetype('foo.nunjs', false, 'html', {js:['js','json','nunjs'],css:['css'],html:['html','nunjs']}).should.eql('html');
+		});
+		it('should return the correct type for a precompiled html template filepath', function () {
+			filetype('foo.nunjs', false, 'js', {js:['js','json','nunjs'],css:['css'],html:['html','nunjs']}).should.eql('js');
 		});
 	});
 });
