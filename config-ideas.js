@@ -172,3 +172,14 @@
 		]
 	}
 }
+
+{
+	build: {
+		targets: [
+			{
+				input: ['main.js', 'main.css'],
+				ouput: 'www'
+			}
+		]
+	}
+}

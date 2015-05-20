@@ -68,7 +68,7 @@ describe('config', function () {
 		});
 	});
 
-	describe.only('parse', function () {
+	describe('parse', function () {
 		it('should allow passing build data "input" that doesn\'t exist', function () {
 			should.exist(config.parse([{targets:[{input:'src/hey.js',output:'js'}]}]));
 		});
@@ -98,7 +98,7 @@ describe('config', function () {
 			target[0].outputPath.should.eql(path.resolve('js'));
 		});
 		it('should parse target "output_compressed"', function () {
-			var target = config.parse([{input:'src/hey.js',output:'js', output_compressed:'c'}], {runtimeOptions:{compress: true}});
+			var target = config.parse([{input:'src/hey.js',output:'js', output_compressed:'c'}], {runtimeOptions:{compress: true},sources:['.']});
 			target[0].output.should.eql('js');
 			target[0].outputPath.should.eql(path.resolve('c'));
 		});
@@ -125,6 +125,73 @@ describe('config', function () {
 				should.exist(err);
 			}
 		});
+		it('should return a target with "batch" set to TRUE when "input" is a directory', function () {
+			config.parse([{input:'src',output:'js'}])[0].should.have.property('batch', true);
+		});
+		it('should return a target with "appServer" set to TRUE when "server.file" is the same as "input"', function () {
+			var target = config.parse([{input:'src/main.js'}], {sources:['.'],server:{file:'src/main.js'}});
+			target[0].should.have.property('appServer', true);
+		});
+		it('should return a target with "appServer" set to TRUE when "server.file" is in directory "input"', function () {
+			var target = config.parse([{input:'src'}], {sources:['.'],server:{file:'src/main.js'}});
+			target[0].should.have.property('appServer', true);
+		});
+		it('should return a target with "appServer" set to TRUE when "server.file" matches a globbed "input"', function () {
+			var target = config.parse([{input:'src/*.js'}], {sources:['.'],server:{file:'src/main.js'}});
+			target[0].should.have.property('appServer', true);
+		});
+		it('should return a target with passed "sources"', function () {
+			var target = config.parse([{sources:['foo'],targets:[{input:'src/main.js', output:'js'}]}]);
+			target[0].sources.should.eql([path.resolve('foo'), process.cwd()]);
+		});
+		it('should return a target with an executable "before" hook function', function () {
+			var func = config.parse([{input:'src/main.js',output:'js',before:'console.log(context);'}])[0].before;
+			(typeof func == 'function').should.be.true;
+		});
+		it('should return a target with an executable "before" hook function when passed a path', function () {
+			var func = config.parse([{input:'src/main.js',output:'js',before:'./hooks/before.js'}])[0].before;
+			(typeof func == 'function').should.be.true;
+		});
+		it('should throw an error when passed invalid "before" hook path', function () {
+			try {
+				var func = config.parse([{input:'src/main.js',output:'js',before:'./hook/before.js'}])[0].before;
+			} catch (err) {
+				should.exist(err);
+			}
+		});
+	});
 
+	describe('load', function () {
+		it('should return validated file data', function () {
+			should.exist(config.load('buddy.js').build);
+		});
+		it('should return validated file data for a package.json config file', function () {
+			should.exist(config.load('pkgjson/package.json').build);
+		});
+		it('should return validated file data for a passed in JSON object', function () {
+			should.exist(config.load({
+				build: {
+					sources: ['src'],
+					targets: [{
+						'input': 'src/main.js',
+						'output': 'js/main.js'
+					}]
+				}
+			}).build);
+		});
+		it('should return an error when passed a reference to a malformed file', function () {
+			try {
+				config.load('buddy_bad.js')
+			} catch (err) {
+				should.exist(err);
+			}
+		});
+		it('should return an error when passed an invalid build configuration', function () {
+			try {
+				config.load('buddy_bad_build.js')
+			} catch (err) {
+				should.exist(err);
+			}
+		});
 	});
 });
