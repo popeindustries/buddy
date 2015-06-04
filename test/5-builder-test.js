@@ -104,11 +104,11 @@ describe('Builder', function () {
 			});
 		});
 		describe('with a single es6 file', function () {
-			it.only('should build 1 js file', function (done) {
+			it('should build 1 js file', function (done) {
 				this.builder.build('buddy_single-es6-file.js', null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
 					var contents = fs.readFileSync(filepaths[0], 'utf8');
-					contents.should.match(/\[1\, 2\, 3\, 4\]\.map\(function \(\) \{/);
+					contents.should.match(/nums\.map\(function \(n\) \{/);
 					done();
 				});
 			});
