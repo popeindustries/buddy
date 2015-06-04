@@ -20,7 +20,7 @@ function gatherFiles (dir, files) {
 	return files;
 }
 
-describe.skip('Builder', function () {
+describe('Builder', function () {
 	before(function () {
 		process.chdir(path.resolve(__dirname, 'fixtures/builder'));
 	});
@@ -81,6 +81,7 @@ describe.skip('Builder', function () {
 					}
 				}, null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
+					fs.readFileSync(filepaths[0], 'utf8').should.containEql("require.register('foo.js', function(module, exports, require) {\n  var foo = this;\n});")
 					done();
 				});
 			});
