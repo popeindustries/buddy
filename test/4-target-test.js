@@ -46,17 +46,17 @@ describe('target', function () {
 					css: ['css'],
 					html: ['html']
 				},
-				sources: ['src'],
+				sources: [],
 				runtimeOptions: {}
 			});
 		});
 		it('should parse a file "input" and return a File instance', function () {
-			var files = target.parse(false, path.resolve('src/js/foo.js'), null, target.runtimeOptions);
+			var files = target.parse(false, path.resolve('src/js/foo.js'), null, target.fileFactoryOptions);
 			files.should.have.length(1);
 		});
 		it('should parse a directory "input" and return several File instances', function () {
 			target.inputPath = path.resolve('src/js');
-			files = target.parse(true, path.resolve('src/js'), /.js$/, target.runtimeOptions);
+			files = target.parse(true, path.resolve('src/js'), /.js$/, target.fileFactoryOptions);
 			files.should.have.length(4);
 		});
 	});
