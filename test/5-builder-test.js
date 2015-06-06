@@ -69,7 +69,21 @@ describe('Builder', function () {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/build/simple'));
 		});
 		describe('simple file targets', function () {
-			it('should build 1 js file when passed a JSON config object', function (done) {
+			it('should build 1 js file when passed a json config path', function (done) {
+				this.builder.build('buddy-single-file.json', null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					fs.readFileSync(filepaths[0], 'utf8').should.containEql("require.register('foo.js', function(require, module, exports) {\n  var foo = this;\n});")
+					done();
+				});
+			});
+			it('should build 1 js file when passed a js config path', function (done) {
+				this.builder.build('buddy-single-file.js', null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					fs.readFileSync(filepaths[0], 'utf8').should.containEql("require.register('foo.js', function(require, module, exports) {\n  var foo = this;\n});")
+					done();
+				});
+			});
+			it('should build 1 js file when passed a json config object', function (done) {
 				this.builder.build({
 					build: {
 						"targets": [
@@ -81,7 +95,39 @@ describe('Builder', function () {
 					}
 				}, null, function (err, filepaths) {
 					fs.existsSync(filepaths[0]).should.be.true;
-					fs.readFileSync(filepaths[0], 'utf8').should.containEql("require.register('foo.js', function(module, exports, require) {\n  var foo = this;\n});")
+					fs.readFileSync(filepaths[0], 'utf8').should.containEql("require.register('foo.js', function(require, module, exports) {\n  var foo = this;\n});")
+					done();
+				});
+			});
+			it('should build 1 js file with 1 dependency', function (done) {
+				this.builder.build({
+					build: {
+						"targets": [
+							{
+								"input": "bar.js",
+								"output": "output"
+							}
+						]
+					}
+				}, null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					fs.readFileSync(filepaths[0], 'utf8').should.containEql("require.register('foo.js', function(require, module, exports) {\n  var foo = this;\n});")
+					done();
+				});
+			});
+			it('should build a prewrapped js file', function (done) {
+				this.builder.build({
+					build: {
+						"targets": [
+							{
+								"input": "wrapped.js",
+								"output": "output"
+							}
+						]
+					}
+				}, null, function (err, filepaths) {
+					fs.existsSync(filepaths[0]).should.be.true;
+					fs.readFileSync(filepaths[0], 'utf8').should.containEql("register.require(\'wrapped.js\', function (require, module, exports) {\n\tmodule.exports = \'wrapped\';\n});")
 					done();
 				});
 			});
