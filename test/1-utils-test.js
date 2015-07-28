@@ -72,22 +72,16 @@ describe('utils', function () {
 
 	describe('filetype', function () {
 		it('should return the correct type for a js filepath', function () {
-			filetype('foo.js', false, null, {js:['js','json'],css:['css'],html:['html']}).should.eql('js');
+			filetype('foo.js', {js:['js','json'],css:['css'],html:['html']}).should.eql('js');
 		});
 		it('should return the correct type for a css filepath', function () {
-			filetype('foo.css', false, null, {js:['js','json'],css:['css'],html:['html']}).should.eql('css');
+			filetype('foo.css', {js:['js','json'],css:['css'],html:['html']}).should.eql('css');
 		});
 		it('should return the correct type for a html filepath', function () {
-			filetype('foo.html', false, null, {js:['js','json'],css:['css'],html:['html']}).should.eql('html');
+			filetype('foo.html', {js:['js','json'],css:['css'],html:['html']}).should.eql('html');
 		});
 		it('should return the correct type for a root html template filepath', function () {
-			filetype('foo.nunjs', true, null, {js:['js','json','nunjs'],css:['css'],html:['html','nunjs']}).should.eql('html');
-		});
-		it('should return the correct type for a dependency html template filepath', function () {
-			filetype('foo.nunjs', false, 'html', {js:['js','json','nunjs'],css:['css'],html:['html','nunjs']}).should.eql('html');
-		});
-		it('should return the correct type for a precompiled html template filepath', function () {
-			filetype('foo.nunjs', false, 'js', {js:['js','json','nunjs'],css:['css'],html:['html','nunjs']}).should.eql('js');
+			filetype('foo.nunjs', {js:['js','json'],css:['css'],html:['html','nunjs']}).should.eql('html');
 		});
 	});
 

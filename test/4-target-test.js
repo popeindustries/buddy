@@ -77,15 +77,15 @@ describe('target', function () {
 			});
 		});
 		it('should serially apply a set of commands to a collection of items', function (done) {
-			var file1 = fileFactory(path.resolve('src/js/foo.js'), 'js', this.options)
-				, file2 = fileFactory(path.resolve('src/js/bar.js'), 'js', this.options);
+			var file1 = fileFactory(path.resolve('src/js/foo.js'), this.options)
+				, file2 = fileFactory(path.resolve('src/js/bar.js'), this.options);
 			target.process([file1, file2], { js: [['load'], ['compile']] }, function (err, files) {
 				files[1].content.should.eql("var bat = require('./bat')\n	, baz = require('./baz')\n	, bar = this;");
 				done();
 			});
 		});
 		it('should return one file reference when processing a file with dependencies', function (done) {
-			var file1 = fileFactory(path.resolve('src/js/foo.js'), 'js', this.options);
+			var file1 = fileFactory(path.resolve('src/js/foo.js'), this.options);
 			files = target.process([file1], { js: [['load', 'parse', 'wrap'], []] }, function (err, files) {
 				files.should.have.length(1);
 				files[0].content.should.eql("require.register(\'src/js/foo.js\', function(require, module, exports) {\n  var bar = require(\'./bar\')\n  \t, foo = this;\n});");
