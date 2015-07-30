@@ -36,6 +36,7 @@ describe('Builder', function () {
 		before(function () {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/init'));
 		});
+
 		it('should initialize a single target', function () {
 			var targets = this.builder.initTargets([{
 				inputPath: path.resolve('target/foo.js'),
