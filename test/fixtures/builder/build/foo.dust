@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html>
+{>"includes/header" /}
+<body>
+	<h1>Title</h1>
+	{>"includes/footer" /}
+</body>
+</html>

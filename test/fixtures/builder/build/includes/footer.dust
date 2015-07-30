@@ -1,0 +1,4 @@
+<footer>
+	<p>Footer</p>
+	{>"includes/widget" /}
+</footer>

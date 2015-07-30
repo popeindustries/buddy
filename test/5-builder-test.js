@@ -1,11 +1,12 @@
 'use strict';
 
-var fs = require('fs')
+var Builder = require('../lib/builder')
+	, config = require('../lib/config')
+	, exec = require('child_process').exec
+	, fs = require('fs')
 	, path = require('path')
 	, rimraf = require('rimraf')
-	, should = require('should')
-	, Builder = require('../lib/builder')
-	, config = require('../lib/config');
+	, should = require('should');
 
 function gatherFiles (dir, files) {
 	files = files || [];
@@ -86,10 +87,10 @@ describe('Builder', function () {
 		it('should build a js file when passed a json config object', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "foo.js",
-							"output": "output"
+							input: 'foo.js',
+							output: 'output'
 						}
 					]
 				}
@@ -102,10 +103,10 @@ describe('Builder', function () {
 		it('should build a js file with 1 dependency', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "bar.js",
-							"output": "output"
+							input: 'bar.js',
+							output: 'output'
 						}
 					]
 				}
@@ -115,13 +116,52 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should build a js file with node_modules dependencies', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'bat.js',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(1);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				content.should.include("require.register('bar#0.0.0'");
+				content.should.include("require.register('foo#0.0.0'");
+				content.should.include("require.register('bat.js'");
+				done();
+			});
+		});
+		it('should build a js file with relative node_modules dependencies', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'boo.js',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(1);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				content.should.include("require.register('bar/dist/commonjs/lib/bar.js#0.0.0'");
+				content.should.include("var bar = require('bar/dist/commonjs/lib/bar.js#0.0.0'),");
+				done();
+			});
+		});
 		it('should build a prewrapped js file', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "wrapped.js",
-							"output": "output"
+							input: 'wrapped.js',
+							output: 'output'
 						}
 					]
 				}
@@ -134,10 +174,10 @@ describe('Builder', function () {
 		it('should build an es6 file', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "foo.es6",
-							"output": "output"
+							input: 'foo.es6',
+							output: 'output'
 						}
 					]
 				}
@@ -152,10 +192,10 @@ describe('Builder', function () {
 		it('should build a handlebars html file', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "foo.handlebars",
-							"output": "output"
+							input: 'foo.handlebars',
+							output: 'output'
 						}
 					]
 				}
@@ -166,13 +206,31 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should build a dust html file with sidecar data file and includes', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'foo.dust',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(1);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				content.should.equal('<!DOCTYPE html>\n<html>\n<head>\n\t<title>Title</title>\n</head>\n<body>\n\t<h1>Title</h1>\n\t<footer>\n\t<p>Footer</p>\n\t<div>foo</div>\n</footer>\n</body>\n</html>');
+				done();
+			});
+		});
 		it('should build a stylus file', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "foo.styl",
-							"output": "output"
+							input: 'foo.styl',
+							output: 'output'
 						}
 					]
 				}
@@ -186,10 +244,10 @@ describe('Builder', function () {
 		it('should build a less file', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "foo.less",
-							"output": "output"
+							input: 'foo.less',
+							output: 'output'
 						}
 					]
 				}
@@ -203,10 +261,10 @@ describe('Builder', function () {
 		it('should build a js file with unique hashed name', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "foo.js",
-							"output": "output/foo-%hash%.js"
+							input: 'foo.js',
+							output: 'output/foo-%hash%.js'
 						}
 					]
 				}
@@ -216,13 +274,31 @@ describe('Builder', function () {
 				done();
 			});
 		});
-		it('should build a directory of 3 wrapped js files', function (done) {
+		it('should build an html template file with js dependency', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "js-directory/flat",
-							"output": "output"
+							input: 'foo.nunjs',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(1);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				content.should.include("<script>var foo = this;</script>");
+				done();
+			});
+		});
+		it('should build a directory of 3 js files', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'js-directory/flat',
+							output: 'output'
 						}
 					]
 				}
@@ -238,10 +314,10 @@ describe('Builder', function () {
 		it('should build a directory of 3 unwrapped js files if "modular" is false', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "js-directory/flat",
-							"output": "output",
+							input: 'js-directory/flat',
+							output: 'output',
 							"modular": false
 						}
 					]
@@ -255,13 +331,13 @@ describe('Builder', function () {
 				done();
 			});
 		});
-		it('should build a directory of 3 wrapped js files, including nested directories', function (done) {
+		it('should build a directory of 3 js files, including nested directories', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "js-directory/nested",
-							"output": "output"
+							input: 'js-directory/nested',
+							output: 'output'
 						}
 					]
 				}
@@ -274,13 +350,13 @@ describe('Builder', function () {
 				done();
 			});
 		});
-		it('should build a directory of 2 wrapped js files, including dependencies in nested directories', function (done) {
+		it('should build a directory of 2 js files, including dependencies in nested directories', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "js-directory/dependant",
-							"output": "output"
+							input: 'js-directory/dependant',
+							output: 'output'
 						}
 					]
 				}
@@ -296,10 +372,10 @@ describe('Builder', function () {
 		it('should build a directory of 2 css files', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "css-directory",
-							"output": "output"
+							input: 'css-directory',
+							output: 'output'
 						}
 					]
 				}
@@ -311,13 +387,34 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should build multiple css files with shared dependencies', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: ['one.styl', 'two.styl'],
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(2);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content1 = fs.readFileSync(filepaths[0], 'utf8')
+					, content2 = fs.readFileSync(filepaths[1], 'utf8');
+				content1.should.eql(content2);
+				content1.should.include("colour: '#ffffff';");
+				content2.should.include("colour: '#ffffff';");
+				done();
+			});
+		});
 		it('should build a directory with mixed content, including dependencies', function (done) {
 			this.builder.build({
 				build: {
-					"targets": [
+					targets: [
 						{
-							"input": "mixed-directory",
-							"output": "output"
+							input: 'mixed-directory',
+							output: 'output'
 						}
 					]
 				}
@@ -338,6 +435,155 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should build a globbed collection of js files', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'js-directory/flat/{foo,bar}.js',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(2);
+				filepaths.forEach(function (filepath) {
+					fs.existsSync(filepath).should.be.true;
+					fs.readFileSync(filepath, 'utf8').should.include('require.register(');
+				});
+				done();
+			});
+		});
+		it('should build a globbed collection of mixed files', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'mixed-directory/foo.{js,styl}',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(2);
+				filepaths.forEach(function (filepath) {
+					fs.existsSync(filepath).should.be.true;
+					var ext = path.extname(filepath)
+						, content = fs.readFileSync(filepath, 'utf8');
+					if (ext == '.js') {
+						content.should.include("require.register('mixed-directory/bar.js'");
+						content.should.include("require.register('mixed-directory/foo.js'");
+					} else {
+						content.should.include("body {");
+						content.should.include("h1 {");
+					}
+				});
+				done();
+			});
+		});
+		it('should build an array of js files', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: ['js-directory/flat/foo.js', 'js-directory/nested/bar.js'],
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(2);
+				filepaths.forEach(function (filepath) {
+					fs.existsSync(filepath).should.be.true;
+					fs.readFileSync(filepath, 'utf8').should.include('require.register(');
+				});
+				done();
+			});
+		});
+		it('should build an array of mixed files', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: ['mixed-directory/foo.js', 'mixed-directory/foo.styl'],
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(2);
+				filepaths.forEach(function (filepath) {
+					fs.existsSync(filepath).should.be.true;
+					var ext = path.extname(filepath)
+						, content = fs.readFileSync(filepath, 'utf8');
+					if (ext == '.js') {
+						content.should.include("require.register('mixed-directory/bar.js'");
+						content.should.include("require.register('mixed-directory/foo.js'");
+					} else {
+						content.should.include("body {");
+						content.should.include("h1 {");
+					}
+				});
+				done();
+			});
+		});
+		it('should build a stringified js file if "lazy" is true', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'foo.js',
+							output: 'output'
+						}
+					]
+				}
+			}, { lazy: true }, function (err, filepaths) {
+				filepaths.should.have.length(1);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				content.should.include("require.register('foo.js', \"var foo = this;\");");
+				done();
+			});
+		});
+		it('should build a minified js file if "compress" is true', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'bar.js',
+							output: 'output'
+						}
+					]
+				}
+			}, { compress: true }, function (err, filepaths) {
+				filepaths.should.have.length(1);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				content.should.include('require.register("foo.js",function(r,e,i){}),require.register("bar.js",function(r,e,i){r("foo.js")});');
+				done();
+			});
+		});
+		it('should build a minified and stringified js file if "compress" and "lazy" are true', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'bar.js',
+							output: 'output'
+						}
+					]
+				}
+			}, { compress: true, lazy: true }, function (err, filepaths) {
+				filepaths.should.have.length(1);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				content.should.include('require.register("foo.js","var foo=this;"),require.register("bar.js",\'var foo=require("foo.js"),bar=this;\');');
+				done();
+			});
+		});
+	});
+
+	describe('watch', function () {
 
 	});
 });
