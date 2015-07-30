@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "async": "1.4.0",
-    "buddy-cli": "2.0.1",
+    "buddy-cli": "2.0.2",
     "chalk": "1.1.0",
     "csslint": "0.10.0",
     "csso": "1.3.11",
@@ -42,7 +42,6 @@
     "transfigure-nunjucks": "*",
     "transfigure-jade": "1.9.2-2",
     "transfigure-less": "*",
-    "transfigure-react": "*",
     "transfigure-stylus": "*",
     "transfigure-twig": "*"
   },
