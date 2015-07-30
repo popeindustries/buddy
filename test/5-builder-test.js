@@ -580,8 +580,46 @@ describe('Builder', function () {
 				done();
 			});
 		});
-		it('should build a js file with require boilerplate if "boilerplate" is true');
-		it('should build a bootstrapped js file if "bootstrap" is true');
+		it('should build a js file with require boilerplate if "boilerplate" is true', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'foo.js',
+							output: 'output',
+							boilerplate: true
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(1);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				content.should.include("})((typeof window !== 'undefined') ? window : global);");
+				content.should.include("require.register('foo.js'");
+				done();
+			});
+		});
+		it('should build a bootstrapped js file if "bootstrap" is true', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'foo.js',
+							output: 'output',
+							bootstrap: true
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(1);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				content.should.include("require.register('foo.js'");
+				content.should.include("require('foo.js');");
+				done();
+			});
+		});
 	});
 
 	describe('script', function () {
