@@ -1,7 +1,6 @@
 'use strict';
 
 var Builder = require('../lib/builder')
-	, config = require('../lib/config')
 	, exec = require('child_process').exec
 	, fs = require('fs')
 	, path = require('path')
@@ -581,9 +580,59 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should build a js file with require boilerplate if "boilerplate" is true');
+		it('should build a bootstrapped js file if "bootstrap" is true');
+	});
+
+	describe('script', function () {
+		before(function () {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/script'));
+		});
+
+		it('should run a script after successful build', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'foo.js',
+							output: 'output'
+						}
+					]
+				},
+				script: 'node mod.js output/foo.js'
+			}, { script: true }, function (err, filepaths) {
+				setTimeout(function () {
+					fs.existsSync(filepaths[0]).should.be.true;
+					var content = fs.readFileSync(filepaths[0], 'utf8');
+					content.should.eql("oops!");
+					done();
+				}, 100);
+			});
+		});
 	});
 
 	describe('watch', function () {
+		before(function () {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/watch'));
+		});
 
+		it('should rebuild a watched file on change', function (done) {
+			var child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, function (err, stdout, stderr) {
+						console.log(arguments);
+						done(err);
+					})
+				, foo = fs.readFileSync(path.resolve('foo.js'), 'utf8');
+
+			setTimeout(function () {
+				fs.writeFileSync(path.resolve('foo.js'), 'var foo = "foo";', 'utf8');
+				setTimeout(function () {
+					var content = fs.readFileSync(path.resolve('output/foo.js'), 'utf8');
+					content.should.endWith("require.register(\'foo.js\', function(require, module, exports) {\n  var foo = \"foo\";\n});");
+					fs.writeFileSync(path.resolve('foo.js'), foo);
+					child.kill();
+					done();
+				}, 100);
+			}, 4000);
+		});
 	});
 });
