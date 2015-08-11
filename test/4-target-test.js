@@ -121,7 +121,7 @@ describe('target', function () {
 				done();
 			});
 		});
-		it('should execute an "after" hook after running the build', function (done) {
+		it.skip('should execute an "after" hook after running the build', function (done) {
 			target.after = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.foo="foo";done();');
 			target.workflows = { js: [['load', 'compile'], []] };
 			target.foo = 'bar';
@@ -131,7 +131,7 @@ describe('target', function () {
 				done();
 			});
 		});
-		it('should execute an "afterEach" hook after each processed file is ready to write to disk', function (done) {
+		it.skip('should execute an "afterEach" hook after each processed file is ready to write to disk', function (done) {
 			target.afterEach = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.content="foo";done();');
 			target.workflows = { js: [['load', 'compile'], []] };
 			target.build(function (err, filepaths) {

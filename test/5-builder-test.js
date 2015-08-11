@@ -130,8 +130,8 @@ describe('Builder', function () {
 				filepaths.should.have.length(1);
 				fs.existsSync(filepaths[0]).should.be.true;
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include("require.register('bar#0.0.0'");
-				content.should.include("require.register('foo#0.0.0'");
+				content.should.include("require.register('bar/bar.js#0.0.0'");
+				content.should.include("require.register('foo/foo.js#0.0.0'");
 				content.should.include("require.register('bat.js'");
 				done();
 			});

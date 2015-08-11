@@ -26,7 +26,7 @@ describe('file', function () {
 		});
 		it('should resolve a module id for a File instance', function () {
 			var instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions: fileExtensions });
-			instance.should.have.property('id', 'main.js');
+			instance.should.have.property('id', 'src/main.js');
 		});
 		it('should resolve a module id for an "index" File instance', function () {
 			var instance = fileFactory(path.resolve('src/index.js'), { sources: [path.resolve('src')], fileExtensions: fileExtensions });
@@ -34,11 +34,11 @@ describe('file', function () {
 		});
 		it('should resolve a module id for a node_module "index" File instance ', function () {
 			var instance = fileFactory(path.resolve('node_modules/foo/index.js'), { sources: [], fileExtensions: fileExtensions });
-			instance.should.have.property('id', 'foo#0.0.0');
+			instance.should.have.property('id', 'foo/index.js');
 		});
 		it('should resolve a module id for a node_modules package.json "main" File instance', function () {
 			var instance = fileFactory(path.resolve('node_modules/bar/bar.js'), { sources: [], fileExtensions: fileExtensions });
-			instance.should.have.property('id', 'bar#1.0.0');
+			instance.should.have.property('id', 'bar/bar.js#1.0.0');
 		});
 	});
 
@@ -364,7 +364,7 @@ describe('file', function () {
 			it('should execute a workflow in sequence', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions: fileExtensions });
 				instance.run(['load', 'wrap'], function () {
-					instance.content.should.eql("require.register(\'main.js\', function(require, module, exports) {\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n});");
+					instance.content.should.eql("require.register(\'src/main.js\', function(require, module, exports) {\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n});");
 					done();
 				});
 			});
