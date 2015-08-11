@@ -60,7 +60,7 @@ describe('file', function () {
 				instance.id = 'main';
 				instance.content = "module.exports = 'main';";
 				instance.wrap(function (err) {
-					instance.content.should.eql("require.register('main', function(require, module, exports) {\n  module.exports = 'main';\n});");
+					instance.content.should.eql("require.register('main', function(require, module, exports) {\n    module.exports = 'main';\n});");
 					done();
 				});
 			});
@@ -364,7 +364,7 @@ describe('file', function () {
 			it('should execute a workflow in sequence', function (done) {
 				var instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions: fileExtensions });
 				instance.run(['load', 'wrap'], function () {
-					instance.content.should.eql("require.register(\'src/main.js\', function(require, module, exports) {\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n});");
+					instance.content.should.eql("require.register('src/main.js', function(require, module, exports) {\n    'use strict';\n    \n    module.exports = 'main';\n    \n});");
 					done();
 				});
 			});
