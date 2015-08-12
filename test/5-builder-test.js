@@ -39,7 +39,7 @@ describe('Builder', function () {
 
 		it('should initialize a single target', function () {
 			var targets = this.builder.initTargets([{
-				inputPath: path.resolve('target/foo.js'),
+				inputpath: path.resolve('target/foo.js'),
 				input: 'target/foo.js',
 				output: 'main.js',
 				runtimeOptions: {}
@@ -48,13 +48,13 @@ describe('Builder', function () {
 		});
 		it('should initialize a single target with nested child target', function () {
 			var targets = this.builder.initTargets([{
-				inputPath: path.resolve('target/foo.js'),
+				inputpath: path.resolve('target/foo.js'),
 				input: 'target/foo.js',
 				output: 'main.js',
 				hasChildren: true,
 				runtimeOptions: {},
 				targets:[{
-					inputPath: path.resolve('target/lib'),
+					inputpath: path.resolve('target/lib'),
 					input:'target/lib',
 					output:'../js',
 					runtimeOptions: {}
@@ -703,6 +703,55 @@ describe('Builder', function () {
 					expect(content).to.eql("oops!");
 					done();
 				}, 100);
+			});
+		});
+	});
+
+	describe('grep', function () {
+		before(function () {
+			process.chdir(path.resolve(__dirname, 'fixtures/builder/grep'));
+		});
+
+		it('should only build matching targets', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'foo.js',
+							output: 'output'
+						},
+						{
+							input: 'foo.css',
+							output: 'output'
+						}
+					]
+				}
+			}, { grep: '*.js' }, function (err, filepaths) {
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				expect(filepaths[0]).to.eql(path.resolve('output/foo.js'));
+				done();
+			});
+		});
+		it('should only build matching targets when using "--invert" option', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'foo.js',
+							output: 'output'
+						},
+						{
+							input: 'foo.css',
+							output: 'output'
+						}
+					]
+				}
+			}, { grep: '*.js', invert: true }, function (err, filepaths) {
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				expect(filepaths[0]).to.eql(path.resolve('output/foo.css'));
+				done();
 			});
 		});
 	});

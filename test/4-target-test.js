@@ -22,7 +22,7 @@ describe('target', function () {
 	describe('factory', function () {
 		it('should decorate a new Target instance with passed data', function () {
 			target = targetFactory({
-				inputPath: path.resolve('src/some.coffee'),
+				inputpath: path.resolve('src/some.coffee'),
 				input: 'src/some.coffee',
 				output: 'js',
 				runtimeOptions: {},
@@ -39,8 +39,8 @@ describe('target', function () {
 	describe('parse', function () {
 		beforeEach(function () {
 			target = targetFactory({
-				inputPath: path.resolve('src/js'),
-				outputPath: path.resolve('temp'),
+				inputpath: path.resolve('src/js'),
+				outputpath: path.resolve('temp'),
 				fileExtensions: {
 					js: ['js', 'coffee'],
 					css: ['css'],
@@ -55,7 +55,7 @@ describe('target', function () {
 			expect(files).to.have.length(1);
 		});
 		it('should parse a directory "input" and return several File instances', function () {
-			target.inputPath = path.resolve('src/js');
+			target.inputpath = path.resolve('src/js');
 			files = target.parse(true, path.resolve('src/js'), /.js$/, target.fileFactoryOptions);
 			expect(files).to.have.length(4);
 		});
@@ -72,7 +72,7 @@ describe('target', function () {
 				runtimeOptions: {}
 			};
 			target = targetFactory({
-				inputPath: path.resolve('src/js'),
+				inputpath: path.resolve('src/js'),
 				sources: []
 			});
 		});
@@ -98,8 +98,8 @@ describe('target', function () {
 		beforeEach(function () {
 			fileFactory.cache.flush();
 			target = targetFactory({
-				inputPath: path.resolve('src/js/foo.js'),
-				outputPath: path.resolve('temp'),
+				inputpath: path.resolve('src/js/foo.js'),
+				outputpath: path.resolve('temp'),
 				fileExtensions: {
 					js: ['js', 'json'],
 					css: ['css'],

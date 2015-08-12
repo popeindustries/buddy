@@ -75,32 +75,36 @@ describe('config', function () {
 		it('should parse target "input"', function () {
 			var target = config.parse([{input:'src/hey.js',output:'js'}]);
 			expect(target[0].input).to.eql('src/hey.js');
-			expect(target[0].inputPath).to.eql(path.resolve('src/hey.js'));
+			expect(target[0].inputpath).to.eql(path.resolve('src/hey.js'));
 		});
 		it('should parse target array "input"', function () {
 			var target = config.parse([{input:['src/hey.js', 'src/ho.js'],output:'js'}]);
 			expect(target[0].input).to.eql(['src/hey.js', 'src/ho.js']);
-			expect(target[0].inputPath).to.eql([path.resolve('src/hey.js'), path.resolve('src/ho.js')]);
+			expect(target[0].inputpath).to.eql([path.resolve('src/hey.js'), path.resolve('src/ho.js')]);
 		});
 		it('should parse target glob pattern "input"', function () {
 			var target = config.parse([{input:'src/ma*.js',output:'js'}]);
 			expect(target[0].input).to.eql('src/main.js');
-			expect(target[0].inputPath).to.eql(path.resolve('src/main.js'));
+			expect(target[0].inputpath).to.eql(path.resolve('src/main.js'));
 		});
 		it('should parse target glob pattern array "input"', function () {
 			var target = config.parse([{input:'src/m*.js',output:'js'}]);
 			expect(target[0].input).to.eql(['src/main.js', 'src/module.js']);
-			expect(target[0].inputPath).to.eql([path.resolve('src/main.js'), path.resolve('src/module.js')]);
+			expect(target[0].inputpath).to.eql([path.resolve('src/main.js'), path.resolve('src/module.js')]);
+		});
+		it('should not parse target "input" when not matched with "--grep" option', function () {
+			var target = config.parse([{input:'src/hey.js',output:'js'}], {runtimeOptions: {grep: '*.css'}});
+			expect(target).to.eql([]);
 		});
 		it('should parse target "output"', function () {
 			var target = config.parse([{input:'src/hey.js',output:'js'}]);
 			expect(target[0].output).to.eql('js');
-			expect(target[0].outputPath).to.eql(path.resolve('js'));
+			expect(target[0].outputpath).to.eql(path.resolve('js'));
 		});
 		it('should parse target "output_compressed"', function () {
 			var target = config.parse([{input:'src/hey.js',output:'js', output_compressed:'c'}], {runtimeOptions:{compress: true},sources:['.']});
 			expect(target[0].output).to.eql('js');
-			expect(target[0].outputPath).to.eql(path.resolve('c'));
+			expect(target[0].outputpath).to.eql(path.resolve('c'));
 		});
 		it('should return multiple targets when "input" and "output" are arrays of same length', function () {
 			var target = config.parse([{input:['src/main.js','src/sub.js'],output:['js/main.js','js/sub.js']}]);
