@@ -294,14 +294,16 @@ describe('file', function () {
 				instance.dependencyReferences = [
 					{
 						instance: {
-							filepath: path.resolve('./src/foo.json'),
+							filepath: path.resolve('./foo.json'),
+							extension: 'json',
+							content: fs.readFileSync(path.resolve('./src/foo.json'), 'utf8')
 						},
 						filepath: './foo.json',
 						match: "require('./foo.json')"
 					}
 				];
 				instance.inline(function (err) {
-					instance.content.should.eql('var foo = {\"foo\":\"bar\"};');
+					instance.content.should.eql('var foo = {\n	"foo": "bar"\n};');
 					done()
 				});
 			});
@@ -311,7 +313,9 @@ describe('file', function () {
 				instance.dependencyReferences = [
 					{
 						instance: {
-							filepath: path.resolve('./src/bar.json'),
+							filepath: path.resolve('./bar.json'),
+							extension: 'json',
+							content: ''
 						},
 						filepath: './bar.json',
 						match: "require('./bar.json')"
