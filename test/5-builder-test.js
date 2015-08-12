@@ -193,6 +193,25 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should build a js file with disabled native dependency', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'native.js',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				filepaths.should.have.length(1);
+				fs.existsSync(filepaths[0]).should.be.true;
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				content.should.include("require.register('native.js'");
+				content.should.include("var http = {};");
+				done();
+			});
+		});
 		it('should build a prewrapped js file', function (done) {
 			this.builder.build({
 				build: {
