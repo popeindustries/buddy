@@ -2,10 +2,10 @@
 
 var Builder = require('../lib/builder')
 	, exec = require('child_process').exec
+	, expect = require('expect.js')
 	, fs = require('fs')
 	, path = require('path')
-	, rimraf = require('rimraf')
-	, should = require('should');
+	, rimraf = require('rimraf');
 
 function gatherFiles (dir, files) {
 	files = files || [];
@@ -44,7 +44,7 @@ describe('Builder', function () {
 				output: 'main.js',
 				runtimeOptions: {}
 			}]);
-			targets.should.have.length(1);
+			expect(targets).to.have.length(1);
 		});
 		it('should initialize a single target with nested child target', function () {
 			var targets = this.builder.initTargets([{
@@ -60,8 +60,8 @@ describe('Builder', function () {
 					runtimeOptions: {}
 				}]
 			}]);
-			targets.should.have.length(1);
-			targets[0].targets.should.have.length(1);
+			expect(targets).to.have.length(1);
+			expect(targets[0].targets).to.have.length(1);
 		});
 	});
 
@@ -72,15 +72,15 @@ describe('Builder', function () {
 
 		it('should build a js file when passed a json config path', function (done) {
 			this.builder.build('buddy-single-file.json', null, function (err, filepaths) {
-				fs.existsSync(filepaths[0]).should.be.true;
-				fs.readFileSync(filepaths[0], 'utf8').should.containEql("require.register('foo.js', function(require, module, exports) {\n    var foo = this;\n});")
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register('foo.js', function(require, module, exports) {\n    var foo = this;\n});")
 				done();
 			});
 		});
 		it('should build a js file when passed a js config path', function (done) {
 			this.builder.build('buddy-single-file.js', null, function (err, filepaths) {
-				fs.existsSync(filepaths[0]).should.be.true;
-				fs.readFileSync(filepaths[0], 'utf8').should.containEql("require.register('foo.js', function(require, module, exports) {\n    var foo = this;\n});")
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register('foo.js', function(require, module, exports) {\n    var foo = this;\n});")
 				done();
 			});
 		});
@@ -95,8 +95,8 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				fs.existsSync(filepaths[0]).should.be.true;
-				fs.readFileSync(filepaths[0], 'utf8').should.containEql("require.register('foo.js', function(require, module, exports) {\n    var foo = this;\n});")
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register('foo.js', function(require, module, exports) {\n    var foo = this;\n});")
 				done();
 			});
 		});
@@ -111,8 +111,8 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				fs.existsSync(filepaths[0]).should.be.true;
-				fs.readFileSync(filepaths[0], 'utf8').should.containEql("require.register('foo.js', function(require, module, exports) {\n    var foo = this;\n});")
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register('foo.js', function(require, module, exports) {\n    var foo = this;\n});")
 				done();
 			});
 		});
@@ -127,12 +127,12 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include("require.register('bar/bar.js#0.0.0'");
-				content.should.include("require.register('foo/foo.js#0.0.0'");
-				content.should.include("require.register('bat.js'");
+				expect(content).to.contain("require.register('bar/bar.js#0.0.0'");
+				expect(content).to.contain("require.register('foo/foo.js#0.0.0'");
+				expect(content).to.contain("require.register('bat.js'");
 				done();
 			});
 		});
@@ -147,11 +147,11 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include("require.register('bar/dist/commonjs/lib/bar.js#0.0.0'");
-				content.should.include("var bar = require('bar/dist/commonjs/lib/bar.js#0.0.0'),");
+				expect(content).to.contain("require.register('bar/dist/commonjs/lib/bar.js#0.0.0'");
+				expect(content).to.contain("var bar = require('bar/dist/commonjs/lib/bar.js#0.0.0'),");
 				done();
 			});
 		});
@@ -166,11 +166,11 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include("require.register('bing.js'");
-				content.should.include("var json = {\n  \"content\": \"foo\"\n};");
+				expect(content).to.contain("require.register('bing.js'");
+				expect(content).to.contain("var json = {\n  \"content\": \"foo\"\n};");
 				done();
 			});
 		});
@@ -185,11 +185,11 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include("require.register('bong.js'");
-				content.should.include("var bat = {};");
+				expect(content).to.contain("require.register('bong.js'");
+				expect(content).to.contain("var bat = {};");
 				done();
 			});
 		});
@@ -204,11 +204,11 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include("require.register('native.js'");
-				content.should.include("var http = {};");
+				expect(content).to.contain("require.register('native.js'");
+				expect(content).to.contain("var http = {};");
 				done();
 			});
 		});
@@ -223,8 +223,8 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				fs.existsSync(filepaths[0]).should.be.true;
-				fs.readFileSync(filepaths[0], 'utf8').should.containEql("register.require(\'wrapped.js\', function (require, module, exports) {\n\tmodule.exports = \'wrapped\';\n});")
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("register.require(\'wrapped.js\', function (require, module, exports) {\n\tmodule.exports = \'wrapped\';\n});")
 				done();
 			});
 		});
@@ -239,10 +239,10 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.containEql("nums.map(function (n) {");
-				content.should.containEql("return { x: x, y: y };");
+				expect(content).to.contain("nums.map(function (n) {");
+				expect(content).to.contain("return { x: x, y: y };");
 				done();
 			});
 		});
@@ -257,9 +257,9 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.equal('<div class="entry">\n  <h1></h1>\n  <div class="body">\n    \n  </div>\n</div>');
+				expect(content).to.equal('<div class="entry">\n  <h1></h1>\n  <div class="body">\n    \n  </div>\n</div>');
 				done();
 			});
 		});
@@ -274,10 +274,10 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.equal('<!DOCTYPE html>\n<html>\n<head>\n\t<title>Title</title>\n</head>\n<body>\n\t<h1>Title</h1>\n\t<footer>\n\t<p>Footer</p>\n\t<div>foo</div>\n</footer>\n</body>\n</html>');
+				expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n\t<title>Title</title>\n</head>\n<body>\n\t<h1>Title</h1>\n\t<footer>\n\t<p>Footer</p>\n\t<div>foo</div>\n</footer>\n</body>\n</html>');
 				done();
 			});
 		});
@@ -292,9 +292,9 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.endWith('body {\n  color: #fff;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n');
+				expect(content).to.contain('body {\n  color: #fff;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n');
 				done();
 			});
 		});
@@ -309,9 +309,9 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.endWith('header {\n  color: #333333;\n  border-left: 1px;\n  border-right: 2px;\n}\n#footer {\n  color: #114411;\n  border-color: #7d2717;\n}\n');
+				expect(content).to.contain('header {\n  color: #333333;\n  border-left: 1px;\n  border-right: 2px;\n}\n#footer {\n  color: #114411;\n  border-color: #7d2717;\n}\n');
 				done();
 			});
 		});
@@ -326,8 +326,8 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				fs.existsSync(filepaths[0]).should.be.true;
-				path.basename(filepaths[0]).should.eql('foo-0f1d8c291e764ab11cf16a0123a62c9d.js');
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				expect(path.basename(filepaths[0])).to.eql('foo-0f1d8c291e764ab11cf16a0123a62c9d.js');
 				done();
 			});
 		});
@@ -342,10 +342,10 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include("<script>var foo = this;</script>");
+				expect(content).to.contain("<script>var foo = this;</script>");
 				done();
 			});
 		});
@@ -360,10 +360,10 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(3);
+				expect(filepaths).to.have.length(3);
 				filepaths.forEach(function (filepath) {
-					fs.existsSync(filepath).should.be.true;
-					fs.readFileSync(filepath, 'utf8').should.include('require.register(');
+					expect(fs.existsSync(filepath)).to.be(true);
+					expect(fs.readFileSync(filepath, 'utf8')).to.contain('require.register(');
 				});
 				done();
 			});
@@ -380,10 +380,10 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(3);
+				expect(filepaths).to.have.length(3);
 				filepaths.forEach(function (filepath) {
-					fs.existsSync(filepath).should.be.true;
-					fs.readFileSync(filepath, 'utf8').should.not.include('require.register(');
+					expect(fs.existsSync(filepath)).to.be(true);
+					expect(fs.readFileSync(filepath, 'utf8')).to.not.contain('require.register(');
 				});
 				done();
 			});
@@ -399,10 +399,10 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(3);
+				expect(filepaths).to.have.length(3);
 				filepaths.forEach(function (filepath) {
-					fs.existsSync(filepath).should.be.true;
-					fs.readFileSync(filepath, 'utf8').should.include('require.register(');
+					expect(fs.existsSync(filepath)).to.be(true);
+					expect(fs.readFileSync(filepath, 'utf8')).to.contain('require.register(');
 				});
 				done();
 			});
@@ -418,10 +418,10 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(2);
+				expect(filepaths).to.have.length(2);
 				filepaths.forEach(function (filepath) {
-					fs.existsSync(filepath).should.be.true;
-					fs.readFileSync(filepath, 'utf8').should.include('require.register(');
+					expect(fs.existsSync(filepath)).to.be(true);
+					expect(fs.readFileSync(filepath, 'utf8')).to.contain('require.register(');
 				});
 				done();
 			});
@@ -437,9 +437,9 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(2);
+				expect(filepaths).to.have.length(2);
 				filepaths.forEach(function (filepath) {
-					fs.existsSync(filepath).should.be.true;
+					expect(fs.existsSync(filepath)).to.be(true);
 				});
 				done();
 			});
@@ -455,13 +455,13 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(2);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(2);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content1 = fs.readFileSync(filepaths[0], 'utf8')
 					, content2 = fs.readFileSync(filepaths[1], 'utf8');
-				content1.should.eql(content2);
-				content1.should.include("colour: '#ffffff';");
-				content2.should.include("colour: '#ffffff';");
+				expect(content1).to.eql(content2);
+				expect(content1).to.contain("colour: '#ffffff';");
+				expect(content2).to.contain("colour: '#ffffff';");
 				done();
 			});
 		});
@@ -476,17 +476,17 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(2);
+				expect(filepaths).to.have.length(2);
 				filepaths.forEach(function (filepath) {
-					fs.existsSync(filepath).should.be.true;
+					expect(fs.existsSync(filepath)).to.be(true);
 					var ext = path.extname(filepath)
 						, content = fs.readFileSync(filepath, 'utf8');
 					if (ext == '.js') {
-						content.should.include("require.register('mixed-directory/bar.js'");
-						content.should.include("require.register('mixed-directory/foo.js'");
+						expect(content).to.contain("require.register('mixed-directory/bar.js'");
+						expect(content).to.contain("require.register('mixed-directory/foo.js'");
 					} else {
-						content.should.include("body {");
-						content.should.include("h1 {");
+						expect(content).to.contain("body {");
+						expect(content).to.contain("h1 {");
 					}
 				});
 				done();
@@ -503,10 +503,10 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(2);
+				expect(filepaths).to.have.length(2);
 				filepaths.forEach(function (filepath) {
-					fs.existsSync(filepath).should.be.true;
-					fs.readFileSync(filepath, 'utf8').should.include('require.register(');
+					expect(fs.existsSync(filepath)).to.be(true);
+					expect(fs.readFileSync(filepath, 'utf8')).to.contain('require.register(');
 				});
 				done();
 			});
@@ -522,17 +522,17 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(2);
+				expect(filepaths).to.have.length(2);
 				filepaths.forEach(function (filepath) {
-					fs.existsSync(filepath).should.be.true;
+					expect(fs.existsSync(filepath)).to.be(true);
 					var ext = path.extname(filepath)
 						, content = fs.readFileSync(filepath, 'utf8');
 					if (ext == '.js') {
-						content.should.include("require.register('mixed-directory/bar.js'");
-						content.should.include("require.register('mixed-directory/foo.js'");
+						expect(content).to.contain("require.register('mixed-directory/bar.js'");
+						expect(content).to.contain("require.register('mixed-directory/foo.js'");
 					} else {
-						content.should.include("body {");
-						content.should.include("h1 {");
+						expect(content).to.contain("body {");
+						expect(content).to.contain("h1 {");
 					}
 				});
 				done();
@@ -549,10 +549,10 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(2);
+				expect(filepaths).to.have.length(2);
 				filepaths.forEach(function (filepath) {
-					fs.existsSync(filepath).should.be.true;
-					fs.readFileSync(filepath, 'utf8').should.include('require.register(');
+					expect(fs.existsSync(filepath)).to.be(true);
+					expect(fs.readFileSync(filepath, 'utf8')).to.contain('require.register(');
 				});
 				done();
 			});
@@ -568,17 +568,17 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(2);
+				expect(filepaths).to.have.length(2);
 				filepaths.forEach(function (filepath) {
-					fs.existsSync(filepath).should.be.true;
+					expect(fs.existsSync(filepath)).to.be(true);
 					var ext = path.extname(filepath)
 						, content = fs.readFileSync(filepath, 'utf8');
 					if (ext == '.js') {
-						content.should.include("require.register('mixed-directory/bar.js'");
-						content.should.include("require.register('mixed-directory/foo.js'");
+						expect(content).to.contain("require.register('mixed-directory/bar.js'");
+						expect(content).to.contain("require.register('mixed-directory/foo.js'");
 					} else {
-						content.should.include("body {");
-						content.should.include("h1 {");
+						expect(content).to.contain("body {");
+						expect(content).to.contain("h1 {");
 					}
 				});
 				done();
@@ -595,10 +595,10 @@ describe('Builder', function () {
 					]
 				}
 			}, { lazy: true }, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include("require.register('foo.js', \"var foo = this;\");");
+				expect(content).to.contain("require.register('foo.js', \"var foo = this;\");");
 				done();
 			});
 		});
@@ -613,10 +613,10 @@ describe('Builder', function () {
 					]
 				}
 			}, { compress: true }, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include('require.register("foo.js",function(r,e,i){}),require.register("bar.js",function(r,e,i){r("foo.js")});');
+				expect(content).to.contain('require.register("foo.js",function(r,e,i){}),require.register("bar.js",function(r,e,i){r("foo.js")});');
 				done();
 			});
 		});
@@ -631,10 +631,10 @@ describe('Builder', function () {
 					]
 				}
 			}, { compress: true, lazy: true }, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include('require.register("foo.js","var foo=this;"),require.register("bar.js",\'var foo=require("foo.js"),bar=this;\');');
+				expect(content).to.contain('require.register("foo.js","var foo=this;"),require.register("bar.js",\'var foo=require("foo.js"),bar=this;\');');
 				done();
 			});
 		});
@@ -650,11 +650,11 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include("})((typeof window !== 'undefined') ? window : global);");
-				content.should.include("require.register('foo.js'");
+				expect(content).to.contain("})((typeof window !== 'undefined') ? window : global);");
+				expect(content).to.contain("require.register('foo.js'");
 				done();
 			});
 		});
@@ -670,11 +670,11 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				filepaths.should.have.length(1);
-				fs.existsSync(filepaths[0]).should.be.true;
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				content.should.include("require.register('foo.js'");
-				content.should.include("require('foo.js');");
+				expect(content).to.contain("require.register('foo.js'");
+				expect(content).to.contain("require('foo.js');");
 				done();
 			});
 		});
@@ -698,9 +698,9 @@ describe('Builder', function () {
 				script: 'node mod.js output/foo.js'
 			}, { script: true }, function (err, filepaths) {
 				setTimeout(function () {
-					fs.existsSync(filepaths[0]).should.be.true;
+					expect(fs.existsSync(filepaths[0])).to.be(true);
 					var content = fs.readFileSync(filepaths[0], 'utf8');
-					content.should.eql("oops!");
+					expect(content).to.eql("oops!");
 					done();
 				}, 100);
 			});
@@ -723,7 +723,7 @@ describe('Builder', function () {
 				fs.writeFileSync(path.resolve('foo.js'), 'var foo = "foo";', 'utf8');
 				setTimeout(function () {
 					var content = fs.readFileSync(path.resolve('output/foo.js'), 'utf8');
-					content.should.endWith("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = \"foo\";\n});");
+					expect(content).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = \"foo\";\n});");
 					fs.writeFileSync(path.resolve('foo.js'), foo);
 					child.kill();
 					done();

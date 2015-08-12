@@ -1,6 +1,7 @@
 'use strict';
 
-var filetype = require('../lib/utils/filetype')
+var expect = require('expect.js')
+	, filetype = require('../lib/utils/filetype')
 	, fs = require('fs')
 	, path = require('path')
 	, pathname = require('../lib/utils/pathname')
@@ -11,20 +12,20 @@ var filetype = require('../lib/utils/filetype')
 describe('utils', function () {
 	describe('reEscape', function () {
 		it('should ignore valid characters', function () {
-			reEscape('foo').should.equal('foo');
+			expect(reEscape('foo')).to.equal('foo');
 		});
 		it('should escape special RegExp characters', function () {
-			reEscape('foo/.&').should.equal('foo\\/\\.&');
+			expect(reEscape('foo/.&')).to.equal('foo\\/\\.&');
 		});
 	});
 
 	describe('truncate', function () {
 		it('should ignore short strings', function () {
-			truncate('foo/bar').should.equal('foo/bar');
+			expect(truncate('foo/bar')).to.equal('foo/bar');
 		});
 		it('should truncate long strings', function () {
-			truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung').should.equal('foo/bar/boo/bat/bing/boooooooo...oooong/buuuuuuuuuuuuuuuuuuuung');
-			truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung').should.have.length(63);
+			expect(truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung')).to.equal('foo/bar/boo/bat/bing/boooooooo...oooong/buuuuuuuuuuuuuuuuuuuung');
+			expect(truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung')).to.have.length(63);
 		});
 	});
 
@@ -35,62 +36,62 @@ describe('utils', function () {
 
 		describe('isUniquePattern()', function () {
 			it('should return true for "%hash%" patterns', function () {
-				unique.isUniquePattern('foo-%hash%.js').should.be.true;
+				expect(unique.isUniquePattern('foo-%hash%.js')).to.equal(true);
 			});
 			it('should return true for "%date%" patterns', function () {
-				unique.isUniquePattern('foo-%date%.js').should.be.true;
+				expect(unique.isUniquePattern('foo-%date%.js')).to.equal(true);
 			});
 			it('should return false for other patterns', function () {
-				unique.isUniquePattern('foo-%foo%.js').should.be.false;
+				expect(unique.isUniquePattern('foo-%foo%.js')).to.equal(false);
 			});
 		});
 
 		describe('find()', function () {
 			it('should find a matching file', function () {
-				unique.find('foo-%hash%.js').should.eql(path.resolve('foo-00000.js'));
+				expect(unique.find('foo-%hash%.js')).to.eql(path.resolve('foo-00000.js'));
 			});
 			it('should return "" when no match', function () {
-				unique.find('bar-%hash%.js').should.eql('');
+				expect(unique.find('bar-%hash%.js')).to.eql('');
 			});
 		});
 
 		describe('generate()', function () {
 			it('should generate a date based unique filename', function () {
-				path.basename(unique.generate('foo-%date%.js', 'var foo = "foo"')).should.match(/foo\-(\d+)\.js/);
+				expect(path.basename(unique.generate('foo-%date%.js', 'var foo = "foo"'))).to.match(/foo\-(\d+)\.js/);
 			});
 			it('should generate a hash based unique filename', function () {
-				path.basename(unique.generate('foo-%hash%.js', 'var foo = "foo"')).should.match(/foo\-(.+)\.js/);
+				expect(path.basename(unique.generate('foo-%hash%.js', 'var foo = "foo"'))).to.match(/foo\-(.+)\.js/);
 			});
 			it('should remove the unique pattern if no content passed', function () {
-				path.basename(unique.generate('foo-%hash%.js')).should.eql('foo-.js');
+				expect(path.basename(unique.generate('foo-%hash%.js'))).to.eql('foo-.js');
 			});
 			it('should return the passed in pattern when not hash or date', function () {
-				path.basename(unique.generate('foo-%foo%.js')).should.eql('foo-%foo%.js');
+				expect(path.basename(unique.generate('foo-%foo%.js'))).to.eql('foo-%foo%.js');
 			});
 		});
 	});
 
 	describe('filetype', function () {
 		it('should return the correct type for a js filepath', function () {
-			filetype('foo.js', {js:['js','json'],css:['css'],html:['html']}).should.eql('js');
+			expect(filetype('foo.js', {js:['js','json'],css:['css'],html:['html']})).to.eql('js');
 		});
 		it('should return the correct type for a css filepath', function () {
-			filetype('foo.css', {js:['js','json'],css:['css'],html:['html']}).should.eql('css');
+			expect(filetype('foo.css', {js:['js','json'],css:['css'],html:['html']})).to.eql('css');
 		});
 		it('should return the correct type for a html filepath', function () {
-			filetype('foo.html', {js:['js','json'],css:['css'],html:['html']}).should.eql('html');
+			expect(filetype('foo.html', {js:['js','json'],css:['css'],html:['html']})).to.eql('html');
 		});
 		it('should return the correct type for a root html template filepath', function () {
-			filetype('foo.nunjs', {js:['js','json'],css:['css'],html:['html','nunjs']}).should.eql('html');
+			expect(filetype('foo.nunjs', {js:['js','json'],css:['css'],html:['html','nunjs']})).to.eql('html');
 		});
 	});
 
 	describe('pathname', function () {
 		it('should return the dir/file name of a file', function () {
-			pathname(__filename).should.equal('test/1-utils-test.js');
+			expect(pathname(__filename)).to.equal('test/1-utils-test.js');
 		});
 		it('should return the dir/file name of a file relative to current directory', function () {
-			pathname('package.json').should.equal('./package.json');
+			expect(pathname('package.json')).to.equal('./package.json');
 		});
 	});
 });
