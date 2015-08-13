@@ -721,7 +721,7 @@ describe('Builder', function () {
 					var content = fs.readFileSync(filepaths[0], 'utf8');
 					expect(content).to.eql("oops!");
 					done();
-				}, 100);
+				}, 1000);
 			});
 		});
 	});
