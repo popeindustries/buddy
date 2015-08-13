@@ -733,6 +733,27 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should only build matching targets when globbing input', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: '*.js',
+							output: 'output'
+						},
+						{
+							input: 'foo.css',
+							output: 'output'
+						}
+					]
+				}
+			}, { grep: 'foo.*' }, function (err, filepaths) {
+				expect(filepaths).to.have.length(2);
+				expect(filepaths[0]).to.match(/foo\./);
+				expect(filepaths[1]).to.match(/foo\./);
+				done();
+			});
+		});
 		it('should only build matching targets when using "--invert" option', function (done) {
 			this.builder.build({
 				build: {
