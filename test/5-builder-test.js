@@ -174,6 +174,25 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should build a js file with json node_modules dependency', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'zing.js',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				expect(content).to.contain("require.register('zing.js'");
+				expect(content).to.contain("var json = {\n  \"boo\": \"boo\"\n};");
+				done();
+			});
+		});
 		it('should build a js file with disabled dependency', function (done) {
 			this.builder.build({
 				build: {

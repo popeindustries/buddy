@@ -296,7 +296,9 @@ describe('file', function () {
 						instance: {
 							filepath: path.resolve('./foo.json'),
 							extension: 'json',
-							content: fs.readFileSync(path.resolve('./src/foo.json'), 'utf8')
+							content: fs.readFileSync(path.resolve('./src/foo.json'), 'utf8'),
+							dependencies: [],
+							dependencyReferences: []
 						},
 						filepath: './foo.json',
 						match: "require('./foo.json')"
@@ -315,7 +317,9 @@ describe('file', function () {
 						instance: {
 							filepath: path.resolve('./bar.json'),
 							extension: 'json',
-							content: ''
+							content: '',
+							dependencies: [],
+							dependencyReferences: []
 						},
 						filepath: './bar.json',
 						match: "require('./bar.json')"
