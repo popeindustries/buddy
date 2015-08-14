@@ -809,23 +809,25 @@ describe('Builder', function () {
 			process.chdir(path.resolve(__dirname, 'fixtures/builder/watch'));
 		});
 
-		it('should rebuild a watched file on change', function (done) {
-			var child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, function (err, stdout, stderr) {
-						console.log(arguments);
-						done(err);
-					})
-				, foo = fs.readFileSync(path.resolve('foo.js'), 'utf8');
+		if (process.platform != 'win32') {
+			it('should rebuild a watched file on change', function (done) {
+				var child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, function (err, stdout, stderr) {
+							console.log(arguments);
+							done(err);
+						})
+					, foo = fs.readFileSync(path.resolve('foo.js'), 'utf8');
 
-			setTimeout(function () {
-				fs.writeFileSync(path.resolve('foo.js'), 'var foo = "foo";', 'utf8');
 				setTimeout(function () {
-					var content = fs.readFileSync(path.resolve('output/foo.js'), 'utf8');
-					expect(content).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = \"foo\";\n});");
-					fs.writeFileSync(path.resolve('foo.js'), foo);
-					child.kill();
-					done();
-				}, 100);
-			}, 4000);
-		});
+					fs.writeFileSync(path.resolve('foo.js'), 'var foo = "foo";', 'utf8');
+					setTimeout(function () {
+						var content = fs.readFileSync(path.resolve('output/foo.js'), 'utf8');
+						expect(content).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = \"foo\";\n});");
+						fs.writeFileSync(path.resolve('foo.js'), foo);
+						child.kill();
+						done();
+					}, 100);
+				}, 4000);
+			});
+		}
 	});
 });
