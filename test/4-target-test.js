@@ -80,7 +80,7 @@ describe('target', function () {
 			var file1 = fileFactory(path.resolve('src/js/foo.js'), this.options)
 				, file2 = fileFactory(path.resolve('src/js/bar.js'), this.options);
 			target.process([file1, file2], { js: [['load'], [], ['compile']] }, false, function (err, files) {
-				expect(files[1].content).to.eql("var bat = require('./bat')\n	, baz = require('./baz')\n	, bar = this;");
+				expect(files[1].content).to.eql("var bat = require(\'./bat\'),\n    baz = require(\'./baz\'),\n    bar = this;");
 				done();
 			});
 		});

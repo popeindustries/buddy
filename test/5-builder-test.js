@@ -5,7 +5,15 @@ var Builder = require('../lib/builder')
 	, expect = require('expect.js')
 	, fs = require('fs')
 	, path = require('path')
-	, rimraf = require('rimraf');
+	, rimraf = require('rimraf')
+	, transfigure = require('transfigure');
+
+// Load transfigure plugins
+fs.readdirSync(path.resolve('node_modules')).forEach(function (file) {
+	if (file.indexOf('transfigure-') == 0) {
+		transfigure.load(path.resolve('node_modules', file));
+	}
+});
 
 function gatherFiles (dir, files) {
 	files = files || [];

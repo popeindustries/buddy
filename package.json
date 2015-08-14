@@ -28,7 +28,7 @@
     "portscanner": "1.0.0",
     "recur-fs": "2.2.1",
     "simpler-browser-require": "1.0.0",
-    "transfigure": "3.2.1",
+    "transfigure": "3.3.0",
     "uglify-js": "2.4.24",
     "yaw": "0.1.1"
   },
