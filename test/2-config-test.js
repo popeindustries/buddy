@@ -69,6 +69,9 @@ describe('config', function () {
 	});
 
 	describe('parse', function () {
+		it('should warn on deprecated format', function () {
+			expect(config.parse([{js:{sources:[],targets:[{input:'src/hey.js',output:'js'}]}}])).to.eql([]);
+		});
 		it('should allow passing build data "input" that doesn\'t exist', function () {
 			expect(config.parse([{targets:[{input:'src/hey.js',output:'js'}]}])).to.be.ok();
 		});
