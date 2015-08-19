@@ -415,6 +415,26 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should build a directory of unwrapped js files if "modular" is false, including dependencies', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'js-directory/dependant',
+							output: 'output',
+							"modular": false
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				expect(filepaths).to.have.length(3);
+				filepaths.forEach(function (filepath) {
+					expect(fs.existsSync(filepath)).to.be(true);
+					expect(fs.readFileSync(filepath, 'utf8')).to.not.contain('require.register(');
+				});
+				done();
+			});
+		});
 		it('should build a directory of 3 js files, including nested directories', function (done) {
 			this.builder.build({
 				build: {
