@@ -14,16 +14,14 @@ Hooks can be written as inline JavaScript, or loaded from a file if a path is sp
 {
   ...
   "buddy": {
-    "js": {
-      "targets": [
-        {
-          "input": "somefile.js",
-          "output": "somedir",
-          "before": "console.log('before hook'); done(null);",
-          "after": "path/to/afterHook.js"
-        }
-      ]
-    }
+    "targets": [
+      {
+        "input": "somefile.js",
+        "output": "somedir",
+        "before": "console.log('before hook'); done();",
+        "after": "path/to/afterHook.js"
+      }
+    ]
   }
   ...
 }

@@ -1,5 +1,8 @@
 # Changelog
 
+**3.0.0** - Aug 2x, 2015
+* simplify configuration by removing need to define targets by type
+
 **2.3.0** - Feb 11, 2015
 * expose all system environment variables to forked app server during `buddy watch --serve`
 
