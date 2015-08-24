@@ -273,6 +273,23 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should build an es6 file with global helpers', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'bar.es6',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				expect(content).to.contain("var global = window.global = window;");
+				done();
+			});
+		});
 		it('should build a handlebars html file', function (done) {
 			this.builder.build({
 				build: {
