@@ -1,7 +1,17 @@
 # Changelog
 
 **3.0.0** - Aug 2x, 2015
-* simplify configuration by removing need to define targets by type
+* greatly simplify configuration by removing need to define targets by type
+* replace`--targets` subcommand with `--grep <pattern>` and `--invert` subcommands and `label` parameter to specify specific targets to run
+* correctly handle all configuration formats for the `package.json > browser` field, including disabling with `false`
+* prevent duplication by promoting all babel helpers to global scope (via `transfigure-babel@5.8.22-3` and higher)
+* no longer exit server on build error during `buddy watch --serve`
+* improve inlining of deeply nested json dependencies
+* parse watch-only sources to allow for more acurate server restarts
+* replace `alias` configuration parameter with `package.json > browser` field configuration
+* remove `init`, `ls`, and `clean` commands
+* remove `server` configuration parameter
+* remove support for html template precompilation
 
 **2.3.0** - Feb 11, 2015
 * expose all system environment variables to forked app server during `buddy watch --serve`
@@ -17,7 +27,7 @@
 
 **2.0.0** - Dec 11, 2014
 * compile es6 js files to vanilla es5 (use file extension `.es6`)
-* properly handle module aliasing in `package.json>browser`
+* properly handle module aliasing in `package.json > browser`
 * default source directory derived from `input` when no sources are specified
 * handle all dependencies correctly, including `inline` html assets and `require('*.json')`
 * properly handle node_module dependencies with different versions
