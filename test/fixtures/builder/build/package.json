@@ -1,0 +1,7 @@
+{
+	"name": "build",
+	"version": "1.0.0",
+	"browser": {
+		"bat": false
+	}
+}

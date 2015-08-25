@@ -3,15 +3,14 @@
 
 # buddy
 
-**buddy** is a build tool for js/css/html projects. It compiles source code from higher order js/css/html languages (*CoffeeScript, es6, JSX, Handlebars, Dust, Nunjucks, Stylus, Less, Jade, Twig*), automatically wraps js files in module definitions, statically resolves js/css/html dependencies, and concatenates (and optionally compresses) all souces into bundles for more efficient delivery to the browser.
+**buddy** is a fast and simple build tool for js/css/html projects. It compiles source code from higher order js/css/html languages (*CoffeeScript, es6, JSX, Handlebars, Dust, Nunjucks, Stylus, Less, Jade, Twig*), automatically wraps js files in module definitions, statically resolves js/css/html dependencies, and concatenates (and optionally compresses) all souces into bundles for more efficient delivery to the browser.
 
 ## Features
 
-- Allows you to write js __modules__ without module boilerplate (similar to node.js)
-- Resolves js __dependencies__ automatically
-- Resolves all relative dependencies
+- Allows you to write js __modules__ without module boilerplate (similar to _node.js_)
+- Resolves js __dependencies__ automatically (including those installed with `npm`)
 - Supports efficient ___lazy___ runtime evaluation by storing js modules as strings
-- __Compiles__ _CoffeeScript_, __es6__, _JSX_, _Handlebars_, _Dust_, _Nunjucks_, _Stylus_, _Less_, _Twig_, and _Jade_ source files
+- __Compiles__ _CoffeeScript_, _es6_, _JSX_, _Handlebars_, _Dust_, _Nunjucks_, _Stylus_, _Less_, _Twig_, and _Jade_ source files (or others via custom __plugins__)
 - __Concatenates__ js modules into file bundles
 - Runs js and css code through __linters__ to check for syntax errors
 - __Watches__ for source changes and builds automatically
@@ -19,14 +18,15 @@
 - [Add-on] __Restarts__ custom server after each change
 - [Add-on] __Refreshes__ connected browsers after each change
 - __Inlines__ css `@imports` automatically
-- __Inlines__ html `<script>` and `<link>` tags when flagged with `inline` attributes
+- __Inlines__ html `<script>`, `<link>`, and `<img>` tags when flagged with an `inline` attribute
 - __Inlines__ json content with `require("path/to/my.json")`
-- Supports execution of a ___script___ after each build
-- Supports execution of ___hook___ scripts `afterEach` file is processed, and `before` and `after` a target is built
+- Supports execution of a custom ___script___ after each build
+- Supports extension via execution of ___hook___ scripts `afterEach` file is processed, and `before` and `after` a target is built
+- Supports output of unique file names
 
 ## Installation
 
-To avoid running **buddy** directly as a global command, and thus avoid versioning problems across different projects, it is highly recommended that you install the separate [buddy-cli](https://github.com/popeindustries/buddy-cli) command line interface system-wide:
+To avoid running **buddy** directly as a global command, and thus avoid versioning problems across different projects, it is recommended that you install the separate [buddy-cli](https://github.com/popeindustries/buddy-cli) command line interface system-wide:
 
 ```bash
 $ npm -g install buddy-cli
@@ -40,7 +40,7 @@ $ npm -g install buddy-cli
   "description": "This is my web project",
   "version": "1.0.0",
   "devDependencies": {
-    "buddy": "2.0.0"
+    "buddy": "^3.0.0"
   },
   "buddy": {
     ...
@@ -55,38 +55,32 @@ $ npm install
 ## Usage
 
 ```text
-Usage: buddy [options] <command> [path/to/package.json
-                                  || path/to/buddy.js
-                                  || path/to/buddy.json]
+Usage: buddy [options] <command> [path-to-config]
 
-Commands:
+  Commands:
 
-  build [config]         build js and css sources
-  watch [config]         watch js and css source files and build changes
-  deploy [config]        build compressed js and css sources
-  ls                     list all previously created files and directories
-  clean                  remove all previously created files and directories
+    build [config]   build js, css, and html sources
+    watch [config]   watch js, css, html source files and build changes
+    deploy [config]  build compressed js, css, and html sources
 
-Options:
+  Options:
 
-  -h, --help             output usage information
-  -V, --version          output the version number
-  -t, --targets [types]  optional comma separated list of target(s) to build
-                          [js,css,html]
-  -c, --compress         compress output for production deployment
-  -l, --lint             check output for syntax and logic errors
-  -r, --reload           reload all connected live-reload clients on file
-                          change during watch [ADD-ON buddy-server]
-  -s, --serve            create a webserver to serve static files
-                          during watch [ADD-ON buddy-server]
-  -S, --script           run script on build completion
-  -L, --lazy             convert js modules for lazy evaluation
-  -v, --verbose          print all messages for debugging
+    -h, --help            output usage information
+    -V, --version         output the version number
+    -c, --compress        compress output for production deployment
+    -g, --grep <pattern>  only run build targets matching <pattern>
+    -i, --invert          inverts grep matches
+    -L, --lazy            convert js modules for lazy evaluation
+    -l, --lint            check output for syntax and logic errors
+    -r, --reload          reload all connected live-reload clients on file change during watch [ADD-ON buddy-server]
+    -s, --serve           create a webserver to serve static files during watch [ADD-ON buddy-server]
+    -S, --script          run script on build completion
+    -v, --verbose         print all messages for debugging
 ```
 
 ## Configuration
 
-Please refer to the annotated [configuration](https://github.com/popeindustries/buddy/blob/master/docs/config.md) file for all possible settings.
+Please refer to the annotated [configuration](https://github.com/popeindustries/buddy/blob/master/docs/config.md) file for all possible settings, and **note that the configuration format has changed considerably as of version 3**.
 
 ## Build concepts
 
@@ -104,49 +98,110 @@ Please refer to the annotated [configuration](https://github.com/popeindustries/
 
 - **output_compressed**: an alternate file or directory to use for compressed output.
 
-- **targets**: a nested target that prevents the duplication of source code with it's parent target (js).
+- **targets**: a nested target that prevents the duplication of .js source code with it's parent target.
 
-- **alias**: one or more id/filepath pairs to manually specify a module's id and location (js).
+- **modular**: a flag to prevent .js files from being wrapped with a module definition.
 
-- **modular**: a flag to prevent files from being wrapped with a module definition (js).
+- **before**, **after**, **afterEach**: hooks for modifying the build process
 
-- **before**, **after**, **afterEach**: hooks for modifying the build process (see [hooks](https://github.com/popeindustries/buddy/blob/master/docs/hooks.md))
+- **boilerplate**: a flag to specify inclusion of [simpler-browser-require](https://github.com/popeindustries/simpler-browser-require) source code in the .js output file.
 
-- **boilerplate**: a flag to specify inclusion of [browser-require](https://github.com/popeindustries/browser-require) source code in the output file (js).
+- **bootstrap**: a flag to specify that the entry-point .js module be automatically `require`'d to force application startup.
 
-- **bootstrap**: a flag to specify that the entry-point module be automatically `require`'d to force application startup (js).
-
-- **server**: a flag to force linkage of a target to the running development/application server. Ensures that changes during `watch --reload --serve` will force a server restart (see [server]()).
+- **label**: an arbitrary name to use for matching when using the `--grep` subcommand
 
 ### Hooks
 
-It is possible to intervene in the build process through the use of *hooks*. Hooks are assigned to specific targets and defined in the target configuration. See [hooks](https://github.com/popeindustries/buddy/blob/master/docs/hooks.md) for more details.
+It is possible to intervene in the build process through the use of *hooks*. Hooks are assigned to specific targets and defined in the target configuration. There are three types available:
 
-### Aliases
+- **before**: executed before a *target* is built
 
-Specifying aliases allow you to override the default behaviour for automatically resolving js module ids. Aliases are defined in the target configuration:
+- **after**: executed after a *target* is built
+
+- **afterEach**: executed after an output *file* is processed, but before it is written to disk
+
+Hooks can be written as inline JavaScript, or loaded from a file if a path is specified:
 
 ```json
 {
   "buddy": {
-    "js": {
-      "targets": [
-        {
-          "input": "somefile.js",
-          "output": "somedir",
-          "alias": {
-            "jquery": "./lib/js/jquery-custom-2.0.js",
-            "dust": "./node_modules/dustjs-linkedin/dist/dust-core-1.2.3.js"
-          }
-        }
-      ]
-    }
+    "targets": [
+      {
+        "input": "somefile.js",
+        "output": "somedir",
+        "before": "console.log('before hook'); done();",
+        "after": "path/to/afterHook.js"
+      }
+    ]
   }
 }
 ```
-```javascript
-var jquery = require('jquery')
-  , dust = require('dust');
+
+All hooks are passed the following arguments:
+
+- **context**: the `target` (before and after) or `file` (afterEach) instance
+
+- **options**: the runtime options used to execute buddy (`compress`, `lazy`, `reload`, `watch`, `deploy`, etc)
+
+- **done**: a callback function that accepts an optional `error`. **MUST** be called in order to return control back to the program.
+
+### Aliases
+
+When writing universal modules for use in both server and browser environments, it is sometimes desirable to specify an alternative entrypoint for inclusion in the browser. The alternative to the `main` *package.json* parameter is `browser`:
+
+```json
+{
+  "name": "myModule",
+  "version": "1.0.0",
+  "main": "lib/server.js",
+  "browser": "lib/browser.js"
+}
+```
+
+**buddy** correctly handles this remapping when resolving npm dependencies that use the `browser` parameter. In addition, it is possible to employ more advanced uses to alias files and modules directly in your project:
+
+```json
+{
+  "browser": {
+    "someModule": "node_modules/someModule/dist/someModule-with-addons.js"
+  }
+}
+```
+
+...or even disable a module completely when bundling for the browser:
+
+```json
+{
+  "browser": {
+    "someModule": false
+  }
+}
+```
+
+Read more about the uses of `browser` [here](https://gist.github.com/defunctzombie/4339901).
+
+### Unique filenames
+
+Unique filenames can be automatically generated by including one of two types of token in the output filename:
+
+- **%date%**: inserts the current timestamp at the time of build
+- **%hash%**: inserts a hash of the file's content
+
+```json
+{
+  "buddy": {
+    "targets": [
+      {
+        "input": "somefile.js",
+        "output": "somefile-%hash%.js"
+      },
+      {
+        "input": "somefile.css",
+        "output": "somefile-%date%.css"
+      }
+    ]
+  }
+}
 ```
 
 ## Server
@@ -158,8 +213,8 @@ Install the add-on alongside **buddy**, and see *[buddy-server](https://github.c
 ```json
 {
   "dependencies": {
-    "buddy": "2.0.0",
-    "buddy-server": "1.0.0"
+    "buddy": "^3.0.0",
+    "buddy-server": "^1.0.0"
   },
   "buddy": {
     "server": {
@@ -183,7 +238,6 @@ Each JS file is wrapped in a module declaration based on the file's location. De
 ```javascript
 var lib = require('./my/lib'); // in current package
 var SomeClass = require('../SomeClass'); // in parent package
-var util = require('utils/util'); // from root package
 var module = require('module'); // from node_modules
 
 lib.doSomething();
@@ -219,16 +273,12 @@ Each module is provided with a `module`, `exports`, and `require` reference.
 
 When `require()`-ing a module, keep in mind that the module id is resolved based on the following rules:
 
- * packages begin at the root folder specified in *build > js > sources*: `'Users/alex/project/src/package/main.js' > 'package/main'`
+ * packages begin at the root project directory, or those specified in *build > sources*: `'Users/alex/project/src/package/main.js' > 'src/package/main'`
  * ids are case-sensitive: `'package/MyClass.js' > 'package/MyClass'` (depends on platform)
 
 See [node.js modules](http://nodejs.org/api/modules.html) for more info on modules.
 
-***NOTE***: `require()` boilerplate needs to be included in the browser to enable module loading. It's recommended to `install` a library like [browser-require](https://github.com/popeindustries/browser-require) (npm: simple-browser-require), or set the `boilerplate` target flag to have it included automatically.
-
-#### PRECOMPILED TEMPLATES
-
-*dust*, *handlebars*, *nunjucks*, and *jade* support the precompilation of templates for efficient use in the browser. See [precompiled](https://github.com/popeindustries/buddy/blob/master/docs/precompiled.md) for more details.
+***NOTE***: `require` boilerplate needs to be present as a browser global property to enable runtime module initialization. It is necessary to include a copy of [simpler-browser-require](https://github.com/popeindustries/simpler-browser-require) (npm: simpler-browser-require), or set the `boilerplate` target flag to have it included automatically.
 
 #### "LAZY" MODULES
 
@@ -236,27 +286,23 @@ When run with the `--lazy` flag, **buddy** supports storing js modules as string
 
 ### EXAMPLES
 
-Generate `www/main.js` by concatenating and modularizing all dependencies in `src/js` or `libs/js` referenced in `src/js/main.js`, including modules installed via npm (under `node_modules` directory):
+Generate `www/main.js` by concatenating and modularizing all dependencies referenced by `src/js/main.js`, including modules installed via npm (from the `node_modules` directory):
 
 ```json
 {
-  "name": "myproject",
-  "description": "This is my web project",
-  "version": "0.1.0",
+  "name": "myProject",
+  "version": "1.0.0",
   "devDependencies": {
-    "buddy": "2.0.0"
+    "buddy": "^3.0.0"
   },
   "buddy": {
     "build": {
-      "js": {
-        "sources": ["src/js", "libs/js"],
-        "targets": [
-          {
-            "input": "src/js/main.js",
-            "output": "www/main.js"
-          }
-        ]
-      }
+      "targets": [
+        {
+          "input": "src/js/main.js",
+          "output": "www"
+        }
+      ]
     }
   }
 }
@@ -264,52 +310,45 @@ Generate `www/main.js` by concatenating and modularizing all dependencies in `sr
 ```javascript
 // src/main.js
 var lodash = require('lodash') // npm module (node_modules/lodash)
-  , view = require('./views/view') // src module (src/views/view.js)
-  , util = require('utils/util'); // src module (libs/js/utils/util);
+  , view = require('./views/view') // src module (src/views/view.js);
 ```
 
-Generate `www/main.js` and an additional widget `www/widget.js` using shared sources (avoid duplicating dependencies):
+Generate `www/main.js` and an additional widget `www/widget.js` using shared sources (avoiding duplicate dependencies):
 
 ```json
 {
   "buddy": {
     "build": {
-      "js": {
-        "sources": ["src/js", "libs/js"],
-        "targets": [
-          {
-            "input": "src/js/main.js",
-            "output": "www/main.js",
-            "targets": [
-              {
-                "input": "src/js/widget.js",
-                "output": "www/widget.js"
-              }
-            ]
-          }
-        ]
-      }
+      "targets": [
+        {
+          "input": "src/js/main.js",
+          "output": "www",
+          "targets": [
+            {
+              "input": "src/js/widget.js",
+              "output": "www"
+            }
+          ]
+        }
+      ]
     }
   }
 }
 ```
 
-Compile a directory of CoffeeScript files for Node.js, skipping module wrapping and concatenation:
+Compile a directory of ES6 files for Node.js, skipping module wrapping and concatenation:
 
 ```json
 {
   "buddy": {
     "build": {
-      "js": {
-        "sources": ["src/coffee"],
-        "targets": [
-          {
-            "input": "src/coffee",
-            "output": "js",
-            "modular": false
-          }
-        ]
-      }
+      "targets": [
+        {
+          "input": "src/es6",
+          "output": "js",
+          "modular": false
+        }
+      ]
     }
   }
 }
@@ -319,20 +358,17 @@ Alias a custom build of *jquery*:
 
 ```json
 {
+  "browser": {
+    "jquery": "libs/js/jquery-custom.js"
+  },
   "buddy": {
     "build": {
-      "js": {
-        "sources": ["src/js"],
-        "targets": [
-          {
-            "input": "src/js/main.js",
-            "output": "www/main.js",
-            "alias": {
-              "jquery": "./lib/js/jquery-custom-2.0.js"
-            }
-          }
-        ]
-      }
+      "targets": [
+        {
+          "input": "src/js/main.js",
+          "output": "www"
+        }
+      ]
     }
   }
 }
@@ -347,17 +383,14 @@ Generate `www/main.js` by including `require()` boilerplate and automatically bo
 {
   "buddy": {
     "build": {
-      "js": {
-        "sources": ["src/js"],
-        "targets": [
-          {
-            "input": "src/js/main.js",
-            "output": "www/main.js",
-            "boilerplate": true,
-            "bootstrap": true
-          }
-        ]
-      }
+      "targets": [
+        {
+          "input": "src/js/main.js",
+          "output": "www",
+          "boilerplate": true,
+          "bootstrap": true
+        }
+      ]
     }
   }
 }
@@ -365,25 +398,22 @@ Generate `www/main.js` by including `require()` boilerplate and automatically bo
 
 ## Working with CSS
 
-Like js modules, css dependencies are automatically resolved through parsing and inlining of `@import` directives.
+Like .js modules, .css dependencies are automatically resolved through parsing and inlining of `@import` directives. ***NOTE***: unlike .js dependencies, .css dependencies are inlined, and may be inlined more than once if several `@import` directives point to the same file.
 
 ### Examples
 
-Generate `www/main.css` by concatenating all dependencies in `src/css` referenced in `src/css/main.css`:
+Generate `www/main.css` by concatenating all dependencies referenced in `src/css/main.css`:
 
 ```json
 {
   "buddy": {
     "build": {
-      "css": {
-        "sources": ["src/css"],
-        "targets": [
-          {
-            "input": "src/css/main.css",
-            "output": "www/main.css"
-          }
-        ]
-      }
+      "targets": [
+        {
+          "input": "src/css/main.css",
+          "output": "www"
+        }
+      ]
     }
   }
 }
@@ -391,11 +421,11 @@ Generate `www/main.css` by concatenating all dependencies in `src/css` reference
 
 ## Working with HTML
 
-When working with *dust*, *handlebars*, *nunjucks*, or *jade* templates, dependencies (partials, includes) are automatically resolved and registered before source files are compiled to html. In addition, html files are parsed for inlineable js and css sources.
+When working with html or html templating languages (*dust*, *handlebars*, *nunjucks*, *jade*, etc), dependencies (partials, includes) are automatically resolved and registered before source files are compiled. In addition, files are parsed for inlineable js and css sources (those with an `inline` attribute).
 
 ### Examples
 
-Resolve template partials:
+Resolve template includes when compiling a handlebars template:
 
 ```html
 <!-- layout.handlebars depends on header.handlebars -->
@@ -407,7 +437,7 @@ Resolve template partials:
 </body>
 ```
 
-Inline JS and CSS source files with `inline` attribute (see [inline-source](https://github.com/popeindustries/inline-source)):
+Inline .js and .css source files with `inline` attribute (see [inline-source](https://github.com/popeindustries/inline-source)):
 
 ```html
 <!-- project/src/html/index.html -->
@@ -416,8 +446,6 @@ Inline JS and CSS source files with `inline` attribute (see [inline-source](http
 <head>
   <!-- inline project/src/js/inlineScript.js -->
   <script inline src="../js/inlineScript.js"></script>
-  <!-- inline project/scripts/inlineScript.js -->
-  <script inline src="/scripts/inlineScript.js"></script>
   <!-- inline project/src/css/inlineStyle.css -->
   <link inline rel="../css/inlineStyle.css"></link>
 </head>

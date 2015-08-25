@@ -1,0 +1,10 @@
+{
+	"build": {
+		"targets": [
+			{
+				"input": ["src/main.js", "src/main.css"],
+				"output": "www"
+			}
+		]
+	}
+}

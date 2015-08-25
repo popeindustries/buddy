@@ -1,0 +1,1 @@
+var json = require('./bar.json');
