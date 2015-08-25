@@ -37,7 +37,7 @@
     "expect.js": "*",
     "mocha": "*",
     "rimraf": "*",
-    "transfigure-babel": "5.8.22-2",
+    "transfigure-babel": "5.8.22-3",
     "transfigure-coffeescript": "*",
     "transfigure-dust": "*",
     "transfigure-handlebars": "3.0.3-2",
