@@ -1,6 +1,10 @@
 # Changelog
 
-**3.0.0** - Aug 2x, 2015
+**3.0.1** - Sept 2, 2015
+* correctly handle inlining of images
+* update dependencies
+
+**3.0.0** - Aug 26, 2015
 * greatly simplify configuration by removing need to define targets by type
 * replace`--targets` subcommand with `--grep <pattern>` and `--invert` subcommands and `label` parameter to specify specific targets to run
 * correctly handle all configuration formats for the `package.json > browser` field, including disabling with `false`
