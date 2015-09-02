@@ -21,7 +21,7 @@
     "eslint": "1.3.1",
     "glob": "5.0.14",
     "identify-resource": "5.1.1",
-    "inline-source": "4.0.1",
+    "inline-source": "4.1.1",
     "lodash": "3.10.1",
     "md5": "2.0.0",
     "minimatch": "2.0.10",
