@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>foo</title>
+	<img inline src="./foo.svg" />
+</head>
+<body>
+
+</body>
+</html>
