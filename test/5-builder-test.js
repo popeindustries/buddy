@@ -163,6 +163,24 @@ describe('Builder', function () {
 				done();
 			});
 		});
+		it('should build a js file with node_modules dependencies with missing "main" reference', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'zong.js',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				var content = fs.readFileSync(filepaths[0], 'utf8');
+				expect(content).to.contain("require.register('foo.js/index.js#1.0.0'");
+				done();
+			});
+		});
 		it('should build a js file with json dependency', function (done) {
 			this.builder.build({
 				build: {
