@@ -1,5 +1,8 @@
 # Changelog
 
+**3.0.2** - Sept 18, 2015
+* fix resolution of node_modules with filename-like names ('lodash.isplainobject', etc), and missing "main" parameter
+
 **3.0.1** - Sept 2, 2015
 * correctly handle inlining of images
 * update dependencies
