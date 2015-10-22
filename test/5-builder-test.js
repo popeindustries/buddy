@@ -425,7 +425,7 @@ describe('Builder', function () {
 				expect(filepaths).to.have.length(1);
 				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				expect(content).to.contain('<svg x="0" y="0" viewbox="0 0 100 100">\n<circle cx="50" cy="50" r="25"/>\n</svg>');
+				expect(content).to.contain('<svg x="0px" y="0px" viewBox="0 0 100 100" version="1.1" id="Layer_1" enable-background="new 0 0 100 100" xml:space="preserve">\n<circle cx="50" cy="50" r="25"/>\n</svg>');
 				done();
 			});
 		});
@@ -777,6 +777,22 @@ describe('Builder', function () {
 				var content = fs.readFileSync(filepaths[0], 'utf8');
 				expect(content).to.contain("require.register('foo.js'");
 				expect(content).to.contain("require('foo.js');");
+				done();
+			});
+		});
+		it.only('should copy an image directory', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'image-directory',
+							output: 'output'
+						}
+					]
+				}
+			}, null, function (err, filepaths) {
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
 				done();
 			});
 		});
