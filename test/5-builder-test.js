@@ -780,7 +780,7 @@ describe('Builder', function () {
 				done();
 			});
 		});
-		it.only('should copy an image directory', function (done) {
+		it('should copy an image directory', function (done) {
 			this.builder.build({
 				build: {
 					targets: [
@@ -791,6 +791,22 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
+				expect(filepaths).to.have.length(1);
+				expect(fs.existsSync(filepaths[0])).to.be(true);
+				done();
+			});
+		});
+		it('should compress and copy an image directory', function (done) {
+			this.builder.build({
+				build: {
+					targets: [
+						{
+							input: 'image-directory',
+							output: 'output'
+						}
+					]
+				}
+			}, { compress: true }, function (err, filepaths) {
 				expect(filepaths).to.have.length(1);
 				expect(fs.existsSync(filepaths[0])).to.be(true);
 				done();

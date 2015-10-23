@@ -21,6 +21,7 @@
     "eslint": "1.7.3",
     "glob": "5.0.15",
     "identify-resource": "5.1.2",
+    "imagemin": "3.2.2",
     "inline-source": "4.2.0",
     "lodash": "3.10.1",
     "md5": "2.0.0",
