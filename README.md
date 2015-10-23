@@ -23,6 +23,7 @@
 - Supports execution of a custom ___script___ after each build
 - Supports extension via execution of ___hook___ scripts `afterEach` file is processed, and `before` and `after` a target is built
 - Supports output of unique file names
+- Supports compression of image assets
 
 ## Installation
 
