@@ -791,7 +791,7 @@ describe('Builder', function () {
 					]
 				}
 			}, null, function (err, filepaths) {
-				expect(filepaths).to.have.length(1);
+				expect(filepaths).to.have.length(2);
 				expect(fs.existsSync(filepaths[0])).to.be(true);
 				done();
 			});
@@ -807,8 +807,9 @@ describe('Builder', function () {
 					]
 				}
 			}, { compress: true }, function (err, filepaths) {
-				expect(filepaths).to.have.length(1);
+				expect(filepaths).to.have.length(2);
 				expect(fs.existsSync(filepaths[0])).to.be(true);
+				expect(fs.readFileSync(filepaths[0], 'utf8')).to.eql('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="25"/></svg>');
 				done();
 			});
 		});
