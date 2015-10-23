@@ -1,5 +1,9 @@
 # Changelog
 
+**3.1.0** - Oct 23, 2015
+* fix handling of compile errors to prevent forced restart during `--watch`
+* add support for images (gif, jpg, png, svg), including compression when using `deploy` command or `--compress` option
+
 **3.0.2** - Sept 18, 2015
 * fix resolution of node_modules with filename-like names ('lodash.isplainobject', etc), and missing "main" parameter
 
