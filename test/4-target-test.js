@@ -80,7 +80,7 @@ describe('target', function () {
 			var file1 = fileFactory(path.resolve('src/js/foo.js'), this.options)
 				, file2 = fileFactory(path.resolve('src/js/bar.js'), this.options);
 			target.process([file1, file2], { js: [['load'], [], ['compile']] }, false, function (err, files) {
-				expect(files[1].content).to.eql("var bat = require(\'./bat\'),\n    baz = require(\'./baz\'),\n    bar = this;");
+				expect(files[1].content).to.eql("'use strict';\n\nvar bat = require(\'./bat\'),\n    baz = require(\'./baz\'),\n    bar = undefined;");
 				done();
 			});
 		});
@@ -88,7 +88,7 @@ describe('target', function () {
 			var file1 = fileFactory(path.resolve('src/js/foo.js'), this.options);
 			files = target.process([file1], { js: [['load', 'parse', 'wrap'], [], []] }, false, function (err, files) {
 				expect(files).to.have.length(1);
-				expect(files[0].content).to.eql("require.register('src/js/foo.js', function(require, module, exports) {\n    var bar = require('./bar')\n    	, foo = this;\n});");
+				expect(files[0].content).to.eql("require.register(\'src/js/foo.js\', function(require, module, exports) {\n    var bar = require(\'./bar\')\n    \t, foo = this;\n});");
 				done();
 			});
 		});
