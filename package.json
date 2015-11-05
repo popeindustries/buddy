@@ -58,7 +58,7 @@
     "test-windows": "set NODE_ENV=test&&node.exe ./node_modules/mocha/bin/mocha --reporter spec -t 20000"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=0.12.0"
   },
   "repository": "git://github.com/popeindustries/buddy.git",
   "readmeFilename": "README.md",
