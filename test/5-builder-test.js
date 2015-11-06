@@ -81,14 +81,14 @@ describe('Builder', function () {
 		it('should build a js file when passed a json config path', function (done) {
 			this.builder.build('buddy-single-file.json', null, function (err, filepaths) {
 				expect(fs.existsSync(filepaths[0])).to.be(true);
-				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    \"use strict\";\n    \n    var foo = undefined;\n});")
+				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});")
 				done();
 			});
 		});
 		it('should build a js file when passed a js config path', function (done) {
 			this.builder.build('buddy-single-file.js', null, function (err, filepaths) {
 				expect(fs.existsSync(filepaths[0])).to.be(true);
-				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    \"use strict\";\n    \n    var foo = undefined;\n});")
+				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});")
 				done();
 			});
 		});
@@ -104,7 +104,7 @@ describe('Builder', function () {
 				}
 			}, null, function (err, filepaths) {
 				expect(fs.existsSync(filepaths[0])).to.be(true);
-				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    \"use strict\";\n    \n    var foo = undefined;\n});")
+				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});")
 				done();
 			});
 		});
@@ -120,7 +120,7 @@ describe('Builder', function () {
 				}
 			}, null, function (err, filepaths) {
 				expect(fs.existsSync(filepaths[0])).to.be(true);
-				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    \"use strict\";\n    \n    var foo = undefined;\n});")
+				expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});\nrequire.register(\'bar.js\', function(require, module, exports) {\n    var foo = require(\'foo.js\')\n    \t, bar = this;\n});")
 				done();
 			});
 		});
@@ -159,7 +159,7 @@ describe('Builder', function () {
 				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
 				expect(content).to.contain("require.register('bar/dist/commonjs/lib/bar.js#0.0.0'");
-				expect(content).to.contain("var bar = require('bar/dist/commonjs/lib/bar.js#0.0.0'),");
+				expect(content).to.contain("var bar = require('bar/dist/commonjs/lib/bar.js#0.0.0')");
 				done();
 			});
 		});
@@ -273,7 +273,7 @@ describe('Builder', function () {
 				done();
 			});
 		});
-		it('should build an es6 file', function (done) {
+		it.skip('should build an es6 file', function (done) {
 			this.builder.build({
 				build: {
 					targets: [
@@ -291,7 +291,7 @@ describe('Builder', function () {
 				done();
 			});
 		});
-		it('should build an es6 file with global helpers', function (done) {
+		it.skip('should build an es6 file with global helpers', function (done) {
 			this.builder.build({
 				build: {
 					targets: [
@@ -389,7 +389,7 @@ describe('Builder', function () {
 				}
 			}, null, function (err, filepaths) {
 				expect(fs.existsSync(filepaths[0])).to.be(true);
-				expect(path.basename(filepaths[0])).to.eql('foo-80cd4208809edd6e4cb74daba35a3883.js');
+				expect(path.basename(filepaths[0])).to.eql('foo-0f1d8c291e764ab11cf16a0123a62c9d.js');
 				done();
 			});
 		});
@@ -700,7 +700,7 @@ describe('Builder', function () {
 				expect(filepaths).to.have.length(1);
 				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				expect(content).to.contain('require.register(\'foo.js\', "\\"use strict\\";\\n\\nvar foo = undefined;")');
+				expect(content).to.contain('require.register(\'foo.js\', "var foo = this;");');
 				done();
 			});
 		});
@@ -718,7 +718,7 @@ describe('Builder', function () {
 				expect(filepaths).to.have.length(1);
 				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				expect(content).to.contain('require.register("foo.js",function(r,e,s){"use strict"}),require.register("bar.js",function(r,e,s){"use strict";r("foo.js")});');
+				expect(content).to.contain('require.register("foo.js",function(r,e,i){}),require.register("bar.js",function(r,e,i){r("foo.js")});');
 				done();
 			});
 		});
@@ -736,7 +736,7 @@ describe('Builder', function () {
 				expect(filepaths).to.have.length(1);
 				expect(fs.existsSync(filepaths[0])).to.be(true);
 				var content = fs.readFileSync(filepaths[0], 'utf8');
-				expect(content).to.contain('require.register("foo.js",\'"use strict";var foo=void 0;\'),require.register("bar.js",\'"use strict";var foo=require("foo.js"),bar=void 0;\');');
+				expect(content).to.contain('require.register("foo.js","var foo=this;"),require.register("bar.js",\'var foo=require("foo.js"),bar=this;\');');
 				done();
 			});
 		});
