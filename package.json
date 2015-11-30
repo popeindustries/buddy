@@ -18,11 +18,11 @@
     "chalk": "1.1.1",
     "csslint": "0.10.0",
     "csso": "1.4.2",
-    "eslint": "1.9.0",
+    "eslint": "1.10.2",
     "glob": "6.0.1",
     "identify-resource": "5.1.2",
     "imagemin": "4.0.0",
-    "inline-source": "4.2.1",
+    "inline-source": "4.2.2",
     "lodash": "3.10.1",
     "md5": "2.0.0",
     "minimatch": "3.0.0",
@@ -30,7 +30,7 @@
     "recur-fs": "2.2.1",
     "simpler-browser-require": "1.0.0",
     "transfigure": "3.4.0",
-    "uglify-js": "2.5.0",
+    "uglify-js": "2.6.1",
     "yaw": "0.1.1"
   },
   "devDependencies": {
