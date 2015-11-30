@@ -1,5 +1,9 @@
 # Changelog
 
+**3.1.1** - Nov 30, 2015
+* fix printed log messages for build tasks
+* update dependencies
+
 **3.1.0** - Oct 23, 2015
 * fix handling of compile errors to prevent forced restart during `--watch`
 * add support for images (gif, jpg, png, svg), including compression when using `deploy` command or `--compress` option
