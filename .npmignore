@@ -1,4 +1,5 @@
 .git*
 test/
 examples/
+plugins/
 .DS_Store
