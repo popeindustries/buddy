@@ -1,0 +1,38 @@
+{
+  "name": "buddy-plugin-babel",
+  "description": "Buddy plugin for es6+ source transforms (via Babel)",
+  "version": "6.3.26",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "babel",
+    "buddy",
+    "compile",
+    "es6",
+    "es2015",
+    "jsx",
+    "react"
+  ],
+  "dependencies": {
+    "babel-core": "6.3.26",
+    "babel-plugin-external-helpers-2": "6.3.13",
+    "babel-preset-es2015": "6.3.13",
+    "babel-preset-react": "6.3.13",
+    "babel-plugin-transform-es3-member-expression-literals": "6.3.13",
+    "babel-plugin-transform-es3-property-literals": "6.3.13",
+    "lodash": "3.10.1"
+  },
+  "devDependencies": {
+    "expect.js": "*",
+    "mocha": "*"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec -t 10000"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/plugins/buddy-plugin-babel",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}
