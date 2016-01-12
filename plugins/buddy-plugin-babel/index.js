@@ -34,8 +34,6 @@ exports.registration = {
   name: 'babel',
   extensions: {
     js: [
-      'es6',
-      'es7',
       'js',
       'jsx'
     ]
