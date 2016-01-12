@@ -1,0 +1,31 @@
+{
+  "name": "buddy-plugin-uglify",
+  "description": "Buddy plugin for js minification (via Uglify-js)",
+  "version": "2.6.1",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "buddy",
+    "compress",
+    "js",
+    "minify",
+    "uglify-js"
+  ],
+  "dependencies": {
+    "lodash": "3.10.1",
+    "uglify-js": "2.6.1"
+  },
+  "devDependencies": {
+    "expect.js": "*",
+    "mocha": "*"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec -t 10000"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/plugins/buddy-plugin-uglify",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}
