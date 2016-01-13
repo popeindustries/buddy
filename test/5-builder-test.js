@@ -61,14 +61,14 @@ describe('Builder', () => {
     it('should build a js file when passed a json config path', (done) => {
       builder.build('buddy-single-file.json', null, (err, filepaths) => {
         expect(fs.existsSync(filepaths[0])).to.be(true);
-        expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});")
+        expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});");
         done();
       });
     });
     it('should build a js file when passed a js config path', (done) => {
       builder.build('buddy-single-file.js', null, (err, filepaths) => {
         expect(fs.existsSync(filepaths[0])).to.be(true);
-        expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});")
+        expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});");
         done();
       });
     });
@@ -84,7 +84,7 @@ describe('Builder', () => {
         }
       }, null, (err, filepaths) => {
         expect(fs.existsSync(filepaths[0])).to.be(true);
-        expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});")
+        expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});");
         done();
       });
     });
@@ -100,7 +100,7 @@ describe('Builder', () => {
         }
       }, null, (err, filepaths) => {
         expect(fs.existsSync(filepaths[0])).to.be(true);
-        expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});\nrequire.register(\'bar.js\', function(require, module, exports) {\n    var foo = require(\'foo.js\')\n    \t, bar = this;\n});")
+        expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});\nrequire.register(\'bar.js\', function(require, module, exports) {\n    var foo = require(\'foo.js\')\n    \t, bar = this;\n});");
         done();
       });
     });
@@ -382,7 +382,7 @@ describe('Builder', () => {
         }
       }, null, (err, filepaths) => {
         expect(fs.existsSync(filepaths[0])).to.be(true);
-        expect(path.basename(filepaths[0])).to.eql('foo-0f1d8c291e764ab11cf16a0123a62c9d.js');
+        expect(path.basename(filepaths[0])).to.eql('foo-e6ebdea11f861249711744262ba1abff.js');
         done();
       });
     });
@@ -584,6 +584,7 @@ describe('Builder', () => {
             expect(content).to.contain("require.register('mixed-directory/bar.js'");
             expect(content).to.contain("require.register('mixed-directory/foo.js'");
           } else {
+            console.log(content)
             expect(content).to.contain("body {");
             expect(content).to.contain("h1 {");
           }
