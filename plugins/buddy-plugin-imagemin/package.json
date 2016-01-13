@@ -1,0 +1,31 @@
+{
+  "name": "buddy-plugin-imagemin",
+  "description": "Buddy plugin for image minification (via imagemin)",
+  "version": "4.0.0-beta-2",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "buddy",
+    "compress",
+    "gif",
+    "images",
+    "imagemin",
+    "jpeg",
+    "minify",
+    "png",
+    "svg"
+  ],
+  "dependencies": {
+    "imagemin": "4.0.0"
+  },
+  "devDependencies": {
+  },
+  "main": "index.js",
+  "scripts": {
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/plugins/buddy-plugin-imagemin",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}

@@ -1,17 +1,17 @@
 {
-  "name": "buddy-plugin-uglify",
-  "description": "Buddy plugin for js minification (via Uglify-js)",
-  "version": "2.6.1-beta",
+  "name": "buddy-plugin-csso",
+  "description": "Buddy plugin for css minification (via csso)",
+  "version": "1.4.4-beta",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
     "compress",
-    "js",
-    "minify",
-    "uglify-js"
+    "css",
+    "csso",
+    "minify"
   ],
   "dependencies": {
-    "uglify-js": "2.6.1"
+    "csso": "1.4.4"
   },
   "devDependencies": {
   },
@@ -21,7 +21,7 @@
   "engines": {
     "node": ">=4"
   },
-  "repository": "git://github.com/popeindustries/buddy/tree/master/plugins/buddy-plugin-uglify",
+  "repository": "git://github.com/popeindustries/buddy/tree/master/plugins/buddy-plugin-csso",
   "readmeFilename": "README.md",
   "license": "MIT"
 }

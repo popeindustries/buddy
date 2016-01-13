@@ -136,27 +136,6 @@ describe('file', () => {
       });
     });
 
-    describe('compress()', () => {
-      it('should compress js file contents', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions: fileExtensions });
-
-        instance.content = "var foo = 'foo';\nmodule.exports = 'main';";
-        instance.compress(false, (err) => {
-          expect(instance.content).to.eql('var foo="foo";module.exports="main";');
-          done();
-        });
-      });
-      it('should compress css file contents', (done) => {
-        const instance = fileFactory(path.resolve('src/main.css'), { sources: [path.resolve('src')], fileExtensions: fileExtensions });
-
-        instance.content = 'body {\n  background-color: black;\n}';
-        instance.compress(false, (err) => {
-          expect(instance.content).to.eql('body{background-color:#000}');
-          done();
-        });
-      });
-    });
-
     describe('parse()', () => {
       it('should store an array of js dependencies', (done) => {
         const options = { sources: [path.resolve('src')], fileExtensions: fileExtensions }

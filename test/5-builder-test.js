@@ -723,6 +723,25 @@ describe('Builder', () => {
         done();
       });
     });
+    it('should build a minified css file if "compress" is true', (done) => {
+      builder.build({
+        build: {
+          targets: [
+            {
+              input: 'foo.css',
+              output: 'output'
+            }
+          ]
+        }
+      }, { compress: true }, (err, filepaths) => {
+        expect(filepaths).to.have.length(1);
+        expect(fs.existsSync(filepaths[0])).to.be(true);
+        const content = fs.readFileSync(filepaths[0], 'utf8');
+
+        expect(content).to.contain('body{color:#fff;font-size:12px}body p{font-size:10px}');
+        done();
+      });
+    });
     it('should build a minified and stringified js file if "compress" and "lazy" are true', (done) => {
       builder.build({
         build: {
