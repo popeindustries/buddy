@@ -1,7 +1,6 @@
 'use strict';
 
 const babel = require('babel-core')
-  , extend = require('lodash/object/extend')
 
   , BOILERPLATE = 'var global = window.global = window;\n\n'
   , DEFAULT_HELPERS = [
@@ -45,24 +44,23 @@ exports.registration = {
  * @param {String} content
  * @param {Object} options
  * @param {Function} fn(err, content)
+ * @returns {null}
  */
 exports.compile = function (content, options, fn) {
   // Skip node_modules files
-  if (!~options.filepath.indexOf('node_modules')) {
-    try {
-      const transform = babel.transform(content, extend({}, SETTINGS));
+  if (~options.filepath.indexOf('node_modules')) return fn(null, content);
 
-      // Store helper boilerplate
-      if (~transform.code.indexOf('babelHelpers')) {
-        options.cache.setSource('js-helpers', BOILERPLATE + HELPERS);
-      }
+  try {
+    const transform = babel.transform(content, Object.assign({}, SETTINGS));
 
-      fn(null, transform.code);
-    } catch (err) {
-      err.filepath = options.filepath;
-      fn(err);
+    // Store helper boilerplate
+    if (~transform.code.indexOf('babelHelpers')) {
+      options.cache.setSource('js-helpers', BOILERPLATE + HELPERS);
     }
-  } else {
-    fn(null, content);
+
+    fn(null, transform.code);
+  } catch (err) {
+    err.filepath = options.filepath;
+    fn(err);
   }
 };
