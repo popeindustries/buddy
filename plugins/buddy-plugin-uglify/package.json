@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-uglify",
   "description": "Buddy plugin for js minification (via Uglify-js)",
-  "version": "2.6.1-beta",
+  "version": "2.6.1",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",

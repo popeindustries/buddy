@@ -2,7 +2,7 @@
 
 const config = require('../lib/config')
   , expect = require('expect.js')
-  , merge = require('lodash/object/merge')
+  , merge = require('lodash/merge')
   , path = require('path')
 
   , CWD = process.cwd();
