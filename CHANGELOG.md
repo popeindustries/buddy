@@ -1,5 +1,8 @@
 # Changelog
 
+**4.0.0** - Jan 1, 2016
+* implement plugin system for all compilers and compressors
+
 **3.1.1** - Nov 30, 2015
 * fix printed log messages for build tasks
 * update dependencies
