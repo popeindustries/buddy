@@ -5,33 +5,11 @@ const Builder = require('../lib/builder')
   , expect = require('expect.js')
   , fs = require('fs')
   , path = require('path')
-  , rimraf = require('rimraf')
-  , transfigure = require('transfigure');
+  , rimraf = require('rimraf');
 
 let builder;
 
-// Load transfigure plugins
-fs.readdirSync(path.resolve('node_modules')).forEach((file) => {
-  if (file.indexOf('transfigure-') == 0) {
-    transfigure.load(path.resolve('node_modules', file));
-  }
-});
-
-function gatherFiles (dir, files) {
-  files = files || [];
-  for (const item in fs.readdirSync(dir)) {
-    const p = path.resolve(dir, item);
-
-    if (fs.statSync(p).isFile()) {
-      files.push(p);
-    } else {
-      gatherFiles(p, files);
-    }
-  }
-  return files;
-}
-
-describe('Builder--', () => {
+describe('Builder', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/builder'));
   });
@@ -52,9 +30,8 @@ describe('Builder--', () => {
       const targets = builder.initTargets([{
         inputpath: path.resolve('target/foo.js'),
         input: 'target/foo.js',
-        output: 'main.js',
-        runtimeOptions: {}
-      }]);
+        output: 'main.js'
+      }], { runtimeOptions: {}});
 
       expect(targets).to.have.length(1);
     });
@@ -64,14 +41,12 @@ describe('Builder--', () => {
         input: 'target/foo.js',
         output: 'main.js',
         hasChildren: true,
-        runtimeOptions: {},
-        targets:[{
+        targets: [{
           inputpath: path.resolve('target/lib'),
-          input:'target/lib',
-          output:'../js',
-          runtimeOptions: {}
+          input: 'target/lib',
+          output: '../js'
         }]
-      }]);
+      }], { runtimeOptions: {}});
 
       expect(targets).to.have.length(1);
       expect(targets[0].targets).to.have.length(1);
