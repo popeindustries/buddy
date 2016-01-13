@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-uglify",
   "description": "Buddy plugin for js minification (via Uglify-js)",
-  "version": "2.6.1",
+  "version": "2.6.1-beta",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -11,7 +11,6 @@
     "uglify-js"
   ],
   "dependencies": {
-    "lodash": "3.10.1",
     "uglify-js": "2.6.1"
   },
   "devDependencies": {
@@ -20,7 +19,6 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec -t 10000"
   },
   "engines": {
     "node": ">=4"
