@@ -83,6 +83,8 @@ Usage: buddy [options] <command> [path-to-config]
 
 Please refer to the annotated [configuration](https://github.com/popeindustries/buddy/blob/master/docs/config.md) file for all possible settings, and **note that the configuration format has changed considerably as of version 3**.
 
+## Plugins
+
 ## Build concepts
 
 **Project Root**: The directory from which all paths resolve to. Determined by location of the configuration file.
