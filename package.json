@@ -1,7 +1,7 @@
 {
   "name": "buddy",
   "description": "A fast, simple build tool for web projects.",
-  "version": "3.1.1",
+  "version": "4.0.0-beta",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "build",
@@ -30,21 +30,21 @@
     "yaw": "0.1.1"
   },
   "devDependencies": {
+    "buddy-plugin-coffeescript": "*",
     "buddy-plugin-csso": "*",
+    "buddy-plugin-dust": "*",
     "buddy-plugin-imagemin": "*",
+    "buddy-plugin-jade": "*",
+    "buddy-plugin-less": "*",
+    "buddy-plugin-nunjucks": "*",
+    "buddy-plugin-stylus": "*",
+    "buddy-plugin-twig": "*",
     "buddy-plugin-uglify": "*",
     "buddy-server": "*",
     "expect.js": "*",
     "mocha": "*",
     "rimraf": "*",
-    "transfigure-coffeescript": "*",
-    "transfigure-dust": "*",
-    "transfigure-handlebars": "*",
-    "transfigure-nunjucks": "*",
-    "transfigure-jade": "*",
-    "transfigure-less": "*",
-    "transfigure-stylus": "*",
-    "transfigure-twig": "*"
+    "transfigure-handlebars": "*"
   },
   "main": "index.js",
   "bin": {

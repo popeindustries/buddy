@@ -11,7 +11,7 @@ const dust = require('dustjs-linkedin');
 exports.registration = {
   name: 'dust',
   extensions: {
-    js: ['dust']
+    html: ['dust']
   }
 };
 

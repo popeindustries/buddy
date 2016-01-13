@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-dust",
   "description": "Buddy plugin for dust source transforms (via dustjs-linkedin)",
-  "version": "2.7.2-beta",
+  "version": "2.7.2-beta-2",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
