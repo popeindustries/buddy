@@ -386,7 +386,7 @@ describe('Builder', () => {
         done();
       });
     });
-    it('should build an html template file with js dependency', (done) => {
+    it.only('should build an html template file with js dependency', (done) => {
       builder.build({
         build: {
           targets: [
@@ -400,12 +400,12 @@ describe('Builder', () => {
         expect(filepaths).to.have.length(1);
         expect(fs.existsSync(filepaths[0])).to.be(true);
         const content = fs.readFileSync(filepaths[0], 'utf8');
-
+        console.log(content)
         expect(content).to.contain("<script>var foo = this;</script>");
         done();
       });
     });
-    it.skip('should build an html template file with compressed js dependency when "compress" is true', (done) => {
+    it('should build an html template file with compressed js dependency when "compress" is true', (done) => {
       builder.build({
         build: {
           targets: [
@@ -420,8 +420,7 @@ describe('Builder', () => {
         expect(fs.existsSync(filepaths[0])).to.be(true);
         const content = fs.readFileSync(filepaths[0], 'utf8');
 
-        console.log(content)
-        // expect(content).to.contain("<script>var foo = this;</script>");
+        expect(content).to.contain('<script>require.register("foo.js",function(r,e,i){}),require.register("bar.js",function(r,e,i){r("foo.js")});</script>');
         done();
       });
     });
