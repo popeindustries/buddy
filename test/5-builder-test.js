@@ -405,6 +405,26 @@ describe('Builder', () => {
         done();
       });
     });
+    it.skip('should build an html template file with compressed js dependency when "compress" is true', (done) => {
+      builder.build({
+        build: {
+          targets: [
+            {
+              input: 'boo.nunjs',
+              output: 'output'
+            }
+          ]
+        }
+      }, { compress: true }, (err, filepaths) => {
+        expect(filepaths).to.have.length(1);
+        expect(fs.existsSync(filepaths[0])).to.be(true);
+        const content = fs.readFileSync(filepaths[0], 'utf8');
+
+        console.log(content)
+        // expect(content).to.contain("<script>var foo = this;</script>");
+        done();
+      });
+    });
     it('should build an html template file with inline svg dependency', (done) => {
       builder.build({
         build: {
@@ -584,7 +604,6 @@ describe('Builder', () => {
             expect(content).to.contain("require.register('mixed-directory/bar.js'");
             expect(content).to.contain("require.register('mixed-directory/foo.js'");
           } else {
-            console.log(content)
             expect(content).to.contain("body {");
             expect(content).to.contain("h1 {");
           }
