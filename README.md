@@ -41,7 +41,7 @@ $ npm -g install buddy-cli
   "description": "This is my web project",
   "version": "1.0.0",
   "devDependencies": {
-    "buddy": "^3.0.0"
+    "buddy": "4.0.x"
   },
   "buddy": {
     ...
@@ -84,6 +84,8 @@ Usage: buddy [options] <command> [path-to-config]
 Please refer to the annotated [configuration](https://github.com/popeindustries/buddy/blob/master/docs/config.md) file for all possible settings, and **note that the configuration format has changed considerably as of version 3**.
 
 ## Plugins
+
+As of version 4, ....
 
 ## Build concepts
 
