@@ -7,6 +7,7 @@ const Imagemin = require('imagemin');
  */
 exports.registration = {
   name: 'imagemin',
+  // TODO: change to 'img'
   type: 'image'
 };
 
