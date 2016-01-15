@@ -319,6 +319,9 @@ describe('file', () => {
             match: "require('./foo.json')"
           }
         ];
+        instance.options = {
+          runtimeOptions: {}
+        };
         instance.inline(false, (err) => {
           expect(instance.content).to.eql('var foo = {\n\t"foo": "bar"\n};');
           done();
@@ -342,6 +345,9 @@ describe('file', () => {
             match: "require('./bar.json')"
           }
         ];
+        instance.options = {
+          runtimeOptions: {}
+        };
         instance.inline(false, (err) => {
           expect(instance.content).to.eql('var foo = {};');
           done();
@@ -361,6 +367,9 @@ describe('file', () => {
             }
           }
         ];
+        instance.options = {
+          runtimeOptions: {}
+        };
         instance.inline(false, (err) => {
           expect(instance.content).to.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
           done();
@@ -380,6 +389,9 @@ describe('file', () => {
             }
           }
         ];
+        instance.options = {
+          runtimeOptions: {}
+        };
         instance.inline(false, (err) => {
           expect(instance.content).to.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
           done();

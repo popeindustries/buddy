@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>boo</title>
-	<script inline src="./bang.js"></script>
+	<title>foo</title>
+	<link inline href="./one.styl">
 </head>
 <body>
 
