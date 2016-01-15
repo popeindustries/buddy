@@ -18,6 +18,7 @@ exports.registration = {
  */
 exports.compress = function compress (content, options, fn) {
   try {
+    // TODO: add 'comments' option
     content = uglify.minify(content, { fromString: true }).code;
     fn(null, content);
   } catch (err) {
