@@ -1,1 +1,2 @@
-var json = require('./bar.json');
+var bang = this
+  , boo = 'bang';

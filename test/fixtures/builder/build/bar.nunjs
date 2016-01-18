@@ -2,7 +2,9 @@
 <html>
 <head>
 	<title>foo</title>
-	<img inline src="./foo.svg" />
+  {% for id in ids %}
+	 <img inline src="./foo{{ id }}.svg" />
+  {% endfor %}
 </head>
 <body>
 

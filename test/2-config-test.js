@@ -283,7 +283,7 @@ describe('config', () => {
           input: 'src/main.js',
           output: 'js',
           before: './hook/before.js'
-        }], defaultConfig)[0].before;
+        }], defaultConfig);
       } catch (err) {
         expect(err).to.be.an(Error);
       }

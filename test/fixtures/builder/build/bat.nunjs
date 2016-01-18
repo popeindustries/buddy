@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>foo</title>
-	<link inline href="./one.styl">
+	<link inline href="./foo.css">
 </head>
 <body>
 

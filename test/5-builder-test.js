@@ -566,7 +566,7 @@ describe('Builder', () => {
           done();
         });
       });
-      it('should build an html template file with inline stylus dependency', (done) => {
+      it('should build an html template file with inline css dependency', (done) => {
         builder.build({
           build: {
             targets: [
@@ -581,7 +581,7 @@ describe('Builder', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("<style>body {\n  colour: \'#ffffff\';\n}\n</style>");
+          expect(content).to.contain('<style>body {\n\tcolor: white;\n\tfont-size: 12px;\n}\nbody p {\n\tfont-size: 10px;\n}\n</style>');
           done();
         });
       });
@@ -600,11 +600,11 @@ describe('Builder', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('<script>var json={bar:"bang"};</script>');
+          expect(content).to.contain('<script>var bang=this,boo="bang";</script>');
           done();
         });
       });
-      it('should build an html template file with inline svg dependency', (done) => {
+      it.only('should build an html template file with inline svg dependency', (done) => {
         builder.build({
           build: {
             targets: [
@@ -615,7 +615,7 @@ describe('Builder', () => {
             ]
           }
         }, null, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
+          expect(filepaths).to.have.length(2);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
