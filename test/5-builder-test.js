@@ -545,7 +545,7 @@ describe('Builder', () => {
           done();
         });
       });
-      it.skip('should build an html template file with dynamically generated inline svg dependencies', (done) => {
+      it('should build an html template file with dynamically generated inline svg dependencies', (done) => {
         builder.build({
           build: {
             targets: [
@@ -560,7 +560,6 @@ describe('Builder', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          console.log(content)
           expect(content).to.contain('<svg x="0px" y="0px" viewBox="0 0 100 100" version="1.1" id="Layer_1" enable-background="new 0 0 100 100" xml:space="preserve">\n<circle cx="50" cy="50" r="25"/>\n</svg>');
           expect(content).to.contain('<svg x="0px" y="0px" viewBox="0 0 100 100" version="1.1" id="Layer_1" enable-background="new 0 0 100 100" xml:space="preserve">\n<circle cx="25" cy="25" r="25"/>\n</svg>');
           done();
