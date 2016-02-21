@@ -14,14 +14,12 @@
   ],
   "dependencies": {
     "async": "1.5.2",
-    "buddy-cli": "3.0.0",
+    "buddy-cli": "4.0.0-beta",
     "chalk": "1.1.1",
-    "csslint": "0.10.0",
-    "eslint": "1.10.3",
-    "glob": "6.0.4",
+    "glob": "7.0.0",
     "identify-resource": "5.1.2",
     "inline-source": "4.2.2",
-    "lodash": "4.0.0",
+    "lodash": "4.5.0",
     "md5": "2.0.0",
     "minimatch": "3.0.0",
     "portscanner": "1.0.0",
@@ -52,7 +50,7 @@
   },
   "scripts": {
     "lint": "eslint lib",
-    "test": "NODE_ENV=test mocha --reporter spec -t 10000",
+    "test": "NODE_ENV=test mocha --reporter spec --timeout 10000",
     "test-windows": "set NODE_ENV=test&&node.exe ./node_modules/mocha/bin/mocha --reporter spec -t 20000"
   },
   "engines": {
