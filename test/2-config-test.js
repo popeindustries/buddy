@@ -29,8 +29,6 @@ describe('config', () => {
         deploy: false,
         grep: false,
         invert: false,
-        lazy: false,
-        lint: false,
         reload: false,
         script: false,
         serve: false,

@@ -314,25 +314,6 @@ describe('Builder', () => {
           done();
         });
       });
-      it('should build a stringified js file if "lazy" is true', (done) => {
-        builder.build({
-          build: {
-            targets: [
-              {
-                input: 'foo.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, { lazy: true }, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('require.register(\'foo.js\', "var foo = this;");');
-          done();
-        });
-      });
       it('should build a minified js file if "compress" is true', (done) => {
         builder.build({
           build: {
@@ -349,46 +330,6 @@ describe('Builder', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain('require.register("foo.js",function(r,e,i){}),require.register("bar.js",function(r,e,i){r("foo.js")});');
-          done();
-        });
-      });
-      it('should build a minified and stringified js file if "compress" and "lazy" are true', (done) => {
-        builder.build({
-          build: {
-            targets: [
-              {
-                input: 'bar.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, { compress: true, lazy: true }, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('require.register("foo.js","var foo=this;"),require.register("bar.js",\'var foo=require("foo.js"),bar=this;\');');
-          done();
-        });
-      });
-      it('should build a js file with require boilerplate if "boilerplate" is true', (done) => {
-        builder.build({
-          build: {
-            targets: [
-              {
-                input: 'foo.js',
-                output: 'output',
-                boilerplate: true
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain("})((typeof window !== 'undefined') ? window : global);");
-          expect(content).to.contain("require.register('foo.js'");
           done();
         });
       });
@@ -604,7 +545,7 @@ describe('Builder', () => {
           done();
         });
       });
-      it.only('should build an html template file with dynamically generated inline svg dependencies', (done) => {
+      it.skip('should build an html template file with dynamically generated inline svg dependencies', (done) => {
         builder.build({
           build: {
             targets: [

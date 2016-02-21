@@ -74,67 +74,6 @@ describe('file', () => {
           done();
         });
       });
-      it('should wrap js file contents in a lazy module definition', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions, runtimeOptions: { lazy: true }});
-
-        instance.id = 'main';
-        instance.content = "module.exports = 'main';";
-        instance.wrap(false, (err) => {
-          expect(instance.content).to.eql("require.register(\'main\', module.exports = \'main\';);");
-          done();
-        });
-      });
-    });
-
-    describe('escape()', () => {
-      it('should transform js file contents into an escaped string', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = "module.exports = 'main';";
-        instance.escape(false, (err) => {
-          expect(instance.content).to.eql('"module.exports = \'main\';"');
-          done();
-        });
-      });
-    });
-
-    describe('lint()', () => {
-      it('should skip compileable files', (done) => {
-        const instance = fileFactory(path.resolve('src/main.coffee'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = fs.readFileSync(instance.filepath, 'utf8');
-        const warnings = instance.lint();
-
-        expect(warnings).to.eql(undefined);
-        done();
-      });
-      it('should not return lint errors for well written js content configured with .eslintrc file', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = fs.readFileSync(instance.filepath, 'utf8');
-        const warnings = instance.lint();
-
-        expect(warnings).to.eql(null);
-        done();
-      });
-      it('should return lint errors for badly written js content', (done) => {
-        const instance = fileFactory(path.resolve('src/main-bad.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = fs.readFileSync(instance.filepath, 'utf8');
-        const warnings = instance.lint();
-
-        expect(warnings).to.be.ok();
-        done();
-      });
-      it('should return lint errors for badly written css content', (done) => {
-        const instance = fileFactory(path.resolve('src/main-bad.css'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = fs.readFileSync(instance.filepath, 'utf8');
-        const warnings = instance.lint();
-
-        expect(warnings).to.be.ok();
-        done();
-      });
     });
 
     describe('parse()', () => {
@@ -145,8 +84,7 @@ describe('file', () => {
           , instance = fileFactory(path.resolve('src/main.js'), options);
 
         instance.content = "var foo = require('./foo');\nvar bar = require('./bar');";
-        instance.parse(false, (err, dependencies) => {
-          expect(instance.dependencies).to.eql(dependencies);
+        instance.parse(false, (err) => {
           expect(instance.dependencies).to.have.length(2);
           done();
         });
@@ -157,7 +95,7 @@ describe('file', () => {
           , instance = fileFactory(path.resolve('src/main.css'), options);
 
         instance.content = "@import 'foo'";
-        instance.parse(false, (err, dependencies) => {
+        instance.parse(false, (err) => {
           expect(instance.dependencies).to.have.length(1);
           done();
         });
@@ -168,7 +106,7 @@ describe('file', () => {
           , instance = fileFactory(path.resolve('src/main.dust'), options);
 
         instance.content = '{>foo /}';
-        instance.parse(false, (err, dependencies) => {
+        instance.parse(false, (err) => {
           expect(instance.dependencies).to.have.length(1);
           done();
         });
@@ -178,7 +116,7 @@ describe('file', () => {
           , instance = fileFactory(path.resolve('src/main.dust'), options);
 
         instance.content = '<script inline src="src/foo.js"></script>';
-        instance.parse(false, (err, dependencies) => {
+        instance.parseInline(false, (err) => {
           expect(instance.dependencies).to.have.length(1);
           done();
         });
@@ -189,7 +127,7 @@ describe('file', () => {
           , instance = fileFactory(path.resolve('src/main.js'), options);
 
         instance.content = "var foo = require('./foo');\nvar foo = require('./foo');";
-        instance.parse(false, (err, dependencies) => {
+        instance.parse(false, (err) => {
           expect(instance.dependencies).to.have.length(1);
           done();
         });
@@ -199,7 +137,7 @@ describe('file', () => {
           , instance = fileFactory(path.resolve('src/main.js'), options);
 
         instance.content = "var bat = require('bar');\nvar boo = require('Boo');";
-        instance.parse(false, (err, dependencies) => {
+        instance.parse(false, (err) => {
           expect(instance.dependencies).to.have.length(2);
           done();
         });
