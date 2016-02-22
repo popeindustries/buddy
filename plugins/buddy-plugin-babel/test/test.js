@@ -49,7 +49,6 @@ describe('buddy-plugin-babel', () => {
       expect(helpers).to.contain('babelHelpers.inherits =');
       expect(helpers).to.contain('babelHelpers.possibleConstructorReturn =');
       expect(helpers).to.contain('babelHelpers.taggedTemplateLiteral =');
-      expect(helpers).to.contain('babelHelpers.typeof =');
       done();
     });
   });

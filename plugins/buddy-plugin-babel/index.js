@@ -10,8 +10,7 @@ const babel = require('babel-core')
       'get',
       'inherits',
       'possibleConstructorReturn',
-      'taggedTemplateLiteral',
-      'typeof'
+      'taggedTemplateLiteral'
     ]
   , HELPERS = babel.buildExternalHelpers(DEFAULT_HELPERS)
   , SETTINGS = {
@@ -33,7 +32,6 @@ const babel = require('babel-core')
         [require('babel-plugin-transform-es2015-spread'), { loose: true }],
         require('babel-plugin-transform-es2015-sticky-regex'),
         [require('babel-plugin-transform-es2015-template-literals'), { loose: true }],
-        require('babel-plugin-transform-es2015-typeof-symbol'),
         require('babel-plugin-transform-es2015-unicode-regex'),
         require('babel-plugin-transform-es3-property-literals'),
         require('babel-plugin-transform-es3-member-expression-literals')
