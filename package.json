@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "async": "1.5.2",
-    "buddy-cli": "4.0.0-beta",
+    "buddy-cli": "4.0.0",
     "chalk": "1.1.1",
     "glob": "7.0.0",
     "identify-resource": "5.1.2",
