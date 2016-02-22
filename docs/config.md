@@ -69,6 +69,11 @@ exports.build = {
       // A destination in which to save the processed input.
       // If a directory is specified, the input file name will be appended.
       output: 'an/html/file/or/directory'
+    },
+    {
+      // A directory of images (gif/png/jpg/svg) to be processed (compressed)
+      input: 'an/image/directory',
+      output: 'a/deploy/directory'
     }
   ]
 };

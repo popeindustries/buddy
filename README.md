@@ -9,10 +9,8 @@
 
 - Allows you to write js __modules__ without module boilerplate (similar to _node.js_)
 - Resolves js __dependencies__ automatically (including those installed with `npm`)
-- Supports efficient ___lazy___ runtime evaluation by storing js modules as strings
 - __Compiles__ _CoffeeScript_, _es6_, _JSX_, _Handlebars_, _Dust_, _Nunjucks_, _Stylus_, _Less_, _Twig_, and _Jade_ source files (or others via custom __plugins__)
 - __Concatenates__ js modules into file bundles
-- Runs js and css code through __linters__ to check for syntax errors
 - __Watches__ for source changes and builds automatically
 - [Add-on] __Serves__ static files from specified directory on specified port
 - [Add-on] __Restarts__ custom server after each change
@@ -22,8 +20,8 @@
 - __Inlines__ json content with `require("path/to/my.json")`
 - Supports execution of a custom ___script___ after each build
 - Supports extension via execution of ___hook___ scripts `afterEach` file is processed, and `before` and `after` a target is built
-- Supports output of unique file names
-- Supports compression of image assets
+- Supports output of __unique__ file names
+- Supports compression of __image__ assets
 
 ## Installation
 
@@ -60,9 +58,9 @@ Usage: buddy [options] <command> [path-to-config]
 
   Commands:
 
-    build [config]   build js, css, and html sources
-    watch [config]   watch js, css, html source files and build changes
-    deploy [config]  build compressed js, css, and html sources
+    build [config]   build js, css, html, and image sources
+    watch [config]   watch js, css, html, and image source files and build changes
+    deploy [config]  build compressed js, css, html, and image sources
 
   Options:
 
@@ -71,8 +69,6 @@ Usage: buddy [options] <command> [path-to-config]
     -c, --compress        compress output for production deployment
     -g, --grep <pattern>  only run build targets matching <pattern>
     -i, --invert          inverts grep matches
-    -L, --lazy            convert js modules for lazy evaluation
-    -l, --lint            check output for syntax and logic errors
     -r, --reload          reload all connected live-reload clients on file change during watch [ADD-ON buddy-server]
     -s, --serve           create a webserver to serve static files during watch [ADD-ON buddy-server]
     -S, --script          run script on build completion
@@ -85,7 +81,29 @@ Please refer to the annotated [configuration](https://github.com/popeindustries/
 
 ## Plugins
 
-As of version 4, ....
+As of version 4, all `transfigure-*` packages have been deprecated in favour of `buddy-plugin-*` package names, now properly referred to as "plugins". In addition, in order to keep install times in check, all compressors have been broken out into separate plugin packages.
+
+#### Compiler plugins
+
+The following compiler plugins are currently available:
+
+- **[buddy-plugin-babel](https://www.npmjs.com/package/buddy-plugin-babel)**: transform es6 `.js` and `.jsx` files to es5 `.js` (`npm install buddy-plugin-babel`)
+- **[buddy-plugin-coffeescript](https://www.npmjs.com/package/buddy-plugin-coffeescript)**: transform `.coffee` files to `.js` (`npm install buddy-plugin-coffeescript`)
+- **[buddy-plugin-dust](https://www.npmjs.com/package/buddy-plugin-dust)**: transform `.dust` html template files to `.html` (`npm install buddy-plugin-dust`)
+- **[buddy-plugin-handlebars](https://www.npmjs.com/package/buddy-plugin-handlebars)**: transform `.handlebars` html template files to `.html` (`npm install buddy-plugin-handlebars`)
+- **[buddy-plugin-jade](https://www.npmjs.com/package/buddy-plugin-jade)**: transform `.jade` html template files to `.html` (`npm install buddy-plugin-jade`)
+- **[buddy-plugin-less](https://www.npmjs.com/package/buddy-plugin-less)**: transform `.less` files to `.css` (`npm install buddy-plugin-less`)
+- **[buddy-plugin-nunjucks](https://www.npmjs.com/package/buddy-plugin-nunjucks)**: transform `.nunjucks` html template files to `.html` (`npm install buddy-plugin-nunjucks`)
+- **[buddy-plugin-stylus](https://www.npmjs.com/package/buddy-plugin-stylus)**: transform `.styl` files to `.css` (`npm install buddy-plugin-stylus`)
+- **[buddy-plugin-twig](https://www.npmjs.com/package/buddy-plugin-twig)**: transform `.twig` html template files to `.html` (`npm install buddy-plugin-twig`)
+
+#### Compressor plugins
+
+The following compressor plugins are currently available:
+
+- **[buddy-plugin-csso](https://www.npmjs.com/package/buddy-plugin-csso)**: compress `.css` content with [csso](https://www.npmjs.com/package/csso) (`npm install buddy-plugin-csso`)
+- **[buddy-plugin-imagemin](https://www.npmjs.com/package/buddy-plugin-imagemin)**: compress `.gif`, `.jpg`, `.png`, `.svg`  content with [imagemin](https://www.npmjs.com/package/imagemin) (`npm install buddy-plugin-imagemin`)
+- **[buddy-plugin-uglify](https://www.npmjs.com/package/buddy-plugin-uglify)**: compress `.js` content with [uglifyjs](https://www.npmjs.com/package/uglifyjs) (`npm install buddy-plugin-uglify`)
 
 ## Build concepts
 
@@ -146,7 +164,7 @@ All hooks are passed the following arguments:
 
 - **context**: the `target` (before and after) or `file` (afterEach) instance
 
-- **options**: the runtime options used to execute buddy (`compress`, `lazy`, `reload`, `watch`, `deploy`, etc)
+- **options**: the runtime options used to execute buddy (`compress`, `reload`, `watch`, `deploy`, etc)
 
 - **done**: a callback function that accepts an optional `error`. **MUST** be called in order to return control back to the program.
 
@@ -211,9 +229,9 @@ Unique filenames can be automatically generated by including one of two types of
 
 ## Server
 
-When developing locally, the **buddy-server** add-on and `buddy watch --serve` command will start a simple webserver on `localhost` to test against. Adding the `--reload` flag will enable automatic reloading of connected browsers through a [livereload](http://livereload.com) plugin. Specifying a `file` path will start/restart a custom application server instead of the default development server.
+When developing locally, the **[buddy-server](https://www.npmjs.org/package/buddy-server)** add-on and `buddy watch --serve` command will start a simple webserver on `localhost` to test against. Adding the `--reload` flag will enable automatic reloading of connected browsers through a [livereload](http://livereload.com) plugin. Specifying a `file` path will start/restart a custom application server instead of the default development server.
 
-Install the add-on alongside **buddy**, and see *[buddy-server](https://github.com/popeindustries/buddy-server)* for more details.
+Install the add-on alongside **buddy**, and see **[buddy-server](https://github.com/popeindustries/buddy-server)** for more details.
 
 ```json
 {
@@ -284,10 +302,6 @@ When `require()`-ing a module, keep in mind that the module id is resolved based
 See [node.js modules](http://nodejs.org/api/modules.html) for more info on modules.
 
 ***NOTE***: `require` boilerplate needs to be present as a browser global property to enable runtime module initialization. It is necessary to include a copy of [simpler-browser-require](https://github.com/popeindustries/simpler-browser-require) (npm: simpler-browser-require), or set the `boilerplate` target flag to have it included automatically.
-
-#### "LAZY" MODULES
-
-When run with the `--lazy` flag, **buddy** supports storing js modules as strings which are only evaluated on first `require('module')` call. This can significantly speed up application startup time for large bundles, especially on mobile devices.
 
 ### EXAMPLES
 
@@ -452,19 +466,7 @@ Inline .js and .css source files with `inline` attribute (see [inline-source](ht
   <!-- inline project/src/js/inlineScript.js -->
   <script inline src="../js/inlineScript.js"></script>
   <!-- inline project/src/css/inlineStyle.css -->
-  <link inline rel="../css/inlineStyle.css"></link>
+  <link inline href="../css/inlineStyle.css"></link>
 </head>
 </html>
 ```
-
-## License
-
-(The MIT License)
-
-Copyright (c) 2011-2015 Pope-Industries &lt;alex@pope-industries.com&gt;
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
