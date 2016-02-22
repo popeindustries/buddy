@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-stylus",
   "description": "Buddy plugin for stylus source transforms (via Stylus)",
-  "version": "0.53.0-beta",
+  "version": "0.53.0",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -12,8 +12,6 @@
     "stylus": "0.53.0"
   },
   "devDependencies": {
-    "expect.js": "*",
-    "mocha": "*"
   },
   "main": "index.js",
   "scripts": {

@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-jade",
   "description": "Buddy plugin for jade source transforms (via jade)",
-  "version": "1.11.0-beta",
+  "version": "1.11.0",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -12,8 +12,6 @@
     "jade": "1.11.0"
   },
   "devDependencies": {
-    "expect.js": "*",
-    "mocha": "*"
   },
   "main": "index.js",
   "scripts": {

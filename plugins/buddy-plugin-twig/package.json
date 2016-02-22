@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-twig",
   "description": "Buddy plugin for twig source transforms (via twig)",
-  "version": "0.8.6-beta",
+  "version": "0.8.8",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -9,11 +9,9 @@
     "twig"
   ],
   "dependencies": {
-    "twig": "0.8.6"
+    "twig": "0.8.8"
   },
   "devDependencies": {
-    "expect.js": "*",
-    "mocha": "*"
   },
   "main": "index.js",
   "scripts": {

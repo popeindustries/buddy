@@ -38,8 +38,6 @@
     "babel-preset-react": "6.5.x"
   },
   "devDependencies": {
-    "expect.js": "*",
-    "mocha": "*"
   },
   "main": "index.js",
   "scripts": {
