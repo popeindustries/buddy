@@ -878,7 +878,9 @@ describe('Builder', () => {
               },
               {
                 input: ['foo.js', 'bar.js'],
-                output: 'output'
+                output: 'output',
+                boilerplate: true,
+                bootstrap: true
               }
             ]
           }
@@ -893,6 +895,7 @@ describe('Builder', () => {
               expect(content).to.equal("var foo = this;");
             } else {
               expect(content).to.contain("require.register('foo.js'");
+              expect(content).to.contain("})((typeof window !== 'undefined') ? window : global);");
             }
           });
           done();
