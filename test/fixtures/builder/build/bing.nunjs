@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html>
+{% include "./includes/header.nunjs" %}
+<body>
+
+</body>
+</html>

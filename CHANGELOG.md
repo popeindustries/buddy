@@ -1,7 +1,8 @@
 # Changelog
 
-**4.0.0** - Jan 15, 2016
+**4.0.0** - Feb 22, 2016
 * __update minimum required Node.js version to 4.0__
+* __remove *--lint* and *--lazy* flags__
 * implement plugin system for all compilers and compressors (see [plugins](https://github.com/popeindustries/buddy/blob/master/README.md#plugins))
 * treat sidecar .json data files as dependencies (enables autorefresh while `--watch --reload`)
 * fix handling of boilerplate/bootstrap content during batch builds

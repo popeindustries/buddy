@@ -1,3 +1,4 @@
 {
-  "bar": "bang"
+  "bar": "bang",
+  "ids": [1, 2]
 }

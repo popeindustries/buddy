@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-dust",
   "description": "Buddy plugin for dust source transforms (via dustjs-linkedin)",
-  "version": "2.7.2-beta-2",
+  "version": "2.7.2",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -9,12 +9,10 @@
     "dust"
   ],
   "dependencies": {
-    "dustjs-helpers": "1.7.2",
+    "dustjs-helpers": "1.7.3",
     "dustjs-linkedin": "2.7.2"
   },
   "devDependencies": {
-    "expect.js": "*",
-    "mocha": "*"
   },
   "main": "index.js",
   "scripts": {

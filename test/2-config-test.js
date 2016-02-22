@@ -29,8 +29,6 @@ describe('config', () => {
         deploy: false,
         grep: false,
         invert: false,
-        lazy: false,
-        lint: false,
         reload: false,
         script: false,
         serve: false,
@@ -283,7 +281,7 @@ describe('config', () => {
           input: 'src/main.js',
           output: 'js',
           before: './hook/before.js'
-        }], defaultConfig)[0].before;
+        }], defaultConfig);
       } catch (err) {
         expect(err).to.be.an(Error);
       }

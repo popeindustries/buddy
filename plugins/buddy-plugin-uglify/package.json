@@ -8,6 +8,7 @@
     "compress",
     "js",
     "minify",
+    "uglify",
     "uglify-js"
   ],
   "dependencies": {

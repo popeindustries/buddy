@@ -314,25 +314,6 @@ describe('Builder', () => {
           done();
         });
       });
-      it('should build a stringified js file if "lazy" is true', (done) => {
-        builder.build({
-          build: {
-            targets: [
-              {
-                input: 'foo.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, { lazy: true }, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('require.register(\'foo.js\', "var foo = this;");');
-          done();
-        });
-      });
       it('should build a minified js file if "compress" is true', (done) => {
         builder.build({
           build: {
@@ -349,46 +330,6 @@ describe('Builder', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain('require.register("foo.js",function(r,e,i){}),require.register("bar.js",function(r,e,i){r("foo.js")});');
-          done();
-        });
-      });
-      it('should build a minified and stringified js file if "compress" and "lazy" are true', (done) => {
-        builder.build({
-          build: {
-            targets: [
-              {
-                input: 'bar.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, { compress: true, lazy: true }, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('require.register("foo.js","var foo=this;"),require.register("bar.js",\'var foo=require("foo.js"),bar=this;\');');
-          done();
-        });
-      });
-      it('should build a js file with require boilerplate if "boilerplate" is true', (done) => {
-        builder.build({
-          build: {
-            targets: [
-              {
-                input: 'foo.js',
-                output: 'output',
-                boilerplate: true
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain("})((typeof window !== 'undefined') ? window : global);");
-          expect(content).to.contain("require.register('foo.js'");
           done();
         });
       });
@@ -510,7 +451,7 @@ describe('Builder', () => {
     });
 
     describe('html', () => {
-      it('should build a handlebars html file', (done) => {
+      it('should build an html template file', (done) => {
         builder.build({
           build: {
             targets: [
@@ -528,7 +469,7 @@ describe('Builder', () => {
           done();
         });
       });
-      it('should build a dust html file with sidecar data file and includes', (done) => {
+      it('should build an html template file with sidecar data file and includes', (done) => {
         builder.build({
           build: {
             targets: [
@@ -566,7 +507,26 @@ describe('Builder', () => {
           done();
         });
       });
-      it('should build an html template file with inline stylus dependency', (done) => {
+      it('should build an html template file with inline js dependency needing env substitution', (done) => {
+        builder.build({
+          build: {
+            targets: [
+              {
+                input: 'boop.nunjs',
+                output: 'output'
+              }
+            ]
+          }
+        }, null, (err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain("isDev = 'test' == 'development'");
+          done();
+        });
+      });
+      it('should build an html template file with inline css dependency', (done) => {
         builder.build({
           build: {
             targets: [
@@ -581,7 +541,26 @@ describe('Builder', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("<style>body {\n  colour: \'#ffffff\';\n}\n</style>");
+          expect(content).to.contain('<style>body {\n\tcolor: white;\n\tfont-size: 12px;\n}\nbody p {\n\tfont-size: 10px;\n}\n</style>');
+          done();
+        });
+      });
+      it('should build an html template file with include and inline css dependency', (done) => {
+        builder.build({
+          build: {
+            targets: [
+              {
+                input: 'bing.nunjs',
+                output: 'output'
+              }
+            ]
+          }
+        }, null, (err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title>Title</title>\n  <style>body {\n\tcolor: white;\n\tfont-size: 12px;\n}\nbody p {\n\tfont-size: 10px;\n}\n</style>\n</head>\n<body>\n\n</body>\n</html>');
           done();
         });
       });
@@ -600,11 +579,11 @@ describe('Builder', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('<script>var json={bar:"bang"};</script>');
+          expect(content).to.contain('<script>var bang=this,boo="bang";</script>');
           done();
         });
       });
-      it('should build an html template file with inline svg dependency', (done) => {
+      it('should build an html template file with dynamically generated inline svg dependencies', (done) => {
         builder.build({
           build: {
             targets: [
@@ -620,6 +599,7 @@ describe('Builder', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain('<svg x="0px" y="0px" viewBox="0 0 100 100" version="1.1" id="Layer_1" enable-background="new 0 0 100 100" xml:space="preserve">\n<circle cx="50" cy="50" r="25"/>\n</svg>');
+          expect(content).to.contain('<svg x="0px" y="0px" viewBox="0 0 100 100" version="1.1" id="Layer_1" enable-background="new 0 0 100 100" xml:space="preserve">\n<circle cx="25" cy="25" r="25"/>\n</svg>');
           done();
         });
       });
@@ -882,6 +862,37 @@ describe('Builder', () => {
             } else {
               expect(content).to.contain("body {");
               expect(content).to.contain("h1 {");
+            }
+          });
+          done();
+        });
+      });
+      it('should correctly reset files after batch build', (done) => {
+        builder.build({
+          build: {
+            targets: [
+              {
+                input: 'foo.js',
+                output: 'output',
+                modular: false
+              },
+              {
+                input: ['foo.js', 'bar.js'],
+                output: 'output'
+              }
+            ]
+          }
+        }, null, (err, filepaths) => {
+          expect(filepaths).to.have.length(2);
+          filepaths.forEach((filepath) => {
+            expect(fs.existsSync(filepath)).to.be(true);
+            const name = path.basename(filepath, '.js')
+              , content = fs.readFileSync(filepath, 'utf8');
+
+            if (name == 'foo') {
+              expect(content).to.equal("var foo = this;");
+            } else {
+              expect(content).to.contain("require.register('foo.js'");
             }
           });
           done();

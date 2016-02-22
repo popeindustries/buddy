@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-{>"includes/header" /}
+{>"includes/header"/}
 <body>
 	<h1>Title</h1>
-	{>"includes/footer" /}
+	{>"includes/footer"/}
 </body>
 </html>
