@@ -74,6 +74,26 @@ describe('file', () => {
           done();
         });
       });
+      it('should not wrap previously wrapped js file contents', (done) => {
+        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
+
+        instance.id = 'main';
+        instance.content = "require.register('main', function(require, module, exports) {\n    module.exports = 'main';\n});";
+        instance.wrap(false, (err) => {
+          expect(instance.content).to.eql("require.register('main', function(require, module, exports) {\n    module.exports = 'main';\n});");
+          done();
+        });
+      });
+      it('should wrap js file contents that contain "require.register"', (done) => {
+        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
+
+        instance.id = 'main';
+        instance.content = "var locale=require(\"src/lib/data/locale/index.js\");module.exports=function(e){var t=e.code;e.momentSource&&(window.require.register(t,e.momentSource),require(t),delete e.momentSource),locale.create(t,e)}";
+        instance.wrap(false, (err) => {
+          expect(instance.content).to.eql("require.register(\'main\', function(require, module, exports) {\n    var locale=require(\"src/lib/data/locale/index.js\");module.exports=function(e){var t=e.code;e.momentSource&&(window.require.register(t,e.momentSource),require(t),delete e.momentSource),locale.create(t,e)}\n});");
+          done();
+        });
+      });
     });
 
     describe('parse()', () => {
