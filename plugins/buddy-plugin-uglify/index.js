@@ -18,8 +18,10 @@ exports.registration = {
  */
 exports.compress = function compress (content, options, fn) {
   try {
-    // TODO: add 'comments' option
-    content = uglify.minify(content, { fromString: true }).code;
+    const compressorOptions = { fromString: true };
+
+    if (options.except) compressorOptions.mangle = { except: options.except };
+    content = uglify.minify(content, compressorOptions).code;
     fn(null, content);
   } catch (err) {
     fn(err);
