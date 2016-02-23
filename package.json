@@ -1,7 +1,7 @@
 {
   "name": "buddy",
   "description": "A fast, simple build tool for web projects.",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "build",
@@ -17,7 +17,7 @@
     "buddy-cli": "4.0.0",
     "chalk": "1.1.1",
     "glob": "7.0.0",
-    "identify-resource": "5.1.2",
+    "identify-resource": "6.0.1",
     "inline-source": "4.2.2",
     "lodash": "4.5.0",
     "md5": "2.0.0",
