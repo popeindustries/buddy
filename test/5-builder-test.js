@@ -1007,6 +1007,21 @@ describe('Builder', () => {
       process.chdir(path.resolve(__dirname, 'fixtures/builder/watch'));
     });
 
+    it('should build watch targets', (done) => {
+      builder.build({
+        build: {
+          targets: [
+            {
+              input: ['foo.js', 'bar.js']
+            }
+          ]
+        }
+      }, { watch: true }, (err, filepaths) => {
+        expect(filepaths).to.have.length(0);
+        done();
+      });
+    });
+
     if (process.platform != 'win32') {
       it('should rebuild a watched file on change', (done) => {
         const child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, (err, stdout, stderr) => {
