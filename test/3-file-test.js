@@ -247,6 +247,15 @@ describe('file', () => {
           done();
         });
       });
+      it('should inline calls to process.env.RUNTIME', (done) => {
+        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
+
+        instance.content = "process.env.RUNTIME";
+        instance.replaceEnvironment(false, (err) => {
+          expect(instance.content).to.eql("'browser'");
+          done();
+        });
+      });
       it('should handle undefined values when inlining calls to process.env', (done) => {
         const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
 

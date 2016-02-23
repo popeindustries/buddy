@@ -354,6 +354,27 @@ describe('Builder', () => {
           done();
         });
       });
+      it('should remove dead code when referencing "process.env.RUNTIME" and compressing', (done) => {
+        builder.build({
+          build: {
+            targets: [
+              {
+                input: 'zee.js',
+                output: 'output'
+              }
+            ]
+          }
+        }, { compress: true }, (err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.not.contain("require.register(\"foo.js\"");
+          expect(content).to.contain("require.register(\"boop.js\"");
+          expect(content).to.contain("var i=!1;console.log(\"is dev: \",i)");
+          done();
+        });
+      });
     });
 
     describe('css', () => {
