@@ -39,7 +39,9 @@ const babel = require('babel-core')
       presets: [
         require('babel-preset-react')
       ]
-    };
+    }
+
+  , savedHelpers = false;
 
 /**
  * Retrieve registration data
@@ -62,16 +64,16 @@ exports.registration = {
  * @returns {null}
  */
 exports.compile = function (content, options, fn) {
+  if (!savedHelpers && options.cache) {
+    savedHelpers = true;
+    options.cache.setSource('js-helpers', BOILERPLATE + HELPERS);
+  }
+
   // Skip node_modules files
   if (~options.filepath.indexOf('node_modules')) return fn(null, content);
 
   try {
     const transform = babel.transform(content, Object.assign({}, SETTINGS));
-
-    // Store helper boilerplate
-    if (~transform.code.indexOf('babelHelpers')) {
-      options.cache.setSource('js-helpers', BOILERPLATE + HELPERS);
-    }
 
     fn(null, transform.code);
   } catch (err) {
