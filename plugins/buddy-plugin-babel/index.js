@@ -39,9 +39,8 @@ const babel = require('babel-core')
       presets: [
         require('babel-preset-react')
       ]
-    }
-
-  , savedHelpers = false;
+    };
+let savedHelpers = false;
 
 /**
  * Retrieve registration data
