@@ -22,6 +22,7 @@
 - Supports extension via execution of ___hook___ scripts `afterEach` file is processed, and `before` and `after` a target is built
 - Supports output of __unique__ file names
 - Supports compression of __image__ assets
+- Inlines environment variables (`process.env.FOO`)
 
 ## Installation
 
