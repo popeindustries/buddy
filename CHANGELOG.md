@@ -1,8 +1,11 @@
 # Changelog
 
+**4.1.1** - Feb 24, 2016
+* only include global js helpers for root targets
+
 **4.1.0** - Feb 23, 2016
 * force `process.env.RUNTIME` equal to `"browser"`
-* .js dead code removal with two pass compression routine (one before parsing, one before writing). Requires v2.7.0+ of [buddy-plugin-uglify](https://www.npmjs.org/package/buddy-plugin-uglify)
+* js dead code removal with two pass compression routine (one before parsing, one before writing). Requires v2.7.0+ of [buddy-plugin-uglify](https://www.npmjs.org/package/buddy-plugin-uglify)
 
 **4.0.1-5** - Feb 23, 2016
 * bug fixes

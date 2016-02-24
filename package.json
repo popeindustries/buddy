@@ -1,7 +1,7 @@
 {
   "name": "buddy",
   "description": "A fast, simple build tool for web projects.",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "build",
