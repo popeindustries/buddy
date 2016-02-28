@@ -1,5 +1,8 @@
 # Changelog
 
+**4.1.2** - Feb 28, 2016
+* update `inline-source` dependency (fixes inlining of svg files with embedded `<image>` tags)
+
 **4.1.1** - Feb 24, 2016
 * only include global js helpers for root targets
 
