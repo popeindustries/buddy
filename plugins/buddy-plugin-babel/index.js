@@ -22,6 +22,7 @@ const babel = require('babel-core')
         [require('babel-plugin-transform-es2015-classes'), { loose: true }],
         [require('babel-plugin-transform-es2015-computed-properties'), { loose: true }],
         [require('babel-plugin-transform-es2015-destructuring'), { loose: true }],
+        require('babel-plugin-transform-es2015-duplicate-keys'),
         [require('babel-plugin-transform-es2015-for-of'), { loose: true }],
         require('babel-plugin-transform-es2015-function-name'),
         require('babel-plugin-transform-es2015-literals'),
@@ -40,7 +41,6 @@ const babel = require('babel-core')
         require('babel-preset-react')
       ]
     };
-let savedHelpers = false;
 
 /**
  * Retrieve registration data
@@ -63,8 +63,7 @@ exports.registration = {
  * @returns {null}
  */
 exports.compile = function (content, options, fn) {
-  if (!savedHelpers && options.cache) {
-    savedHelpers = true;
+  if (!options.cache.getSource('js-helpers')) {
     options.cache.setSource('js-helpers', BOILERPLATE + HELPERS);
   }
 

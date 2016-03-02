@@ -15,7 +15,7 @@ describe('buddy-plugin-babel', () => {
   beforeEach(() => {
     options = {
       cache: Cache.create()
-    }
+    };
   });
 
   it('should accept a .js file path and return JS content', (done) => {
@@ -23,7 +23,6 @@ describe('buddy-plugin-babel', () => {
     compile(fs.readFileSync(path.resolve('foo.js'), 'utf8'), options, (err, content) => {
       expect(err).to.be(null);
       expect(content).to.eql('"use strict";\n\nvar nums = [1, 2, 3, 4],\n    fn = nums.map(function (n) {\n  return n + 1;\n});');
-      expect(options.cache.getSource('js-helpers')).to.eql(undefined);
       done();
     });
   });
