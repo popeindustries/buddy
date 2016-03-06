@@ -3,7 +3,7 @@
 const expect = require('expect.js')
   , fileFactory = require('../lib/file')
   , fs = require('fs')
-  , identifyResource = require('identify-resource')
+  , identifyResource = require('../lib/identify-resource')
   , path = require('path')
 
   , fileExtensions = {
