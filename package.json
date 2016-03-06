@@ -24,7 +24,6 @@
     "minimatch": "3.0.0",
     "portscanner": "1.0.0",
     "recur-fs": "2.2.1",
-    "simpler-browser-require": "1.0.0",
     "yaw": "0.1.1"
   },
   "devDependencies": {
