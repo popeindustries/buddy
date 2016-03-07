@@ -59,9 +59,10 @@ describe('Builder', () => {
     });
 
     describe('js', () => {
-      it('should build a js file when passed a json config path', (done) => {
+      it.only('should build a js file when passed a json config path', (done) => {
         builder.build('buddy-single-file.json', null, (err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
+          console.log(fs.readFileSync(filepaths[0], 'utf8'))
           expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("require.register(\'foo.js\', function(require, module, exports) {\n    var foo = this;\n});");
           done();
         });
