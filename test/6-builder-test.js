@@ -59,7 +59,7 @@ describe('Builder', () => {
     });
 
     describe('js', () => {
-      it.only('should build a js file when passed a json config path', (done) => {
+      it('should build a js file when passed a json config path', (done) => {
         builder.build('buddy-single-file.json', null, (err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("$m[\'foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n    var foo = this;\n  return module.exports;\n}).call({filename:\'foo.js\',exports:{}});");

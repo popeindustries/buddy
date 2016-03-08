@@ -171,13 +171,13 @@ describe('file', () => {
         instance.content = "var foo = require('./foo');";
         instance.dependencyReferences = [
           {
-            filepath: './foo',
+            filepath: './foo.js',
             match: "require('./foo')",
-            instance: { id: 'foo' }
+            instance: { id: 'foo.js' }
           }
         ];
         instance.replaceReferences(false, (err) => {
-          expect(instance.content).to.eql("var foo = require('foo');");
+          expect(instance.content).to.eql("var foo = $m['foo.js'];");
           done();
         });
       });
