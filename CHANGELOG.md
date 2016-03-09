@@ -1,6 +1,6 @@
 # Changelog
 
-**4.1.2** - Feb 28, 2016
+**4.1.2 - 4.1.3** - Feb 28, 2016
 * update `inline-source` dependency (fixes inlining of svg files with embedded `<image>` tags)
 
 **4.1.1** - Feb 24, 2016
@@ -10,7 +10,7 @@
 * force `process.env.RUNTIME` equal to `"browser"`
 * js dead code removal with two pass compression routine (one before parsing, one before writing). Requires v2.7.0+ of [buddy-plugin-uglify](https://www.npmjs.org/package/buddy-plugin-uglify)
 
-**4.0.1-5** - Feb 23, 2016
+**4.0.1 - 4.0.5** - Feb 23, 2016
 * bug fixes
 
 **4.0.0** - Feb 22, 2016
