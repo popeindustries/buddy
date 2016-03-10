@@ -82,14 +82,14 @@ describe('identify-resource', () => {
         const details = pkg.get(process.cwd(), config());
 
         expect(details).to.have.property('name', 'project');
-        expect(details).to.have.property('main', '');
+        expect(details).to.have.property('main', path.resolve('index.js'));
         expect(details).to.have.property('manifestpath', path.resolve('package.json'));
       });
       it('should return details for the project root package from a nested project file', () => {
         const details = pkg.get(path.resolve('foo.js'), config());
 
         expect(details).to.have.property('name', 'project');
-        expect(details).to.have.property('main', '');
+        expect(details).to.have.property('main', path.resolve('index.js'));
         expect(details).to.have.property('manifestpath', path.resolve('package.json'));
       });
       it('should return details for a node_modules package', () => {
@@ -217,6 +217,9 @@ describe('identify-resource', () => {
     it('should resolve a native module reference', () => {
       expect(resolve(path.resolve('foo.js'), 'http')).to.equal(false);
     });
+    it('should resolve root project main file with "browser" alias', () => {
+      expect(resolve(path.resolve('foo.js'), 'project')).to.equal(path.resolve('index.js'));
+    });
     it('should resolve cached packages of same version', () => {
       expect(resolve(path.resolve('node_modules/foo/index.js'), 'boo')).to.equal(path.resolve('node_modules/boo/index.js'));
       expect(resolve(path.resolve('node_modules/bar/index.js'), 'boo')).to.equal(path.resolve('node_modules/boo/index.js'));
@@ -268,6 +271,9 @@ describe('identify-resource', () => {
     });
     it('should resolve an ID for a package module filepath', () => {
       expect(identify(path.resolve('node_modules/foo/lib/bar.js'))).to.equal('foo/lib/bar.js#1.0.0');
+    });
+    it('should resolve an ID for a package main filepath with "browser" alias', () => {
+      expect(identify(path.resolve('index.js'))).to.equal('project');
     });
     it('should resolve separate IDs for different versions of the same package', () => {
       expect(identify(path.resolve('node_modules/baz/node_modules/foo/lib/bat.js'))).to.equal('foo/lib/bat.js#2.0.0');
