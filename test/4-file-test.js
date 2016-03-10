@@ -70,7 +70,7 @@ describe('file', () => {
         instance.id = 'main';
         instance.content = "module.exports = 'main';";
         instance.wrap(false, (err) => {
-          expect(instance.content).to.eql("$m[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({filename:\'main\',exports:{}});");
+          expect(instance.content).to.eql("$m[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });
@@ -361,7 +361,7 @@ describe('file', () => {
         const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
 
         instance.run(['load', 'wrap'], false, () => {
-          expect(instance.content).to.eql("$m[\'src/main.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n\n  return module.exports;\n}).call({filename:\'src/main.js\',exports:{}});");
+          expect(instance.content).to.eql("$m[\'src/main.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });
