@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-babel",
   "description": "Buddy plugin for es6 source transforms (via Babel)",
-  "version": "6.7.4",
+  "version": "6.7.6",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "babel",
@@ -13,7 +13,7 @@
     "react"
   ],
   "dependencies": {
-    "babel-core": "6.7.4",
+    "babel-core": "6.7.6",
     "babel-plugin-external-helpers-2": "6.3.x",
     "babel-plugin-transform-es2015-arrow-functions": "6.5.x",
     "babel-plugin-transform-es2015-block-scoped-functions": "6.6.x",
