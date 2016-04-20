@@ -24,7 +24,7 @@ describe('target', () => {
   describe('factory', () => {
     it('should decorate a new Target instance with passed data', () => {
       target = targetFactory({
-        inputpath: path.resolve('src/some.coffee'),
+        inputpaths: path.resolve('src/some.coffee'),
         input: 'src/some.coffee',
         output: 'js'
       },
@@ -43,8 +43,8 @@ describe('target', () => {
   describe('parse', () => {
     beforeEach(() => {
       target = targetFactory({
-        inputpath: path.resolve('src/js'),
-        outputpath: path.resolve('temp')
+        inputpaths: [path.resolve('src/js')],
+        outputpaths: [path.resolve('temp')]
       },
       {
         fileExtensions: {
@@ -56,15 +56,15 @@ describe('target', () => {
       });
     });
     it('should parse a file "input" and return a File instance', () => {
-      const files = target.parse(false, path.resolve('src/js/foo.js'), null, target.options);
+      const files = target.parseFiles([path.resolve('src/js/foo.js')], target.options);
 
       expect(files).to.have.length(1);
     });
     it('should parse a directory "input" and return several File instances', () => {
       target.inputpath = path.resolve('src/js');
-      const files = target.parse(true, path.resolve('src/js'), /.js$/, target.options);
+      const files = target.parseFiles([path.resolve('src/js/foo.js'), path.resolve('src/js/bar.js')], target.options);
 
-      expect(files).to.have.length(4);
+      expect(files).to.have.length(2);
     });
   });
 
@@ -79,8 +79,7 @@ describe('target', () => {
         runtimeOptions: {}
       };
       target = targetFactory({
-        inputpath: path.resolve('src/js'),
-        sources: []
+        inputpaths: [path.resolve('src/js/bar.js'), path.resolve('src/js/foo.js')]
       }, options);
     });
 
@@ -108,9 +107,8 @@ describe('target', () => {
     beforeEach(() => {
       fileFactory.cache.flush();
       target = targetFactory({
-        inputpath: path.resolve('src/js/foo.js'),
-        outputpath: path.resolve('temp'),
-        sources:['src']
+        inputpaths: [path.resolve('src/js/foo.js')],
+        outputpaths: [path.resolve('temp/foo.js')]
       },
       {
         compilers: {
@@ -144,7 +142,7 @@ describe('target', () => {
       target.after = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.foo="foo";done();');
       target.foo = 'bar';
       target.build((err, filepaths) => {
-        expect(filepaths[0].toLowerCase()).to.eql(path.resolve('temp/js/foo.js').toLowerCase());
+        expect(filepaths[0].toLowerCase()).to.eql(path.resolve('temp/foo.js').toLowerCase());
         expect(target.foo).to.eql('foo');
         done();
       });
@@ -152,7 +150,7 @@ describe('target', () => {
     it('should execute an "afterEach" hook after each processed file is ready to write to disk', (done) => {
       target.afterEach = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.content="foo";done();');
       target.build((err, filepaths) => {
-        expect(filepaths[0].toLowerCase()).to.eql(path.resolve('temp/js/foo.js').toLowerCase());
+        expect(filepaths[0].toLowerCase()).to.eql(path.resolve('temp/foo.js').toLowerCase());
         expect(fs.readFileSync(filepaths[0], 'utf8')).to.eql('foo');
         done();
       });
