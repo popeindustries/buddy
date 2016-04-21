@@ -24,7 +24,7 @@ describe('target', () => {
   describe('factory', () => {
     it('should decorate a new Target instance with passed data', () => {
       target = targetFactory({
-        inputpaths: path.resolve('src/some.coffee'),
+        inputpaths: [path.resolve('src/some.coffee')],
         input: 'src/some.coffee',
         output: 'js'
       },
