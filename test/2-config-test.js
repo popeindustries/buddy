@@ -35,7 +35,7 @@ describe('config', () => {
         watch: false,
         verbose: false
       },
-      sources: ['.'],
+      sources: [process.cwd()],
       url: '',
       workflows: {}
     };
@@ -147,6 +147,28 @@ describe('config', () => {
 
       expect(target[0].inputpaths).to.eql([path.resolve('src/main.js'), path.resolve('src/sub.js')]);
       expect(target[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/sub.js')]);
+    });
+    it('should parse batch target', () => {
+      defaultConfig.sources = [process.cwd(), path.resolve('src')];
+      const target = config.parse([{
+        input: 'src',
+        output: 'js'
+      }], defaultConfig);
+
+      expect(target[0].inputpaths).to.eql([path.resolve('src/main.js'), path.resolve('src/module.js')]);
+      expect(target[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/module.js')]);
+      expect(target[0].batch).to.be(true);
+    });
+    it('should parse batch target with nested resources', () => {
+      defaultConfig.sources = [process.cwd(), path.resolve('src-nested')];
+      const target = config.parse([{
+        input: 'src-nested',
+        output: 'js'
+      }], defaultConfig);
+
+      expect(target[0].inputpaths).to.eql([path.resolve('src-nested/main.js'), path.resolve('src-nested/module.js'), path.resolve('src-nested/nested/sub.js')]);
+      expect(target[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/module.js'), path.resolve('js/nested/sub.js')]);
+      expect(target[0].batch).to.be(true);
     });
     it('should parse target glob pattern "input"', () => {
       const target = config.parse([{
