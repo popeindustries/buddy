@@ -22,10 +22,8 @@ exports.build = {
       after: './hooks/after.js',
       // A script to run after each output file is ready to be written to disk.
       afterEach: 'context.content = "foo"; done();',
-      // A flag indicating that 'require' boilerplate be added to the output file
-      boilerplate: true,
-      // A flag indicating that the entry point module should require itself (bootstrap)
-      bootstrap: true,
+      // A flag indicating that the entry point module should be lazily evaluated
+      bootstrap: false,
       // Targets can have children.
       // Any sources included in the parent target will NOT be included in the child.
       targets: [
