@@ -3,7 +3,7 @@
 const expect = require('expect.js')
   , fileFactory = require('../lib/file')
   , fs = require('fs')
-  , identifyResource = require('identify-resource')
+  , identifyResource = require('../lib/identify-resource')
   , path = require('path')
 
   , fileExtensions = {
@@ -70,7 +70,7 @@ describe('file', () => {
         instance.id = 'main';
         instance.content = "module.exports = 'main';";
         instance.wrap(false, (err) => {
-          expect(instance.content).to.eql("require.register('main', function(require, module, exports) {\n    module.exports = 'main';\n});");
+          expect(instance.content).to.eql("_m_[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });
@@ -78,19 +78,9 @@ describe('file', () => {
         const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
 
         instance.id = 'main';
-        instance.content = "require.register('main', function(require, module, exports) {\n    module.exports = 'main';\n});";
+        instance.content = "_m_[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({filename:\'main\',exports:{}});";
         instance.wrap(false, (err) => {
-          expect(instance.content).to.eql("require.register('main', function(require, module, exports) {\n    module.exports = 'main';\n});");
-          done();
-        });
-      });
-      it('should wrap js file contents that contain "require.register"', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.id = 'main';
-        instance.content = "var locale=require(\"src/lib/data/locale/index.js\");module.exports=function(e){var t=e.code;e.momentSource&&(window.require.register(t,e.momentSource),require(t),delete e.momentSource),locale.create(t,e)}";
-        instance.wrap(false, (err) => {
-          expect(instance.content).to.eql("require.register(\'main\', function(require, module, exports) {\n    var locale=require(\"src/lib/data/locale/index.js\");module.exports=function(e){var t=e.code;e.momentSource&&(window.require.register(t,e.momentSource),require(t),delete e.momentSource),locale.create(t,e)}\n});");
+          expect(instance.content).to.eql("_m_[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({filename:\'main\',exports:{}});");
           done();
         });
       });
@@ -171,13 +161,13 @@ describe('file', () => {
         instance.content = "var foo = require('./foo');";
         instance.dependencyReferences = [
           {
-            filepath: './foo',
+            filepath: './foo.js',
             match: "require('./foo')",
-            instance: { id: 'foo' }
+            instance: { id: 'foo.js' }
           }
         ];
         instance.replaceReferences(false, (err) => {
-          expect(instance.content).to.eql("var foo = require('foo');");
+          expect(instance.content).to.eql("var foo = _m_['foo.js'];");
           done();
         });
       });
@@ -231,7 +221,7 @@ describe('file', () => {
           }
         ];
         instance.replaceReferences(false, (err) => {
-          expect(instance.content).to.eql("var bar = require('bar@0');\nvar baz = require('view/baz');");
+          expect(instance.content).to.eql("var bar = _m_['bar@0'];\nvar baz = _m_['view/baz'];");
           done();
         });
       });
@@ -371,7 +361,7 @@ describe('file', () => {
         const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
 
         instance.run(['load', 'wrap'], false, () => {
-          expect(instance.content).to.eql("require.register('src/main.js', function(require, module, exports) {\n    'use strict';\n    \n    module.exports = 'main';\n    \n});");
+          expect(instance.content).to.eql("_m_[\'src/main.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });
