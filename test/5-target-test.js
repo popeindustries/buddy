@@ -97,7 +97,7 @@ describe('target', () => {
 
       target.process([file1], [{ js: ['load', 'parse', 'wrap'] }], false, (err, files) => {
           expect(files).to.have.length(4);
-          expect(files[0].content).to.eql("$m[\'src/js/foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var bar = require(\'./bar\')\n  \t, foo = this;\n\n  return module.exports;\n}).call({exports:{}});");
+          expect(files[0].content).to.eql("_m_[\'src/js/foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var bar = require(\'./bar\')\n  \t, foo = this;\n\n  return module.exports;\n}).call({exports:{}});");
           done();
       });
     });

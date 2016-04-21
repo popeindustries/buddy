@@ -1,4 +1,4 @@
-$m['wrapped.js']=(function(module,exports){
+_m_['wrapped.js']=(function(module,exports){
   module=this;exports=module.exports;
 
   var wrapped = this;

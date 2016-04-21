@@ -70,7 +70,7 @@ describe('file', () => {
         instance.id = 'main';
         instance.content = "module.exports = 'main';";
         instance.wrap(false, (err) => {
-          expect(instance.content).to.eql("$m[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({exports:{}});");
+          expect(instance.content).to.eql("_m_[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });
@@ -78,9 +78,9 @@ describe('file', () => {
         const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
 
         instance.id = 'main';
-        instance.content = "$m[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({filename:\'main\',exports:{}});";
+        instance.content = "_m_[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({filename:\'main\',exports:{}});";
         instance.wrap(false, (err) => {
-          expect(instance.content).to.eql("$m[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({filename:\'main\',exports:{}});");
+          expect(instance.content).to.eql("_m_[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({filename:\'main\',exports:{}});");
           done();
         });
       });
@@ -167,7 +167,7 @@ describe('file', () => {
           }
         ];
         instance.replaceReferences(false, (err) => {
-          expect(instance.content).to.eql("var foo = $m['foo.js'];");
+          expect(instance.content).to.eql("var foo = _m_['foo.js'];");
           done();
         });
       });
@@ -221,7 +221,7 @@ describe('file', () => {
           }
         ];
         instance.replaceReferences(false, (err) => {
-          expect(instance.content).to.eql("var bar = $m['bar@0'];\nvar baz = $m['view/baz'];");
+          expect(instance.content).to.eql("var bar = _m_['bar@0'];\nvar baz = _m_['view/baz'];");
           done();
         });
       });
@@ -361,7 +361,7 @@ describe('file', () => {
         const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
 
         instance.run(['load', 'wrap'], false, () => {
-          expect(instance.content).to.eql("$m[\'src/main.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n\n  return module.exports;\n}).call({exports:{}});");
+          expect(instance.content).to.eql("_m_[\'src/main.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });
