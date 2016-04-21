@@ -1,5 +1,13 @@
 # Changelog
 
+**5.0.0**
+* inline all `require()` statements, significantly speeding up browser startup time
+* remove necessity for external `require()` boilerplate and `boilerplate` config parameter
+* `bootstrap` bundles by default
+* add root module id shortcut to allow for `require('myProject')`
+* reduce overall number of dependencies
+* update dependencies
+
 **4.1.2 - 4.1.3** - Feb 28, 2016
 * update `inline-source` dependency (fixes inlining of svg files with embedded `<image>` tags)
 

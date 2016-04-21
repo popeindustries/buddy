@@ -40,7 +40,7 @@ $ npm -g install buddy-cli
   "description": "This is my web project",
   "version": "1.0.0",
   "devDependencies": {
-    "buddy": "4.0.x"
+    "buddy": "5.0.x"
   },
   "buddy": {
     ...
@@ -82,7 +82,7 @@ Please refer to the annotated [configuration](https://github.com/popeindustries/
 
 ## Plugins
 
-As of version 4, all `transfigure-*` packages have been deprecated in favour of `buddy-plugin-*` package names, now properly referred to as "plugins". In addition, in order to keep install times in check, all compressors have been broken out into separate plugin packages.
+As of version 4, all `transfigure-*` packages have been deprecated in favour of `buddy-plugin-*` package names, now properly referred to as "plugins". In addition, in order to keep install times in check, all compressors have been broken out into separate plugin packages as well.
 
 #### Compiler plugins
 
@@ -128,9 +128,7 @@ The following compressor plugins are currently available:
 
 - **before**, **after**, **afterEach**: hooks for modifying the build process
 
-- **boilerplate**: a flag to specify inclusion of [simpler-browser-require](https://github.com/popeindustries/simpler-browser-require) source code in the .js output file.
-
-- **bootstrap**: a flag to specify that the entry-point .js module be automatically `require`'d to force application startup.
+- **bootstrap**: a flag to specify that the entry-point .js module should be lazily evaluated (default value is `true`, triggering evaluation on load. Set to `false` if you want to lazily evaluate by calling `require('myModule')` manually).
 
 - **label**: an arbitrary name to use for matching when using the `--grep` subcommand
 
@@ -237,8 +235,8 @@ Install the add-on alongside **buddy**, and see **[buddy-server](https://github.
 ```json
 {
   "dependencies": {
-    "buddy": "^3.0.0",
-    "buddy-server": "^1.0.0"
+    "buddy": "5.0.0",
+    "buddy-server": "1.0.0"
   },
   "buddy": {
     "server": {
@@ -302,8 +300,6 @@ When `require()`-ing a module, keep in mind that the module id is resolved based
 
 See [node.js modules](http://nodejs.org/api/modules.html) for more info on modules.
 
-***NOTE***: `require` boilerplate needs to be present as a browser global property to enable runtime module initialization. It is necessary to include a copy of [simpler-browser-require](https://github.com/popeindustries/simpler-browser-require) (npm: simpler-browser-require), or set the `boilerplate` target flag to have it included automatically.
-
 ### EXAMPLES
 
 Generate `www/main.js` by concatenating and modularizing all dependencies referenced by `src/js/main.js`, including modules installed via npm (from the `node_modules` directory):
@@ -313,7 +309,7 @@ Generate `www/main.js` by concatenating and modularizing all dependencies refere
   "name": "myProject",
   "version": "1.0.0",
   "devDependencies": {
-    "buddy": "^3.0.0"
+    "buddy": "5.0.0"
   },
   "buddy": {
     "build": {
@@ -395,25 +391,6 @@ Alias a custom build of *jquery*:
 ```
 ```javascript
 var jquery = require('jquery');
-```
-
-Generate `www/main.js` by including `require()` boilerplate and automatically bootstraping (`require('main')`) the application:
-
-```json
-{
-  "buddy": {
-    "build": {
-      "targets": [
-        {
-          "input": "src/js/main.js",
-          "output": "www",
-          "boilerplate": true,
-          "bootstrap": true
-        }
-      ]
-    }
-  }
-}
 ```
 
 ## Working with CSS
