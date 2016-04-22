@@ -1,6 +1,6 @@
 # Changelog
 
-**5.0.0**
+**5.0.0** - Apr 22, 2016
 * inline all `require()` statements, significantly speeding up browser startup time
 * remove necessity for external `require()` boilerplate and `boilerplate` config parameter
 * `bootstrap` bundles by default
