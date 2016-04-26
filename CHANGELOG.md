@@ -1,5 +1,11 @@
 # Changelog
 
+**5.0.1** - Apr 26, 2016
+* fix handling of unique file names
+* fix `require` call for non-bootstrapped modules
+* fix resolution of ids when specifying `sources`
+* fix ignoring of child targets
+
 **5.0.0** - Apr 22, 2016
 * inline all `require()` statements, significantly speeding up browser startup time
 * remove necessity for external `require()` boilerplate and `boilerplate` config parameter
