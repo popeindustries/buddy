@@ -98,7 +98,7 @@ describe('identify-resource', () => {
         expect(details).to.have.property('manifestpath', path.resolve('node_modules/foo/package.json'));
         expect(details).to.have.property('name', 'foo');
         expect(details).to.have.property('main', path.resolve('node_modules/foo/lib/bat.js'));
-        expect(details).to.have.property('paths').eql([path.resolve('node_modules/foo/node_modules'), path.resolve('node_modules')]);
+        expect(details).to.have.property('paths').eql([path.resolve('node_modules/foo'), path.resolve('node_modules'), path.resolve('node_modules/foo/node_modules')]);
       });
       it('should return details for a node_modules package with no "main" property', () => {
         const details = pkg.get(path.resolve('node_modules/boom'), config());
@@ -143,7 +143,7 @@ describe('identify-resource', () => {
       expect(resolve(path.resolve('foo.js'), './bar.blah')).to.equal('');
     });
     it('should resolve a js file with an unkown extension when optionally specified', () => {
-      expect(resolve(path.resolve('foo.js'), './bar', { fileExtensions: { js: ['coffee'] } })).to.equal(path.resolve('bar.coffee'));
+      expect(resolve(path.resolve('foo.js'), './bar', { fileExtensions: { js: ['coffee'] }})).to.equal(path.resolve('bar.coffee'));
     });
     it('should resolve a file name containing multiple "."', () => {
       expect(resolve(path.resolve('foo.js'), './foo.bar')).to.equal(path.resolve('foo.bar.js'));
@@ -259,6 +259,9 @@ describe('identify-resource', () => {
     });
     it('should resolve an ID for a filepath nested in the default source directory', () => {
       expect(identify(path.resolve('nested/bar.js'))).to.equal('nested/bar.js');
+    });
+    it('should resolve an ID for a filepath nested in the default source directory when additional source specified', () => {
+      expect(identify(path.resolve('nested/bar.js'), { sources: [path.resolve('nested')] })).to.equal('bar.js');
     });
     it('should resolve an ID for a package module with missing manifest', () => {
       expect(identify(path.resolve('node_modules/bar/index.js'))).to.equal('bar/index.js');

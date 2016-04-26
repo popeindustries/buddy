@@ -300,6 +300,26 @@ describe('Builder', () => {
           done();
         });
       });
+      it('should build a js file with specified source directory', (done) => {
+        builder.build({
+          build: {
+            sources: ['js-directory/nested'],
+            targets: [
+              {
+                input: 'js-directory/nested/foo.js',
+                output: 'output'
+              }
+            ]
+          }
+        }, null, (err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain("_m_['foo.js']=(function(module,exports){");
+          done();
+        });
+      });
       it('should build a prewrapped js file', (done) => {
         builder.build({
           build: {

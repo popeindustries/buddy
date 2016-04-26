@@ -31,12 +31,12 @@ describe('file', () => {
     it('should resolve a module id for a File instance', () => {
       const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
 
-      expect(instance).to.have.property('id', 'src/main.js');
+      expect(instance).to.have.property('id', 'main.js');
     });
     it('should resolve a module id for an "index" File instance', () => {
       const instance = fileFactory(path.resolve('src/index.js'), { sources: [path.resolve('src')], fileExtensions });
 
-      expect(instance).to.have.property('id', 'src/index.js');
+      expect(instance).to.have.property('id', 'index.js');
     });
     it('should resolve a module id for a node_module "index" File instance ', () => {
       const instance = fileFactory(path.resolve('node_modules/foo/index.js'), { sources: [], fileExtensions });
@@ -361,7 +361,7 @@ describe('file', () => {
         const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
 
         instance.run(['load', 'wrap'], false, () => {
-          expect(instance.content).to.eql("_m_[\'src/main.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n\n  return module.exports;\n}).call({exports:{}});");
+          expect(instance.content).to.eql("_m_[\'main.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });

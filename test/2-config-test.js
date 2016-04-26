@@ -100,9 +100,9 @@ describe('config', () => {
     });
   });
 
-  describe('parse', () => {
+  describe('parseTargets', () => {
     it('should warn on deprecated format', () => {
-      expect(config.parse([{
+      expect(config.parseTargets([{
         js: {
           sources: [],
           targets: [{
@@ -113,7 +113,7 @@ describe('config', () => {
       }], defaultConfig)).to.eql([]);
     });
     it('should allow passing build data "input" that doesn\'t exist', () => {
-      expect(config.parse([{
+      expect(config.parseTargets([{
         targets: [{
           input: 'src/hey.js',
           output: 'js'
@@ -121,7 +121,7 @@ describe('config', () => {
       }], defaultConfig)).to.be.ok();
     });
     it('should parse target "input"', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src/hey.js',
         output: 'js'
       }], defaultConfig);
@@ -130,7 +130,7 @@ describe('config', () => {
       expect(target[0].inputpaths).to.eql([path.resolve('src/hey.js')]);
     });
     it('should parse target array "input"', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: ['src/hey.js', 'src/ho.js'],
         output: 'js'
       }], defaultConfig);
@@ -140,7 +140,7 @@ describe('config', () => {
       expect(target[0].outputpaths).to.eql([path.resolve('js/hey.js'), path.resolve('js/ho.js')]);
     });
     it('should parse target when "input" and "output" are arrays of same length', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: ['src/main.js', 'src/sub.js'],
         output: ['js/main.js', 'js/sub.js']
       }], defaultConfig);
@@ -150,7 +150,7 @@ describe('config', () => {
     });
     it('should parse batch target', () => {
       defaultConfig.sources = [process.cwd(), path.resolve('src')];
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src',
         output: 'js'
       }], defaultConfig);
@@ -161,7 +161,7 @@ describe('config', () => {
     });
     it('should parse batch target with nested resources', () => {
       defaultConfig.sources = [process.cwd(), path.resolve('src-nested')];
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src-nested',
         output: 'js'
       }], defaultConfig);
@@ -172,7 +172,7 @@ describe('config', () => {
     });
     it('should parse target with nested targets', () => {
       defaultConfig.sources = [process.cwd(), path.resolve('src-nested')];
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src-nested/main.js',
         output: 'js',
         targets: [
@@ -188,7 +188,7 @@ describe('config', () => {
       expect(target[0].childInputpaths).to.eql([path.resolve('src-nested/nested/sub.js')]);
     });
     it('should parse target glob pattern "input"', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src/ma*.js',
         output: 'js'
       }], defaultConfig);
@@ -197,7 +197,7 @@ describe('config', () => {
       expect(target[0].outputpaths).to.eql([path.resolve('js/main.js')]);
     });
     it('should parse target glob pattern array "input"', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src/m*.js',
         output: 'js'
       }], defaultConfig);
@@ -206,7 +206,7 @@ describe('config', () => {
       expect(target[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/module.js')]);
     });
     it('should not parse target "input" when not matched with "--grep" option', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src/hey.js',
         output: 'js'
       }], merge(defaultConfig, { runtimeOptions: { grep: '*.css' }}));
@@ -214,7 +214,7 @@ describe('config', () => {
       expect(target).to.eql([]);
     });
     it('should parse target "output"', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src/hey.js',
         output: 'js'
       }], defaultConfig);
@@ -223,7 +223,7 @@ describe('config', () => {
       expect(target[0].outputpaths).to.eql([path.resolve('js/hey.js')]);
     });
     it('should parse target "output_compressed"', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src/hey.js',
         output: 'js',
         output_compressed: 'c'
@@ -234,7 +234,7 @@ describe('config', () => {
     });
     it('should throw an error when passed build data with directory "input" and a file "output"', () => {
       try {
-        config.parse([{
+        config.parseTargets([{
           input: 'src',
           output: 'js/main.js'
         }], defaultConfig);
@@ -242,7 +242,7 @@ describe('config', () => {
         expect(err).to.be.an(Error);
       }
       try {
-        config.parse([{
+        config.parseTargets([{
           input: ['src/main.js', 'src'],
           output: ['js/main.js', 'js/foo.js']
         }], defaultConfig);
@@ -252,7 +252,7 @@ describe('config', () => {
     });
     it('should throw an error when passed build data with single file "input" and multiple file "output"', () => {
       try {
-        config.parse([{
+        config.parseTargets([{
           input: 'src/main.js',
           output: ['js/main.js', 'js/foo.js']
         }], defaultConfig);
@@ -261,28 +261,28 @@ describe('config', () => {
       }
     });
     it('should return a target with "appServer" set to TRUE when "server.file" is the same as "input"', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src/main.js'
       }], merge(defaultConfig, { server: { file: 'src/main.js' }}));
 
       expect(target[0]).to.have.property('appServer', true);
     });
     it('should return a target with "appServer" set to TRUE when "server.file" is in directory "input"', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src'
       }], merge(defaultConfig, { server: { file: 'src/main.js' }}));
 
       expect(target[0]).to.have.property('appServer', true);
     });
     it('should return a target with "appServer" set to TRUE when "server.file" matches a globbed "input"', () => {
-      const target = config.parse([{
+      const target = config.parseTargets([{
         input: 'src/*.js'
       }], merge(defaultConfig, { server: { file: 'src/main.js' }}));
 
       expect(target[0]).to.have.property('appServer', true);
     });
     it('should return a target with an executable "before" hook function', () => {
-      const func = config.parse([{
+      const func = config.parseTargets([{
         input: 'src/main.js',
         output: 'js',
         before: 'console.log(context);'
@@ -291,7 +291,7 @@ describe('config', () => {
       expect(typeof func == 'function').to.be(true);
     });
     it('should return a target with an executable "before" hook function when passed a path', () => {
-      const func = config.parse([{
+      const func = config.parseTargets([{
         input: 'src/main.js',
         output: 'js',
         before: './hooks/before.js'
@@ -301,7 +301,7 @@ describe('config', () => {
     });
     it('should throw an error when passed invalid "before" hook path', () => {
       try {
-        config.parse([{
+        config.parseTargets([{
           input: 'src/main.js',
           output: 'js',
           before: './hook/before.js'

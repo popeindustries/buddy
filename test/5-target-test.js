@@ -107,6 +107,8 @@ describe('target', () => {
     beforeEach(() => {
       fileFactory.cache.flush();
       target = targetFactory({
+        input: 'src/js/foo.js',
+        output: 'temp',
         inputpaths: [path.resolve('src/js/foo.js')],
         outputpaths: [path.resolve('temp/foo.js')]
       },
