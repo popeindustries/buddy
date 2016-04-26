@@ -984,7 +984,41 @@ describe('Builder', () => {
             const name = path.basename(filepath, '.js')
               , content = fs.readFileSync(filepath, 'utf8');
 
-            expect(content).to.contain("_m_['foo.js']=(function(module,exports){")
+            expect(content).to.contain("_m_['foo.js']=(function(module,exports){");
+          });
+          done();
+        });
+      });
+      it('should correctly ignore references to nested target inputs', (done) => {
+        builder.build({
+          build: {
+            targets: [
+              {
+                input: 'c.js',
+                output: 'output',
+                targets: [
+                  {
+                    input: 'd.js',
+                    output: 'output'
+                  }
+                ]
+              }
+            ]
+          }
+        }, null, (err, filepaths) => {
+          expect(filepaths).to.have.length(2);
+          filepaths.forEach((filepath) => {
+            expect(fs.existsSync(filepath)).to.be(true);
+            const name = path.basename(filepath, '.js')
+              , content = fs.readFileSync(filepath, 'utf8');
+
+            if (name == 'c') {
+              expect(content).to.contain("foo = _m_['foo.js']");
+              expect(content).to.contain("d = require('d.js')");
+            } else if (name == 'd') {
+              expect(content).to.contain("e = _m_['e.js']");
+              expect(content).to.contain("foo = require('foo.js')");
+            }
           });
           done();
         });

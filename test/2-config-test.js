@@ -170,6 +170,23 @@ describe('config', () => {
       expect(target[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/module.js'), path.resolve('js/nested/sub.js')]);
       expect(target[0].batch).to.be(true);
     });
+    it('should parse target with nested targets', () => {
+      defaultConfig.sources = [process.cwd(), path.resolve('src-nested')];
+      const target = config.parse([{
+        input: 'src-nested/main.js',
+        output: 'js',
+        targets: [
+          {
+            input: 'src-nested/nested/sub.js',
+            output: 'js'
+          }
+        ]
+      }], defaultConfig);
+
+      expect(target[0].targets).to.have.length(1);
+      expect(target[0].hasChildren).to.equal(true);
+      expect(target[0].childInputpaths).to.eql([path.resolve('src-nested/nested/sub.js')]);
+    });
     it('should parse target glob pattern "input"', () => {
       const target = config.parse([{
         input: 'src/ma*.js',
