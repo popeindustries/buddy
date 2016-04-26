@@ -47,7 +47,7 @@ describe('utils', () => {
 
     describe('find()', () => {
       it('should find a matching file', () => {
-        expect(unique.find('foo-%hash%.js')).to.eql(path.resolve('foo-00000.js'));
+        expect(unique.find('foo-bar-%hash%.js')).to.eql(path.resolve('foo-bar-0f7807e7171c078a8c5bfb565e35ef88.js'));
       });
       it('should return "" when no match', () => {
         expect(unique.find('bar-%hash%.js')).to.eql('');
