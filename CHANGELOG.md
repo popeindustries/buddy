@@ -1,5 +1,8 @@
 # Changelog
 
+**5.0.2** - Apr 27, 2016
+* fix filepaths during batched output
+
 **5.0.1** - Apr 26, 2016
 * fix handling of unique file names
 * fix `require` call for non-bootstrapped modules
