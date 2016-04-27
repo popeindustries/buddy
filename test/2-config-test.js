@@ -222,6 +222,15 @@ describe('config', () => {
       expect(target[0].output).to.eql('js');
       expect(target[0].outputpaths).to.eql([path.resolve('js/hey.js')]);
     });
+    it('should parse array of directory "output"', () => {
+      const target = config.parseTargets([{
+        input: ['src', 'src-nested/nested'],
+        output: 'js'
+      }], defaultConfig);
+
+      expect(target[0].outputpaths).to.contain(path.resolve('js/main.js'));
+      expect(target[0].outputpaths).to.contain(path.resolve('js/sub.js'));
+    });
     it('should parse target "output_compressed"', () => {
       const target = config.parseTargets([{
         input: 'src/hey.js',
