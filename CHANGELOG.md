@@ -1,5 +1,8 @@
 # Changelog
 
+**5.0.3** - Apr 27, 2016
+* update dependencies
+
 **5.0.2** - Apr 27, 2016
 * fix filepaths during batched output
 
