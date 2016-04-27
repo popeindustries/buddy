@@ -18,7 +18,7 @@ exports.registration = {
  */
 exports.compress = function compress (content, options, fn) {
   try {
-    content = csso.minify(content);
+    content = csso.minify(content).css;
     fn(null, content);
   } catch (err) {
     fn(err);
