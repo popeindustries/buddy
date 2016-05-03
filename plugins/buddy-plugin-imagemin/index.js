@@ -1,6 +1,10 @@
 'use strict';
 
-const Imagemin = require('imagemin');
+const gifsicle = require('imagemin-gifsicle')
+  , imagemin = require('imagemin')
+  , jpegtran = require('imagemin-jpegtran')
+  , optipng = require('imagemin-optipng')
+  , svgo = require('imagemin-svgo');
 
 /**
  * Retrieve registration data
@@ -24,18 +28,20 @@ exports.compress = function compress (content, options, fn) {
     // Requires buffer
     if (asString) content = new Buffer(content);
 
-    new Imagemin()
-      .src(content)
-      .use(Imagemin.gifsicle())
-      .use(Imagemin.jpegtran())
-      .use(Imagemin.optipng({ optimizationLevel: 3 }))
-      .use(Imagemin.svgo())
-      .run((err, files) => {
-        if (err) return fn(err);
-        content = files[0].contents;
+    imagemin
+      .buffer(content, {
+        use: [
+          gifsicle(),
+          jpegtran(),
+          optipng({ optimizationLevel: 3 }),
+          svgo()
+        ]
+      })
+      .then((content) => {
         if (asString) content = content.toString();
         fn(null, content);
-      });
+      })
+      .catch(fn);
   } catch (err) {
     fn(err);
   }

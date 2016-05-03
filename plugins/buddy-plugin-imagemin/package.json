@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-imagemin",
   "description": "Buddy plugin for image minification (via imagemin)",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -15,12 +15,19 @@
     "svg"
   ],
   "dependencies": {
-    "imagemin": "4.0.0"
+    "imagemin": "5.0.0",
+    "imagemin-gifsicle": "5.0.x",
+    "imagemin-jpegtran": "5.0.x",
+    "imagemin-optipng": "5.0.x",
+    "imagemin-svgo": "5.0.x"
   },
   "devDependencies": {
   },
   "main": "index.js",
   "scripts": {
+  },
+  "scripts": {
+    "test": "../../node_modules/.bin/mocha --reporter spec -t 10000"
   },
   "engines": {
     "node": ">=4"
