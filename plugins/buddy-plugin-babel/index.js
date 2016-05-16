@@ -15,7 +15,7 @@ const babel = require('babel-core')
   , HELPERS = babel.buildExternalHelpers(DEFAULT_HELPERS)
   , SETTINGS = {
       plugins: [
-        require('babel-plugin-external-helpers-2'),
+        require('babel-plugin-external-helpers'),
         require('babel-plugin-transform-es2015-arrow-functions'),
         require('babel-plugin-transform-es2015-block-scoped-functions'),
         require('babel-plugin-transform-es2015-block-scoping'),

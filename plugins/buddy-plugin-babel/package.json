@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "babel-core": "6.8.0",
-    "babel-plugin-external-helpers-2": "6.3.x",
+    "babel-plugin-external-helpers": "6.8.x",
     "babel-plugin-transform-es2015-arrow-functions": "6.8.x",
     "babel-plugin-transform-es2015-block-scoped-functions": "6.8.x",
     "babel-plugin-transform-es2015-block-scoping": "6.8.x",
@@ -41,7 +41,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec -t 10000"
+    "test": "../../node_modules/.bin/mocha --reporter spec -t 10000"
   },
   "engines": {
     "node": ">=4"
