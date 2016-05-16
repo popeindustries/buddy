@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-csso",
   "description": "Buddy plugin for css minification (via csso)",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -11,7 +11,7 @@
     "minify"
   ],
   "dependencies": {
-    "csso": "2.1.0"
+    "csso": "2.1.1"
   },
   "devDependencies": {
   },
