@@ -1,5 +1,9 @@
 # Changelog
 
+**5.0.4** - Apr 27, 2016
+* force browser refresh for targets with multiple file outputs
+* update dependencies
+
 **5.0.3** - Apr 27, 2016
 * update dependencies
 
