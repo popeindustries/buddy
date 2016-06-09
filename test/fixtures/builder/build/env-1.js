@@ -1,0 +1,1 @@
+var version = process.env.BUDDY_VERSION;

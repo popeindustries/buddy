@@ -432,6 +432,45 @@ describe('Builder', () => {
           done();
         });
       });
+      it('should expose BUDDY_VERSION to source files', (done) => {
+        builder.build({
+          build: {
+            targets: [
+              {
+                input: 'env-1.js',
+                output: 'output'
+              }
+            ]
+          }
+        }, null, (err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.match(/var version = '\d\.\d\.\d';/);
+          done();
+        });
+      });
+      it('should expose BUDDY_X_X to source files', (done) => {
+        builder.build({
+          build: {
+            targets: [
+              {
+                input: 'env-2.js',
+                output: 'output',
+                label: 'env'
+              }
+            ]
+          }
+        }, null, (err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain("var hash = '696768116e504ebcba3b436af9e645c9';");
+          done();
+        });
+      });
     });
 
     describe('css', () => {

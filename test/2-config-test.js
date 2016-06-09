@@ -186,6 +186,8 @@ describe('config', () => {
       expect(target[0].targets).to.have.length(1);
       expect(target[0].hasChildren).to.equal(true);
       expect(target[0].childInputpaths).to.eql([path.resolve('src-nested/nested/sub.js')]);
+      expect(target[0].index).to.equal(0);
+      expect(target[0].targets[0].index).to.equal(1);
     });
     it('should parse target glob pattern "input"', () => {
       const target = config.parseTargets([{

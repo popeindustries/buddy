@@ -1,0 +1,1 @@
+var hash = process.env.BUDDY_ENV_INPUT_HASH;

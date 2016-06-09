@@ -109,7 +109,8 @@ describe('target', () => {
         input: 'src/js/foo.js',
         output: 'temp',
         inputpaths: [path.resolve('src/js/foo.js')],
-        outputpaths: [path.resolve('temp/foo.js')]
+        outputpaths: [path.resolve('temp/foo.js')],
+        index: 0
       },
       {
         compilers: {
