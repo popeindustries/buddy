@@ -1,12 +1,11 @@
 'use strict';
 
-const expect = require('expect.js')
-  , fileFactory = require('../lib/file')
-  , fs = require('fs')
-  , path = require('path')
-  , rimraf = require('rimraf')
-  , targetFactory = require('../lib/target');
-
+const expect = require('expect.js');
+const fileFactory = require('../lib/file');
+const fs = require('fs');
+const path = require('path');
+const rimraf = require('rimraf');
+const targetFactory = require('../lib/target');
 let target, options;
 
 describe('target', () => {

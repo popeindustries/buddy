@@ -1,17 +1,16 @@
 'use strict';
 
-const expect = require('expect.js')
-  , fileFactory = require('../lib/file')
-  , fs = require('fs')
-  , identifyResource = require('../lib/identify-resource')
-  , path = require('path')
-
-  , fileExtensions = {
-      js: ['js'],
-      json: ['json'],
-      css: ['css'],
-      html: ['html', 'dust']
-    };
+const expect = require('expect.js');
+const fileFactory = require('../lib/file');
+const fs = require('fs');
+const identifyResource = require('../lib/identify-resource');
+const path = require('path');
+const fileExtensions = {
+  js: ['js'],
+  json: ['json'],
+  css: ['css'],
+  html: ['html', 'dust']
+};
 
 describe('file', () => {
   before(() => {

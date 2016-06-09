@@ -1,12 +1,11 @@
 'use strict';
 
-const Builder = require('../lib/builder')
-  , exec = require('child_process').exec
-  , expect = require('expect.js')
-  , fs = require('fs')
-  , path = require('path')
-  , rimraf = require('rimraf');
-
+const Builder = require('../lib/builder');
+const exec = require('child_process').exec;
+const expect = require('expect.js');
+const fs = require('fs');
+const path = require('path');
+const rimraf = require('rimraf');
 let builder;
 
 describe('Builder', () => {

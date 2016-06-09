@@ -1,12 +1,12 @@
 'use strict';
 
-const expect = require('expect.js')
-  , filetype = require('../lib/utils/filetype')
-  , path = require('path')
-  , pathname = require('../lib/utils/pathname')
-  , reEscape = require('../lib/utils/reEscape')
-  , truncate = require('../lib/utils/truncate')
-  , unique = require('../lib/utils/unique');
+const expect = require('expect.js');
+const filetype = require('../lib/utils/filetype');
+const path = require('path');
+const pathname = require('../lib/utils/pathname');
+const reEscape = require('../lib/utils/reEscape');
+const truncate = require('../lib/utils/truncate');
+const unique = require('../lib/utils/unique');
 
 describe('utils', () => {
   describe('reEscape', () => {

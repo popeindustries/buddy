@@ -1,12 +1,12 @@
 'use strict';
 
-const cache = require('../lib/identify-resource/cache')
-  , config = require('../lib/identify-resource/config')
-  , expect = require('expect.js')
-  , identify = require('../lib/identify-resource/identify')
-  , pkg = require('../lib/identify-resource/package')
-  , path = require('path')
-  , resolve = require('../lib/identify-resource/resolve');
+const cache = require('../lib/identify-resource/cache');
+const config = require('../lib/identify-resource/config');
+const expect = require('expect.js');
+const identify = require('../lib/identify-resource/identify');
+const pkg = require('../lib/identify-resource/package');
+const path = require('path');
+const resolve = require('../lib/identify-resource/resolve');
 
 describe('identify-resource', () => {
   before(() => {
