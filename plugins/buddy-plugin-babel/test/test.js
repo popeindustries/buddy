@@ -40,6 +40,7 @@ describe('buddy-plugin-babel', () => {
       expect(err).to.be(null);
       const helpers = options.cache.getSource('js-helpers');
 
+      expect(helpers).to.contain('var global = window.global = window;');
       expect(helpers).to.contain('babelHelpers.classCallCheck =');
       expect(helpers).to.contain('babelHelpers.createClass =');
       expect(helpers).to.contain('babelHelpers.defineProperty =');
