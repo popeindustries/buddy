@@ -1,11 +1,11 @@
 'use strict';
 
-const config = require('../lib/config')
-  , expect = require('expect.js')
-  , merge = require('lodash/merge')
-  , path = require('path')
-
-  , CWD = process.cwd();
+const config = require('../lib/config');
+const expect = require('expect.js');
+const merge = require('lodash/merge');
+const path = require('path');
+const plugins = require('../lib/utils/plugins');
+const CWD = process.cwd();
 let defaultConfig = null;
 
 describe('config', () => {
@@ -330,7 +330,7 @@ describe('config', () => {
     });
 
     it('should load "transfigure-" plugins', () => {
-      config.loadPlugins(defaultConfig);
+      plugins(defaultConfig);
       expect(Object.keys(defaultConfig.compilers)).to.contain('coffee', 'nunjs');
       expect(defaultConfig.fileExtensions.js).to.contain('coffee');
       expect(defaultConfig.fileExtensions.html).to.contain('nunjs', 'nunjucks');
