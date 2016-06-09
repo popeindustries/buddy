@@ -2,7 +2,6 @@
 
 const babel = require('babel-core')
 
-  , BOILERPLATE = 'var global = window.global = window;\n\n'
   , DEFAULT_HELPERS = [
       'classCallCheck',
       'createClass',
@@ -64,7 +63,7 @@ exports.registration = {
  */
 exports.compile = function (content, options, fn) {
   if (!options.cache.getSource('js-helpers')) {
-    options.cache.setSource('js-helpers', BOILERPLATE + HELPERS);
+    options.cache.setSource('js-helpers', HELPERS);
   }
 
   // Skip node_modules files
