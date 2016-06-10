@@ -1,5 +1,9 @@
 # Changelog
 
+**5.1.0** - June 10, 2016
+* update `require` boilerplate to work in service/web worker
+* add `BUDDY_*` environment variables
+
 **5.0.4** - Apr 27, 2016
 * force browser refresh for targets with multiple file outputs
 * update dependencies
