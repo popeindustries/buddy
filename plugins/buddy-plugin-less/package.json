@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-less",
   "description": "Buddy plugin for less source transforms (via Less)",
-  "version": "2.6.1",
+  "version": "2.7.1",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -9,13 +9,13 @@
     "less"
   ],
   "dependencies": {
-    "less": "2.6.1"
+    "less": "2.7.1"
   },
   "devDependencies": {
   },
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec -t 10000"
+    "test": "../../node_modules/.bin/mocha --reporter spec -t 10000"
   },
   "engines": {
     "node": ">=4"
