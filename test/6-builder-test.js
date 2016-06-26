@@ -386,7 +386,7 @@ describe('Builder', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;null==self._m_&&(self._m_={}),null==self.require&&(self.require=function(e){return _m_[e]?_m_[e].boot?_m_[e]():_m_[e]:void 0}),_m_["foo.js"]=function(e,o){e=this,o=e.exports;return e.exports}.call({exports:{}}),_m_["bar.js"]=function(e,o){e=this,o=e.exports;_m_["foo.js"];return e.exports}.call({exports:{}});');
+          expect(content).to.equal('if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;null==self._m_&&(self._m_={}),null==self.require&&(self.require=function(e){if(_m_[e])return _m_[e].boot?_m_[e]():_m_[e]}),_m_["foo.js"]=function(e,f){e=this,f=e.exports;return e.exports}.call({exports:{}}),_m_["bar.js"]=function(e,f){e=this,f=e.exports;_m_["foo.js"];return e.exports}.call({exports:{}});');
           done();
         });
       });
