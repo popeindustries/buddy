@@ -35,7 +35,7 @@
     "buddy-plugin-nunjucks": "*",
     "buddy-plugin-stylus": "*",
     "buddy-plugin-twig": "*",
-    "buddy-plugin-uglify": "*",
+    "buddy-plugin-uglify": "2.6.4",
     "buddy-server": "*",
     "expect.js": "*",
     "mocha": "*",
