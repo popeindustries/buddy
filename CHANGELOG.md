@@ -1,5 +1,8 @@
 # Changelog
 
+**5.1.2** - June 26, 2016
+* update dependencies
+
 **5.1.0** - June 10, 2016
 * update `require` boilerplate to work in service/web worker
 * add `BUDDY_*` environment variables
