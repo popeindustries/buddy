@@ -250,7 +250,7 @@ describe('file', () => {
 
         instance.content = 'process.env.FEATURE_FOO';
         instance.replaceEnvironment(false, (err) => {
-          expect(instance.content).to.eql('undefined');
+          expect(instance.content).to.eql('process.env.FEATURE_FOO');
           done();
         });
       });
