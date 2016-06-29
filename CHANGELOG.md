@@ -1,5 +1,8 @@
 # Changelog
 
+**5.1.3** - June 29, 2016
+* no longer inline `process.env.X` if value is `undefined`, and add `process.env` polyfill to ensure backwards compatibility
+
 **5.1.2** - June 26, 2016
 * update dependencies
 
