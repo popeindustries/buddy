@@ -33,7 +33,7 @@
     "buddy-plugin-jade": "*",
     "buddy-plugin-less": "*",
     "buddy-plugin-nunjucks": "*",
-    "buddy-plugin-stylus": "*",
+    "buddy-plugin-postcss": "*",
     "buddy-plugin-twig": "*",
     "buddy-plugin-uglify": "2.6.4",
     "buddy-server": "*",
