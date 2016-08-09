@@ -12,7 +12,7 @@
     "uglify-js"
   ],
   "dependencies": {
-    "uglify-js": "2.6.4"
+    "uglify-js": "2.7.0"
   },
   "devDependencies": {
   },
