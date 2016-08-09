@@ -1,12 +1,11 @@
 'use strict';
 
-const compile = require('..').compile
-  , expect = require('expect.js')
-  , path = require('path')
-  , fs = require('fs')
-  , templateCache = require('./templateCache')
-
-  , cache = templateCache.create();
+const compile = require('..').compile;
+const expect = require('expect.js');
+const path = require('path');
+const fs = require('fs');
+const templateCache = require('./templateCache');
+const cache = templateCache.create();
 
 describe('buddy-plugin-dust', () => {
   before(() => {
@@ -29,8 +28,8 @@ describe('buddy-plugin-dust', () => {
     });
   });
   it('should accept a .dust file path and return HTML content with includes', (done) => {
-    const filepath = path.resolve('foo-include-html.dust')
-      , includeFilepath = path.resolve(path.dirname(filepath), './include/include.dust');
+    const filepath = path.resolve('foo-include-html.dust');
+    const includeFilepath = path.resolve(path.dirname(filepath), './include/include.dust');
 
     compile(fs.readFileSync(filepath, 'utf8').replace('include/include.dust', includeFilepath), {
       filepath: filepath,

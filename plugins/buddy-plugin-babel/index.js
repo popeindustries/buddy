@@ -1,45 +1,45 @@
 'use strict';
 
-const babel = require('babel-core')
+const babel = require('babel-core');
 
-  , DEFAULT_HELPERS = [
-      'classCallCheck',
-      'createClass',
-      'defineProperty',
-      'get',
-      'inherits',
-      'possibleConstructorReturn',
-      'taggedTemplateLiteral'
-    ]
-  , HELPERS = babel.buildExternalHelpers(DEFAULT_HELPERS)
-  , SETTINGS = {
-      plugins: [
-        require('babel-plugin-external-helpers'),
-        require('babel-plugin-transform-es2015-arrow-functions'),
-        require('babel-plugin-transform-es2015-block-scoped-functions'),
-        require('babel-plugin-transform-es2015-block-scoping'),
-        [require('babel-plugin-transform-es2015-classes'), { loose: true }],
-        [require('babel-plugin-transform-es2015-computed-properties'), { loose: true }],
-        [require('babel-plugin-transform-es2015-destructuring'), { loose: true }],
-        require('babel-plugin-transform-es2015-duplicate-keys'),
-        [require('babel-plugin-transform-es2015-for-of'), { loose: true }],
-        require('babel-plugin-transform-es2015-function-name'),
-        require('babel-plugin-transform-es2015-literals'),
-        [require('babel-plugin-transform-es2015-modules-commonjs'), { loose: true }],
-        require('babel-plugin-transform-es2015-object-super'),
-        require('babel-plugin-transform-es2015-parameters'),
-        require('babel-plugin-transform-es2015-shorthand-properties'),
-        [require('babel-plugin-transform-es2015-spread'), { loose: true }],
-        require('babel-plugin-transform-es2015-sticky-regex'),
-        [require('babel-plugin-transform-es2015-template-literals'), { loose: true }],
-        require('babel-plugin-transform-es2015-unicode-regex'),
-        require('babel-plugin-transform-es3-property-literals'),
-        require('babel-plugin-transform-es3-member-expression-literals')
-      ],
-      presets: [
-        require('babel-preset-react')
-      ]
-    };
+const DEFAULT_HELPERS = [
+  'classCallCheck',
+  'createClass',
+  'defineProperty',
+  'get',
+  'inherits',
+  'possibleConstructorReturn',
+  'taggedTemplateLiteral'
+];
+const HELPERS = babel.buildExternalHelpers(DEFAULT_HELPERS);
+const SETTINGS = {
+  plugins: [
+    require('babel-plugin-external-helpers'),
+    require('babel-plugin-transform-es2015-arrow-functions'),
+    require('babel-plugin-transform-es2015-block-scoped-functions'),
+    require('babel-plugin-transform-es2015-block-scoping'),
+    [require('babel-plugin-transform-es2015-classes'), { loose: true }],
+    [require('babel-plugin-transform-es2015-computed-properties'), { loose: true }],
+    [require('babel-plugin-transform-es2015-destructuring'), { loose: true }],
+    require('babel-plugin-transform-es2015-duplicate-keys'),
+    [require('babel-plugin-transform-es2015-for-of'), { loose: true }],
+    require('babel-plugin-transform-es2015-function-name'),
+    require('babel-plugin-transform-es2015-literals'),
+    [require('babel-plugin-transform-es2015-modules-commonjs'), { loose: true }],
+    require('babel-plugin-transform-es2015-object-super'),
+    require('babel-plugin-transform-es2015-parameters'),
+    require('babel-plugin-transform-es2015-shorthand-properties'),
+    [require('babel-plugin-transform-es2015-spread'), { loose: true }],
+    require('babel-plugin-transform-es2015-sticky-regex'),
+    [require('babel-plugin-transform-es2015-template-literals'), { loose: true }],
+    require('babel-plugin-transform-es2015-unicode-regex'),
+    require('babel-plugin-transform-es3-property-literals'),
+    require('babel-plugin-transform-es3-member-expression-literals')
+  ],
+  presets: [
+    require('babel-preset-react')
+  ]
+};
 
 /**
  * Retrieve registration data

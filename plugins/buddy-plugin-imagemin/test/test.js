@@ -1,9 +1,9 @@
 'use strict';
 
-const compressor = require('../index')
-  , expect = require('expect.js')
-  , fs = require('fs')
-  , path = require('path');
+const compressor = require('../index');
+const expect = require('expect.js');
+const fs = require('fs');
+const path = require('path');
 
 describe('buddy-plugin-imagemin', () => {
   before(() => {

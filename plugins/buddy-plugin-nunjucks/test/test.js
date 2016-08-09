@@ -1,12 +1,11 @@
 'use strict';
 
-var compile = require('..').compile
-  , expect = require('expect.js')
-  , path = require('path')
-  , fs = require('fs')
-  , templateCache = require('./templateCache')
-
-  , cache = templateCache.create();
+const compile = require('..').compile;
+const expect = require('expect.js');
+const path = require('path');
+const fs = require('fs');
+const templateCache = require('./templateCache');
+const cache = templateCache.create();
 
 describe('buddy-plugin-nunjucks', () => {
   before(() => {
@@ -22,15 +21,15 @@ describe('buddy-plugin-nunjucks', () => {
       cache: cache,
       id: 'foo',
       type: 'html',
-      data: { title: 'Title' }}, (err, content) => {
+      data: { title: 'Title' } }, (err, content) => {
         expect(err).to.eql(null);
         expect(content).to.eql(fs.readFileSync(path.resolve('compiled/foo.html'), 'utf8'));
         done();
     });
   });
   it('should accept a .nunjucks file path and return HTML content with includes', (done) => {
-    var filepath = path.resolve('foo-include-html.nunjucks')
-      , includeFilepath = path.resolve(path.dirname(filepath), './include/include.nunjucks');
+    const filepath = path.resolve('foo-include-html.nunjucks');
+    const includeFilepath = path.resolve(path.dirname(filepath), './include/include.nunjucks');
 
     compile(fs.readFileSync(filepath, 'utf8').replace('include/include.nunjucks', includeFilepath), {
       filepath: filepath,

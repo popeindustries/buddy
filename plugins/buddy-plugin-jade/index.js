@@ -1,11 +1,11 @@
 'use strict';
 
-var jade = require('jade')
+const jade = require('jade');
 
-  , SETTINGS = {
-      compileDebug: false,
-      pretty: true
-    };
+const DEFAULT_OPTIONS = {
+  compileDebug: false,
+  pretty: true
+};
 
 /**
  * Retrieve registration data
@@ -25,7 +25,7 @@ exports.registration = {
  */
 exports.compile = function (content, options, fn) {
   // Copy data to root
-  options = Object.assign({}, options, SETTINGS, options.data);
+  options = Object.assign({}, options, DEFAULT_OPTIONS, options.data);
 
   jade.render(content, options, (err, content) => {
     if (err) {

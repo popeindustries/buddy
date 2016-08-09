@@ -1,10 +1,10 @@
 'use strict';
 
-const gifsicle = require('imagemin-gifsicle')
-  , imagemin = require('imagemin')
-  , jpegtran = require('imagemin-jpegtran')
-  , optipng = require('imagemin-optipng')
-  , svgo = require('imagemin-svgo');
+const gifsicle = require('imagemin-gifsicle');
+const imagemin = require('imagemin');
+const jpegtran = require('imagemin-jpegtran');
+const optipng = require('imagemin-optipng');
+const svgo = require('imagemin-svgo');
 
 /**
  * Retrieve registration data

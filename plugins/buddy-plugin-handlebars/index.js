@@ -1,10 +1,10 @@
 'use strict';
 
-const handlebars = require('handlebars')
+const handlebars = require('handlebars');
 
-  , SETTINGS = {
-      simple: true
-    };
+const DEFAULT_OPTIONS = {
+  simple: true
+};
 
 /**
  * Retrieve registration data
@@ -26,7 +26,7 @@ exports.registration = {
  * @param {Function} fn(err, content)
  */
 exports.compile = function (content, options, fn) {
-  options = Object.assign({}, SETTINGS, options);
+  options = Object.assign({}, DEFAULT_OPTIONS, options);
 
   try {
     // Register includes

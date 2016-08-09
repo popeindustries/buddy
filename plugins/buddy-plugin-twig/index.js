@@ -1,7 +1,7 @@
 'use strict';
 
-var path = require('path')
-  , twig = require('twig').twig;
+const path = require('path');
+const twig = require('twig').twig;
 
 /**
  * Retrieve registration data

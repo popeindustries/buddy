@@ -1,11 +1,10 @@
 'use strict';
 
-const Cache = require('./fixtures/cache')
-  , compile = require('..').compile
-  , expect = require('expect.js')
-  , fs = require('fs')
-  , path = require('path');
-
+const Cache = require('./fixtures/cache');
+const compile = require('..').compile;
+const expect = require('expect.js');
+const fs = require('fs');
+const path = require('path');
 let options;
 
 describe('buddy-plugin-babel', () => {

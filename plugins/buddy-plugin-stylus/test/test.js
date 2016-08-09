@@ -1,9 +1,9 @@
 'use strict';
 
-const compile = require('..').compile
-  , expect = require('expect.js')
-  , path = require('path')
-  , fs = require('fs');
+const compile = require('..').compile;
+const expect = require('expect.js');
+const path = require('path');
+const fs = require('fs');
 
 describe('buddy-plugin-stylus', () => {
   before(() => {

@@ -1,11 +1,11 @@
 'use strict';
 
-const coffee = require('coffee-script')
+const coffee = require('coffee-script');
 
-  , SETTINGS = {
-      // Compile without function wrapper
-      bare: true
-    };
+const DEFAULT_OPTIONS = {
+  // Compile without function wrapper
+  bare: true
+};
 
 /**
  * Retrieve registration data
@@ -25,7 +25,7 @@ exports.registration = {
  */
 exports.compile = function (content, options, fn) {
   try {
-    content = coffee.compile(content, Object.assign({}, SETTINGS, options));
+    content = coffee.compile(content, Object.assign({}, DEFAULT_OPTIONS, options));
     fn(null, content);
   } catch (err) {
     err.filepath = options.filepath;

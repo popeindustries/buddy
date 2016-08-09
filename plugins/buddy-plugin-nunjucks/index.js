@@ -1,8 +1,8 @@
 'use strict';
 
-const nunjucks = require('nunjucks')
+const nunjucks = require('nunjucks');
 
-  , Template = nunjucks.Template;
+const Template = nunjucks.Template;
 
 let env;
 

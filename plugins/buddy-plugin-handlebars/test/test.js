@@ -1,12 +1,11 @@
 'use strict';
 
-const compile = require('..').compile
-  , expect = require('expect.js')
-  , path = require('path')
-  , fs = require('fs')
-  , templateCache = require('./templateCache')
-
-  , cache = templateCache.create();
+const compile = require('..').compile;
+const expect = require('expect.js');
+const path = require('path');
+const fs = require('fs');
+const templateCache = require('./templateCache');
+const cache = templateCache.create();
 
 describe('buddy-plugin-handlebars', () => {
   before(() => {
