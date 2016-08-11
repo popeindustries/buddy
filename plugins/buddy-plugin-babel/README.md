@@ -6,6 +6,7 @@
 
 By default, the following transformations are enabled:
 
+- babel-plugin-transform-class-properties
 - babel-plugin-transform-es2015-arrow-functions
 - babel-plugin-transform-es2015-block-scoped-functions
 - babel-plugin-transform-es2015-block-scoping
@@ -26,4 +27,5 @@ By default, the following transformations are enabled:
 - babel-plugin-transform-es2015-unicode-regex
 - babel-plugin-transform-es3-property-literals
 - babel-plugin-transform-es3-member-expression-literals
+- babel-plugin-transform-flow-strip-types
 - babel-preset-react

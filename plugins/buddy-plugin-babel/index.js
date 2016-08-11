@@ -15,6 +15,7 @@ const HELPERS = babel.buildExternalHelpers(DEFAULT_HELPERS);
 const SETTINGS = {
   plugins: [
     require('babel-plugin-external-helpers'),
+    require('babel-plugin-transform-class-properties'),
     require('babel-plugin-transform-es2015-arrow-functions'),
     require('babel-plugin-transform-es2015-block-scoped-functions'),
     require('babel-plugin-transform-es2015-block-scoping'),
@@ -34,7 +35,8 @@ const SETTINGS = {
     [require('babel-plugin-transform-es2015-template-literals'), { loose: true }],
     require('babel-plugin-transform-es2015-unicode-regex'),
     require('babel-plugin-transform-es3-property-literals'),
-    require('babel-plugin-transform-es3-member-expression-literals')
+    require('babel-plugin-transform-es3-member-expression-literals'),
+    require('babel-plugin-transform-flow-strip-types')
   ],
   presets: [
     require('babel-preset-react')
