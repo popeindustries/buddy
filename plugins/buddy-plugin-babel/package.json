@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-babel",
   "description": "Buddy plugin for es6 source transforms (via Babel)",
-  "version": "6.13.2",
+  "version": "6.13.2-1",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "babel",
@@ -15,6 +15,8 @@
   "dependencies": {
     "babel-core": "6.13.2",
     "babel-plugin-external-helpers": "6.8.x",
+    "babel-plugin-transform-class-properties": "6.11.x",
+    "babel-plugin-transform-flow-strip-types": "6.8.x",
     "babel-plugin-transform-es2015-arrow-functions": "6.8.x",
     "babel-plugin-transform-es2015-block-scoped-functions": "6.8.x",
     "babel-plugin-transform-es2015-block-scoping": "6.10.x",
