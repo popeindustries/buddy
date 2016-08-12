@@ -715,8 +715,7 @@ describe('Builder', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('<svg x="0px" y="0px" viewBox="0 0 100 100" id="Layer_1" enable-background="new 0 0 100 100" xml:space="preserve">\n<circle cx="25" cy="25" r="25"/>\n</svg>');
-          expect(content).to.contain('<svg x="0px" y="0px" viewBox="0 0 100 100" id="Layer_1" enable-background="new 0 0 100 100" xml:space="preserve">\n<circle cx="50" cy="50" r="25"/>\n</svg>');
+          expect(content).to.contain('<svg id="Layer_1" x="0px" y="0px" enable-background="new 0 0 100 100" xml:space="preserve" viewBox="0 0 100 100">\n<circle cx="50" cy="50" r="25"/>\n</svg>\n  \n\t <svg id="Layer_1" x="0px" y="0px" enable-background="new 0 0 100 100" xml:space="preserve" viewBox="0 0 100 100">\n<circle cx="25" cy="25" r="25"/>\n</svg>');
           done();
         });
       });
