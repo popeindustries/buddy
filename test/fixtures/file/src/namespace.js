@@ -5,7 +5,7 @@ const foo = require('./foo');
 
 class Foo {
   constructor () {
-    console.log(foo)
+    console.log(foo);
   }
 }
 
