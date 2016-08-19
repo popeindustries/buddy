@@ -432,7 +432,7 @@ describe('Builder', () => {
           done();
         });
       });
-      it('should expose BUDDY_VERSION to source files', (done) => {
+      it.skip('should expose BUDDY_VERSION to source files', (done) => {
         builder.build({
           build: {
             targets: [
