@@ -8,7 +8,7 @@ const plugins = require('../lib/utils/plugins');
 const CWD = process.cwd();
 let defaultConfig;
 
-describe('config', () => {
+describe.only('config', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/config'));
   });
@@ -341,7 +341,7 @@ describe('config', () => {
     });
 
     it('should load "transfigure-" plugins', () => {
-      plugins(defaultConfig);
+      plugins.buddy(defaultConfig);
       expect(Object.keys(defaultConfig.compilers)).to.contain('coffee', 'nunjs');
       expect(defaultConfig.fileExtensions.js).to.contain('coffee');
       expect(defaultConfig.fileExtensions.html).to.contain('nunjs', 'nunjucks');
