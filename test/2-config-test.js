@@ -6,7 +6,7 @@ const merge = require('lodash/merge');
 const path = require('path');
 const plugins = require('../lib/utils/plugins');
 const CWD = process.cwd();
-let defaultConfig = null;
+let defaultConfig;
 
 describe('config', () => {
   before(() => {

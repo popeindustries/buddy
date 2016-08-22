@@ -63,7 +63,7 @@ describe('file', () => {
     });
 
     describe('transpile()', () => {
-      it.only('should namespace all root declarations', (done) => {
+      it.skip('should namespace all root declarations', (done) => {
         const instance = fileFactory(path.resolve('src/namespace.js'), { sources: [path.resolve('src')], fileExtensions });
 
         instance.transpile({}, (err) => {
