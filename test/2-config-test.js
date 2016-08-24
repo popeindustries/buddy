@@ -175,8 +175,8 @@ describe.only('config', () => {
         output: 'js'
       }], defaultConfig);
 
-      expect(build[0].inputpaths).to.eql([path.resolve('src-nested/main.js'), path.resolve('src-nested/module.js'), path.resolve('src-nested/nested/sub.js')]);
-      expect(build[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/module.js'), path.resolve('js/nested/sub.js')]);
+      expect(build[0].inputpaths).to.eql([path.resolve('src-nested/main.js'), path.resolve('src-nested/module.js'), path.resolve('src-nested/nested/sub.js'), path.resolve('src-nested/nested/sub2.js')]);
+      expect(build[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/module.js'), path.resolve('js/nested/sub.js'), path.resolve('js/nested/sub2.js')]);
       expect(build[0].batch).to.be(true);
     });
     it('should parse build target with nested builds', () => {
@@ -197,6 +197,7 @@ describe.only('config', () => {
       expect(build[0].childInputpaths).to.eql([path.resolve('src-nested/nested/sub.js')]);
       expect(build[0].index).to.equal(0);
       expect(build[0].build[0].index).to.equal(1);
+      expect(build[0].options).to.equal(build[0].build[0].options);
     });
     it('should parse build target glob pattern "input"', () => {
       const build = config.parseBuild([{
@@ -340,11 +341,11 @@ describe.only('config', () => {
       process.chdir(path.resolve(__dirname, 'fixtures/config'));
     });
 
-    it('should load "transfigure-" plugins', () => {
-      plugins.buddy(defaultConfig);
+    it('should load Buddy plugins', () => {
+      plugins.core(defaultConfig);
       expect(Object.keys(defaultConfig.compilers)).to.contain('coffee', 'nunjs');
       expect(defaultConfig.fileExtensions.js).to.contain('coffee');
-      expect(defaultConfig.fileExtensions.html).to.contain('nunjs', 'nunjucks');
+      expect(defaultConfig.fileExtensions.html).to.contain('nunjs', 'nunjucks', 'hbs', 'handlebars');
     });
   });
 
@@ -357,16 +358,24 @@ describe.only('config', () => {
     });
     it('should return validated file data for a passed in JSON object', () => {
       const c = config.load({
-        build: {
-          input: 'src/main.js',
-          output: 'js/main.js',
-          sources: ['src']
-        }
-      })
+        input: 'src-nested/main.js',
+        output: 'js',
+        build: [
+          {
+            input: 'src-nested/nested/sub.js',
+            output: 'js'
+          },
+          {
+            input: 'src-nested/nested/sub2.js',
+            output: 'js'
+          }
+        ]
+      });
 
       expect(c.build).to.be.ok();
       expect(c.build).to.be.an(Array);
       expect(c.sources).to.be.an(Array);
+      expect(c.build[0].options.babel.plugins).to.have.length(4);
     });
     it('should return an error when passed a reference to a malformed file', () => {
       try {
