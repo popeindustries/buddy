@@ -1,84 +1,90 @@
 'use strict';
 
-const Builder = require('../lib/builder');
+const buddyFactory = require('../index');
 const exec = require('child_process').exec;
 const expect = require('expect.js');
 const fs = require('fs');
 const path = require('path');
 const rimraf = require('rimraf');
-let builder;
+let buddy;
 
-describe('Builder', () => {
+describe.skip('Buddy', () => {
   before(() => {
-    process.chdir(path.resolve(__dirname, 'fixtures/builder'));
+    process.chdir(path.resolve(__dirname, 'fixtures/buddy'));
   });
   beforeEach(() => {
-    builder = new Builder();
+    buddy = buddyFactory();
   });
   afterEach(() => {
-    builder = null;
+    buddy = null;
     rimraf.sync(path.resolve('output'));
   });
 
   describe('init', () => {
     before(() => {
-      process.chdir(path.resolve(__dirname, 'fixtures/builder/init'));
+      process.chdir(path.resolve(__dirname, 'fixtures/buddy/init'));
     });
 
-    it('should initialize a single target', () => {
-      const targets = builder.initTargets([{
-        inputpaths: [path.resolve('target/foo.js')],
-        input: 'target/foo.js',
-        output: 'main.js',
-        outputpaths: [path.resolve('main.js')]
-      }], { runtimeOptions: {}});
+    it('should initialize a single build', () => {
+      const build = buddy.initBuilds({
+        build: [{
+          inputpaths: [path.resolve('build/foo.js')],
+          input: 'build/foo.js',
+          output: 'main.js',
+          outputpaths: [path.resolve('main.js')]
+        }],
+        runtimeOptions: {}
+      });
 
-      expect(targets).to.have.length(1);
+      expect(build).to.have.length(1);
     });
-    it('should initialize a single target with nested child target', () => {
-      const targets = builder.initTargets([{
-        inputpaths: [path.resolve('target/foo.js')],
-        input: 'target/foo.js',
-        output: 'main.js',
-        outputpaths: [path.resolve('main.js')],
-        hasChildren: true,
-        targets: [{
-          inputpaths: [path.resolve('target/lib')],
-          input: 'target/lib',
-          output: '../js',
-          outputpaths: [path.resolve('../js')]
-        }]
-      }], { runtimeOptions: {}});
+    it('should initialize a single build with nested child build', () => {
+      const build = buddy.initBuilds({
+        build: [{
+          inputpaths: [path.resolve('build/foo.js')],
+          input: 'build/foo.js',
+          output: 'main.js',
+          outputpaths: [path.resolve('main.js')],
+          hasChildren: true,
+          build: [{
+            inputpaths: [path.resolve('build/lib')],
+            input: 'build/lib',
+            output: '../js',
+            outputpaths: [path.resolve('../js')]
+          }]
+        }],
+        runtimeOptions: {}
+      });
 
-      expect(targets).to.have.length(1);
-      expect(targets[0].targets).to.have.length(1);
+      expect(build).to.have.length(1);
+      expect(build[0].build).to.have.length(1);
     });
   });
 
   describe('build', () => {
     before(() => {
-      process.chdir(path.resolve(__dirname, 'fixtures/builder/build'));
+      process.chdir(path.resolve(__dirname, 'fixtures/buddy/build'));
     });
 
     describe('js', () => {
       it('should build a js file when passed a json config path', (done) => {
-        builder.build('buddy-single-file.json', null, (err, filepaths) => {
+        buddy.build('buddy-single-file.json', null, (err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("_m_[\'foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = this;\n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });
       it('should build a js file when passed a js config path', (done) => {
-        builder.build('buddy-single-file.js', null, (err, filepaths) => {
+        buddy.build('buddy-single-file.js', null, (err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("_m_[\'foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = this;\n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });
       it('should build a js file when passed a json config object', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'foo.js',
                 output: 'output'
@@ -92,9 +98,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with 1 dependency', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'bar.js',
                 output: 'output'
@@ -108,9 +114,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with circular dependency', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'a.js',
                 output: 'output'
@@ -124,9 +130,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with properly ordered nested dependencies', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'c.js',
                 output: 'output'
@@ -140,9 +146,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with node_modules dependencies', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'bat.js',
                 output: 'output'
@@ -161,9 +167,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with relative node_modules dependencies', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'boo.js',
                 output: 'output'
@@ -181,9 +187,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with node_modules dependencies with missing "main" reference', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'zong.js',
                 output: 'output'
@@ -200,9 +206,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with json dependency', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'bing.js',
                 output: 'output'
@@ -220,9 +226,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with json node_modules dependency', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'zing.js',
                 output: 'output'
@@ -240,9 +246,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with missing dependency', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'beep.js',
                 output: 'output'
@@ -260,9 +266,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with disabled dependency', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'bong.js',
                 output: 'output'
@@ -275,14 +281,14 @@ describe('Builder', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain("_m_['bong.js']=(function(module,exports){");
-          expect(content).to.contain("var bat = {};");
+          expect(content).to.contain('var bat = {};');
           done();
         });
       });
       it('should build a js file with disabled native dependency', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'native.js',
                 output: 'output'
@@ -295,15 +301,15 @@ describe('Builder', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain("_m_['native.js']=(function(module,exports){");
-          expect(content).to.contain("var http = {};");
+          expect(content).to.contain('var http = {};');
           done();
         });
       });
       it('should build a js file with specified source directory', (done) => {
-        builder.build({
+        buddy.build({
           build: {
             sources: ['js-directory/nested'],
-            targets: [
+            build: [
               {
                 input: 'js-directory/nested/foo.js',
                 output: 'output'
@@ -320,9 +326,9 @@ describe('Builder', () => {
         });
       });
       it('should build a prewrapped js file', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'wrapped.js',
                 output: 'output'
@@ -338,9 +344,9 @@ describe('Builder', () => {
         });
       });
       it('should build a browserified js file', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'browserify.js',
                 output: 'output'
@@ -356,9 +362,9 @@ describe('Builder', () => {
         });
       });
       it('should build a js file with unique hashed name', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'foo.js',
                 output: 'output/foo-%hash%.js'
@@ -372,9 +378,9 @@ describe('Builder', () => {
         });
       });
       it('should build a minified js file if "compress" is true', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'bar.js',
                 output: 'output'
@@ -391,9 +397,9 @@ describe('Builder', () => {
         });
       });
       it('should build a non-bootstrapped js file if "bootstrap" is false', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'foo.js',
                 output: 'output',
@@ -412,9 +418,9 @@ describe('Builder', () => {
         });
       });
       it('should remove dead code when referencing "process.env.RUNTIME" and compressing', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'zee.js',
                 output: 'output'
@@ -433,9 +439,9 @@ describe('Builder', () => {
         });
       });
       it.skip('should expose BUDDY_VERSION to source files', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'env-1.js',
                 output: 'output'
@@ -452,9 +458,9 @@ describe('Builder', () => {
         });
       });
       it('should expose BUDDY_X_X to source files', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'env-2.js',
                 output: 'output',
@@ -475,9 +481,9 @@ describe('Builder', () => {
 
     describe('css', () => {
       it('should build a stylus file', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'foo.styl',
                 output: 'output'
@@ -493,9 +499,9 @@ describe('Builder', () => {
         });
       });
       it('should build a less file', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'foo.less',
                 output: 'output'
@@ -511,9 +517,9 @@ describe('Builder', () => {
         });
       });
       it('should build a minified css file if "compress" is true', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'foo.css',
                 output: 'output'
@@ -533,9 +539,9 @@ describe('Builder', () => {
 
     describe('img', () => {
       it('should copy an image directory', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'image-directory',
                 output: 'output'
@@ -549,9 +555,9 @@ describe('Builder', () => {
         });
       });
       it('should compress and copy an image directory', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'image-directory',
                 output: 'output'
@@ -569,9 +575,9 @@ describe('Builder', () => {
 
     describe('html', () => {
       it('should build an html template file', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'foo.handlebars',
                 output: 'output'
@@ -587,9 +593,9 @@ describe('Builder', () => {
         });
       });
       it('should build an html template file with sidecar data file and includes', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'foo.dust',
                 output: 'output'
@@ -606,9 +612,9 @@ describe('Builder', () => {
         });
       });
       it('should build an html template file with inline js dependency', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'foo.nunjs',
                 output: 'output'
@@ -620,14 +626,14 @@ describe('Builder', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("<script>var foo = this;</script>");
+          expect(content).to.contain('<script>var foo = this;</script>');
           done();
         });
       });
       it('should build an html template file with inline js dependency needing env substitution', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'boop.nunjs',
                 output: 'output'
@@ -644,9 +650,9 @@ describe('Builder', () => {
         });
       });
       it('should build an html template file with inline css dependency', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'bat.nunjs',
                 output: 'output'
@@ -663,9 +669,9 @@ describe('Builder', () => {
         });
       });
       it('should build an html template file with include and inline css dependency', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'bing.nunjs',
                 output: 'output'
@@ -682,9 +688,9 @@ describe('Builder', () => {
         });
       });
       it('should build an html template file with compressed inline js dependency when "compress" is true', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'boo.nunjs',
                 output: 'output'
@@ -701,9 +707,9 @@ describe('Builder', () => {
         });
       });
       it('should build an html template file with dynamically generated inline svg dependencies', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'bar.nunjs',
                 output: 'output'
@@ -723,9 +729,9 @@ describe('Builder', () => {
 
     describe('batch', () => {
       it('should build a directory of 3 js files', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'js-directory/flat',
                 output: 'output'
@@ -745,9 +751,9 @@ describe('Builder', () => {
         });
       });
       it('should build a directory of 3 unwrapped js files if "modular" is false', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'js-directory/flat',
                 output: 'output',
@@ -765,9 +771,9 @@ describe('Builder', () => {
         });
       });
       it('should build a directory of unwrapped js files if "modular" is false, including dependencies', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'js-directory/dependant',
                 output: 'output',
@@ -786,9 +792,9 @@ describe('Builder', () => {
         });
       });
       it('should build a directory of 3 js files, including nested directories', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'js-directory/nested',
                 output: 'output'
@@ -799,8 +805,8 @@ describe('Builder', () => {
           expect(filepaths).to.have.length(3);
           filepaths.forEach((filepath) => {
             expect(fs.existsSync(filepath)).to.be(true);
-            const content = fs.readFileSync(filepath, 'utf8')
-              , name = path.basename(filepath, '.js');
+            const content = fs.readFileSync(filepath, 'utf8');
+            const name = path.basename(filepath, '.js');
 
             expect(content).to.contain("_m_['js-directory/nested");
             if (name == 'index.js') expect(filepath).to.contain('nested/boo/index.js');
@@ -809,9 +815,9 @@ describe('Builder', () => {
         });
       });
       it('should build a directory of 2 js files, including dependencies in nested directories', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'js-directory/dependant',
                 output: 'output'
@@ -830,9 +836,9 @@ describe('Builder', () => {
         });
       });
       it('should build a directory of 2 css files', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'css-directory',
                 output: 'output'
@@ -848,9 +854,9 @@ describe('Builder', () => {
         });
       });
       it('should build multiple css files with shared dependencies', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: ['one.styl', 'two.styl'],
                 output: 'output'
@@ -860,8 +866,8 @@ describe('Builder', () => {
         }, null, (err, filepaths) => {
           expect(filepaths).to.have.length(2);
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content1 = fs.readFileSync(filepaths[0], 'utf8')
-            , content2 = fs.readFileSync(filepaths[1], 'utf8');
+          const content1 = fs.readFileSync(filepaths[0], 'utf8');
+          const content2 = fs.readFileSync(filepaths[1], 'utf8');
 
           expect(content1).to.eql(content2);
           expect(content1).to.contain("colour: '#ffffff';");
@@ -870,9 +876,9 @@ describe('Builder', () => {
         });
       });
       it('should build a directory with mixed content, including dependencies', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'mixed-directory',
                 output: 'output'
@@ -883,24 +889,24 @@ describe('Builder', () => {
           expect(filepaths).to.have.length(2);
           filepaths.forEach((filepath) => {
             expect(fs.existsSync(filepath)).to.be(true);
-            const ext = path.extname(filepath)
-              , content = fs.readFileSync(filepath, 'utf8');
+            const ext = path.extname(filepath);
+            const content = fs.readFileSync(filepath, 'utf8');
 
             if (ext == '.js') {
               expect(content).to.contain("_m_['mixed-directory/bar.js']=");
               expect(content).to.contain("_m_['mixed-directory/foo.js']=");
             } else {
-              expect(content).to.contain("body {");
-              expect(content).to.contain("h1 {");
+              expect(content).to.contain('body {');
+              expect(content).to.contain('h1 {');
             }
           });
           done();
         });
       });
       it('should build a globbed collection of js files', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'js-directory/flat/{foo,bar}.js',
                 output: 'output'
@@ -919,9 +925,9 @@ describe('Builder', () => {
         });
       });
       it('should build a globbed collection of mixed files', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'mixed-directory/foo.{js,styl}',
                 output: 'output'
@@ -932,24 +938,24 @@ describe('Builder', () => {
           expect(filepaths).to.have.length(2);
           filepaths.forEach((filepath) => {
             expect(fs.existsSync(filepath)).to.be(true);
-            const ext = path.extname(filepath)
-              , content = fs.readFileSync(filepath, 'utf8');
+            const ext = path.extname(filepath);
+            const content = fs.readFileSync(filepath, 'utf8');
 
             if (ext == '.js') {
               expect(content).to.contain("_m_['mixed-directory/bar.js']=");
               expect(content).to.contain("_m_['mixed-directory/foo.js']=");
             } else {
-              expect(content).to.contain("body {");
-              expect(content).to.contain("h1 {");
+              expect(content).to.contain('body {');
+              expect(content).to.contain('h1 {');
             }
           });
           done();
         });
       });
       it('should build an array of js files', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: ['js-directory/flat/foo.js', 'js-directory/nested/bar.js'],
                 output: 'output'
@@ -966,9 +972,9 @@ describe('Builder', () => {
         });
       });
       it('should build an array of mixed files', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: ['mixed-directory/foo.js', 'mixed-directory/foo.styl'],
                 output: 'output'
@@ -979,24 +985,24 @@ describe('Builder', () => {
           expect(filepaths).to.have.length(2);
           filepaths.forEach((filepath) => {
             expect(fs.existsSync(filepath)).to.be(true);
-            const ext = path.extname(filepath)
-              , content = fs.readFileSync(filepath, 'utf8');
+            const ext = path.extname(filepath);
+            const content = fs.readFileSync(filepath, 'utf8');
 
             if (ext == '.js') {
               expect(content).to.contain("_m_['mixed-directory/bar.js']=");
               expect(content).to.contain("_m_['mixed-directory/foo.js']=");
             } else {
-              expect(content).to.contain("body {");
-              expect(content).to.contain("h1 {");
+              expect(content).to.contain('body {');
+              expect(content).to.contain('h1 {');
             }
           });
           done();
         });
       });
       it('should correctly reset files after batch build', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'foo.js',
                 output: 'output',
@@ -1012,11 +1018,11 @@ describe('Builder', () => {
           expect(filepaths).to.have.length(2);
           filepaths.forEach((filepath) => {
             expect(fs.existsSync(filepath)).to.be(true);
-            const name = path.basename(filepath, '.js')
-              , content = fs.readFileSync(filepath, 'utf8');
+            const name = path.basename(filepath, '.js');
+            const content = fs.readFileSync(filepath, 'utf8');
 
             if (name == 'foo') {
-              expect(content).to.equal("var foo = this;");
+              expect(content).to.equal('var foo = this;');
             } else {
               expect(content).to.contain("_m_['foo.js']=(function(module,exports){");
             }
@@ -1025,9 +1031,9 @@ describe('Builder', () => {
         });
       });
       it('should correctly include shared dependency between files', (done) => {
-        builder.build({
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: ['bar.js', 'e.js'],
                 output: 'output'
@@ -1038,22 +1044,21 @@ describe('Builder', () => {
           expect(filepaths).to.have.length(2);
           filepaths.forEach((filepath) => {
             expect(fs.existsSync(filepath)).to.be(true);
-            const name = path.basename(filepath, '.js')
-              , content = fs.readFileSync(filepath, 'utf8');
+            const content = fs.readFileSync(filepath, 'utf8');
 
             expect(content).to.contain("_m_['foo.js']=(function(module,exports){");
           });
           done();
         });
       });
-      it('should correctly ignore references to nested target inputs', (done) => {
-        builder.build({
+      it('should correctly ignore references to nested build inputs', (done) => {
+        buddy.build({
           build: {
-            targets: [
+            build: [
               {
                 input: 'c.js',
                 output: 'output',
-                targets: [
+                build: [
                   {
                     input: 'd.js',
                     output: 'output'
@@ -1066,8 +1071,8 @@ describe('Builder', () => {
           expect(filepaths).to.have.length(2);
           filepaths.forEach((filepath) => {
             expect(fs.existsSync(filepath)).to.be(true);
-            const name = path.basename(filepath, '.js')
-              , content = fs.readFileSync(filepath, 'utf8');
+            const name = path.basename(filepath, '.js');
+            const content = fs.readFileSync(filepath, 'utf8');
 
             if (name == 'c') {
               expect(content).to.contain("foo = _m_['foo.js']");
@@ -1085,13 +1090,13 @@ describe('Builder', () => {
 
   describe('script', () => {
     before(() => {
-      process.chdir(path.resolve(__dirname, 'fixtures/builder/script'));
+      process.chdir(path.resolve(__dirname, 'fixtures/buddy/script'));
     });
 
     it('should run a script after successful build', (done) => {
-      builder.build({
+      buddy.build({
         build: {
-          targets: [
+          build: [
             {
               input: 'foo.js',
               output: 'output'
@@ -1104,7 +1109,7 @@ describe('Builder', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.eql("oops!");
+          expect(content).to.eql('oops!');
           done();
         }, 1000);
       });
@@ -1113,13 +1118,13 @@ describe('Builder', () => {
 
   describe('grep', () => {
     before(() => {
-      process.chdir(path.resolve(__dirname, 'fixtures/builder/grep'));
+      process.chdir(path.resolve(__dirname, 'fixtures/buddy/grep'));
     });
 
-    it('should only build matching targets', (done) => {
-      builder.build({
+    it('should only build matching build', (done) => {
+      buddy.build({
         build: {
-          targets: [
+          build: [
             {
               input: 'foo.js',
               output: 'output'
@@ -1137,10 +1142,10 @@ describe('Builder', () => {
         done();
       });
     });
-    it('should only build matching targets when globbing input', (done) => {
-      builder.build({
+    it('should only build matching build when globbing input', (done) => {
+      buddy.build({
         build: {
-          targets: [
+          build: [
             {
               input: '*.js',
               output: 'output'
@@ -1158,10 +1163,10 @@ describe('Builder', () => {
         done();
       });
     });
-    it('should only build matching targets when using "--invert" option', (done) => {
-      builder.build({
+    it('should only build matching build when using "--invert" option', (done) => {
+      buddy.build({
         build: {
-          targets: [
+          build: [
             {
               input: 'foo.js',
               output: 'output'
@@ -1183,13 +1188,13 @@ describe('Builder', () => {
 
   describe('watch', () => {
     before(() => {
-      process.chdir(path.resolve(__dirname, 'fixtures/builder/watch'));
+      process.chdir(path.resolve(__dirname, 'fixtures/buddy/watch'));
     });
 
-    it('should build watch targets', (done) => {
-      builder.build({
+    it('should build watch build', (done) => {
+      buddy.build({
         build: {
-          targets: [
+          build: [
             {
               input: ['foo.js', 'bar.js']
             }
@@ -1204,10 +1209,10 @@ describe('Builder', () => {
     if (process.platform != 'win32') {
       it('should rebuild a watched file on change', (done) => {
         const child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, (err, stdout, stderr) => {
-              console.log(arguments);
-              done(err);
-            })
-          , foo = fs.readFileSync(path.resolve('foo.js'), 'utf8');
+          console.log(arguments);
+          done(err);
+        });
+        const foo = fs.readFileSync(path.resolve('foo.js'), 'utf8');
 
         setTimeout(() => {
           fs.writeFileSync(path.resolve('foo.js'), 'var foo = "foo";', 'utf8');

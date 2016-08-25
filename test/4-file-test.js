@@ -97,10 +97,10 @@ describe('file', () => {
 
     describe('parse()', () => {
       it('should store an array of js dependencies', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions }
-          , foo = fileFactory(path.resolve('src/foo.js'), options)
-          , bar = fileFactory(path.resolve('src/bar.js'), options)
-          , instance = fileFactory(path.resolve('src/main.js'), options);
+        const options = { sources: [path.resolve('src')], fileExtensions };
+        const foo = fileFactory(path.resolve('src/foo.js'), options);
+        const bar = fileFactory(path.resolve('src/bar.js'), options);
+        const instance = fileFactory(path.resolve('src/main.js'), options);
 
         instance.content = "var foo = require('./foo');\nvar bar = require('./bar');";
         instance.parse({}, (err) => {
@@ -109,9 +109,9 @@ describe('file', () => {
         });
       });
       it('should store an array of css dependency objects', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions }
-          , foo = fileFactory(path.resolve('src/foo.css'), options)
-          , instance = fileFactory(path.resolve('src/main.css'), options);
+        const options = { sources: [path.resolve('src')], fileExtensions };
+        const foo = fileFactory(path.resolve('src/foo.css'), options);
+        const instance = fileFactory(path.resolve('src/main.css'), options);
 
         instance.content = "@import 'foo'";
         instance.parse({}, (err) => {
@@ -120,9 +120,9 @@ describe('file', () => {
         });
       });
       it('should store an array of html dependency objects', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions: { html: ['html', 'dust'] }}
-          , foo = fileFactory(path.resolve('src/foo.dust'), options)
-          , instance = fileFactory(path.resolve('src/main.dust'), options);
+        const options = { sources: [path.resolve('src')], fileExtensions: { html: ['html', 'dust'] } };
+        const foo = fileFactory(path.resolve('src/foo.dust'), options);
+        const instance = fileFactory(path.resolve('src/main.dust'), options);
 
         instance.content = '{>foo /}';
         instance.parse({}, (err) => {
@@ -131,8 +131,8 @@ describe('file', () => {
         });
       });
       it('should store an array of html "inline" dependency objects', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions: { html: ['html', 'dust'] }}
-          , instance = fileFactory(path.resolve('src/main.dust'), options);
+        const options = { sources: [path.resolve('src')], fileExtensions: { html: ['html', 'dust'] }};
+        const instance = fileFactory(path.resolve('src/main.dust'), options);
 
         instance.content = '<script inline src="src/foo.js"></script>';
         instance.parseInline({}, (err) => {
@@ -141,9 +141,9 @@ describe('file', () => {
         });
       });
       it('should only store 1 dependency object when there are duplicates', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions }
-          , foo = fileFactory(path.resolve('src/foo.js'), options)
-          , instance = fileFactory(path.resolve('src/main.js'), options);
+        const options = { sources: [path.resolve('src')], fileExtensions };
+        const foo = fileFactory(path.resolve('src/foo.js'), options);
+        const instance = fileFactory(path.resolve('src/main.js'), options);
 
         instance.content = "var foo = require('./foo');\nvar foo = require('./foo');";
         instance.parse({}, (err) => {
@@ -152,8 +152,8 @@ describe('file', () => {
         });
       });
       it('should store 2 dependency objects when there are case sensitive package references', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions }
-          , instance = fileFactory(path.resolve('src/main.js'), options);
+        const options = { sources: [path.resolve('src')], fileExtensions };
+        const instance = fileFactory(path.resolve('src/main.js'), options);
 
         instance.content = "var bat = require('bar');\nvar boo = require('Boo');";
         instance.parse({}, (err) => {
@@ -249,7 +249,7 @@ describe('file', () => {
       it('should inline calls to process.env.RUNTIME', (done) => {
         const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
 
-        instance.content = "process.env.RUNTIME";
+        instance.content = 'process.env.RUNTIME';
         instance.replaceEnvironment({}, (err) => {
           expect(instance.content).to.eql("'browser'");
           done();

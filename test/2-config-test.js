@@ -8,7 +8,7 @@ const plugins = require('../lib/utils/plugins');
 const CWD = process.cwd();
 let defaultConfig;
 
-describe.only('config', () => {
+describe('config', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/config'));
   });
@@ -195,8 +195,8 @@ describe.only('config', () => {
       expect(build[0].build).to.have.length(1);
       expect(build[0].hasChildren).to.equal(true);
       expect(build[0].childInputpaths).to.eql([path.resolve('src-nested/nested/sub.js')]);
-      expect(build[0].index).to.equal(0);
-      expect(build[0].build[0].index).to.equal(1);
+      expect(build[0].index).to.equal(1);
+      expect(build[0].build[0].index).to.equal(2);
       expect(build[0].options).to.equal(build[0].build[0].options);
     });
     it('should parse build target glob pattern "input"', () => {
@@ -281,26 +281,26 @@ describe.only('config', () => {
         expect(err).to.be.an(Error);
       }
     });
-    it('should return a build target with "appServer" set to TRUE when "server.file" is the same as "input"', () => {
+    it('should return a build target with "isAppServer" set to TRUE when "server.file" is the same as "input"', () => {
       const build = config.parseBuild([{
         input: 'src/main.js'
       }], merge(defaultConfig, { server: { file: 'src/main.js' } }));
 
-      expect(build[0]).to.have.property('appServer', true);
+      expect(build[0]).to.have.property('isAppServer', true);
     });
-    it('should return a build target with "appServer" set to TRUE when "server.file" is in directory "input"', () => {
+    it('should return a build target with "isAppServer" set to TRUE when "server.file" is in directory "input"', () => {
       const build = config.parseBuild([{
         input: 'src'
       }], merge(defaultConfig, { server: { file: 'src/main.js' } }));
 
-      expect(build[0]).to.have.property('appServer', true);
+      expect(build[0]).to.have.property('isAppServer', true);
     });
-    it('should return a build target with "appServer" set to TRUE when "server.file" matches a globbed "input"', () => {
+    it('should return a build target with "isAppServer" set to TRUE when "server.file" matches a globbed "input"', () => {
       const build = config.parseBuild([{
         input: 'src/*.js'
       }], merge(defaultConfig, { server: { file: 'src/main.js' } }));
 
-      expect(build[0]).to.have.property('appServer', true);
+      expect(build[0]).to.have.property('isAppServer', true);
     });
     it('should return a build target with an executable "before" hook function', () => {
       const func = config.parseBuild([{
@@ -374,8 +374,9 @@ describe.only('config', () => {
 
       expect(c.build).to.be.ok();
       expect(c.build).to.be.an(Array);
-      expect(c.sources).to.be.an(Array);
       expect(c.build[0].options.babel.plugins[0]).to.have.length(1);
+      expect(c.build[0].compilers).to.equal(c.build[0].build[0].compilers);
+      expect(c.build[0].sources).to.equal(c.build[0].build[0].sources);
     });
     it('should return an error when passed a reference to a malformed file', () => {
       try {

@@ -110,7 +110,7 @@ describe('identify-resource', () => {
 
         expect(details).to.have.property('manifestpath', path.resolve('node_modules/@popeindustries/test/package.json'));
         expect(details).to.have.property('name', '@popeindustries/test');
-        expect(details).to.have.property('main', path.resolve('node_modules/@popeindustries/test/test.js'))
+        expect(details).to.have.property('main', path.resolve('node_modules/@popeindustries/test/test.js'));
       });
       it('should return details for a package with aliases', () => {
         const details = pkg.get(path.resolve('node_modules/browser2'), config());
@@ -143,7 +143,7 @@ describe('identify-resource', () => {
       expect(resolve(path.resolve('foo.js'), './bar.blah')).to.equal('');
     });
     it('should resolve a js file with an unkown extension when optionally specified', () => {
-      expect(resolve(path.resolve('foo.js'), './bar', { fileExtensions: { js: ['coffee'] }})).to.equal(path.resolve('bar.coffee'));
+      expect(resolve(path.resolve('foo.js'), './bar', { fileExtensions: { js: ['coffee'] } })).to.equal(path.resolve('bar.coffee'));
     });
     it('should resolve a file name containing multiple "."', () => {
       expect(resolve(path.resolve('foo.js'), './foo.bar')).to.equal(path.resolve('foo.bar.js'));
