@@ -1,0 +1,29 @@
+{
+  "name": "buddy-plugin-react",
+  "description": "Buddy plugin for React (JSX) source transforms (via Babel)",
+  "version": "6.13.0",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "babel",
+    "buddy",
+    "transpile",
+    "jsx",
+    "react"
+  ],
+  "dependencies": {
+    "babel-plugin-syntax-jsx": "6.13.x",
+    "babel-plugin-transform-react-display-name": "6.8.x",
+    "babel-plugin-transform-react-jsx": "6.8.x"
+  },
+  "devDependencies": {
+  },
+  "main": "index.js",
+  "scripts": {
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/plugins/buddy-plugin-react",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}

@@ -1,0 +1,28 @@
+{
+  "name": "buddy-plugin-flow",
+  "description": "Buddy plugin for Flow source transforms (via Babel)",
+  "version": "6.13.0",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "babel",
+    "buddy",
+    "transpile",
+    "flow"
+  ],
+  "dependencies": {
+    "babel-plugin-syntax-flow": "6.13.x",
+    "babel-plugin-transform-class-properties": "6.11.x",
+    "babel-plugin-transform-flow-strip-types": "6.14.x"
+  },
+  "devDependencies": {
+  },
+  "main": "index.js",
+  "scripts": {
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/plugins/buddy-plugin-react",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}

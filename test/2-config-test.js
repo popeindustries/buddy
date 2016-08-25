@@ -375,7 +375,7 @@ describe.only('config', () => {
       expect(c.build).to.be.ok();
       expect(c.build).to.be.an(Array);
       expect(c.sources).to.be.an(Array);
-      expect(c.build[0].options.babel.plugins).to.have.length(4);
+      expect(c.build[0].options.babel.plugins[0]).to.have.length(1);
     });
     it('should return an error when passed a reference to a malformed file', () => {
       try {
