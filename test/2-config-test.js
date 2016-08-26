@@ -8,7 +8,7 @@ const plugins = require('../lib/utils/plugins');
 const CWD = process.cwd();
 let defaultConfig;
 
-describe('config', () => {
+describe.only('config', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/config'));
   });
@@ -252,6 +252,15 @@ describe('config', () => {
 
       expect(build[0].output).to.eql('c');
       expect(build[0].outputpaths).to.eql([path.resolve('c/hey.js')]);
+    });
+    it('should parse build target workflows', () => {
+      const build = config.parseBuild([{
+        input: 'src/hey.js',
+        output: 'js'
+      }], merge(defaultConfig, { runtimeOptions: { compress: true } }));
+
+      expect(build[0].workflows.inlineable.js).to.contain('compress');
+      expect(build[0].workflows.writeable.js).to.contain('compress');
     });
     it('should throw an error when passed build target with directory "input" and a file "output"', () => {
       try {
