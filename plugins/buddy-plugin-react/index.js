@@ -1,20 +1,16 @@
 'use strict';
 
-/**
- * Retrieve registration data
- */
-exports.registration = {
+module.exports = {
   name: 'react',
-  extensions: {
-    js: [
-      'jsx'
-    ]
-  },
-  babel: {
-    plugins: [
-      require('babel-plugin-syntax-jsx'),
-      require('babel-plugin-transform-react-display-name'),
-      require('babel-plugin-transform-react-jsx')
-    ]
+  type: 'js',
+  config: {
+    fileExtensions: ['jsx'],
+    babel: {
+      plugins: [
+        require('babel-plugin-syntax-jsx'),
+        require('babel-plugin-transform-react-display-name'),
+        require('babel-plugin-transform-react-jsx')
+      ]
+    }
   }
 };

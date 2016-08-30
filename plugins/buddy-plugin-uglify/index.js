@@ -5,12 +5,12 @@ const uglify = require('uglify-js');
 const DEFAULT_OPTIONS = {
   output: {
     // Preserve special multiline comments
-    comments: function comments (node, comment) {
+    comments (node, comment) {
       const text = comment.value;
       const type = comment.type;
 
       if (type == 'comment2') {
-	return /@preserve|@license|@cc_on/i.test(text);
+        return /@preserve|@license|@cc_on/i.test(text);
       }
     }
   },
