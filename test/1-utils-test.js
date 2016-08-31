@@ -1,20 +1,19 @@
 'use strict';
 
+const { regexpEscape, truncate } = require('../lib/utils/string');
 const expect = require('expect.js');
 const filetype = require('../lib/utils/filetype');
 const path = require('path');
 const pathname = require('../lib/utils/pathname');
-const reEscape = require('../lib/utils/reEscape');
-const truncate = require('../lib/utils/truncate');
 const unique = require('../lib/utils/unique');
 
 describe('utils', () => {
-  describe('reEscape', () => {
+  describe('regexpEscape', () => {
     it('should ignore valid characters', () => {
-      expect(reEscape('foo')).to.equal('foo');
+      expect(regexpEscape('foo')).to.equal('foo');
     });
     it('should escape special RegExp characters', () => {
-      expect(reEscape('foo/.&')).to.equal('foo\\/\\.&');
+      expect(regexpEscape('foo/.&')).to.equal('foo\\/\\.&');
     });
   });
 

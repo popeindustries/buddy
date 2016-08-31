@@ -8,7 +8,7 @@ const plugins = require('../lib/utils/plugins');
 const CWD = process.cwd();
 let defaultConfig;
 
-describe.only('config', () => {
+describe('config', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/config'));
   });
