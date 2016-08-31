@@ -8,7 +8,7 @@ const pkg = require('../lib/identify-resource/package');
 const path = require('path');
 const resolve = require('../lib/identify-resource/resolve');
 
-describe('identify-resource', () => {
+describe.only('identify-resource', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/identify-resource'));
   });
@@ -74,26 +74,26 @@ describe('identify-resource', () => {
 
     describe('retrieving details', () => {
       it('should return nothing for a package that doesn\'t exist', () => {
-        const details = pkg.get(path.resolve('node_modules/zing'));
+        const details = pkg.getDetails(path.resolve('node_modules/zing'));
 
         expect(details).to.eql(undefined);
       });
       it('should return details for the project root package', () => {
-        const details = pkg.get(process.cwd(), config());
+        const details = pkg.getDetails(process.cwd(), config());
 
         expect(details).to.have.property('name', 'project');
         expect(details).to.have.property('main', path.resolve('index.js'));
         expect(details).to.have.property('manifestpath', path.resolve('package.json'));
       });
       it('should return details for the project root package from a nested project file', () => {
-        const details = pkg.get(path.resolve('foo.js'), config());
+        const details = pkg.getDetails(path.resolve('foo.js'), config());
 
         expect(details).to.have.property('name', 'project');
         expect(details).to.have.property('main', path.resolve('index.js'));
         expect(details).to.have.property('manifestpath', path.resolve('package.json'));
       });
       it('should return details for a node_modules package', () => {
-        const details = pkg.get(path.resolve('node_modules/foo'), config());
+        const details = pkg.getDetails(path.resolve('node_modules/foo'), config());
 
         expect(details).to.have.property('manifestpath', path.resolve('node_modules/foo/package.json'));
         expect(details).to.have.property('name', 'foo');
@@ -101,24 +101,24 @@ describe('identify-resource', () => {
         expect(details).to.have.property('paths').eql([path.resolve('node_modules/foo'), path.resolve('node_modules'), path.resolve('node_modules/foo/node_modules')]);
       });
       it('should return details for a node_modules package with no "main" property', () => {
-        const details = pkg.get(path.resolve('node_modules/boom'), config());
+        const details = pkg.getDetails(path.resolve('node_modules/boom'), config());
 
         expect(details).to.have.property('main', path.resolve('node_modules/boom/index.js'));
       });
       it('should return details for a scoped node_modules package', () => {
-        const details = pkg.get(path.resolve('node_modules/@popeindustries/test/test.js'), config());
+        const details = pkg.getDetails(path.resolve('node_modules/@popeindustries/test/test.js'), config());
 
         expect(details).to.have.property('manifestpath', path.resolve('node_modules/@popeindustries/test/package.json'));
         expect(details).to.have.property('name', '@popeindustries/test');
         expect(details).to.have.property('main', path.resolve('node_modules/@popeindustries/test/test.js'));
       });
       it('should return details for a package with aliases', () => {
-        const details = pkg.get(path.resolve('node_modules/browser2'), config());
+        const details = pkg.getDetails(path.resolve('node_modules/browser2'), config());
 
         expect(details.aliases).to.have.property(path.resolve('node_modules/browser2/bing.js'), 'bing');
       });
       it('should cache details', () => {
-        expect(pkg.get(path.resolve('src/index.js'), config())).to.equal(pkg.get(process.cwd()));
+        expect(pkg.getDetails(path.resolve('src/index.js'), config())).to.equal(pkg.getDetails(process.cwd()));
       });
     });
   });
