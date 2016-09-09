@@ -8,22 +8,24 @@ const pathname = require('../lib/utils/pathname');
 const unique = require('../lib/utils/unique');
 
 describe('utils', () => {
-  describe('regexpEscape', () => {
-    it('should ignore valid characters', () => {
-      expect(regexpEscape('foo')).to.equal('foo');
+  describe('string', () => {
+    describe('regexpEscape', () => {
+      it('should ignore valid characters', () => {
+        expect(regexpEscape('foo')).to.equal('foo');
+      });
+      it('should escape special RegExp characters', () => {
+        expect(regexpEscape('foo/.&')).to.equal('foo\\/\\.&');
+      });
     });
-    it('should escape special RegExp characters', () => {
-      expect(regexpEscape('foo/.&')).to.equal('foo\\/\\.&');
-    });
-  });
 
-  describe('truncate', () => {
-    it('should ignore short strings', () => {
-      expect(truncate('foo/bar')).to.equal('foo/bar');
-    });
-    it('should truncate long strings', () => {
-      expect(truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung')).to.equal('foo/bar/boo/bat/bing/boooooooo...oooong/buuuuuuuuuuuuuuuuuuuung');
-      expect(truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung')).to.have.length(63);
+    describe('truncate', () => {
+      it('should ignore short strings', () => {
+        expect(truncate('foo/bar')).to.equal('foo/bar');
+      });
+      it('should truncate long strings', () => {
+        expect(truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung')).to.equal('foo/bar/boo/bat/bing/boooooooo...oooong/buuuuuuuuuuuuuuuuuuuung');
+        expect(truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung')).to.have.length(63);
+      });
     });
   });
 
