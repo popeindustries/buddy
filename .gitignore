@@ -1,4 +1,4 @@
 .DS_Store
 node_modules/*
-plugins/**/node_modules/*
+packages/**/node_modules/*
 examples/**/www/*.js

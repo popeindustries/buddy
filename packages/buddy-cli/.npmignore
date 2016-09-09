@@ -1,9 +1,5 @@
 .git*
 test/
-docs/
-examples/
-packages/
 .DS_Store
 .travis.yml
-CHANGELOG.md
 README.md

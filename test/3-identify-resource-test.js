@@ -8,7 +8,7 @@ const pkg = require('../lib/identify-resource/package');
 const path = require('path');
 const resolve = require('../lib/identify-resource/resolve');
 
-describe.only('identify-resource', () => {
+describe('identify-resource', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/identify-resource'));
   });
