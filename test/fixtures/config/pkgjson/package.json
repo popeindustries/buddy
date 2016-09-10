@@ -1,22 +1,20 @@
 {
-	"name": "test",
-	"version": "0.0.1",
-	"dependencies": {
-	},
-	"devDependencies": {
-	},
-	"main": "index.js",
-	"engines": {
-		"node": ">=0.6.0"
-	},
-	"buddy": {
-		"build": {
-			"targets": [
-				{
-					"input": ["src/main.js", "src/main.css"],
-					"output": "www"
-				}
-			]
-		}
-	}
+  "name": "test",
+  "version": "0.0.1",
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.6.0"
+  },
+  "buddy": {
+    "build": [
+      {
+        "input": ["src/main.js", "src/main.css"],
+        "output": "www"
+      }
+    ]
+  }
 }
