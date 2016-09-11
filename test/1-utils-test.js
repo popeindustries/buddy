@@ -1,6 +1,7 @@
 'use strict';
 
 const { regexpEscape, truncate, uniqueMatch } = require('../lib/utils/string');
+const callable = require('../lib/utils/callable');
 const expect = require('expect.js');
 const filetype = require('../lib/utils/filetype');
 const path = require('path');
@@ -8,6 +9,45 @@ const pathname = require('../lib/utils/pathname');
 const unique = require('../lib/utils/unique');
 
 describe('utils', () => {
+  describe('callable', () => {
+    it('should return a function bound to passed context', () => {
+      const obj = {
+        bar: 0,
+        foo () {
+          this.bar++;
+        }
+      };
+      const fn = callable(obj, 'foo');
+
+      fn();
+      expect(obj.bar).to.equal(1);
+    });
+    it('should return a function with memoized arguments', () => {
+      const obj = {
+        bar: 0,
+        foo (val) {
+          this.bar = val;
+        }
+      };
+      const fn = callable(obj, 'foo', 2);
+
+      fn();
+      expect(obj.bar).to.equal(2);
+    });
+    it('should return a function accepting passed arguments', () => {
+      const obj = {
+        bar: 0,
+        foo (val) {
+          this.bar = val;
+        }
+      };
+      const fn = callable(obj, 'foo');
+
+      fn(2);
+      expect(obj.bar).to.equal(2);
+    });
+  });
+
   describe('string', () => {
     describe('regexpEscape', () => {
       it('should ignore valid characters', () => {

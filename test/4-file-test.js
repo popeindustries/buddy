@@ -113,6 +113,59 @@ describe('file', () => {
     });
   });
 
+  describe('runWorkflow()', () => {
+    beforeEach(() => {
+      file = new File('foo', path.resolve('src/foo.js'), 'js', {});
+    });
+
+    it('should run a default workflow', (done) => {
+      file.parse = function (buildOptions, fn) {
+        this.foo = true;
+        fn();
+      };
+      file.runWorkflow('default', {}, (err) => {
+        expect(file).to.have.property('foo', true);
+        done();
+      });
+    });
+    it('should run a default workflow, including for new dependencies', (done) => {
+      const bar = new File('bar', path.resolve('src/foo.js'), 'js', {});
+
+      bar.parse = function (buildOptions, fn) {
+        expect(file).to.have.property('foo', true);
+        this.bar = true;
+        fn();
+      };
+      file.parse = function (buildOptions, fn) {
+        this.dependencies.push(bar);
+        this.foo = true;
+        fn();
+      };
+      file.runWorkflow('default', {}, (err) => {
+        expect(bar).to.have.property('bar', true);
+        done();
+      });
+    });
+    it('should run a default workflow, including for existing dependencies', (done) => {
+      const bar = new File('bar', path.resolve('src/foo.js'), 'js', {});
+
+      file.dependencies.push(bar);
+      bar.parse = function (buildOptions, fn) {
+        this.bar = true;
+        fn();
+      };
+      file.parse = function (buildOptions, fn) {
+        expect(bar).to.have.property('bar', true);
+        this.foo = true;
+        fn();
+      };
+      file.runWorkflow('default', {}, (err) => {
+        expect(file).to.have.property('foo', true);
+        done();
+      });
+    });
+  });
+
   describe.skip('factory--', () => {
     it('should decorate a new File instance with passed data', () => {
       const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
