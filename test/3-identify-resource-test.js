@@ -202,6 +202,7 @@ describe('identify-resource', () => {
     it('should resolve a disabled file via "browser" hash', () => {
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), './bar')).to.equal(false);
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), './bar.js')).to.equal(false);
+      expect(resolve(path.resolve('foo.js'), 'browser2/bar')).to.equal(false);
     });
     it('should resolve an aliased file with a package via "browser" hash', () => {
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), './bing')).to.equal(path.resolve('node_modules/browser2/node_modules/bing/index.js'));
