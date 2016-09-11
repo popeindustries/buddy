@@ -1,27 +1,38 @@
 'use strict';
 
 const expect = require('expect.js');
-const fileFactory = require('../lib/file');
+const File = require('../lib/File');
 const fs = require('fs');
-const identifyResource = require('../lib/identify-resource');
 const path = require('path');
-const fileExtensions = {
-  js: ['js'],
-  json: ['json'],
-  css: ['css'],
-  html: ['html', 'dust']
-};
+let file;
 
 describe('file', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/file'));
   });
   beforeEach(() => {
-    fileFactory.cache.flush();
-    identifyResource.clearCache();
+    // fileFactory.cache.flush();
+    // identifyResource.clearCache();
   });
 
-  describe('factory', () => {
+  describe('constructor()', () => {
+    it('should define file properties', () => {
+      const file = new File('foo', path.resolve('src/foo.js'), 'js', {});
+
+      expect(file).to.have.property('extension', 'js');
+      expect(file).to.have.property('relpath', 'src/foo.js');
+      expect(file).to.have.property('name', 'foo.js');
+    });
+    it('should load file content', () => {
+      const file = new File('foo', path.resolve('src/foo.js'), 'js', {});
+
+      expect(file).to.have.property('hash', 'af1c6f25496712c4303dc6a37b809bdf');
+    });
+  });
+
+  describe('')
+
+  describe.skip('factory--', () => {
     it('should decorate a new File instance with passed data', () => {
       const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
 
@@ -49,7 +60,7 @@ describe('file', () => {
     });
   });
 
-  describe('workflow', () => {
+  describe.skip('workflow--', () => {
     describe('load()', () => {
       it('should load and store js file contents', (done) => {
         const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
