@@ -1,6 +1,6 @@
 'use strict';
 
-const { regexpEscape, truncate } = require('../lib/utils/string');
+const { regexpEscape, truncate, uniqueMatch } = require('../lib/utils/string');
 const expect = require('expect.js');
 const filetype = require('../lib/utils/filetype');
 const path = require('path');
@@ -25,6 +25,18 @@ describe('utils', () => {
       it('should truncate long strings', () => {
         expect(truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung')).to.equal('foo/bar/boo/bat/bing/boooooooo...oooong/buuuuuuuuuuuuuuuuuuuung');
         expect(truncate('foo/bar/boo/bat/bing/booooooooooooooooooong/buuuuuuuuuuuuuuuuuuuung')).to.have.length(63);
+      });
+    });
+
+    describe('uniqueMatch', () => {
+      it('should match a simple string', () => {
+        expect(uniqueMatch('foo bar', /foo/g)).to.eql([{ context: 'foo', match: '' }]);
+      });
+      it('should match a simple string with capture group', () => {
+        expect(uniqueMatch('foo bar', /fo(o)/g)).to.eql([{ context: 'foo', match: 'o' }]);
+      });
+      it('should uniquely match multiple instances', () => {
+        expect(uniqueMatch('foo bar foo', /fo(o)/g)).to.eql([{ context: 'foo', match: 'o' }]);
       });
     });
   });

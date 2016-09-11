@@ -4,11 +4,10 @@ const buildParser = require('../lib/utils/buildParser');
 const configFactory = require('../lib/config');
 const expect = require('expect.js');
 const path = require('path');
-const pluginLoader = require('../lib/utils/pluginLoader');
 
 let config, dummyConfig;
 
-describe.only('config', () => {
+describe('config', () => {
   beforeEach(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/config'));
   });
