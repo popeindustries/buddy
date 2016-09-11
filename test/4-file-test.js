@@ -17,20 +17,101 @@ describe('file', () => {
 
   describe('constructor()', () => {
     it('should define file properties', () => {
-      const file = new File('foo', path.resolve('src/foo.js'), 'js', {});
-
+      file = new File('foo', path.resolve('src/foo.js'), 'js', {});
       expect(file).to.have.property('extension', 'js');
       expect(file).to.have.property('relpath', 'src/foo.js');
       expect(file).to.have.property('name', 'foo.js');
     });
     it('should load file content', () => {
-      const file = new File('foo', path.resolve('src/foo.js'), 'js', {});
-
+      file = new File('foo', path.resolve('src/foo.js'), 'js', {});
       expect(file).to.have.property('hash', 'af1c6f25496712c4303dc6a37b809bdf');
     });
   });
 
-  describe('')
+  describe('addDependencies()', () => {
+    beforeEach(() => {
+      file = new File('foo', path.resolve('src/foo.js'), 'js', {});
+    });
+
+    it('should ignore invalid dependency id', () => {
+      file.addDependencies([{ id: './zoop' }], {});
+      expect(file.dependencyReferences).to.eql([]);
+    });
+    it('should disable dependency reference when watch only build', () => {
+      const dependency = { id: 'bar' };
+
+      file.addDependencies([dependency], { watchOnly: true });
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(dependency).to.have.property('isDisabled', true);
+      expect(file.dependencies).to.eql([]);
+    });
+    it('should disable dependency reference when disabled via package.json', () => {
+      const dependency = { id: 'bat/boop' };
+
+      file.addDependencies([dependency], {});
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(dependency).to.have.property('isDisabled', true);
+      expect(file.dependencies).to.eql([]);
+    });
+    it('should ignore dependency reference when it is a parent file', () => {
+      const index = new File('index', path.resolve('src/index.js'), 'js', {});
+      const dependency = { id: './index' };
+
+      file.options.fileFactory = function () {
+        index.isLocked = true;
+        return index;
+      };
+      file.addDependencies([dependency], {});
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(file.dependencies).to.eql([]);
+    });
+    it('should ignore dependency reference when it is a circular reference', () => {
+      const index = new File('index', path.resolve('src/index.js'), 'js', {});
+      const dependency = { id: './index' };
+
+      file.options.fileFactory = function () {
+        index.dependencies = [file];
+        return index;
+      };
+      file.addDependencies([dependency], {});
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(file.dependencies).to.eql([]);
+    });
+    it('should ignore dependency reference when it is a child file', () => {
+      const index = new File('index', path.resolve('src/index.js'), 'js', {});
+      const dependency = { id: './index' };
+
+      file.options.fileFactory = function () {
+        return index;
+      };
+      file.addDependencies([dependency], { ignoredFiles: [index.filepath] });
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(file.dependencies).to.eql([]);
+    });
+    it('should store dependant file instance', () => {
+      const index = new File('index', path.resolve('src/index.js'), 'js', {});
+      const dependency = { id: './index' };
+
+      file.options.fileFactory = function () {
+        return index;
+      };
+      file.addDependencies([dependency], {});
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(file.dependencies).to.eql([index]);
+    });
+    it('should flag dependant file instance as inline if parsed as inline source', () => {
+      const index = new File('index', path.resolve('src/index.js'), 'js', {});
+      const dependency = { id: './index', stack: true };
+
+      file.options.fileFactory = function () {
+        return index;
+      };
+      file.addDependencies([dependency], {});
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(file.dependencies).to.eql([index]);
+      expect(index).to.have.property('isInline', true);
+    });
+  });
 
   describe.skip('factory--', () => {
     it('should decorate a new File instance with passed data', () => {

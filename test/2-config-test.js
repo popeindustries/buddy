@@ -16,14 +16,15 @@ describe('config', () => {
     beforeEach(() => {
       dummyConfig = {
         build: [],
-        fileExtensions: ['css', 'html', 'htm', 'gif', 'jpg', 'jpeg', 'png', 'svg', 'js', 'json'],
-        fileExtensionsByType: {
+        caches: {},
+        fileExtensions: {
           css: ['css'],
           html: ['html', 'htm'],
           image: ['gif', 'jpg', 'jpeg', 'png', 'svg'],
           js: ['js'],
           json: ['json']
         },
+        fileFactory () {},
         runtimeOptions: {
           compress: false,
           deploy: false,
@@ -400,8 +401,7 @@ describe('config', () => {
     describe('loading plugins', () => {
       it('should load default plugin modules', () => {
         config = configFactory({ build: {} });
-        expect(config.fileExtensions).to.have.length(9);
-        expect(config.fileExtensionsByType.html).to.eql(['html', 'htm']);
+        expect(config.fileExtensions.html).to.eql(['html', 'htm']);
         expect(config.fileDefinitionByExtension.js.name).to.equal('JSFile');
       });
     });
@@ -410,28 +410,82 @@ describe('config', () => {
       beforeEach(() => {
         config = configFactory({ build: {} });
       });
+
       it('should register extension for new file type', () => {
         config.registerFileExtensionsForType(['foo'], 'js');
-        expect(config.fileExtensions).to.contain('foo');
-        expect(config.fileExtensionsByType.js).to.eql(['js', 'foo']);
+        expect(config.fileExtensions.js).to.eql(['js', 'foo']);
       });
       it('should register multiple extensions for existing file type', () => {
         config.registerFileExtensionsForType(['foo', 'bar'], 'js');
-        expect(config.fileExtensions).to.contain('js', 'foo', 'bar');
-        expect(config.fileExtensionsByType.js).to.eql(['js', 'foo', 'bar']);
+        expect(config.fileExtensions.js).to.eql(['js', 'foo', 'bar']);
       });
     });
+
     describe('registerTargetVersionForType()', () => {
       it('should register a target version for js type');
     });
+
     describe('registerFileDefinitionAndExtensionsForType()', () => {
       it('should register a file definition');
       it('should register a file definition for a new type');
       it('should register a file definition for an existing type');
     });
+
     describe('extendFileDefinitionForExtensionsOrType()', () => {
       it('should extend a file definition for an extension');
       it('should extend a file definition for a type');
+    });
+
+    describe('fileFactory()', () => {
+      let options;
+
+      beforeEach(() => {
+        config = configFactory({ build: {} });
+        options = {
+          caches: config.caches,
+          fileExtensions: config.fileExtensions,
+          fileFactory () {},
+          runtimeOptions: config.runtimeOptions,
+          sources: [process.cwd(), path.resolve('src')]
+        };
+      });
+
+      it('should return a file instance for default type', () => {
+        const file = config.fileFactory(path.resolve('src/main.js'), options);
+
+        expect(file).to.be.ok();
+        expect(file).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
+        expect(file).to.have.property('type', 'js');
+        expect(file).to.have.property('id', 'main.js');
+      });
+      it('should return a file instance for custom type', () => {
+        config.registerFileDefinitionAndExtensionsForType((File) => {
+          return class BARFile extends File {
+            constructor (id, filepath, options) {
+              super(id, filepath, 'bar', options);
+            }
+          };
+        }, ['bar'], 'bar');
+
+        const file = config.fileFactory(path.resolve('src/foo.bar'), options);
+
+        expect(file).to.be.ok();
+        expect(file).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
+        expect(file).to.have.property('type', 'bar');
+        expect(file).to.have.property('id', 'foo.bar');
+      });
+      it('should return a file instance for extended default type', () => {
+        config.registerFileDefinitionAndExtensionsForType((File) => {
+          return class BARFile extends File {};
+        }, ['bar'], 'js');
+
+        const file = config.fileFactory(path.resolve('src/foo.bar'), options);
+
+        expect(file).to.be.ok();
+        expect(file).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
+        expect(file).to.have.property('type', 'js');
+        expect(file).to.have.property('id', 'foo.bar');
+      });
     });
   });
 });
