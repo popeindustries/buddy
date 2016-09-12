@@ -11,28 +11,21 @@ describe('file', () => {
     process.chdir(path.resolve(__dirname, 'fixtures/file'));
   });
   beforeEach(() => {
-    // fileFactory.cache.flush();
-    // identifyResource.clearCache();
+    file = new File('foo', path.resolve('src/foo.js'), 'js', {});
   });
 
   describe('constructor()', () => {
     it('should define file properties', () => {
-      file = new File('foo', path.resolve('src/foo.js'), 'js', {});
       expect(file).to.have.property('extension', 'js');
       expect(file).to.have.property('relpath', 'src/foo.js');
       expect(file).to.have.property('name', 'foo.js');
     });
     it('should load file content', () => {
-      file = new File('foo', path.resolve('src/foo.js'), 'js', {});
       expect(file).to.have.property('hash', 'af1c6f25496712c4303dc6a37b809bdf');
     });
   });
 
   describe('addDependencies()', () => {
-    beforeEach(() => {
-      file = new File('foo', path.resolve('src/foo.js'), 'js', {});
-    });
-
     it('should ignore invalid dependency id', () => {
       file.addDependencies([{ id: './zoop' }], {});
       expect(file.dependencyReferences).to.eql([]);
@@ -113,11 +106,22 @@ describe('file', () => {
     });
   });
 
-  describe('runWorkflow()', () => {
-    beforeEach(() => {
-      file = new File('foo', path.resolve('src/foo.js'), 'js', {});
+  describe('getWorkflows()', () => {
+    it('should return a simple set of workflows', () => {
+      file.workflows = { foo: ['foo'], bar: ['bar'] };
+      expect(file.getWorkflows({})).to.eql(file.workflows);
     });
+    it('should return a conditional set of workflows', () => {
+      file.workflows = { foo: ['compress:foo'], bar: ['bundle:compress:bar', 'bat'] };
+      expect(file.getWorkflows({ compress: true, bundle: false })).to.eql({ foo: ['foo'], bar: ['bat'] });
+    });
+    it('should return a conditional set of workflows, including negated condition', () => {
+      file.workflows = { foo: ['compress:foo'], bar: ['!bundle:compress:bar', 'bat'] };
+      expect(file.getWorkflows({ compress: true, bundle: false })).to.eql({ foo: ['foo'], bar: ['bar', 'bat'] });
+    });
+  });
 
+  describe('runWorkflow()', () => {
     it('should run a default workflow', (done) => {
       file.parse = function (buildOptions, fn) {
         this.foo = true;
@@ -129,7 +133,7 @@ describe('file', () => {
       });
     });
     it('should run a default workflow, including for new dependencies', (done) => {
-      const bar = new File('bar', path.resolve('src/foo.js'), 'js', {});
+      const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
 
       bar.parse = function (buildOptions, fn) {
         expect(file).to.have.property('foo', true);
@@ -147,7 +151,7 @@ describe('file', () => {
       });
     });
     it('should run a default workflow, including for existing dependencies', (done) => {
-      const bar = new File('bar', path.resolve('src/foo.js'), 'js', {});
+      const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
 
       file.dependencies.push(bar);
       bar.parse = function (buildOptions, fn) {
@@ -166,31 +170,64 @@ describe('file', () => {
     });
   });
 
-  describe.skip('factory--', () => {
-    it('should decorate a new File instance with passed data', () => {
-      const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-      expect(instance).to.have.property('type', 'js');
+  describe('run', () => {
+    it('should run a default set of workflows', (done) => {
+      file.parse = function (buildOptions, fn) {
+        this.foo = true;
+        fn();
+      };
+      file.run({}, (err) => {
+        expect(file).to.have.property('foo', true);
+        done();
+      });
     });
-    it('should resolve a module id for a File instance', () => {
-      const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
+    it('should run a default set of workflows, including for dependencies', (done) => {
+      const bar = new File('bar', path.resolve('src/foo.js'), 'js', {});
 
-      expect(instance).to.have.property('id', 'main.js');
+      bar.parse = function (buildOptions, fn) {
+        expect(file).to.have.property('foo', true);
+        this.bar = true;
+        fn();
+      };
+      file.parse = function (buildOptions, fn) {
+        this.dependencies.push(bar);
+        this.foo = true;
+        fn();
+      };
+      file.run({}, (err) => {
+        expect(bar).to.have.property('bar', true);
+        done();
+      });
     });
-    it('should resolve a module id for an "index" File instance', () => {
-      const instance = fileFactory(path.resolve('src/index.js'), { sources: [path.resolve('src')], fileExtensions });
-
-      expect(instance).to.have.property('id', 'index.js');
+    it('should run an extra set of workflows', (done) => {
+      file.workflows.extra = ['foo'];
+      file.foo = function (buildOptions, fn) {
+        this.foo = true;
+        fn();
+      };
+      file.run({}, (err) => {
+        expect(file).to.have.property('foo', true);
+        done();
+      });
     });
-    it('should resolve a module id for a node_module "index" File instance ', () => {
-      const instance = fileFactory(path.resolve('node_modules/foo/index.js'), { sources: [], fileExtensions });
+    it('should run an extra set of workflows, including for dependencies', (done) => {
+      const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
 
-      expect(instance).to.have.property('id', 'foo/index.js');
-    });
-    it('should resolve a module id for a node_modules package.json "main" File instance', () => {
-      const instance = fileFactory(path.resolve('node_modules/bar/bar.js'), { sources: [], fileExtensions });
-
-      expect(instance).to.have.property('id', 'bar/bar.js#1.0.0');
+      bar.workflows.extra = ['bar'];
+      bar.bar = function (buildOptions, fn) {
+        expect(file).to.have.property('foo', true);
+        this.bat = true;
+        fn();
+      };
+      file.parse = function (buildOptions, fn) {
+        this.dependencies.push(bar);
+        this.foo = true;
+        fn();
+      };
+      file.run({}, (err) => {
+        expect(bar).to.have.property('bat', true);
+        done();
+      });
     });
   });
 
