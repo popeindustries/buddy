@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require('expect.js');
-const fileFactory = require('../lib/file');
+const fileFactory = require('../lib/File');
 const fs = require('fs');
 const path = require('path');
 const rimraf = require('rimraf');
