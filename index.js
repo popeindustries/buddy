@@ -1,22 +1,17 @@
 'use strict';
 
 const buildFactory = require('./lib/build');
+const callable = require('./lib/utils/callable');
 const chalk = require('chalk');
 const cnsl = require('./lib/utils/cnsl');
 const compact = require('lodash/compact');
-const config = require('./lib/config');
-const fileCache = require('./lib/utils/fileCache');
-const fileFactory = require('./lib/file');
+const configFactory = require('./lib/config');
 const flatten = require('lodash/flatten');
 const path = require('path');
 const series = require('async').series;
 const spawn = require('child_process').spawn;
 
-const bell = cnsl.BELL;
-const debug = cnsl.debug;
-const error = cnsl.error;
-const print = cnsl.print;
-const strong = cnsl.strong;
+const { BELL, debug, error, print, start, stop, strong } = cnsl;
 let serverfarm = null;
 
 /**
@@ -36,6 +31,7 @@ class Buddy {
     this.building = false;
     this.builds = [];
     this.config = null;
+    this.onFileCacheChange = this.onFileCacheChange.bind(this);
   }
 
   /**
@@ -45,13 +41,13 @@ class Buddy {
    * @param {Function} fn
    */
   build (configpath, options, fn) {
-    cnsl.start('build');
+    start('build');
     this.init(configpath, options);
 
     // Build targets
     this.run(this.builds, (err, filepaths) => {
       if (err) return fn ? fn(err) : error(err, 2);
-      print('completed build in ' + chalk.cyan((cnsl.stop('build') / 1000) + 's'), 1);
+      print(`completed build in ${chalk.cyan((stop('build') / 1000) + 's')}`, 1);
       // Run script
       this.executeScript();
       if (fn) fn(null, filepaths);
@@ -109,7 +105,7 @@ class Buddy {
    */
   destroy () {
     this.exceptionalCleanup();
-    fileFactory.cache.flush();
+    this.config.caches.fileInstances.flush();
 
     this.initialized = false;
     this.config = null;
@@ -123,26 +119,21 @@ class Buddy {
    * @param {Object} options
    * @returns {Boolean}
    */
-  init (configpath, options) {
-    options = options || {};
-
+  init (configpath, options = {}) {
     // Set console behaviour
     cnsl.verbose = options.verbose;
 
     if (!this.initialized) {
       // Load configuration
-      this.config = config.load(configpath, options);
-
-      // Create cache
-      fileFactory.cache = fileCache(this.config.runtimeOptions.watch);
+      this.config = configFactory(configpath, options);
 
       // Setup watch
       if (this.config.runtimeOptions.watch) {
-        fileFactory.cache.on('change', this.onFileCacheChange.bind(this));
+        this.config.caches.fileInstances.on('change', this.onFileCacheChange);
         // TODO: add error listener
       }
 
-      // Initialize targets
+      // Initialize builds
       this.builds = this.initBuilds(this.config);
 
       this.initialized = true;
@@ -176,20 +167,17 @@ class Buddy {
    * @param {Function} fn(err, filepaths)
    */
   run (builds, fn) {
-    let filepaths = [];
-
     this.building = true;
 
     // Execute builds in sequence
-    series(builds.map((build) => {
-      return build.run.bind(build);
-    }), (err, results) => {
-      if (err) return fn(err);
-      // Persist file references created on build
-      filepaths = filepaths.concat(compact(flatten(results)));
-      this.building = false;
-      fn(null, filepaths);
-    });
+    series(builds.map((build) => callable(build, 'run')),
+      (err, results) => {
+        if (err) return fn(err);
+
+        this.building = false;
+        fn(null, compact(flatten(results)));
+      }
+    );
   }
 
   /**
@@ -205,7 +193,7 @@ class Buddy {
       args = script;
 
       print('executing script...', 1);
-      debug('execute: ' + strong(this.config.script), 3);
+      debug(`execute: ${strong(this.config.script)}`, 3);
 
       script = spawn(command, args, { cwd: process.cwd() });
 
@@ -219,7 +207,7 @@ class Buddy {
       });
 
       script.on('close', (code) => {
-        if (hasErrored) process.stderr.write(bell);
+        if (hasErrored) process.stderr.write(BELL);
       });
     }
   }
@@ -230,51 +218,37 @@ class Buddy {
    */
   onFileCacheChange (file) {
     const now = new Date();
-    const builds = this.builds.filter((build) => {
-      return build.hasFile(file);
-    });
+    const builds = this.builds.filter((build) => build.hasFile(file));
     // Determine if any changes to app server code that needs a restart
-    const servers = builds.filter((build) => {
-      return build.isAppServer;
-    });
+    const servers = builds.filter((build) => build.isAppServer);
 
     if (!this.building) {
-      print('['
-        + now.toLocaleTimeString()
-        + '] '
-        + chalk.yellow('changed')
-        + ' '
-        + strong(path.relative(process.cwd(), file.filepath)), 1);
+      print(`[${now.toLocaleTimeString()}] ${chalk.yellow('changed')} ${strong(path.relative(process.cwd(), file.filepath))}`, 1);
 
-      cnsl.start('watch');
+      start('watch');
 
       this.run(builds, (err, filepaths) => {
         // Don't throw
-        if (err) {
-          error(err, 2, false);
-        } else {
-          if (serverfarm) {
-            // Trigger partial refresh if only 1 css file, full reload if not
-            const filepath = (filepaths.length == 1 && path.extname(filepaths[0]) == '.css')
-              ? filepaths[0]
-              : 'foo.js';
+        if (err) return error(err, 2, false);
+        if (serverfarm) {
+          // Trigger partial refresh if only 1 css file, full reload if not
+          const filepath = (filepaths.length == 1 && path.extname(filepaths[0]) == '.css')
+            ? filepaths[0]
+            : 'foo.js';
 
-            // Restart app server
-            if (servers.length) {
-              serverfarm.restart((err) => {
-                if (err) { /* ignore */ }
-                // Refresh browser
-                serverfarm.refresh(path.basename(filepath));
-              });
-            } else {
-              // Refresh browser
-              serverfarm.refresh(path.basename(filepath));
-            }
-          }
-          print('completed build in ' + chalk.cyan((cnsl.stop('watch') / 1000) + 's'), 1);
-          // Run test script
-          this.executeScript();
+          // Refresh browser
+          if (!servers.length) return serverfarm.refresh(path.basename(filepath));
+
+          // Restart app server
+          serverfarm.restart((err) => {
+            if (err) { /* ignore */ }
+            // Refresh browser
+            serverfarm.refresh(path.basename(filepath));
+          });
         }
+        print(`completed build in ${chalk.cyan((stop('watch') / 1000) + 's')}`, 1);
+        // Run test script
+        this.executeScript();
       });
     }
   }
