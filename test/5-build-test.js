@@ -8,7 +8,7 @@ const rimraf = require('rimraf');
 const buildFactory = require('../lib/build');
 let build;
 
-describe('build', () => {
+describe.skip('build', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/build'));
   });
