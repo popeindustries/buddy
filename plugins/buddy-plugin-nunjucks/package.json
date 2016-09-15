@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-nunjucks",
   "description": "Buddy plugin for nunjucks source transforms (via nunjucks)",
-  "version": "2.4.2",
+  "version": "2.5.2",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -9,13 +9,13 @@
     "nunjucks"
   ],
   "dependencies": {
-    "nunjucks": "2.4.2"
+    "nunjucks": "2.5.2"
   },
   "devDependencies": {
   },
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec -t 10000"
+    "test": "../../node_modules/.bin/mocha --reporter spec -t 10000"
   },
   "engines": {
     "node": ">=4"
