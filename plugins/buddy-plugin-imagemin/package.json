@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-imagemin",
   "description": "Buddy plugin for image minification (via imagemin)",
-  "version": "5.2.1",
+  "version": "5.2.2",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -15,7 +15,7 @@
     "svg"
   ],
   "dependencies": {
-    "imagemin": "5.2.1",
+    "imagemin": "5.2.2",
     "imagemin-gifsicle": "5.x.x",
     "imagemin-jpegtran": "5.x.x",
     "imagemin-optipng": "5.x.x",
