@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-uglify",
   "description": "Buddy plugin for js minification (via Uglify-js)",
-  "version": "2.6.4",
+  "version": "2.7.3",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -12,7 +12,7 @@
     "uglify-js"
   ],
   "dependencies": {
-    "uglify-js": "2.7.0"
+    "uglify-js": "2.7.3"
   },
   "devDependencies": {
   },
