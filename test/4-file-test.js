@@ -1,10 +1,11 @@
 'use strict';
 
+const configFactory = require('../lib/config');
 const expect = require('expect.js');
 const File = require('../lib/File');
 const fs = require('fs');
 const path = require('path');
-let file, files;
+let config, file, files;
 
 describe('file', () => {
   before(() => {
@@ -205,7 +206,7 @@ describe('file', () => {
     });
   });
 
-  describe('run', () => {
+  describe('run()', () => {
     it('should run a default set of workflows', (done) => {
       file.parse = function (buildOptions, fn) {
         this.foo = true;
@@ -266,65 +267,127 @@ describe('file', () => {
     });
   });
 
-  describe.skip('workflow--', () => {
-    describe('load()', () => {
-      it('should load and store js file contents', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.load({}, (err) => {
-          expect(instance.content).to.eql(instance.fileContent);
-          expect(instance.content).to.eql("'use strict';\n\nmodule.exports = 'main';\n");
-          done();
-        });
-      });
-    });
-
-    describe('transpile()', () => {
-      it.skip('should namespace all root declarations', (done) => {
-        const instance = fileFactory(path.resolve('src/namespace.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.transpile({}, (err) => {
-          done();
-        });
-      });
-    });
-
-    describe('wrap()', () => {
-      it('should wrap js file contents in a module definition', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.id = 'main';
-        instance.content = "module.exports = 'main';";
-        instance.wrap({}, (err) => {
-          expect(instance.content).to.eql("_m_[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({exports:{}});");
-          done();
-        });
-      });
-      it('should not wrap previously wrapped js file contents', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.id = 'main';
-        instance.content = "_m_[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({filename:\'main\',exports:{}});";
-        instance.wrap({}, (err) => {
-          expect(instance.content).to.eql("_m_[\'main\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  module.exports = \'main\';\n\n  return module.exports;\n}).call({filename:\'main\',exports:{}});");
-          done();
-        });
+  describe('JSFile', () => {
+    beforeEach(() => {
+      config = configFactory({
+        input: 'src/js/foo.js',
+        output: 'js'
+      }, {});
+      file = config.fileFactory(path.resolve('src/foo.js'), {
+        caches: config.caches,
+        fileExtensions: config.fileExtensions,
+        fileFactory: config.fileFactory,
+        runtimeOptions: config.runtimeOptions,
+        sources: [path.resolve('src')]
       });
     });
 
     describe('parse()', () => {
-      it('should store an array of js dependencies', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions };
-        const foo = fileFactory(path.resolve('src/foo.js'), options);
-        const bar = fileFactory(path.resolve('src/bar.js'), options);
-        const instance = fileFactory(path.resolve('src/main.js'), options);
-
-        instance.content = "var foo = require('./foo');\nvar bar = require('./bar');";
-        instance.parse({}, (err) => {
-          expect(instance.dependencies).to.have.length(2);
+      it('should store an array of dependencies', (done) => {
+        file.content = "var a = require('./a');\nvar b = require('./b');";
+        file.parse({}, (err) => {
+          expect(file.dependencies).to.have.length(2);
           done();
         });
       });
+      it('should only store 1 dependency object when there are duplicates', (done) => {
+        file.content = "var a = require('./a');\nvar b = require('./a');";
+        file.parse({}, (err) => {
+          expect(file.dependencies).to.have.length(1);
+          done();
+        });
+      });
+      it('should store 2 dependency objects when there are case sensitive package references', (done) => {
+        file.content = "var a = require('./a');\nvar boo = require('Boo');";
+        file.parse({}, (err) => {
+          expect(file.dependencies).to.have.length(2);
+          done();
+        });
+      });
+    });
+
+    describe('replaceEnvironment()', () => {
+      it('should inline calls to process.env', (done) => {
+        file.content = "process.env.NODE_ENV process.env['NODE_ENV'] process.env[\"NODE_ENV\"]";
+        file.replaceEnvironment({}, (err) => {
+          expect(file.content).to.eql("'test' 'test' 'test'");
+          done();
+        });
+      });
+      it('should inline calls to process.env.RUNTIME', (done) => {
+        file.content = 'process.env.RUNTIME';
+        file.replaceEnvironment({}, (err) => {
+          expect(file.content).to.eql("'browser'");
+          done();
+        });
+      });
+      it('should handle undefined values when inlining calls to process.env', (done) => {
+        file.content = 'process.env.FEATURE_FOO';
+        file.replaceEnvironment({}, (err) => {
+          expect(file.content).to.eql('process.env.FEATURE_FOO');
+          done();
+        });
+      });
+    });
+
+    describe('inline()', () => {
+      it('should inline require(*.json) content', (done) => {
+        file.content = "var foo = require('./foo.json');";
+        file.dependencyReferences = [
+          {
+            file: {
+              filepath: path.resolve('./foo.json'),
+              extension: 'json',
+              type: 'json',
+              content: fs.readFileSync(path.resolve('./src/foo.json'), 'utf8'),
+              dependencies: [],
+              dependencyReferences: []
+            },
+            filepath: './foo.json',
+            match: "require('./foo.json')"
+          }
+        ];
+        file.inline({}, (err) => {
+          expect(file.content).to.eql('var foo = {\n\t"foo": "bar"\n};');
+          done();
+        });
+      });
+      it('should inline an empty object when unable to locate require(*.json) content', (done) => {
+        file.content = "var foo = require('./bar.json');";
+        file.dependencyReferences = [
+          {
+            file: {
+              filepath: path.resolve('./bar.json'),
+              extension: 'json',
+              type: 'json',
+              content: '',
+              dependencies: [],
+              dependencyReferences: []
+            },
+            filepath: './bar.json',
+            match: "require('./bar.json')"
+          }
+        ];
+        file.inline({}, (err) => {
+          expect(file.content).to.eql('var foo = {};');
+          done();
+        });
+      });
+    });
+  });
+
+  describe('CSSFile', () => {
+
+  });
+
+  describe('HTMLFile', () => {
+
+  });
+
+
+
+  describe.skip('workflow--', () => {
+    describe('parse()', () => {
       it('should store an array of css dependency objects', (done) => {
         const options = { sources: [path.resolve('src')], fileExtensions };
         const foo = fileFactory(path.resolve('src/foo.css'), options);
@@ -354,27 +417,6 @@ describe('file', () => {
         instance.content = '<script inline src="src/foo.js"></script>';
         instance.parseInline({}, (err) => {
           expect(instance.dependencies).to.have.length(1);
-          done();
-        });
-      });
-      it('should only store 1 dependency object when there are duplicates', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions };
-        const foo = fileFactory(path.resolve('src/foo.js'), options);
-        const instance = fileFactory(path.resolve('src/main.js'), options);
-
-        instance.content = "var foo = require('./foo');\nvar foo = require('./foo');";
-        instance.parse({}, (err) => {
-          expect(instance.dependencies).to.have.length(1);
-          done();
-        });
-      });
-      it('should store 2 dependency objects when there are case sensitive package references', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions };
-        const instance = fileFactory(path.resolve('src/main.js'), options);
-
-        instance.content = "var bat = require('bar');\nvar boo = require('Boo');";
-        instance.parse({}, (err) => {
-          expect(instance.dependencies).to.have.length(2);
           done();
         });
       });
@@ -453,89 +495,7 @@ describe('file', () => {
       });
     });
 
-    describe('replaceEnvironment()', () => {
-      it('should inline calls to process.env', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = "process.env.NODE_ENV process.env['NODE_ENV'] process.env[\"NODE_ENV\"]";
-        instance.replaceEnvironment({}, (err) => {
-          expect(instance.content).to.eql("'test' 'test' 'test'");
-          done();
-        });
-      });
-      it('should inline calls to process.env.RUNTIME', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = 'process.env.RUNTIME';
-        instance.replaceEnvironment({}, (err) => {
-          expect(instance.content).to.eql("'browser'");
-          done();
-        });
-      });
-      it('should handle undefined values when inlining calls to process.env', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = 'process.env.FEATURE_FOO';
-        instance.replaceEnvironment({}, (err) => {
-          expect(instance.content).to.eql('process.env.FEATURE_FOO');
-          done();
-        });
-      });
-    });
-
     describe('inline()', () => {
-      it('should inline require(*.json) content', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = "var foo = require('./foo.json');";
-        instance.dependencyReferences = [
-          {
-            instance: {
-              filepath: path.resolve('./foo.json'),
-              extension: 'json',
-              type: 'json',
-              content: fs.readFileSync(path.resolve('./src/foo.json'), 'utf8'),
-              dependencies: [],
-              dependencyReferences: []
-            },
-            filepath: './foo.json',
-            match: "require('./foo.json')"
-          }
-        ];
-        instance.options = {
-          runtimeOptions: {}
-        };
-        instance.inline({}, (err) => {
-          expect(instance.content).to.eql('var foo = {\n\t"foo": "bar"\n};');
-          done();
-        });
-      });
-      it('should inline an empty object when unable to locate require(*.json) content', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = "var foo = require('./bar.json');";
-        instance.dependencyReferences = [
-          {
-            instance: {
-              filepath: path.resolve('./bar.json'),
-              extension: 'json',
-              type: 'json',
-              content: '',
-              dependencies: [],
-              dependencyReferences: []
-            },
-            filepath: './bar.json',
-            match: "require('./bar.json')"
-          }
-        ];
-        instance.options = {
-          runtimeOptions: {}
-        };
-        instance.inline({}, (err) => {
-          expect(instance.content).to.eql('var foo = {};');
-          done();
-        });
-      });
       it('should replace css @import rules with file contents', (done) => {
         const instance = fileFactory(path.resolve('src/main.css'), { sources: [path.resolve('src')], fileExtensions });
 
@@ -577,26 +537,6 @@ describe('file', () => {
         };
         instance.inline({}, (err) => {
           expect(instance.content).to.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
-          done();
-        });
-      });
-    });
-
-    describe('run()', () => {
-      it('should execute a workflow in sequence', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.run(['load', 'wrap'], false, () => {
-          expect(instance.content).to.eql("_m_[\'main.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  \'use strict\';\n  \n  module.exports = \'main\';\n  \n\n  return module.exports;\n}).call({exports:{}});");
-          done();
-        });
-      });
-      it('should return several files when parsing dependencies', (done) => {
-        const instance = fileFactory(path.resolve('src/bar.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.run(['load', 'parse'], false, (err, dependencies) => {
-          expect(dependencies).to.have.length(1);
-          expect(instance.content).to.eql("var foo = require(\'./foo\');\n\nmodule.exports = \'bar\';");
           done();
         });
       });
