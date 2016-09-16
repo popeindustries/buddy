@@ -18,7 +18,7 @@ let serverfarm = null;
  * Buddy instance factory
  * @returns {Buddy}
  */
-module.exports = function builderFactory () {
+module.exports = function buddyFactory () {
   return new Buddy();
 };
 

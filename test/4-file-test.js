@@ -4,7 +4,7 @@ const expect = require('expect.js');
 const File = require('../lib/File');
 const fs = require('fs');
 const path = require('path');
-let file;
+let file, files;
 
 describe('file', () => {
   before(() => {
@@ -103,6 +103,41 @@ describe('file', () => {
       expect(file.dependencyReferences).to.have.length(1);
       expect(file.dependencies).to.eql([index]);
       expect(index).to.have.property('isInline', true);
+    });
+  });
+
+  describe('getAllDependencies()', () => {
+    beforeEach(() => {
+      files = {
+        a: new File('a', path.resolve('src/a.js'), 'js', {}),
+        b: new File('b', path.resolve('src/b.js'), 'js', {}),
+        c: new File('c', path.resolve('src/c.js'), 'js', {}),
+        d: new File('d', path.resolve('src/d.js'), 'js', {})
+      };
+    });
+
+    it('should return an array of dependencies', () => {
+      files.a.dependencies = [files.b, files.c];
+      file.dependencies = [files.a];
+      const deps = file.getAllDependencies(false);
+
+      expect(deps.map((dep) => dep.id).join('')).to.equal('cba');
+    });
+    it('should return an array of unique dependencies', () => {
+      files.a.dependencies = [files.b, files.c];
+      files.c.dependencies = [files.b];
+      file.dependencies = [files.a];
+      const deps = file.getAllDependencies(false);
+
+      expect(deps.map((dep) => dep.id).join('')).to.equal('bca');
+    });
+    it('should return an array of unique dependencies, avoiding circular dependencies', () => {
+      files.a.dependencies = [files.b, files.c];
+      files.c.dependencies = [files.a];
+      file.dependencies = [files.a];
+      const deps = file.getAllDependencies(false);
+
+      expect(deps.map((dep) => dep.id).join('')).to.equal('cba');
     });
   });
 

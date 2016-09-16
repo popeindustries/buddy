@@ -288,7 +288,7 @@ describe('config', () => {
     });
   });
 
-  describe('config factory', () => {
+  describe('factory', () => {
     describe('locating config file', () => {
       describe('from a valid working directory', () => {
         it('should return a path to the default js file when no name is specified', () => {
