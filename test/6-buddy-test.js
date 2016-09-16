@@ -8,7 +8,7 @@ const path = require('path');
 const rimraf = require('rimraf');
 let buddy;
 
-describe.skip('Buddy', () => {
+describe('Buddy', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/buddy'));
   });
@@ -16,7 +16,7 @@ describe.skip('Buddy', () => {
     buddy = buddyFactory();
   });
   afterEach(() => {
-    buddy = null;
+    buddy.destroy();
     rimraf.sync(path.resolve('output'));
   });
 
@@ -26,42 +26,33 @@ describe.skip('Buddy', () => {
     });
 
     it('should initialize a single build', () => {
-      const build = buddy.initBuilds({
+      buddy.init({
         build: [{
-          inputpaths: [path.resolve('build/foo.js')],
           input: 'build/foo.js',
-          output: 'main.js',
-          outputpaths: [path.resolve('main.js')]
-        }],
-        runtimeOptions: {}
+          output: '.'
+        }]
       });
 
-      expect(build).to.have.length(1);
+      expect(buddy.builds).to.have.length(1);
     });
     it('should initialize a single build with nested child build', () => {
-      const build = buddy.initBuilds({
+      buddy.init({
         build: [{
-          inputpaths: [path.resolve('build/foo.js')],
           input: 'build/foo.js',
-          output: 'main.js',
-          outputpaths: [path.resolve('main.js')],
-          hasChildren: true,
+          output: '.',
           build: [{
-            inputpaths: [path.resolve('build/lib')],
             input: 'build/lib',
-            output: '../js',
-            outputpaths: [path.resolve('../js')]
+            output: '.'
           }]
-        }],
-        runtimeOptions: {}
+        }]
       });
 
-      expect(build).to.have.length(1);
-      expect(build[0].build).to.have.length(1);
+      expect(buddy.builds).to.have.length(1);
+      expect(buddy.builds[0].build).to.have.length(1);
     });
   });
 
-  describe('build', () => {
+  describe.skip('build', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/build'));
     });
@@ -1088,7 +1079,7 @@ describe.skip('Buddy', () => {
     });
   });
 
-  describe('script', () => {
+  describe.skip('script', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/script'));
     });
@@ -1116,7 +1107,7 @@ describe.skip('Buddy', () => {
     });
   });
 
-  describe('grep', () => {
+  describe.skip('grep', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/grep'));
     });
@@ -1186,7 +1177,7 @@ describe.skip('Buddy', () => {
     });
   });
 
-  describe('watch', () => {
+  describe.skip('watch', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/watch'));
     });

@@ -105,7 +105,7 @@ class Buddy {
    */
   destroy () {
     this.exceptionalCleanup();
-    this.config.caches.fileInstances.flush();
+    if (this.config) this.config.destroy();
 
     this.initialized = false;
     this.config = null;
