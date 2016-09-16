@@ -234,8 +234,8 @@ describe('file', () => {
         done();
       });
     });
-    it('should run an extra set of workflows', (done) => {
-      file.workflows.extra = ['foo'];
+    it('should run a core set of workflows', (done) => {
+      file.workflows.core = ['foo'];
       file.foo = function (buildOptions, fn) {
         this.foo = true;
         fn();
@@ -245,10 +245,10 @@ describe('file', () => {
         done();
       });
     });
-    it('should run an extra set of workflows, including for dependencies', (done) => {
+    it('should run a core set of workflows, including for dependencies', (done) => {
       const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
 
-      bar.workflows.extra = ['bar'];
+      bar.workflows.core = ['bar'];
       bar.bar = function (buildOptions, fn) {
         expect(file).to.have.property('foo', true);
         this.bat = true;
