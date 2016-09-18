@@ -142,18 +142,18 @@ describe('file', () => {
     });
   });
 
-  describe('getWorkflows()', () => {
+  describe('parseWorkflows()', () => {
     it('should return a simple set of workflows', () => {
       file.workflows = { foo: ['foo'], bar: ['bar'] };
-      expect(file.getWorkflows({})).to.eql(file.workflows);
+      expect(file.parseWorkflows({})).to.eql(file.workflows);
     });
     it('should return a conditional set of workflows', () => {
       file.workflows = { foo: ['compress:foo'], bar: ['bundle:compress:bar', 'bat'] };
-      expect(file.getWorkflows({ compress: true, bundle: false })).to.eql({ foo: ['foo'], bar: ['bat'] });
+      expect(file.parseWorkflows({ compress: true, bundle: false })).to.eql({ foo: ['foo'], bar: ['bat'] });
     });
     it('should return a conditional set of workflows, including negated condition', () => {
       file.workflows = { foo: ['compress:foo'], bar: ['!bundle:compress:bar', 'bat'] };
-      expect(file.getWorkflows({ compress: true, bundle: false })).to.eql({ foo: ['foo'], bar: ['bar', 'bat'] });
+      expect(file.parseWorkflows({ compress: true, bundle: false })).to.eql({ foo: ['foo'], bar: ['bar', 'bat'] });
     });
   });
 
