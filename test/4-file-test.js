@@ -277,6 +277,7 @@ describe('file', () => {
         caches: config.caches,
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
+        pluginOptions: { babel: { plugins: [] } },
         runtimeOptions: config.runtimeOptions,
         sources: [path.resolve('src')]
       });
@@ -373,6 +374,18 @@ describe('file', () => {
           done();
         });
       });
+    });
+
+    describe('transpile()', () => {
+      it('should namespace root declarations when bundling', (done) => {
+        file.content = 'const foo = "foo";';
+        file.id = 'lib/_- \\foo.js';
+        file.transpile({ bundle: true }, (err) => {
+          expect(file.content).to.equal('const _libfoojs_foo = "foo";');
+          done();
+        });
+      });
+      it('should track global helpers');
     });
   });
 
