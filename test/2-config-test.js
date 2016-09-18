@@ -1,15 +1,48 @@
 'use strict';
 
+const { execSync: exec } = require('child_process');
 const buildParser = require('../lib/utils/buildParser');
 const configFactory = require('../lib/config');
 const expect = require('expect.js');
 const path = require('path');
+const pluginLoader = require('../lib/utils/pluginLoader');
 
 let config, dummyConfig;
 
 describe('config', () => {
   beforeEach(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/config'));
+  });
+
+  describe('pluginLoader', () => {
+    describe('loadBuildPlugins()', () => {
+      it('should generate default Babel plugins', () => {
+        let options = {};
+
+        pluginLoader.loadBuildPlugins(options);
+        expect(options.babel.plugins).to.have.length(1);
+      });
+      it('should generate and install Babel plugins based on target version', () => {
+        let options = {};
+
+        pluginLoader.loadBuildPlugins(options, 'node6');
+        expect(options.babel.plugins).to.have.length(2);
+        exec('npm --save-dev uninstall babel-plugin-transform-es2015-modules-commonjs');
+      });
+      it('should ignore unknown target versions', () => {
+        let options = {};
+
+        pluginLoader.loadBuildPlugins(options, 'foo');
+        expect(options.babel.plugins).to.have.length(1);
+      });
+      it('should allow default plugins to be overridden', () => {
+        let options = { babel: { plugins: [['babel-plugin-external-helpers', { foo: true }]] } };
+
+        pluginLoader.loadBuildPlugins(options);
+        expect(options.babel.plugins).to.have.length(1);
+        expect(options.babel.plugins[0][1]).to.have.property('foo', true);
+      });
+    });
   });
 
   describe('buildParser', () => {
@@ -413,11 +446,11 @@ describe('config', () => {
 
       it('should register extension for new file type', () => {
         config.registerFileExtensionsForType(['foo'], 'js');
-        expect(config.fileExtensions.js).to.eql(['js', 'json', 'foo']);
+        expect(config.fileExtensions.js).to.eql(['js', 'json', 'jsx', 'foo']);
       });
       it('should register multiple extensions for existing file type', () => {
         config.registerFileExtensionsForType(['foo', 'bar'], 'js');
-        expect(config.fileExtensions.js).to.eql(['js', 'json', 'foo', 'bar']);
+        expect(config.fileExtensions.js).to.eql(['js', 'json', 'jsx', 'foo', 'bar']);
       });
     });
 
