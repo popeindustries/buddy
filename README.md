@@ -95,6 +95,7 @@ The following compiler plugins are currently available:
 - **[buddy-plugin-jade](https://www.npmjs.com/package/buddy-plugin-jade)**: transform `.jade` html template files to `.html` (`npm install buddy-plugin-jade`)
 - **[buddy-plugin-less](https://www.npmjs.com/package/buddy-plugin-less)**: transform `.less` files to `.css` (`npm install buddy-plugin-less`)
 - **[buddy-plugin-nunjucks](https://www.npmjs.com/package/buddy-plugin-nunjucks)**: transform `.nunjucks` html template files to `.html` (`npm install buddy-plugin-nunjucks`)
+- **[buddy-plugin-postcss](https://www.npmjs.com/package/buddy-plugin-postcss)**: transform `.css` files to `.css` (`npm install buddy-plugin-postcss`)
 - **[buddy-plugin-stylus](https://www.npmjs.com/package/buddy-plugin-stylus)**: transform `.styl` files to `.css` (`npm install buddy-plugin-stylus`)
 - **[buddy-plugin-twig](https://www.npmjs.com/package/buddy-plugin-twig)**: transform `.twig` html template files to `.html` (`npm install buddy-plugin-twig`)
 
