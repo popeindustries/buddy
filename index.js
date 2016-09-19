@@ -16,33 +16,46 @@ let serverfarm = null;
 
 /**
  * Buddy instance factory
+ * @param {String|Object} configpath [file name | JSON Object]
+ * @param {Object} options
  * @returns {Buddy}
  */
-module.exports = function buddyFactory () {
-  return new Buddy();
+module.exports = function buddyFactory (configpath, options) {
+  return new Buddy(configpath, options);
 };
 
 class Buddy {
   /**
    * Constructor
+   * Initialize based on configuration located at 'configpath'
+   * The directory tree will be walked if no 'configpath' specified
+   * @param {String|Object} configpath [file name | JSON Object]
+   * @param {Object} options
    */
-  constructor () {
-    this.initialized = false;
+  constructor (configpath, options = {}) {
+    // Set console behaviour
+    cnsl.verbose = options.verbose;
+
     this.building = false;
-    this.builds = [];
-    this.config = null;
+    this.config = configFactory(configpath, options);
     this.onFileCacheChange = this.onFileCacheChange.bind(this);
+
+    // Setup watch
+    if (this.config.runtimeOptions.watch) {
+      this.config.caches.fileInstances.on('change', this.onFileCacheChange);
+      // TODO: add error listener
+    }
+
+    // Initialize builds
+    this.builds = this.initBuilds(this.config);
   }
 
   /**
    * Build sources based on build targets specified in config
-   * @param {String|Object} configpath [file name | JSON Object]
-   * @param {Object} options
    * @param {Function} fn
    */
-  build (configpath, options, fn) {
+  build (fn) {
     start('build');
-    this.init(configpath, options);
 
     // Build targets
     this.run(this.builds, (err, filepaths) => {
@@ -56,13 +69,11 @@ class Buddy {
 
   /**
    * Build sources and watch for changes
-   * @param {String|Object} configpath (file name|JSON Object)
-   * @param {Object} options
    * @param {Function} fn
    */
-  watch (configpath, options, fn) {
+  watch (fn) {
     // Build first
-    this.build(configpath, options, (err, filepaths) => {
+    this.build((err, filepaths) => {
       if (err) return fn ? fn(err) : error(err, 2);
 
       if (this.config.runtimeOptions.reload || this.config.runtimeOptions.serve) {
@@ -83,17 +94,6 @@ class Buddy {
   }
 
   /**
-   * Build and compress sources based on targets specified in configuration
-   * @param {String|Object} configpath [file name | JSON Object]
-   * @param {Object} options
-   * @returns {Promise}
-   */
-  deploy (configpath, options) {
-    options.compress = true;
-    return this.build(configpath, options);
-  }
-
-  /**
    * Cleanup after unhandled exception
    */
   exceptionalCleanup () {
@@ -105,41 +105,10 @@ class Buddy {
    */
   destroy () {
     this.exceptionalCleanup();
-    if (this.config) this.config.destroy();
+    this.config.destroy();
 
-    this.initialized = false;
     this.config = null;
     this.builds = [];
-  }
-
-  /**
-   * Initialize based on configuration located at 'configpath'
-   * The directory tree will be walked if no 'configpath' specified
-   * @param {String|Object} configpath [file name | JSON Object]
-   * @param {Object} options
-   * @returns {Boolean}
-   */
-  init (configpath, options = {}) {
-    // Set console behaviour
-    cnsl.verbose = options.verbose;
-
-    if (!this.initialized) {
-      // Load configuration
-      this.config = configFactory(configpath, options);
-
-      // Setup watch
-      if (this.config.runtimeOptions.watch) {
-        this.config.caches.fileInstances.on('change', this.onFileCacheChange);
-        // TODO: add error listener
-      }
-
-      // Initialize builds
-      this.builds = this.initBuilds(this.config);
-
-      this.initialized = true;
-
-      return this.initialized;
-    }
   }
 
   /**

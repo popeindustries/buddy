@@ -35,7 +35,7 @@ find(useCli, (err, buddyFactory, version) => {
     .command('build [config]')
     .description('build js, css, html, and image sources')
     .action((config) => {
-      buddy.build(config, getOptions());
+      buddyFactory(config, getOptions()).build();
     });
 
   program
@@ -45,17 +45,17 @@ find(useCli, (err, buddyFactory, version) => {
       let options = getOptions();
 
       options.watch = true;
-      buddy.watch(config, options);
+      buddyFactory(config, options).watch();
     });
 
   program
     .command('deploy [config]')
     .description('build compressed js, css, html, and image sources')
     .action((config) => {
-      const options = getOptions();
+      let options = getOptions();
 
-      options.deploy = true;
-      buddy.deploy(config, options);
+      options.deploy = options.compress = true;
+      buddyFactory(config, options).build();
     });
 
   program.parse(process.argv);
