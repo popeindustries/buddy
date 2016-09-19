@@ -142,18 +142,19 @@ describe('file', () => {
     });
   });
 
-  describe('parseWorkflows()', () => {
+  describe('parseWorkflow()', () => {
     it('should return a simple set of workflows', () => {
       file.workflows = { foo: ['foo'], bar: ['bar'] };
-      expect(file.parseWorkflows({})).to.eql(file.workflows);
+      expect(file.parseWorkflow('foo', {})).to.eql(file.workflows.foo);
     });
     it('should return a conditional set of workflows', () => {
       file.workflows = { foo: ['compress:foo'], bar: ['bundle:compress:bar', 'bat'] };
-      expect(file.parseWorkflows({ compress: true, bundle: false })).to.eql({ foo: ['foo'], bar: ['bat'] });
+      expect(file.parseWorkflow('foo', { compress: true, bundle: false })).to.eql(['foo']);
+      expect(file.parseWorkflow('bar', { compress: true, bundle: false })).to.eql(['bat']);
     });
     it('should return a conditional set of workflows, including negated condition', () => {
       file.workflows = { foo: ['compress:foo'], bar: ['!bundle:compress:bar', 'bat'] };
-      expect(file.parseWorkflows({ compress: true, bundle: false })).to.eql({ foo: ['foo'], bar: ['bar', 'bat'] });
+      expect(file.parseWorkflow('bar', { compress: true, bundle: false })).to.eql(['bar', 'bat']);
     });
   });
 
@@ -163,7 +164,7 @@ describe('file', () => {
         this.foo = true;
         fn();
       };
-      file.runWorkflow('default', {}, (err) => {
+      file.runWorkflow('default', '', {}, (err) => {
         expect(file).to.have.property('foo', true);
         done();
       });
@@ -181,7 +182,7 @@ describe('file', () => {
         this.foo = true;
         fn();
       };
-      file.runWorkflow('default', {}, (err) => {
+      file.runWorkflow('default', 'post', {}, (err) => {
         expect(bar).to.have.property('bar', true);
         done();
       });
@@ -199,7 +200,7 @@ describe('file', () => {
         this.foo = true;
         fn();
       };
-      file.runWorkflow('default', {}, (err) => {
+      file.runWorkflow('default', 'pre', {}, (err) => {
         expect(file).to.have.property('foo', true);
         done();
       });
