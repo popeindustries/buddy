@@ -1,29 +1,73 @@
 'use strict';
 
-var stylus = require('stylus');
+const stylus = require('stylus');
 
-/**
- * Retrieve registration data
- */
-exports.registration = {
+const FILE_EXTENSIONS = ['styl'];
+const WORKFLOW_WRITE = [
+  'bundle:inline',
+  'compile',
+  'compress:compress'
+];
+
+module.exports = {
   name: 'stylus',
-  extensions: {
-    css: ['styl']
+  type: 'css',
+
+  /**
+   * Register plugin
+   * @param {Config} config
+   */
+  register (config) {
+    config.registerFileDefinitionAndExtensionsForType(define, FILE_EXTENSIONS, this.type);
   }
 };
 
 /**
- * Compile 'content'
- * @param {String} content
- * @param {Object} options
- * @param {Function} fn(err, content)
+ * Extend 'File' with new behaviour
+ * @param {Class} File
+ * @param {Object} utils
+ * @returns {Class}
  */
-exports.compile = function (content, options, fn) {
-  stylus.render(content, Object.assign({}, options), (err, content) => {
-    if (err) {
-      err.filepath = options.filepath;
-      return fn(err);
+function define (File, utils) {
+  const { debug, strong } = utils.cnsl;
+
+  return class STYLUSFile extends File {
+    /**
+     * Constructor
+     * @param {String} id
+     * @param {String} filepath
+     * @param {Object} options
+     *  - {Object} fileExtensions
+     *  - {Function} fileFactory
+     *  - {Object} runtimeOptions
+     *  - {Array} sources
+     */
+    constructor (id, filepath, options) {
+      super(id, filepath, 'css', options);
+
+      this.workflows.write = WORKFLOW_WRITE;
     }
-    fn(null, content);
-  });
-};
+
+    /**
+     * Compile file contents
+     * @param {Object} buildOptions
+     *  - {Boolean} bootstrap
+     *  - {Boolean} boilerplate
+     *  - {Boolean} bundle
+     *  - {Boolean} compress
+     *  - {Array} ignoredFiles
+     *  - {Boolean} includeHeader
+     *  - {Boolean} includeHelpers
+     *  - {Boolean} watchOnly
+     * @param {Function} fn(err)
+     */
+    compile (buildOptions, fn) {
+      stylus.render(this.content, {}, (err, content) => {
+        if (err) return fn(err);
+        this.content = content;
+        debug(`compile: ${strong(this.relpath)}`, 4);
+        fn();
+      });
+    }
+  };
+}

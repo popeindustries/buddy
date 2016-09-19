@@ -13,9 +13,12 @@
   },
   "devDependencies": {
   },
+  "peerDependencies": {
+    "buddy": "6.x"
+  },
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec -t 10000"
+    "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec -t 10000"
   },
   "engines": {
     "node": ">=4"
