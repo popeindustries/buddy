@@ -23,7 +23,7 @@
   "engines": {
     "node": ">=4"
   },
-  "repository": "git://github.com/popeindustries/buddy/tree/master/plugins/buddy-plugin-stylus",
+  "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-stylus",
   "readmeFilename": "README.md",
   "license": "MIT"
 }

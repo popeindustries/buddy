@@ -4,8 +4,10 @@ const buddyFactory = require('../index');
 const exec = require('child_process').exec;
 const expect = require('expect.js');
 const fs = require('fs');
+const lessPlugin = require('../packages/buddy-plugin-less');
 const path = require('path');
 const rimraf = require('rimraf');
+const stylusPlugin = require('../packages/buddy-plugin-stylus');
 let buddy;
 
 describe('Buddy', () => {
@@ -13,7 +15,7 @@ describe('Buddy', () => {
     process.chdir(path.resolve(__dirname, 'fixtures/buddy'));
   });
   beforeEach(() => {
-    buddy = buddyFactory();
+    buddy = null;
   });
   afterEach(() => {
     buddy.destroy();
@@ -52,12 +54,12 @@ describe('Buddy', () => {
     });
   });
 
-  describe.skip('build', () => {
+  describe('build', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/build'));
     });
 
-    describe('js', () => {
+    describe.skip('js', () => {
       it('should build a js file when passed a json config path', (done) => {
         buddy.build('buddy-single-file.json', null, (err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
@@ -471,43 +473,59 @@ describe('Buddy', () => {
     });
 
     describe('css', () => {
-      it('should build a stylus file', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'foo.styl',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build a css file', (done) => {
+        buddy = buddyFactory({
+          input: 'foo.css',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('body {\n  color: #fff;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n');
+          expect(content).to.equal('body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n');
+          done();
+        });
+      });
+      it('should build a css file with inlined dependencies', (done) => {
+        buddy = buddyFactory({
+          input: 'bar.css',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.equal('body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n\n\ndiv {\n  color: red;\n}');
+          done();
+        });
+      });
+      it('should build a stylus file', (done) => {
+        buddy = buddyFactory({
+          input: 'foo.styl',
+          output: 'output'
+        }, { plugins: [stylusPlugin] });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.equal('body {\n  color: #fff;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n');
           done();
         });
       });
       it('should build a less file', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'foo.less',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+        buddy = buddyFactory({
+          input: 'foo.less',
+          output: 'output'
+        }, { plugins: [lessPlugin] });
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('header {\n  color: #333333;\n  border-left: 1px;\n  border-right: 2px;\n}\n#footer {\n  color: #114411;\n  border-color: #7d2717;\n}\n');
+          expect(content).to.equal('#header {\n  color: #333333;\n  border-left: 1px;\n  border-right: 2px;\n}\n#footer {\n  color: #114411;\n  border-color: #7d2717;\n}\n');
           done();
         });
       });
-      it('should build a minified css file if "compress" is true', (done) => {
+      it.skip('should build a minified css file if "compress" is true', (done) => {
         buddy.build({
           build: {
             build: [
@@ -528,7 +546,7 @@ describe('Buddy', () => {
       });
     });
 
-    describe('img', () => {
+    describe.skip('img', () => {
       it('should copy an image directory', (done) => {
         buddy.build({
           build: {
@@ -564,7 +582,7 @@ describe('Buddy', () => {
       });
     });
 
-    describe('html', () => {
+    describe.skip('html', () => {
       it('should build an html template file', (done) => {
         buddy.build({
           build: {
@@ -718,7 +736,7 @@ describe('Buddy', () => {
       });
     });
 
-    describe('batch', () => {
+    describe.skip('batch', () => {
       it('should build a directory of 3 js files', (done) => {
         buddy.build({
           build: {

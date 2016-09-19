@@ -43,7 +43,7 @@ function define (File, utils) {
      *  - {Array} sources
      */
     constructor (id, filepath, options) {
-      super(id, filepath, 'css', options);
+      super(id, filepath, options);
 
       this.workflows.write = WORKFLOW_WRITE;
     }

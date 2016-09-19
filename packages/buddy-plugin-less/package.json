@@ -13,14 +13,17 @@
   },
   "devDependencies": {
   },
+  "peerDependencies": {
+    "buddy": "6.x"
+  },
   "main": "index.js",
   "scripts": {
-    "test": "../../node_modules/.bin/mocha --reporter spec -t 10000"
+    "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec -t 10000"
   },
   "engines": {
     "node": ">=4"
   },
-  "repository": "git://github.com/popeindustries/buddy/tree/master/plugins/buddy-plugin-less",
+  "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-less",
   "readmeFilename": "README.md",
   "license": "MIT"
 }
