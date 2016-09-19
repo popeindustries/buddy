@@ -62,6 +62,7 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     compile (buildOptions, fn) {
+      // TODO: add options.paths?
       stylus.render(this.content, {}, (err, content) => {
         if (err) return fn(err);
         this.content = content;

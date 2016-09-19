@@ -22,13 +22,13 @@ describe('Buddy', () => {
     rimraf.sync(path.resolve('output'));
   });
 
-  describe('init', () => {
+  describe('factory', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/init'));
     });
 
     it('should initialize a single build', () => {
-      buddy.init({
+      buddy = buddyFactory({
         build: [{
           input: 'build/foo.js',
           output: '.'
@@ -38,7 +38,7 @@ describe('Buddy', () => {
       expect(buddy.builds).to.have.length(1);
     });
     it('should initialize a single build with nested child build', () => {
-      buddy.init({
+      buddy = buddyFactory({
         build: [{
           input: 'build/foo.js',
           output: '.',
@@ -54,7 +54,7 @@ describe('Buddy', () => {
     });
   });
 
-  describe('build', () => {
+  describe('build()', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/build'));
     });
