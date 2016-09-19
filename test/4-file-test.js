@@ -346,7 +346,8 @@ describe('file', () => {
               dependencyReferences: []
             },
             filepath: './foo.json',
-            match: "require('./foo.json')"
+            context: "require('./foo.json')",
+            id: './foo.json'
           }
         ];
         file.inline({}, (err) => {
@@ -367,7 +368,8 @@ describe('file', () => {
               dependencyReferences: []
             },
             filepath: './bar.json',
-            match: "require('./bar.json')"
+            context: "require('./bar.json')",
+            id: './bar.json'
           }
         ];
         file.inline({}, (err) => {
@@ -391,7 +393,84 @@ describe('file', () => {
   });
 
   describe('CSSFile', () => {
+    beforeEach(() => {
+      config = configFactory({
+        input: 'src/js/main.css',
+        output: 'css'
+      }, {});
+      file = config.fileFactory(path.resolve('src/main.css'), {
+        caches: config.caches,
+        fileExtensions: config.fileExtensions,
+        fileFactory: config.fileFactory,
+        pluginOptions: { babel: { plugins: [] } },
+        runtimeOptions: config.runtimeOptions,
+        sources: [path.resolve('src')]
+      });
+    });
 
+    describe('parse()', () => {
+      it('should store an array of dependencies', (done) => {
+        file.content = "@import 'main';";
+        file.parse({}, (err) => {
+          expect(file.dependencies).to.have.length(1);
+          done();
+        });
+      });
+      it('should only store 1 dependency object when there are duplicates', (done) => {
+        file.content = "@import 'main'; @import 'main';";
+        file.parse({}, (err) => {
+          expect(file.dependencies).to.have.length(1);
+          done();
+        });
+      });
+    });
+
+    describe('inline()', () => {
+      it('should replace @import rules with file contents', (done) => {
+        file.content = "@import 'foo';\nbody {\n\tbackground-color: black;\n}";
+        file.dependencyReferences = [
+          {
+            file: {
+              filepath: 'foo',
+              extension: 'css',
+              type: 'css',
+              content: 'div {\n\twidth: 50%;\n}\n',
+              dependencies: [],
+              dependencyReferences: []
+            },
+            filepath: './foo.css',
+            context: "@import 'foo';",
+            id: 'foo'
+          }
+        ];
+        file.inline({}, (err) => {
+          expect(file.content).to.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
+          done();
+        });
+      });
+      it('should replace @import rules with file contents, allowing duplicates', (done) => {
+        file.content = "@import 'foo';\n@import 'foo';";
+        file.dependencyReferences = [
+          {
+            file: {
+              filepath: 'foo',
+              extension: 'css',
+              type: 'css',
+              content: 'div {\n\twidth: 50%;\n}\n',
+              dependencies: [],
+              dependencyReferences: []
+            },
+            filepath: './foo.css',
+            context: "@import 'foo';",
+            id: 'foo'
+          }
+        ];
+        file.inline({}, (err) => {
+          expect(file.content).to.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
+          done();
+        });
+      });
+    });
   });
 
   describe('HTMLFile', () => {
@@ -402,17 +481,6 @@ describe('file', () => {
 
   describe.skip('workflow--', () => {
     describe('parse()', () => {
-      it('should store an array of css dependency objects', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions };
-        const foo = fileFactory(path.resolve('src/foo.css'), options);
-        const instance = fileFactory(path.resolve('src/main.css'), options);
-
-        instance.content = "@import 'foo'";
-        instance.parse({}, (err) => {
-          expect(instance.dependencies).to.have.length(1);
-          done();
-        });
-      });
       it('should store an array of html dependency objects', (done) => {
         const options = { sources: [path.resolve('src')], fileExtensions: { html: ['html', 'dust'] } };
         const foo = fileFactory(path.resolve('src/foo.dust'), options);
@@ -504,53 +572,6 @@ describe('file', () => {
         ];
         instance.replaceReferences({}, (err) => {
           expect(instance.content).to.eql("var bar = _m_['bar@0'];\nvar baz = _m_['view/baz'];");
-          done();
-        });
-      });
-    });
-
-    describe('inline()', () => {
-      it('should replace css @import rules with file contents', (done) => {
-        const instance = fileFactory(path.resolve('src/main.css'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = "@import 'foo'\nbody {\n\tbackground-color: black;\n}";
-        instance.dependencyReferences = [
-          {
-            filepath: 'foo',
-            match: "@import 'foo'",
-            instance: {
-              dependencyReferences: [],
-              content: 'div {\n\twidth: 50%;\n}\n'
-            }
-          }
-        ];
-        instance.options = {
-          runtimeOptions: {}
-        };
-        instance.inline({}, (err) => {
-          expect(instance.content).to.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
-          done();
-        });
-      });
-      it('should replace css @import rules with file contents, allowing duplicates', (done) => {
-        const instance = fileFactory(path.resolve('src/main.css'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = "@import 'foo'\n@import 'foo'";
-        instance.dependencyReferences = [
-          {
-            filepath: 'foo',
-            match: "@import 'foo'",
-            instance: {
-              dependencyReferences: [],
-              content: 'div {\n\twidth: 50%;\n}\n'
-            }
-          }
-        ];
-        instance.options = {
-          runtimeOptions: {}
-        };
-        instance.inline({}, (err) => {
-          expect(instance.content).to.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
           done();
         });
       });
