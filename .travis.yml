@@ -1,4 +1,8 @@
 language: node_js
 node_js:
   - "6"
-sudo: false
+install:
+  - npm install
+  - cd packages/buddy-plugin-less && npm install
+  - cd ../buddy-plugin-stylus && npm install
+  - cd ../..
