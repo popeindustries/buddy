@@ -474,36 +474,57 @@ describe('file', () => {
   });
 
   describe('HTMLFile', () => {
-
-  });
-
-
-
-  describe.skip('workflow--', () => {
-    describe('parse()', () => {
-      it('should store an array of html dependency objects', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions: { html: ['html', 'dust'] } };
-        const foo = fileFactory(path.resolve('src/foo.dust'), options);
-        const instance = fileFactory(path.resolve('src/main.dust'), options);
-
-        instance.content = '{>foo /}';
-        instance.parse({}, (err) => {
-          expect(instance.dependencies).to.have.length(1);
-          done();
-        });
+    beforeEach(() => {
+      config = configFactory({
+        input: 'src/js/main.html',
+        output: 'html'
+      }, {});
+      file = config.fileFactory(path.resolve('src/main.html'), {
+        caches: config.caches,
+        fileExtensions: config.fileExtensions,
+        fileFactory: config.fileFactory,
+        pluginOptions: { babel: { plugins: [] } },
+        runtimeOptions: config.runtimeOptions,
+        sources: [path.resolve('src')]
       });
-      it('should store an array of html "inline" dependency objects', (done) => {
-        const options = { sources: [path.resolve('src')], fileExtensions: { html: ['html', 'dust'] }};
-        const instance = fileFactory(path.resolve('src/main.dust'), options);
+    });
 
-        instance.content = '<script inline src="src/foo.js"></script>';
-        instance.parseInline({}, (err) => {
-          expect(instance.dependencies).to.have.length(1);
+    describe('parse()', () => {
+      it('should store an array of "inline" dependency references', (done) => {
+        file.content = '<script inline src="src/foo.js"></script>';
+        file.parse({}, (err) => {
+          expect(file.dependencies).to.have.length(1);
+          expect(file.dependencies[0]).to.have.property('isInline', true);
           done();
         });
       });
     });
 
+    describe('inline()', () => {
+      it('should replace "inline" source with file contents', (done) => {
+        file.content = '<script inline src="src/foo.js"></script>';
+        file.parse({}, (err) => {
+          file.inline({}, (err) => {
+            expect(file.content).to.equal("<script>module.exports = 'foo';</script>");
+            done();
+          });
+        });
+      });
+      it('should replace "inline" source with processed file contents', (done) => {
+        file.content = '<script inline src="src/bat.js"></script>';
+        file.parse({}, (err) => {
+          file.inline({}, (err) => {
+            expect(file.content).to.equal("<script>var runtime = 'browser';</script>");
+            done();
+          });
+        });
+      });
+    });
+  });
+
+
+
+  describe.skip('workflow--', () => {
     describe('replaceReferences()', () => {
       it('should replace relative ids with absolute ones', (done) => {
         const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
