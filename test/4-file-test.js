@@ -14,6 +14,9 @@ describe('file', () => {
   beforeEach(() => {
     file = new File('foo', path.resolve('src/foo.js'), 'js', {});
   });
+  afterEach(() => {
+    if (config) config.destroy();
+  });
 
   describe('constructor()', () => {
     it('should define file properties', () => {
