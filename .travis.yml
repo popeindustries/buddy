@@ -5,4 +5,6 @@ install:
   - npm install
   - cd packages/buddy-plugin-less && npm install
   - cd ../buddy-plugin-stylus && npm install
+  - cd ../buddy-plugin-nunjucks && npm install
+  - cd ../buddy-plugin-imagemin && npm install
   - cd ../..

@@ -6,43 +6,67 @@ const jpegtran = require('imagemin-jpegtran');
 const optipng = require('imagemin-optipng');
 const svgo = require('imagemin-svgo');
 
-/**
- * Retrieve registration data
- */
-exports.registration = {
+module.exports = {
   name: 'imagemin',
-  // TODO: change to 'img'
-  type: 'image'
-};
+  type: 'img',
 
-/**
- * Compress 'content'
- * @param {String} content
- * @param {Object} options
- * @param {Function} fn(err, content)
- */
-exports.compress = function compress (content, options, fn) {
-  try {
-    const asString = ('string' == typeof content);
-
-    // Requires buffer
-    if (asString) content = new Buffer(content);
-
-    imagemin
-      .buffer(content, {
-        use: [
-          gifsicle(),
-          jpegtran(),
-          optipng({ optimizationLevel: 3 }),
-          svgo()
-        ]
-      })
-      .then((content) => {
-        if (asString) content = content.toString();
-        fn(null, content);
-      })
-      .catch(fn);
-  } catch (err) {
-    fn(err);
+  /**
+   * Register plugin
+   * @param {Config} config
+   */
+  register (config) {
+    config.extendFileDefinitionForExtensionsOrType(extend, null, this.type);
   }
 };
+
+/**
+ * Extend 'prototype' with new behaviour
+ * @param {Object} prototype
+ * @param {Object} utils
+ */
+function extend (prototype, utils) {
+  const { debug, strong } = utils.cnsl;
+
+  /**
+   * Compress file contents
+   * @param {Object} buildOptions
+   *  - {Boolean} bootstrap
+   *  - {Boolean} boilerplate
+   *  - {Boolean} bundle
+   *  - {Boolean} compress
+   *  - {Array} ignoredFiles
+   *  - {Boolean} includeHeader
+   *  - {Boolean} includeHelpers
+   *  - {Boolean} watchOnly
+   * @param {Function} fn(err)
+   */
+  prototype.compress = function compress (buildOptions, fn) {
+    let content = this.content;
+
+    try {
+      const asString = ('string' == typeof content);
+
+      // Requires buffer
+      if (asString) content = new Buffer(content);
+
+      imagemin
+        .buffer(content, {
+          use: [
+            gifsicle(),
+            jpegtran(),
+            optipng({ optimizationLevel: 3 }),
+            svgo()
+          ]
+        })
+        .then((content) => {
+          debug(`compress: ${strong(this.relpath)}`, 4);
+          if (asString) content = content.toString();
+          this.content = content;
+          fn();
+        })
+        .catch(fn);
+    } catch (err) {
+      fn(err);
+    }
+  };
+}

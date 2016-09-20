@@ -2,9 +2,9 @@
 
 const configFactory = require('../../../lib/config');
 const expect = require('expect.js');
+const fs = require('fs');
 const path = require('path');
 const plugin = require('../index');
-const fs = require('fs');
 let config, file, fileFactoryOptions;
 
 describe('buddy-plugin-less', () => {

@@ -4,6 +4,7 @@ const buddyFactory = require('../index');
 const exec = require('child_process').exec;
 const expect = require('expect.js');
 const fs = require('fs');
+const imageminPlugin = require('../packages/buddy-plugin-imagemin');
 const lessPlugin = require('../packages/buddy-plugin-less');
 const nunjucksPlugin = require('../packages/buddy-plugin-nunjucks');
 const path = require('path');
@@ -547,34 +548,24 @@ describe('Buddy', () => {
       });
     });
 
-    describe.skip('img', () => {
+    describe('img', () => {
       it('should copy an image directory', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'image-directory',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+        buddy = buddyFactory({
+          input: 'image-directory',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(2);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           done();
         });
       });
       it('should compress and copy an image directory', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'image-directory',
-                output: 'output'
-              }
-            ]
-          }
-        }, { compress: true }, (err, filepaths) => {
+        buddy = buddyFactory({
+          input: 'image-directory',
+          output: 'output'
+        }, { compress: true, plugins: [imageminPlugin]});
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(2);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           expect(fs.readFileSync(filepaths[0], 'utf8')).to.eql('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="25"/></svg>');
