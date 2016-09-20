@@ -3,11 +3,4 @@ node_js:
   - "6"
 install:
   - npm install
-  - cd packages/buddy-plugin-coffeescript && npm install
-  - cd ../buddy-plugin-csso && npm install
-  - cd ../buddy-plugin-imagemin && npm install
-  - cd ../buddy-plugin-less && npm install
-  - cd ../buddy-plugin-nunjucks && npm install
-  - cd ../buddy-plugin-stylus && npm install
-  - cd ../buddy-plugin-uglify && npm install
-  - cd ../..
+  - sh bin/install
