@@ -62,22 +62,22 @@ describe('Buddy', () => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/build'));
     });
 
-    describe.skip('js', () => {
-      it('should build a js file when passed a json config path', (done) => {
+    describe('js', () => {
+      it.skip('should build a js file when passed a json config path', (done) => {
         buddy.build('buddy-single-file.json', null, (err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("_m_[\'foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = this;\n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });
-      it('should build a js file when passed a js config path', (done) => {
+      it.skip('should build a js file when passed a js config path', (done) => {
         buddy.build('buddy-single-file.js', null, (err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("_m_[\'foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = this;\n\n  return module.exports;\n}).call({exports:{}});");
           done();
         });
       });
-      it('should build a js file when passed a json config object', (done) => {
+      it.skip('should build a js file when passed a json config object', (done) => {
         buddy.build({
           build: {
             build: [
@@ -93,7 +93,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with 1 dependency', (done) => {
+      it.skip('should build a js file with 1 dependency', (done) => {
         buddy.build({
           build: {
             build: [
@@ -109,7 +109,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with circular dependency', (done) => {
+      it.skip('should build a js file with circular dependency', (done) => {
         buddy.build({
           build: {
             build: [
@@ -125,7 +125,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with properly ordered nested dependencies', (done) => {
+      it.skip('should build a js file with properly ordered nested dependencies', (done) => {
         buddy.build({
           build: {
             build: [
@@ -141,7 +141,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with node_modules dependencies', (done) => {
+      it.skip('should build a js file with node_modules dependencies', (done) => {
         buddy.build({
           build: {
             build: [
@@ -162,7 +162,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with relative node_modules dependencies', (done) => {
+      it.skip('should build a js file with relative node_modules dependencies', (done) => {
         buddy.build({
           build: {
             build: [
@@ -182,7 +182,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with node_modules dependencies with missing "main" reference', (done) => {
+      it.skip('should build a js file with node_modules dependencies with missing "main" reference', (done) => {
         buddy.build({
           build: {
             build: [
@@ -201,7 +201,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with json dependency', (done) => {
+      it.skip('should build a js file with json dependency', (done) => {
         buddy.build({
           build: {
             build: [
@@ -221,7 +221,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with json node_modules dependency', (done) => {
+      it.skip('should build a js file with json node_modules dependency', (done) => {
         buddy.build({
           build: {
             build: [
@@ -241,7 +241,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with missing dependency', (done) => {
+      it.skip('should build a js file with missing dependency', (done) => {
         buddy.build({
           build: {
             build: [
@@ -261,7 +261,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with disabled dependency', (done) => {
+      it.skip('should build a js file with disabled dependency', (done) => {
         buddy.build({
           build: {
             build: [
@@ -281,7 +281,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with disabled native dependency', (done) => {
+      it.skip('should build a js file with disabled native dependency', (done) => {
         buddy.build({
           build: {
             build: [
@@ -301,7 +301,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with specified source directory', (done) => {
+      it.skip('should build a js file with specified source directory', (done) => {
         buddy.build({
           build: {
             sources: ['js-directory/nested'],
@@ -321,7 +321,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a prewrapped js file', (done) => {
+      it.skip('should build a prewrapped js file', (done) => {
         buddy.build({
           build: {
             build: [
@@ -339,7 +339,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a browserified js file', (done) => {
+      it.skip('should build a browserified js file', (done) => {
         buddy.build({
           build: {
             build: [
@@ -357,7 +357,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with unique hashed name', (done) => {
+      it.skip('should build a js file with unique hashed name', (done) => {
         buddy.build({
           build: {
             build: [
@@ -373,7 +373,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a minified js file if "compress" is true', (done) => {
+      it.skip('should build a minified js file if "compress" is true', (done) => {
         buddy.build({
           build: {
             build: [
@@ -392,7 +392,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a non-bootstrapped js file if "bootstrap" is false', (done) => {
+      it.skip('should build a non-bootstrapped js file if "bootstrap" is false', (done) => {
         buddy.build({
           build: {
             build: [
@@ -413,7 +413,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should remove dead code when referencing "process.env.RUNTIME" and compressing', (done) => {
+      it.skip('should remove dead code when referencing "process.env.RUNTIME" and compressing', (done) => {
         buddy.build({
           build: {
             build: [
@@ -453,7 +453,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should expose BUDDY_X_X to source files', (done) => {
+      it.skip('should expose BUDDY_X_X to source files', (done) => {
         buddy.build({
           build: {
             build: [

@@ -13,7 +13,7 @@ describe('buddy-plugin-nunjucks', () => {
   });
   beforeEach(() => {
     config = configFactory({
-      input: 'foo.nunjs',
+      input: '.',
       output: 'html'
     }, {});
     plugin.register(config);
@@ -31,20 +31,22 @@ describe('buddy-plugin-nunjucks', () => {
   });
 
   it('should convert file content to HTML', (done) => {
-    file = config.fileFactory(path.resolve('foo.nunjs'), fileFactoryOptions);
+    file = config.fileFactory(path.resolve('a.nunjs'), fileFactoryOptions);
     file.parse({}, (err) => {
       file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/foo.html'), 'utf8'));
+        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
         done();
       });
     });
   });
   it('should convert file content with includes to HTML', (done) => {
-    file = config.fileFactory(path.resolve('foo-include.nunjs'), fileFactoryOptions);
+    file = config.fileFactory(path.resolve('a-include.nunjs'), fileFactoryOptions);
     file.parse({}, (err) => {
-      file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/foo-include.html'), 'utf8'));
-        done();
+      file.inline({}, (err) => {
+        file.compile({}, (err) => {
+          expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a-include.html'), 'utf8'));
+          done();
+        });
       });
     });
   });

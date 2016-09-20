@@ -1,33 +1,49 @@
 'use strict';
 
-const compile = require('..').compile;
+const configFactory = require('../../../lib/config');
 const expect = require('expect.js');
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
+const plugin = require('../index');
+let config, file, fileFactoryOptions;
 
 describe('buddy-plugin-coffeescript', () => {
   before(() => {
     process.chdir('./test/fixtures');
   });
+  beforeEach(() => {
+    config = configFactory({
+      input: '.',
+      output: 'js'
+    }, {});
+    plugin.register(config);
+    fileFactoryOptions = {
+      caches: config.caches,
+      fileExtensions: config.fileExtensions,
+      fileFactory: config.fileFactory,
+      pluginOptions: { babel: { plugins: [] } },
+      runtimeOptions: config.runtimeOptions,
+      sources: [path.resolve('.')]
+    };
+  });
+  afterEach(() => {
+    config.destroy();
+  });
 
-  it('should accept a .coffee file path and return JS content', (done) => {
-    compile(fs.readFileSync(path.resolve('foo.coffee'), 'utf8'), null, (err, content) => {
-      expect(err).to.be(null);
-      expect(content).to.eql(fs.readFileSync(path.resolve('compiled/foo.js'), 'utf8'));
-      done();
+  describe('compile()', () => {
+    it('should convert file content to JS', (done) => {
+      file = config.fileFactory(path.resolve('a.coffee'), fileFactoryOptions);
+      file.compile({}, (err) => {
+        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.js'), 'utf8'));
+        done();
+      });
     });
-  });
-  it('should return an error when compiling a malformed file', (done) => {
-    compile(fs.readFileSync(path.resolve('foo-bad.coffee'), 'utf8'), { filepath: 'foo-bad.coffee' }, (err, content) => {
-      expect(err).to.be.an(Error);
-      done();
-    });
-  });
-  it('should append the filepath to a returned error object', (done) => {
-    compile('', { filepath: 'foo-bad.coffee' }, (err, content) => {
-      expect(err).to.be.an(Error);
-      expect(err.filepath).to.eql('foo-bad.coffee');
-      done();
+    it('should return an error when compiling a malformed file', (done) => {
+      file = config.fileFactory(path.resolve('a-bad.coffee'), fileFactoryOptions);
+      file.compile({}, (err) => {
+        expect(err).to.be.an(Error);
+        done();
+      });
     });
   });
 });

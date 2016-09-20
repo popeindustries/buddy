@@ -31,7 +31,7 @@ module.exports = {
  * @returns {Class}
  */
 function define (File, utils) {
-  const { debug, strong, warn } = utils.cnsl;
+  const { debug, strong } = utils.cnsl;
   const { uniqueMatch } = utils.string;
 
   return class NUNJUCKSFile extends File {
@@ -66,7 +66,7 @@ function define (File, utils) {
      */
     parse (buildOptions, fn) {
       // Add sidecar json file
-      const sidecarData = super.findSidecarDependency();
+      const sidecarData = super.parseSidecarDependency();
       // Parse includes
       let matches = uniqueMatch(this.content, RE_INCLUDE)
         .map((match) => {
@@ -112,21 +112,7 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     compile (buildOptions, fn) {
-      let data = {};
-
-      // Find sidecar data
-      this.dependencies.some((dependency) => {
-        if (dependency.type == 'json') {
-          try {
-            data = JSON.parse(dependency.content);
-          } catch (err) {
-            warn(`malformed json file: ${strong(dependency.filepath)}`);
-          }
-          return true;
-        }
-      });
-
-      nunjucks.renderString(this.content, data, (err, content) => {
+      nunjucks.renderString(this.content, this.findSidecarDependency(), (err, content) => {
         if (err) return fn(err);
         this.content = content;
         debug(`compile: ${strong(this.relpath)}`, 4);

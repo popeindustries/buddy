@@ -6,29 +6,73 @@ const DEFAULT_OPTIONS = {
   // Compile without function wrapper
   bare: true
 };
+const FILE_EXTENSIONS = ['coffee'];
+const WORKFLOW_CORE = [
+  '!watchOnly:compile'
+];
 
-/**
- * Retrieve registration data
- */
-exports.registration = {
+module.exports = {
   name: 'coffeescript',
-  extensions: {
-    js: ['coffee']
+  type: 'js',
+
+  /**
+   * Register plugin
+   * @param {Config} config
+   */
+  register (config) {
+    config.registerFileDefinitionAndExtensionsForType(define, FILE_EXTENSIONS, this.type);
   }
 };
 
 /**
- * Compile 'content'
- * @param {String} content
- * @param {Object} options
- * @param {Function} fn(err, content)
+ * Extend 'File' with new behaviour
+ * @param {Class} File
+ * @param {Object} utils
+ * @returns {Class}
  */
-exports.compile = function (content, options, fn) {
-  try {
-    content = coffee.compile(content, Object.assign({}, DEFAULT_OPTIONS, options));
-    fn(null, content);
-  } catch (err) {
-    err.filepath = options.filepath;
-    fn(err);
-  }
-};
+function define (File, utils) {
+  const { debug, strong } = utils.cnsl;
+
+  return class COFFEESCRIPTFile extends File {
+    /**
+     * Constructor
+     * @param {String} id
+     * @param {String} filepath
+     * @param {Object} options
+     *  - {Object} fileExtensions
+     *  - {Function} fileFactory
+     *  - {Object} runtimeOptions
+     *  - {Array} sources
+     */
+    constructor (id, filepath, options) {
+      super(id, filepath, options);
+
+      this.workflows.core = WORKFLOW_CORE.concat(this.workflows.core);
+    }
+
+    /**
+     * Compile file contents
+     * @param {Object} buildOptions
+     *  - {Boolean} bootstrap
+     *  - {Boolean} boilerplate
+     *  - {Boolean} bundle
+     *  - {Boolean} compress
+     *  - {Array} ignoredFiles
+     *  - {Boolean} includeHeader
+     *  - {Boolean} includeHelpers
+     *  - {Boolean} watchOnly
+     * @param {Function} fn(err)
+     */
+    compile (buildOptions, fn) {
+      try {
+        const content = coffee.compile(this.content, Object.assign({}, DEFAULT_OPTIONS));
+
+        this.content = content;
+        debug(`compile: ${strong(this.relpath)}`, 4);
+        fn();
+      } catch (err) {
+        fn(err);
+      }
+    }
+  };
+}

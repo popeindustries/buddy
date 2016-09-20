@@ -1,52 +1,53 @@
 'use strict';
 
-const compile = require('..').compile;
+const configFactory = require('../../../lib/config');
 const expect = require('expect.js');
 const path = require('path');
+const plugin = require('../index');
 const fs = require('fs');
-const templateCache = require('./templateCache');
-const cache = templateCache.create();
+let config, file, fileFactoryOptions;
 
 describe('buddy-plugin-dust', () => {
   before(() => {
     process.chdir('./test/fixtures');
   });
   beforeEach(() => {
-    cache.reset();
+    config = configFactory({
+      input: '.',
+      output: 'html'
+    }, {});
+    plugin.register(config);
+    fileFactoryOptions = {
+      caches: config.caches,
+      fileExtensions: config.fileExtensions,
+      fileFactory: config.fileFactory,
+      pluginOptions: { babel: { plugins: [] } },
+      runtimeOptions: config.runtimeOptions,
+      sources: [path.resolve('.')]
+    };
+  });
+  afterEach(() => {
+    config.destroy();
   });
 
-  it('should accept a .dust file path and return HTML content', (done) => {
-    compile(fs.readFileSync(path.resolve('foo-html.dust'), 'utf8'), {
-      filepath: path.resolve('foo-html.dust'),
-      cache: cache,
-      id: 'foo',
-      type: 'html',
-      data: { title: 'Title' }}, (err, content) => {
-        expect(err).to.be(null);
-        expect(content).to.eql(fs.readFileSync(path.resolve('compiled/foo.html'), 'utf8'));
+  it('should convert file content to HTML', (done) => {
+    file = config.fileFactory(path.resolve('a.dust'), fileFactoryOptions);
+    file.parse({}, (err) => {
+      file.compile({}, (err) => {
+        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
         done();
+      });
     });
   });
-  it('should accept a .dust file path and return HTML content with includes', (done) => {
-    const filepath = path.resolve('foo-include-html.dust');
-    const includeFilepath = path.resolve(path.dirname(filepath), './include/include.dust');
-
-    compile(fs.readFileSync(filepath, 'utf8').replace('include/include.dust', includeFilepath), {
-      filepath: filepath,
-      cache: cache,
-      id: 'foo',
-      type: 'html',
-      includes: [
-        {
-          filepath: includeFilepath,
-          content: fs.readFileSync(includeFilepath, 'utf8')
-        }
-      ],
-      data: { title: 'Title' }
-    }, (err, content) => {
-        expect(err).to.be(null);
-        expect(content).to.be.eql(fs.readFileSync(path.resolve('compiled/foo-include.html'), 'utf8'));
-        done();
+  it('should convert file content with includes to HTML', (done) => {
+    file = config.fileFactory(path.resolve('a-include.dust'), fileFactoryOptions);
+    file.parse({}, (err) => {
+      file.inline({}, (err) => {
+        file.compile({}, (err) => {
+          expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a-include.html'), 'utf8'));
+          done();
+        });
+      });
     });
   });
 });
