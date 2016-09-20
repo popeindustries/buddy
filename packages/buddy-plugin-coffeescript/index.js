@@ -39,8 +39,10 @@ function define (File, utils) {
      * @param {String} id
      * @param {String} filepath
      * @param {Object} options
+     *  - {Object} caches
      *  - {Object} fileExtensions
      *  - {Function} fileFactory
+     *  - {Object} pluginOptions
      *  - {Object} runtimeOptions
      *  - {Array} sources
      */
@@ -65,7 +67,8 @@ function define (File, utils) {
      */
     compile (buildOptions, fn) {
       try {
-        const content = coffee.compile(this.content, Object.assign({}, DEFAULT_OPTIONS));
+        const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.coffeescript);
+        const content = coffee.compile(this.content, options);
 
         this.content = content;
         debug(`compile: ${strong(this.relpath)}`, 4);

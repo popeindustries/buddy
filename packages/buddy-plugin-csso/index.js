@@ -38,7 +38,8 @@ function extend (prototype, utils) {
    */
   prototype.compress = function compress (buildOptions, fn) {
     try {
-      const content = csso.minify(this.content).css;
+      const options = this.options.pluginOptions.csso || {};
+      const content = csso.minify(this.content, options).css;
 
       debug(`compress: ${strong(this.relpath)}`, 4);
       this.content = content;

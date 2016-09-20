@@ -53,7 +53,8 @@ function extend (prototype, utils) {
    */
   prototype.compress = function compress (buildOptions, fn) {
     try {
-      const content = uglify.minify(this.content, Object.assign({}, DEFAULT_OPTIONS)).code;
+      const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.uglify);
+      const content = uglify.minify(this.content, options).code;
 
       debug(`compress: ${strong(this.relpath)}`, 4);
       this.content = content;

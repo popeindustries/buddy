@@ -43,8 +43,10 @@ function define (File, utils) {
      * @param {String} id
      * @param {String} filepath
      * @param {Object} options
+     *  - {Object} caches
      *  - {Object} fileExtensions
      *  - {Function} fileFactory
+     *  - {Object} pluginOptions
      *  - {Object} runtimeOptions
      *  - {Array} sources
      */

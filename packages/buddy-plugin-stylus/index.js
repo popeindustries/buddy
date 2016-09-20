@@ -37,8 +37,10 @@ function define (File, utils) {
      * @param {String} id
      * @param {String} filepath
      * @param {Object} options
+     *  - {Object} caches
      *  - {Object} fileExtensions
      *  - {Function} fileFactory
+     *  - {Object} pluginOptions
      *  - {Object} runtimeOptions
      *  - {Array} sources
      */
@@ -62,8 +64,10 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     compile (buildOptions, fn) {
-      // TODO: add options.paths?
-      stylus.render(this.content, {}, (err, content) => {
+      // TODO: add 'paths'?
+      const options = this.options.pluginOptions.stylus || {};
+
+      stylus.render(this.content, options, (err, content) => {
         if (err) return fn(err);
         this.content = content;
         debug(`compile: ${strong(this.relpath)}`, 4);

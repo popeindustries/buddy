@@ -51,7 +51,7 @@ function extend (prototype, utils) {
 
       imagemin
         .buffer(content, {
-          use: [
+          plugins: [
             gifsicle(),
             jpegtran(),
             optipng({ optimizationLevel: 3 }),

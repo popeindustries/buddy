@@ -2,6 +2,9 @@
 
 const nunjucks = require('nunjucks');
 
+const DEFAULT_OPTIONS = {
+  noCache: true
+};
 const FILE_EXTENSIONS = ['nunjucks', 'nunjs', 'njk'];
 const RE_INCLUDE = /{%\s(?:extends|include)\s['"]([^'"]+)['"]\s?%}/g;
 const WORKFLOW_WRITE = [
@@ -40,8 +43,10 @@ function define (File, utils) {
      * @param {String} id
      * @param {String} filepath
      * @param {Object} options
+     *  - {Object} caches
      *  - {Object} fileExtensions
      *  - {Function} fileFactory
+     *  - {Object} pluginOptions
      *  - {Object} runtimeOptions
      *  - {Array} sources
      */
@@ -112,6 +117,9 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     compile (buildOptions, fn) {
+      const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.nunjucks);
+
+      nunjucks.configure(null, options);
       nunjucks.renderString(this.content, this.findSidecarDependency(), (err, content) => {
         if (err) return fn(err);
         this.content = content;

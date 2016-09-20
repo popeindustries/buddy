@@ -37,8 +37,10 @@ function define (File, utils) {
      * @param {String} id
      * @param {String} filepath
      * @param {Object} options
+     *  - {Object} caches
      *  - {Object} fileExtensions
      *  - {Function} fileFactory
+     *  - {Object} pluginOptions
      *  - {Object} runtimeOptions
      *  - {Array} sources
      */
@@ -62,7 +64,9 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     compile (buildOptions, fn) {
-      less.render(this.content, (err, content) => {
+      const options = this.options.pluginOptions.less || {};
+
+      less.render(this.content, options, (err, content) => {
         if (err) return fn(err);
         this.content = content.css;
         debug(`compile: ${strong(this.relpath)}`, 4);
