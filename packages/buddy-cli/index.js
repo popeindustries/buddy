@@ -22,40 +22,42 @@ find(useCli, (err, buddyFactory, version) => {
 
   program
     .version(version)
-    .usage('[options] <command> [path-to-config]')
+    .usage('[options] <command> [configpath]')
     .option('-c, --compress', 'compress output for production deployment')
     .option('-g, --grep <pattern>', 'only run build targets matching <pattern>')
     .option('-i, --invert', 'inverts grep matches')
+    .option('--input', 'input file/directory for simple config-free build')
+    .option('--output', 'output file/directory for simple config-free build')
     .option('-r, --reload', 'reload all connected live-reload clients on file change during watch [ADD-ON buddy-server]')
     .option('-s, --serve', 'create a webserver to serve static files during watch [ADD-ON buddy-server]')
     .option('-S, --script', 'run script on build completion')
     .option('-v, --verbose', 'print all messages for debugging');
 
   program
-    .command('build [config]')
+    .command('build [configpath]')
     .description('build js, css, html, and image sources')
-    .action((config) => {
-      buddyFactory(config, getOptions()).build();
+    .action((configpath) => {
+      buddyFactory(parseConfig(configpath), getOptions()).build();
     });
 
   program
-    .command('watch [config]')
+    .command('watch [configpath]')
     .description('watch js, css, html, and image source files and build changes')
-    .action((config) => {
+    .action((configpath) => {
       let options = getOptions();
 
       options.watch = true;
-      buddyFactory(config, options).watch();
+      buddyFactory(parseConfig(configpath), options).watch();
     });
 
   program
-    .command('deploy [config]')
+    .command('deploy [configpath]')
     .description('build compressed js, css, html, and image sources')
-    .action((config) => {
+    .action((configpath) => {
       let options = getOptions();
 
       options.deploy = options.compress = true;
-      buddyFactory(config, options).build();
+      buddyFactory(parseConfig(configpath), options).build();
     });
 
   program.parse(process.argv);
@@ -67,6 +69,21 @@ find(useCli, (err, buddyFactory, version) => {
   }
 });
 
+/**
+ * Parse config
+ * @param {String} configpath
+ * @returns {Object}
+ */
+function parseConfig (configpath) {
+  if (program.input) {
+    configpath = {
+      input: program.input,
+      output: program.output || '.'
+    };
+  }
+
+  return configpath;
+}
 
 /**
  * Retrieve options object
