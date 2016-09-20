@@ -9,7 +9,7 @@ let config, file, fileFactoryOptions;
 
 describe('buddy-plugin-coffeescript', () => {
   before(() => {
-    process.chdir('./test/fixtures');
+    process.chdir(path.resolve(__dirname, 'fixtures'));
   });
   beforeEach(() => {
     config = configFactory({

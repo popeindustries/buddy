@@ -9,7 +9,7 @@ let options;
 
 describe('buddy-plugin-babel', () => {
   before(() => {
-    process.chdir('./test/fixtures');
+    process.chdir(path.resolve(__dirname, 'fixtures'));
   });
   beforeEach(() => {
     options = {

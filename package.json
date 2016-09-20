@@ -38,8 +38,7 @@
   },
   "scripts": {
     "lint": "eslint lib",
-    "test": "NODE_ENV=test mocha --reporter spec --timeout 10000",
-    "test-windows": "set NODE_ENV=test&&node.exe ./node_modules/mocha/bin/mocha --reporter spec -t 20000"
+    "test": "NODE_ENV=test mocha \"./packages/buddy-plugin-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 10000"
   },
   "engines": {
     "node": ">=6"

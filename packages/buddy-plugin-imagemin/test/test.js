@@ -8,7 +8,7 @@ let config, file, fileFactoryOptions;
 
 describe('buddy-plugin-imagemin', () => {
   before(() => {
-    process.chdir('./test/fixtures');
+    process.chdir(path.resolve(__dirname, 'fixtures'));
   });
   beforeEach(() => {
     config = configFactory({
