@@ -17,28 +17,49 @@ const DEFAULT_OPTIONS = {
   fromString: true
 };
 
-/**
- * Retrieve registration data
- */
-exports.registration = {
-  name: 'uglify-js',
-  type: 'js'
-};
+module.exports = {
+  name: 'uglify',
+  type: 'js',
 
-/**
- * Compress 'content'
- * @param {String} content
- * @param {Object} options
- * @param {Function} fn(err, content)
- */
-exports.compress = function compress (content, options, fn) {
-  try {
-    const compressorOptions = Object.assign({}, DEFAULT_OPTIONS);
-
-    if (options.except) compressorOptions.mangle = { except: options.except };
-    content = uglify.minify(content, compressorOptions).code;
-    fn(null, content);
-  } catch (err) {
-    fn(err);
+  /**
+   * Register plugin
+   * @param {Config} config
+   */
+  register (config) {
+    config.extendFileDefinitionForExtensionsOrType(extend, null, this.type);
   }
 };
+
+/**
+ * Extend 'prototype' with new behaviour
+ * @param {Object} prototype
+ * @param {Object} utils
+ */
+function extend (prototype, utils) {
+  const { debug, strong } = utils.cnsl;
+
+  /**
+   * Compress file contents
+   * @param {Object} buildOptions
+   *  - {Boolean} bootstrap
+   *  - {Boolean} boilerplate
+   *  - {Boolean} bundle
+   *  - {Boolean} compress
+   *  - {Array} ignoredFiles
+   *  - {Boolean} includeHeader
+   *  - {Boolean} includeHelpers
+   *  - {Boolean} watchOnly
+   * @param {Function} fn(err)
+   */
+  prototype.compress = function compress (buildOptions, fn) {
+    try {
+      const content = uglify.minify(this.content, Object.assign({}, DEFAULT_OPTIONS)).code;
+
+      debug(`compress: ${strong(this.relpath)}`, 4);
+      this.content = content;
+      fn();
+    } catch (err) {
+      fn(err);
+    }
+  };
+}

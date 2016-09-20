@@ -1,23 +1,38 @@
 'use strict';
 
-const compress = require('..').compress;
+const configFactory = require('../../../lib/config');
 const expect = require('expect.js');
-const fs = require('fs');
 const path = require('path');
-let options;
+const plugin = require('../index');
+let config, file, fileFactoryOptions;
 
 describe('buddy-plugin-uglify', () => {
   before(() => {
     process.chdir('./test/fixtures');
   });
   beforeEach(() => {
-    options = {};
+    config = configFactory({
+      input: '.',
+      output: 'js'
+    }, {});
+    plugin.register(config);
+    fileFactoryOptions = {
+      caches: config.caches,
+      fileExtensions: config.fileExtensions,
+      fileFactory: config.fileFactory,
+      pluginOptions: { babel: { plugins: [] } },
+      runtimeOptions: config.runtimeOptions,
+      sources: [path.resolve('.')]
+    };
+  });
+  afterEach(() => {
+    config.destroy();
   });
 
   it('should preserve special comments', (done) => {
-    compress(fs.readFileSync(path.resolve('foo.js'), 'utf8'), options, (err, content) => {
-      expect(err).to.be(null);
-      expect(content).to.eql('/**\n * foo\n * https://github.com/foo\n * @copyright foo\n * @license MIT\n */\n"use strict";module.exports="foo";');
+    file = config.fileFactory(path.resolve('a.js'), fileFactoryOptions);
+    file.compress({ compress: true }, (err) => {
+      expect(file.content).to.eql('/**\n * foo\n * https://github.com/foo\n * @copyright foo\n * @license MIT\n */\n"use strict";module.exports="foo";');
       done();
     });
   });

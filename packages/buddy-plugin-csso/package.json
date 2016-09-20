@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-csso",
   "description": "Buddy plugin for css minification (via csso)",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -11,9 +11,12 @@
     "minify"
   ],
   "dependencies": {
-    "csso": "2.2.0"
+    "csso": "2.2.1"
   },
   "devDependencies": {
+  },
+  "peerDependencies": {
+    "buddy": "6.x"
   },
   "main": "index.js",
   "scripts": {
@@ -21,7 +24,7 @@
   "engines": {
     "node": ">=4"
   },
-  "repository": "git://github.com/popeindustries/buddy/tree/master/plugins/buddy-plugin-csso",
+  "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-csso",
   "readmeFilename": "README.md",
   "license": "MIT"
 }

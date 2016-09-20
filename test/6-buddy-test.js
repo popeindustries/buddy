@@ -1,6 +1,7 @@
 'use strict';
 
 const buddyFactory = require('../index');
+const cssoPlugin = require('../packages/buddy-plugin-csso');
 const exec = require('child_process').exec;
 const expect = require('expect.js');
 const fs = require('fs');
@@ -527,17 +528,12 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build a minified css file if "compress" is true', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'a.css',
-                output: 'output'
-              }
-            ]
-          }
-        }, { compress: true }, (err, filepaths) => {
+      it('should build a minified css file if "compress" is true', (done) => {
+        buddy = buddyFactory({
+          input: 'a.css',
+          output: 'output'
+        }, { compress: true, plugins: [cssoPlugin] });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');

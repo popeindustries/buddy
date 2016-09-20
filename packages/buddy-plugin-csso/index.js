@@ -2,25 +2,49 @@
 
 const csso = require('csso');
 
-/**
- * Retrieve registration data
- */
-exports.registration = {
+module.exports = {
   name: 'csso',
-  type: 'css'
+  type: 'css',
+
+  /**
+   * Register plugin
+   * @param {Config} config
+   */
+  register (config) {
+    config.extendFileDefinitionForExtensionsOrType(extend, null, this.type);
+  }
 };
 
 /**
- * Compress 'content'
- * @param {String} content
- * @param {Object} options
- * @param {Function} fn(err, content)
+ * Extend 'prototype' with new behaviour
+ * @param {Object} prototype
+ * @param {Object} utils
  */
-exports.compress = function compress (content, options, fn) {
-  try {
-    content = csso.minify(content).css;
-    fn(null, content);
-  } catch (err) {
-    fn(err);
-  }
-};
+function extend (prototype, utils) {
+  const { debug, strong } = utils.cnsl;
+
+  /**
+   * Compress file contents
+   * @param {Object} buildOptions
+   *  - {Boolean} bootstrap
+   *  - {Boolean} boilerplate
+   *  - {Boolean} bundle
+   *  - {Boolean} compress
+   *  - {Array} ignoredFiles
+   *  - {Boolean} includeHeader
+   *  - {Boolean} includeHelpers
+   *  - {Boolean} watchOnly
+   * @param {Function} fn(err)
+   */
+  prototype.compress = function compress (buildOptions, fn) {
+    try {
+      const content = csso.minify(this.content).css;
+
+      debug(`compress: ${strong(this.relpath)}`, 4);
+      this.content = content;
+      fn();
+    } catch (err) {
+      fn(err);
+    }
+  };
+}
