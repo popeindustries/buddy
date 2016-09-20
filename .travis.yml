@@ -7,5 +7,6 @@ install:
   - cd ../buddy-plugin-stylus && npm install
   - cd ../buddy-plugin-nunjucks && npm install
   - cd ../buddy-plugin-imagemin && npm install
+  - cd ../buddy-plugin-csso && npm install
   - cd ../buddy-plugin-uglify && npm install
   - cd ../..
