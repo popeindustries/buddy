@@ -1,4 +1,4 @@
 <head>
-  <title>Title</title>
-  <link inline href="./foo.css">
+  <title>{{title}}</title>
+  <link inline href="./a.css">
 </head>

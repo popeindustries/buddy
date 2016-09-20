@@ -3,6 +3,6 @@
   <body>
     <h1>{{title}}</h1>
     <p>Test paragraph</p>
-    {% include "include/include.nunjucks" %}
+    {% include "./include/include.nunjs" %}
   </body>
 </html>

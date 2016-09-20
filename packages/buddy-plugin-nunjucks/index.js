@@ -31,7 +31,7 @@ module.exports = {
  * @returns {Class}
  */
 function define (File, utils) {
-  const { debug, strong } = utils.cnsl;
+  const { debug, strong, warn } = utils.cnsl;
   const { uniqueMatch } = utils.string;
 
   return class NUNJUCKSFile extends File {
@@ -112,8 +112,19 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     compile (buildOptions, fn) {
-      // TODO: find sidecar data file
-      const data = {};
+      let data = {};
+
+      // Find sidecar data
+      this.dependencies.some((dependency) => {
+        if (dependency.type == 'json') {
+          try {
+            data = JSON.parse(dependency.content);
+          } catch (err) {
+            warn(`malformed json file: ${strong(dependency.filepath)}`);
+          }
+          return true;
+        }
+      });
 
       nunjucks.renderString(this.content, data, (err, content) => {
         if (err) return fn(err);

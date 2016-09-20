@@ -5,6 +5,7 @@ const exec = require('child_process').exec;
 const expect = require('expect.js');
 const fs = require('fs');
 const lessPlugin = require('../packages/buddy-plugin-less');
+const nunjucksPlugin = require('../packages/buddy-plugin-nunjucks');
 const path = require('path');
 const rimraf = require('rimraf');
 const stylusPlugin = require('../packages/buddy-plugin-stylus');
@@ -30,7 +31,7 @@ describe('Buddy', () => {
     it('should initialize a single build', () => {
       buddy = buddyFactory({
         build: [{
-          input: 'build/foo.js',
+          input: 'build/a.js',
           output: '.'
         }]
       });
@@ -40,7 +41,7 @@ describe('Buddy', () => {
     it('should initialize a single build with nested child build', () => {
       buddy = buddyFactory({
         build: [{
-          input: 'build/foo.js',
+          input: 'build/a.js',
           output: '.',
           build: [{
             input: 'build/lib',
@@ -475,7 +476,7 @@ describe('Buddy', () => {
     describe('css', () => {
       it('should build a css file', (done) => {
         buddy = buddyFactory({
-          input: 'foo.css',
+          input: 'a.css',
           output: 'output'
         });
         buddy.build((err, filepaths) => {
@@ -488,7 +489,7 @@ describe('Buddy', () => {
       });
       it('should build a css file with inlined dependencies', (done) => {
         buddy = buddyFactory({
-          input: 'bar.css',
+          input: 'b.css',
           output: 'output'
         });
         buddy.build((err, filepaths) => {
@@ -501,7 +502,7 @@ describe('Buddy', () => {
       });
       it('should build a stylus file', (done) => {
         buddy = buddyFactory({
-          input: 'foo.styl',
+          input: 'a.styl',
           output: 'output'
         }, { plugins: [stylusPlugin] });
         buddy.build((err, filepaths) => {
@@ -514,7 +515,7 @@ describe('Buddy', () => {
       });
       it('should build a less file', (done) => {
         buddy = buddyFactory({
-          input: 'foo.less',
+          input: 'a.less',
           output: 'output'
         }, { plugins: [lessPlugin] });
         buddy.build((err, filepaths) => {
@@ -530,7 +531,7 @@ describe('Buddy', () => {
           build: {
             build: [
               {
-                input: 'foo.css',
+                input: 'a.css',
                 output: 'output'
               }
             ]
@@ -582,102 +583,99 @@ describe('Buddy', () => {
       });
     });
 
-    describe.skip('html', () => {
-      it('should build an html template file', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'foo.handlebars',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+    describe('html', () => {
+      it('should build an html file with inline css dependency', (done) => {
+        buddy = buddyFactory({
+          input: 'a.html',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('<div class="entry">\n  <h1></h1>\n  <div class="body">\n    \n  </div>\n</div>');
+          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <style>body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n</style>\n</head>\n<body>\n\n</body>\n</html>');
           done();
         });
       });
-      it('should build an html template file with sidecar data file and includes', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'foo.dust',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
+      it('should build an html file with inline js dependency', (done) => {
+        buddy = buddyFactory({
+          input: 'b.html',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n\t<title>Title</title>\n</head>\n<body>\n\t<h1>Title</h1>\n\t<footer>\n\t<p>Footer</p>\n\t<div>foo</div>\n</footer>\n</body>\n</html>');
+          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <script>var f = \'f\';</script>\n</head>\n<body>\n\n</body>\n</html>');
           done();
         });
       });
-      it('should build an html template file with inline js dependency', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'foo.nunjs',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
+      it('should build an html file with inline js dependency needing env substitution', (done) => {
+        buddy = buddyFactory({
+          input: 'c.html',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('<script>var foo = this;</script>');
+          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <script>var boop = this\n  , isDev = \'test\' == \'development\';\n\nconsole.log(\'is dev: \', isDev);</script>\n</head>\n<body>\n\n</body>\n</html>');
           done();
         });
       });
-      it('should build an html template file with inline js dependency needing env substitution', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'boop.nunjs',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
+      it('should build a nunjucks template file with sidecar data file', (done) => {
+        buddy = buddyFactory({
+          input: 'a.nunjs',
+          output: 'output'
+        }, { plugins: [nunjucksPlugin] });
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("isDev = 'test' == 'development'");
+          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title>a</title>\n</head>\n<body>\n\n</body>\n</html>');
           done();
         });
       });
-      it('should build an html template file with inline css dependency', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'bat.nunjs',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
-          expect(filepaths).to.have.length(1);
+      it('should build a nunjucks template file with sidecar data file and includes', (done) => {
+        buddy = buddyFactory({
+          input: 'b.nunjs',
+          output: 'output'
+        }, { plugins: [nunjucksPlugin] });
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('<style>body {\n\tcolor: white;\n\tfont-size: 12px;\n}\nbody p {\n\tfont-size: 10px;\n}\n</style>');
+          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n<head>\n  <title>b</title>\n  <style>body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n</style>\n</head>\n</head>\n<body>\n\n</body>\n</html>');
           done();
         });
       });
-      it('should build an html template file with include and inline css dependency', (done) => {
+      it('should build a nunjucks template file with inline js dependency', (done) => {
+        buddy = buddyFactory({
+          input: 'c.nunjs',
+          output: 'output'
+        }, { plugins: [nunjucksPlugin] });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <script>var f = \'f\';</script>\n</head>\n<body>\n\n</body>\n</html>');
+          done();
+        });
+      });
+      it('should build a nunjucks template file with inline js dependency needing env substitution', (done) => {
+        buddy = buddyFactory({
+          input: 'd.nunjs',
+          output: 'output'
+        }, { plugins: [nunjucksPlugin] });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <script>var boop = this\n  , isDev = \'test\' == \'development\';\n\nconsole.log(\'is dev: \', isDev);</script>\n</head>\n<body>\n\n</body>\n</html>');
+          done();
+        });
+      });
+      it.skip('should build an html template file with include and inline css dependency', (done) => {
         buddy.build({
           build: {
             build: [
@@ -696,7 +694,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build an html template file with compressed inline js dependency when "compress" is true', (done) => {
+      it.skip('should build an html template file with compressed inline js dependency when "compress" is true', (done) => {
         buddy.build({
           build: {
             build: [
@@ -715,7 +713,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build an html template file with dynamically generated inline svg dependencies', (done) => {
+      it.skip('should build an html template file with dynamically generated inline svg dependencies', (done) => {
         buddy.build({
           build: {
             build: [
