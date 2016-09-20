@@ -74,6 +74,7 @@ describe('config', () => {
       };
     });
 
+    it('should handle deprecated "targets" format');
     it('should allow passing build data "input" that doesn\'t exist', () => {
       dummyConfig.build = [{
         input: 'src/hey.js',
