@@ -439,6 +439,20 @@ describe('file', () => {
             done();
           });
         });
+        it('should replace "module.exports.*"', (done) => {
+          file.content = 'module.exports.foo = function foo() {};';
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal("_m_['foo.js'].foo = function foo() {};");
+            done();
+          });
+        });
+        it('should replace "module.exports[\'*\']"', (done) => {
+          file.content = "module.exports['foo'] = function foo() {};";
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal("_m_['foo.js']['foo'] = function foo() {};");
+            done();
+          });
+        });
         it('should replace "exports.*"', (done) => {
           file.content = "exports.foo = 'foo';";
           file.transpile({}, (err) => {
