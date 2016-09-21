@@ -428,49 +428,49 @@ describe('file', () => {
         it('should replace "module.exports"', (done) => {
           file.content = 'module.exports = function foo() {};';
           file.transpile({}, (err) => {
-            expect(file.content).to.equal("_m_['foo.js'] = function foo() {};");
+            expect(file.content).to.equal("$m['foo.js'] = function foo() {};");
             done();
           });
         });
         it('should replace "module[\'exports\']"', (done) => {
           file.content = 'module[\'exports\'] = function foo() {};';
           file.transpile({}, (err) => {
-            expect(file.content).to.equal("_m_['foo.js'] = function foo() {};");
+            expect(file.content).to.equal("$m['foo.js'] = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports.*"', (done) => {
           file.content = 'module.exports.foo = function foo() {};';
           file.transpile({}, (err) => {
-            expect(file.content).to.equal("_m_['foo.js'].foo = function foo() {};");
+            expect(file.content).to.equal("$m['foo.js'].foo = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports[\'*\']"', (done) => {
           file.content = "module.exports['foo'] = function foo() {};";
           file.transpile({}, (err) => {
-            expect(file.content).to.equal("_m_['foo.js']['foo'] = function foo() {};");
+            expect(file.content).to.equal("$m['foo.js']['foo'] = function foo() {};");
             done();
           });
         });
         it('should replace "exports.*"', (done) => {
           file.content = "exports.foo = 'foo';";
           file.transpile({}, (err) => {
-            expect(file.content).to.equal("_m_['foo.js'].foo = 'foo';");
+            expect(file.content).to.equal("$m['foo.js'].foo = 'foo';");
             done();
           });
         });
         it('should replace "exports[\'*\']"', (done) => {
           file.content = "exports['foo'] = 'foo';";
           file.transpile({}, (err) => {
-            expect(file.content).to.equal("_m_['foo.js']['foo'] = 'foo';");
+            expect(file.content).to.equal("$m['foo.js']['foo'] = 'foo';");
             done();
           });
         });
         it('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
           file.transpile({}, (err) => {
-            expect(file.content).to.equal("_m_['foo.js'] = {};\n_m_['foo.js'] = {};\n// module['ex' + 'ports'] = {};\n\n_m_['foo.js'].foo = 'foo';\n_m_['foo.js']['foo'] = 'foo';");
+            expect(file.content).to.equal("$m['foo.js'] = {};\n$m['foo.js'] = {};\n// module['ex' + 'ports'] = {};\n\n$m['foo.js'].foo = 'foo';\n$m['foo.js']['foo'] = 'foo';");
             done();
           });
         });
@@ -626,7 +626,7 @@ describe('file', () => {
           }
         ];
         instance.replaceReferences({}, (err) => {
-          expect(instance.content).to.eql("var foo = _m_['foo.js'];");
+          expect(instance.content).to.eql("var foo = $m['foo.js'];");
           done();
         });
       });
@@ -680,7 +680,7 @@ describe('file', () => {
           }
         ];
         instance.replaceReferences({}, (err) => {
-          expect(instance.content).to.eql("var bar = _m_['bar@0'];\nvar baz = _m_['view/baz'];");
+          expect(instance.content).to.eql("var bar = $m['bar@0'];\nvar baz = $m['view/baz'];");
           done();
         });
       });
