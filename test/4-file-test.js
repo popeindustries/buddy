@@ -382,6 +382,36 @@ describe('file', () => {
           done();
         });
       });
+      it('should inline an empty object when dependency is a native module', (done) => {
+        file.content = "var foo = require('path');";
+        file.dependencyReferences = [
+          {
+            filepath: 'path',
+            context: "require('path')",
+            id: 'path',
+            isDisabled: true
+          }
+        ];
+        file.inline({ browser: true }, (err) => {
+          expect(file.content).to.eql('var foo = {};');
+          done();
+        });
+      });
+      it('should not inline an empty object when dependency is a native module for server builds', (done) => {
+        file.content = "var foo = require('path');";
+        file.dependencyReferences = [
+          {
+            filepath: 'path',
+            context: "require('path')",
+            id: 'path',
+            isDisabled: true
+          }
+        ];
+        file.inline({ browser: false }, (err) => {
+          expect(file.content).to.eql("var foo = require('path');");
+          done();
+        });
+      });
     });
 
     describe('transpile()', () => {
