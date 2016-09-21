@@ -147,17 +147,17 @@ describe('file', () => {
 
   describe('parseWorkflow()', () => {
     it('should return a simple set of workflows', () => {
-      file.workflows = { foo: ['foo'], bar: ['bar'] };
-      expect(file.parseWorkflow('foo', {})).to.eql(file.workflows.foo);
+      file.workflows = { foo: [['foo']], bar: [['bar']] };
+      expect(file.parseWorkflow('foo', 0, {})).to.eql(file.workflows.foo[0]);
     });
     it('should return a conditional set of workflows', () => {
-      file.workflows = { foo: ['compress:foo'], bar: ['bundle:compress:bar', 'bat'] };
-      expect(file.parseWorkflow('foo', { compress: true, bundle: false })).to.eql(['foo']);
-      expect(file.parseWorkflow('bar', { compress: true, bundle: false })).to.eql(['bat']);
+      file.workflows = { foo: [['compress:foo']], bar: [['bundle:compress:bar', 'bat']] };
+      expect(file.parseWorkflow('foo', 0, { compress: true, bundle: false })).to.eql(['foo']);
+      expect(file.parseWorkflow('bar', 0, { compress: true, bundle: false })).to.eql(['bat']);
     });
     it('should return a conditional set of workflows, including negated condition', () => {
-      file.workflows = { foo: ['compress:foo'], bar: ['!bundle:compress:bar', 'bat'] };
-      expect(file.parseWorkflow('bar', { compress: true, bundle: false })).to.eql(['bar', 'bat']);
+      file.workflows = { foo: [['compress:foo']], bar: [['!bundle:compress:bar', 'bat']] };
+      expect(file.parseWorkflow('bar', 0, { compress: true, bundle: false })).to.eql(['bar', 'bat']);
     });
   });
 
@@ -167,12 +167,12 @@ describe('file', () => {
         this.foo = true;
         fn();
       };
-      file.runWorkflow('default', '', {}, (err) => {
+      file.runWorkflow('standard', 0, {}, (err) => {
         expect(file).to.have.property('foo', true);
         done();
       });
     });
-    it('should run a default workflow, including for new dependencies', (done) => {
+    it('should run a standard workflow, including for new dependencies', (done) => {
       const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
 
       bar.parse = function (buildOptions, fn) {
@@ -185,15 +185,16 @@ describe('file', () => {
         this.foo = true;
         fn();
       };
-      file.runWorkflow('default', 'post', {}, (err) => {
+      file.runWorkflow('standard', 0, {}, (err) => {
         expect(bar).to.have.property('bar', true);
         done();
       });
     });
-    it('should run a default workflow, including for existing dependencies', (done) => {
+    it('should run a standard workflow, including for existing dependencies', (done) => {
       const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
 
       file.dependencies.push(bar);
+      file.workflows.standard[1] = bar.workflows.standard[1] = ['runWorkflowForDependencies', 'load', 'parse'];
       bar.parse = function (buildOptions, fn) {
         this.bar = true;
         fn();
@@ -203,7 +204,7 @@ describe('file', () => {
         this.foo = true;
         fn();
       };
-      file.runWorkflow('default', 'pre', {}, (err) => {
+      file.runWorkflow('standard', 1, {}, (err) => {
         expect(file).to.have.property('foo', true);
         done();
       });
@@ -211,17 +212,17 @@ describe('file', () => {
   });
 
   describe('run()', () => {
-    it('should run a default set of workflows', (done) => {
+    it('should run a standard set of workflows', (done) => {
       file.parse = function (buildOptions, fn) {
         this.foo = true;
         fn();
       };
-      file.run({}, (err) => {
+      file.run('standard', {}, (err) => {
         expect(file).to.have.property('foo', true);
         done();
       });
     });
-    it('should run a default set of workflows, including for dependencies', (done) => {
+    it('should run a standard set of workflows, including for dependencies', (done) => {
       const bar = new File('bar', path.resolve('src/foo.js'), 'js', {});
 
       bar.parse = function (buildOptions, fn) {
@@ -234,26 +235,27 @@ describe('file', () => {
         this.foo = true;
         fn();
       };
-      file.run({}, (err) => {
+      file.run('standard', {}, (err) => {
         expect(bar).to.have.property('bar', true);
         done();
       });
     });
-    it('should run a core set of workflows', (done) => {
-      file.workflows.core = ['foo'];
+    it('should run an extended standard set of workflows', (done) => {
+      file.workflows.standard[1] = ['foo'];
       file.foo = function (buildOptions, fn) {
         this.foo = true;
         fn();
       };
-      file.run({}, (err) => {
+      file.run('standard', {}, (err) => {
         expect(file).to.have.property('foo', true);
         done();
       });
     });
-    it('should run a core set of workflows, including for dependencies', (done) => {
+    it('should run an extended standard set of workflows, including for dependencies', (done) => {
       const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
 
-      bar.workflows.core = ['bar'];
+      file.workflows.standard[1] = ['runWorkflowForDependencies'];
+      bar.workflows.standard[1] = ['bar'];
       bar.bar = function (buildOptions, fn) {
         expect(file).to.have.property('foo', true);
         this.bat = true;
@@ -264,7 +266,7 @@ describe('file', () => {
         this.foo = true;
         fn();
       };
-      file.run({}, (err) => {
+      file.run('standard', {}, (err) => {
         expect(bar).to.have.property('bat', true);
         done();
       });

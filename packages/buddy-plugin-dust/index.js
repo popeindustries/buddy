@@ -7,7 +7,7 @@ const dust = require('dustjs-linkedin');
 
 const FILE_EXTENSIONS = ['dust'];
 const RE_INCLUDE = /{>\s?['"]?([^'"\s]+)['"]?\s?\/}/g;
-const WORKFLOW_WRITE = [
+const WORKFLOW_WRITEABLE = [
   'inline',
   'compile',
   'parseInline',
@@ -53,7 +53,7 @@ function define (File, utils) {
     constructor (id, filepath, options) {
       super(id, filepath, options);
 
-      this.workflows.write = WORKFLOW_WRITE;
+      this.workflows.writeable = [WORKFLOW_WRITEABLE];
     }
 
     /**
@@ -85,7 +85,7 @@ function define (File, utils) {
     }
 
     /**
-     * Inline include dependency content
+     * Inline 'include' dependency content
      * @param {Object} buildOptions
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate

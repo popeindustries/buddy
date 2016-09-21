@@ -3,8 +3,8 @@
 const less = require('less');
 
 const FILE_EXTENSIONS = ['less'];
-const WORKFLOW_WRITE = [
-  'bundle:inline',
+const WORKFLOW_WRITEABLE = [
+  'inline',
   'compile',
   'compress:compress'
 ];
@@ -47,7 +47,7 @@ function define (File, utils) {
     constructor (id, filepath, options) {
       super(id, filepath, options);
 
-      this.workflows.write = WORKFLOW_WRITE;
+      this.workflows.writeable = [WORKFLOW_WRITEABLE];
     }
 
     /**

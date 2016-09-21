@@ -7,7 +7,7 @@ const DEFAULT_OPTIONS = {
   bare: true
 };
 const FILE_EXTENSIONS = ['coffee'];
-const WORKFLOW_CORE = [
+const WORKFLOW_STANDARD = [
   '!watchOnly:compile'
 ];
 
@@ -49,7 +49,7 @@ function define (File, utils) {
     constructor (id, filepath, options) {
       super(id, filepath, options);
 
-      this.workflows.core = WORKFLOW_CORE.concat(this.workflows.core);
+      this.workflows.standard[1] = WORKFLOW_STANDARD.concat(this.workflows.standard[1]);
     }
 
     /**

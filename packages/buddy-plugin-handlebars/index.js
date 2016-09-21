@@ -7,7 +7,7 @@ const DEFAULT_OPTIONS = {
 };
 const FILE_EXTENSIONS = ['handlebars', 'hbs'];
 const RE_INCLUDE = /{{>\s['"]([^'"]+)['"]\s}}/g;
-const WORKFLOW_WRITE = [
+const WORKFLOW_WRITEABLE = [
   'inline',
   'compile',
   'parseInline',
@@ -53,7 +53,7 @@ function define (File, utils) {
     constructor (id, filepath, options) {
       super(id, filepath, options);
 
-      this.workflows.write = WORKFLOW_WRITE;
+      this.workflows.writeable = [WORKFLOW_WRITEABLE];
     }
 
     /**
@@ -117,7 +117,6 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     compile (buildOptions, fn) {
-
       try {
         const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.handlebars);
         const template = handlebars.compile(this.content, options);
