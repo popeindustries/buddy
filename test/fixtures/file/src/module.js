@@ -1,9 +1,6 @@
-'use strict';
-
-module.exports = function foo () {};
+module.exports = {};
+module['exports'] = {};
+// module['ex' + 'ports'] = {};
 
 exports.foo = 'foo';
 exports['foo'] = 'foo';
-
-module['exports'] = {};
-module['ex' + 'ports'] = {};

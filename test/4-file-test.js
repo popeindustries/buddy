@@ -414,7 +414,7 @@ describe('file', () => {
         it('should namespace all declarations and their references', (done) => {
           file.content = fs.readFileSync('src/namespace.js', 'utf8');
           file.transpile({}, (err) => {
-            expect(file.content).to.equal("'use strict';\n\nconst _foojs_bar = require('bar');\nconst _foojs_foo = require('./foo');\n\nclass _foojs_Foo {\n  constructor() {\n    console.log(_foojs_foo);\n  }\n}\n\nfunction _foojs_bat(foo) {\n  const f = new _foojs_Foo();\n\n  console.log(f, foo, _foojs_bar, 'bat');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  _foojs_bat(foo);\n}\n\nmodule.exports = _foojs_foo;");
+            expect(file.content).to.equal("const _foojs_bar = require('bar');\nconst _foojs_foo = require('./foo');\n\nclass _foojs_Foo {\n  constructor() {\n    console.log(_foojs_foo);\n  }\n}\n\nfunction _foojs_bat(foo) {\n  const f = new _foojs_Foo();\n\n  console.log(f, foo, _foojs_bar, 'bat');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  _foojs_bat(foo);\n}\n\nmodule.exports = _foojs_foo;");
             done();
           });
         });
@@ -456,7 +456,7 @@ describe('file', () => {
         it('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
           file.transpile({}, (err) => {
-            expect(file.content).to.equal("'use strict';\n\n_m_['foo.js'] = function foo() {};\n\n_m_['foo.js'].foo = 'foo';\n_m_['foo.js']['foo'] = 'foo';\n\n_m_['foo.js'] = {};\nmodule['ex' + 'ports'] = {};");
+            expect(file.content).to.equal("_m_['foo.js'] = {};\n_m_['foo.js'] = {};\n// module['ex' + 'ports'] = {};\n\n_m_['foo.js'].foo = 'foo';\n_m_['foo.js']['foo'] = 'foo';");
             done();
           });
         });

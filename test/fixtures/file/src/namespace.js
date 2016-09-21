@@ -1,5 +1,3 @@
-'use strict';
-
 const bar = require('bar');
 const foo = require('./foo');
 
