@@ -43,6 +43,7 @@ function extend (prototype, utils) {
    * @param {Object} buildOptions
    *  - {Boolean} bootstrap
    *  - {Boolean} boilerplate
+   *  - {Boolean} browser
    *  - {Boolean} bundle
    *  - {Boolean} compress
    *  - {Array} ignoredFiles

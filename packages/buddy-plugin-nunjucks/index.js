@@ -61,6 +61,7 @@ function define (File, utils) {
      * @param {Object} buildOptions
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
+     *  - {Boolean} browser
      *  - {Boolean} bundle
      *  - {Boolean} compress
      *  - {Array} ignoredFiles
@@ -89,6 +90,7 @@ function define (File, utils) {
      * @param {Object} buildOptions
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
+     *  - {Boolean} browser
      *  - {Boolean} bundle
      *  - {Boolean} compress
      *  - {Array} ignoredFiles
@@ -108,6 +110,7 @@ function define (File, utils) {
      * @param {Object} buildOptions
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
+     *  - {Boolean} browser
      *  - {Boolean} bundle
      *  - {Boolean} compress
      *  - {Array} ignoredFiles
@@ -133,6 +136,7 @@ function define (File, utils) {
      * @param {Object} buildOptions
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
+     *  - {Boolean} browser
      *  - {Boolean} bundle
      *  - {Boolean} compress
      *  - {Array} ignoredFiles
@@ -150,6 +154,7 @@ function define (File, utils) {
      * @param {Object} buildOptions
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
+     *  - {Boolean} browser
      *  - {Boolean} bundle
      *  - {Boolean} compress
      *  - {Array} ignoredFiles

@@ -266,7 +266,7 @@ describe('config', () => {
 
       expect(dummyConfig.build[0]).to.have.property('isAppServer', true);
     });
-    it('should return a build target with "isAppServer" set to TRUE when "server.file" is in directory "input"', () => {
+    it('should return a build target with "isAppServer=true" when "server.file" is in directory "input"', () => {
       dummyConfig.server = { file: 'src/main.js' };
       dummyConfig.build = [{
         input: 'src'
@@ -275,7 +275,7 @@ describe('config', () => {
 
       expect(dummyConfig.build[0]).to.have.property('isAppServer', true);
     });
-    it('should return a build target with "isAppServer" set to TRUE when "server.file" matches a globbed "input"', () => {
+    it('should return a build target with "isAppServer=true" when "server.file" matches a globbed "input"', () => {
       dummyConfig.server = { file: 'src/main.js' };
       dummyConfig.build = [{
         input: 'src/*.js'
@@ -283,6 +283,24 @@ describe('config', () => {
       buildParser.parse(dummyConfig);
 
       expect(dummyConfig.build[0]).to.have.property('isAppServer', true);
+    });
+    it('should return a build target with "browser=false" when "version" includes "node"', () => {
+      dummyConfig.build = [{
+        input: 'src/*.js',
+        version: 'node'
+      }];
+      buildParser.parse(dummyConfig);
+
+      expect(dummyConfig.build[0]).to.have.property('browser', false);
+    });
+    it('should return a build target with "browser=false" when "version" includes "server"', () => {
+      dummyConfig.build = [{
+        input: 'src/*.js',
+        version: ['server']
+      }];
+      buildParser.parse(dummyConfig);
+
+      expect(dummyConfig.build[0]).to.have.property('browser', false);
     });
     it('should return a build target with an executable "before" hook function', () => {
       dummyConfig.build = [{
