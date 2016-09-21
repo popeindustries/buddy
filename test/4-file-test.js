@@ -385,14 +385,83 @@ describe('file', () => {
     });
 
     describe('transpile()', () => {
-      it('should namespace root declarations when bundling', (done) => {
-        file.content = 'const foo = "foo";';
-        file.id = 'lib/_- \\foo.js';
-        file.transpile({ bundle: true }, (err) => {
-          expect(file.content).to.equal('const _libfoojs_foo = "foo";');
-          done();
+      describe('namespace root declarations', () => {
+        beforeEach(() => {
+          file.workflows.transpile = [['namespaceRootDeclarations']];
+        });
+
+        it('should namespace variable declarations', (done) => {
+          file.content = 'const foo = "foo";';
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal('const _foojs_foo = "foo";');
+            done();
+          });
+        });
+        it('should namespace function declarations', (done) => {
+          file.content = 'function foo () {}';
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal('function _foojs_foo() {}');
+            done();
+          });
+        });
+        it('should namespace class declarations', (done) => {
+          file.content = 'class Foo {}';
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal('class _foojs_Foo {}');
+            done();
+          });
+        });
+        it('should namespace all declarations and their references', (done) => {
+          file.content = fs.readFileSync('src/namespace.js', 'utf8');
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal("'use strict';\n\nconst _foojs_bar = require('bar');\nconst _foojs_foo = require('./foo');\n\nclass _foojs_Foo {\n  constructor() {\n    console.log(_foojs_foo);\n  }\n}\n\nfunction _foojs_bat(foo) {\n  const f = new _foojs_Foo();\n\n  console.log(f, foo, _foojs_bar, 'bat');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  _foojs_bat(foo);\n}\n\nmodule.exports = _foojs_foo;");
+            done();
+          });
         });
       });
+
+      describe('replace module/exports', () => {
+        beforeEach(() => {
+          file.workflows.transpile = [['replaceModuleExports']];
+        });
+
+        it('should replace "module.exports"', (done) => {
+          file.content = 'module.exports = function foo() {};';
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal("_m_['foo.js'] = function foo() {};");
+            done();
+          });
+        });
+        it('should replace "module[\'exports\']"', (done) => {
+          file.content = 'module[\'exports\'] = function foo() {};';
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal("_m_['foo.js'] = function foo() {};");
+            done();
+          });
+        });
+        it('should replace "exports.*"', (done) => {
+          file.content = "exports.foo = 'foo';";
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal("_m_['foo.js'].foo = 'foo';");
+            done();
+          });
+        });
+        it('should replace "exports[\'*\']"', (done) => {
+          file.content = "exports['foo'] = 'foo';";
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal("_m_['foo.js']['foo'] = 'foo';");
+            done();
+          });
+        });
+        it('should replace all "module" and "exports"', (done) => {
+          file.content = fs.readFileSync('src/module.js', 'utf8');
+          file.transpile({}, (err) => {
+            expect(file.content).to.equal("'use strict';\n\n_m_['foo.js'] = function foo() {};\n\n_m_['foo.js'].foo = 'foo';\n_m_['foo.js']['foo'] = 'foo';\n\n_m_['foo.js'] = {};\nmodule['ex' + 'ports'] = {};");
+            done();
+          });
+        });
+      });
+
       it('should track global helpers');
     });
   });

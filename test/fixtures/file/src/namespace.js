@@ -11,6 +11,7 @@ class Foo {
 
 function bat (foo) {
   const f = new Foo();
+
   console.log(f, foo, bar, 'bat');
 }
 
