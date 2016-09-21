@@ -508,6 +508,39 @@ describe('file', () => {
 
       it('should track global helpers');
     });
+
+    describe('concat()', () => {
+      it('should wrap and concat content', (done) => {
+        file.content = "var foo = 'foo';";
+        file.dependencies = [
+          {
+            id: 'bar.js',
+            relpath: 'src/bar.js',
+            type: 'js',
+            content: "var bar = 'bar';"
+          }
+        ];
+        file.concat({ bootstrap: true }, (err) => {
+          expect(file.content).to.eql("!(function () {\n/*== src/bar.js ==*/\n$m[bar.js] = {};\nvar bar = \'bar\';\n\n/*== src/foo.js ==*/\n$m[foo.js] = {};\nvar foo = \'foo\';\n})()");
+          done();
+        });
+      });
+      it('should wrap and concat content when "bootstrap=false"', (done) => {
+        file.content = "var foo = 'foo';";
+        file.dependencies = [
+          {
+            id: 'bar.js',
+            relpath: 'src/bar.js',
+            type: 'js',
+            content: "var bar = 'bar';"
+          }
+        ];
+        file.concat({ bootstrap: false }, (err) => {
+          expect(file.content).to.eql("$m[foo.js] = function () {\n/*== src/bar.js ==*/\n$m[bar.js] = {};\nvar bar = \'bar\';\n\n/*== src/foo.js ==*/\n$m[foo.js] = {};\nvar foo = \'foo\';\n}\n$m[foo.js].__b__=1;");
+          done();
+        });
+      });
+    });
   });
 
   describe('CSSFile', () => {

@@ -122,10 +122,10 @@ describe('build', () => {
     it('should execute a "before" hook before running the build', (done) => {
       config = configFactory({
         input: 'src/js/bat.js',
-        output: 'temp'
+        output: 'temp',
+        before: 'context.foo="foo";done();'
       }, {});
       build = buildFactory(config.build[0]);
-      build.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.foo="foo";done();');
       build.foo = 'bar';
       build.run((err, filepaths) => {
         expect(build.foo).to.eql('foo');
@@ -135,10 +135,10 @@ describe('build', () => {
     it('should execute an "after" hook after running the build', (done) => {
       config = configFactory({
         input: 'src/js/bat.js',
-        output: 'temp'
+        output: 'temp',
+        after: 'context.foo="foo";done();'
       }, {});
       build = buildFactory(config.build[0]);
-      build.after = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.foo="foo";done();');
       build.foo = 'bar';
       build.run((err, filepaths) => {
         expect(filepaths[0].toLowerCase()).to.eql(path.resolve('temp/bat.js').toLowerCase());
@@ -149,23 +149,23 @@ describe('build', () => {
     it('should execute an "afterEach" hook after each processed file is ready to write to disk', (done) => {
       config = configFactory({
         input: ['src/js/bat.js', 'src/js/baz.js'],
-        output: 'temp'
+        output: 'temp',
+        afterEach: 'context.content="foo";done();'
       }, {});
       build = buildFactory(config.build[0]);
-      build.afterEach = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'context.content="foo";done();');
       build.run((err, filepaths) => {
         expect(filepaths[0].toLowerCase()).to.eql(path.resolve('temp/bat.js').toLowerCase());
-        expect(fs.readFileSync(filepaths[0], 'utf8')).to.eql('foo');
+        expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain('foo');
         done();
       });
     });
     it('should return an error if a "before" hook returns an error', (done) => {
       config = configFactory({
         input: 'src/js/bat.js',
-        output: 'temp'
+        output: 'temp',
+        before: 'done("oops");'
       }, {});
       build = buildFactory(config.build[0]);
-      build.before = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'done("oops");');
       build.run((err, filepaths) => {
         expect(err).to.be('oops');
         done();
@@ -174,10 +174,10 @@ describe('build', () => {
     it('should return an error if an "after" hook returns an error', (done) => {
       config = configFactory({
         input: 'src/js/bat.js',
-        output: 'temp'
+        output: 'temp',
+        after: 'done("oops");'
       }, {});
       build = buildFactory(config.build[0]);
-      build.after = new Function('global', 'process', 'console', 'require', 'context', 'options', 'done', 'done("oops");');
       build.run((err, filepaths) => {
         expect(err).to.be('oops');
         done();
