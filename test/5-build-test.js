@@ -113,9 +113,9 @@ describe('build', () => {
         output: 'temp'
       }, {});
       build = buildFactory(config.build[0]);
-      build.run((err, filepaths) => {
-        expect(fs.existsSync(filepaths[0])).to.equal(true);
-        expect(filepaths[0].toLowerCase()).to.equal(path.resolve('temp/bat.js').toLowerCase());
+      build.run((err, results) => {
+        expect(fs.existsSync(results[0].filepath)).to.equal(true);
+        expect(results[0].filepath.toLowerCase()).to.equal(path.resolve('temp/bat.js').toLowerCase());
         done();
       });
     });
@@ -127,7 +127,7 @@ describe('build', () => {
       }, {});
       build = buildFactory(config.build[0]);
       build.foo = 'bar';
-      build.run((err, filepaths) => {
+      build.run((err, results) => {
         expect(build.foo).to.eql('foo');
         done();
       });
@@ -140,8 +140,8 @@ describe('build', () => {
       }, {});
       build = buildFactory(config.build[0]);
       build.foo = 'bar';
-      build.run((err, filepaths) => {
-        expect(filepaths[0].toLowerCase()).to.eql(path.resolve('temp/bat.js').toLowerCase());
+      build.run((err, results) => {
+        expect(results[0].filepath.toLowerCase()).to.eql(path.resolve('temp/bat.js').toLowerCase());
         expect(build.foo).to.eql('foo');
         done();
       });
@@ -153,9 +153,9 @@ describe('build', () => {
         afterEach: 'context.content="foo";done();'
       }, {});
       build = buildFactory(config.build[0]);
-      build.run((err, filepaths) => {
-        expect(filepaths[0].toLowerCase()).to.eql(path.resolve('temp/bat.js').toLowerCase());
-        expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain('foo');
+      build.run((err, results) => {
+        expect(results[0].filepath.toLowerCase()).to.eql(path.resolve('temp/bat.js').toLowerCase());
+        expect(fs.readFileSync(results[0].filepath, 'utf8')).to.contain('foo');
         done();
       });
     });
@@ -166,7 +166,7 @@ describe('build', () => {
         before: 'done("oops");'
       }, {});
       build = buildFactory(config.build[0]);
-      build.run((err, filepaths) => {
+      build.run((err, results) => {
         expect(err).to.be('oops');
         done();
       });
@@ -178,7 +178,7 @@ describe('build', () => {
         after: 'done("oops");'
       }, {});
       build = buildFactory(config.build[0]);
-      build.run((err, filepaths) => {
+      build.run((err, results) => {
         expect(err).to.be('oops');
         done();
       });

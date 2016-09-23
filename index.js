@@ -58,12 +58,12 @@ class Buddy {
     start('build');
 
     // Build targets
-    this.run(this.builds, (err, filepaths) => {
+    this.run(this.builds, (err, results) => {
       if (err) return fn ? fn(err) : error(err, 2);
       print(`completed build in ${chalk.cyan((stop('build') / 1000) + 's')}`, 1);
       // Run script
       this.executeScript();
-      if (fn) fn(null, filepaths);
+      if (fn) fn(null, results.map((result) => result.filepath));
     });
   }
 
@@ -73,7 +73,7 @@ class Buddy {
    */
   watch (fn) {
     // Build first
-    this.build((err, filepaths) => {
+    this.build((err, results) => {
       if (err) return fn ? fn(err) : error(err, 2);
 
       if (this.config.runtimeOptions.reload || this.config.runtimeOptions.serve) {
@@ -133,7 +133,7 @@ class Buddy {
   /**
    * Run all build targets
    * @param {Array} builds
-   * @param {Function} fn(err, filepaths)
+   * @param {Function} fn(err, results)
    */
   run (builds, fn) {
     this.building = true;
