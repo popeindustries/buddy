@@ -1,6 +1,6 @@
 'use strict';
 
-const buddyFactory = require('../index');
+const buddyFactory = require('../lib/buddy');
 const cssoPlugin = require('../packages/buddy-plugin-csso');
 const exec = require('child_process').exec;
 const expect = require('expect.js');
