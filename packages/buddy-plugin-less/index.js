@@ -59,8 +59,7 @@ function define (File, utils) {
      *  - {Boolean} bundle
      *  - {Boolean} compress
      *  - {Array} ignoredFiles
-     *  - {Boolean} includeHeader
-     *  - {Boolean} includeHelpers
+     *  - {Boolean} helpers
      *  - {Boolean} watchOnly
      * @param {Function} fn(err)
      */
