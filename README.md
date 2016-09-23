@@ -3,7 +3,7 @@
 
 # buddy
 
-**buddy** is a fast and simple build tool for js/css/html projects. It compiles source code from higher order js/css/html languages (*CoffeeScript, es6, JSX, Handlebars, Dust, Nunjucks, Stylus, Less, Jade, Twig*), automatically wraps js files in module definitions, statically resolves js/css/html dependencies, and concatenates (and optionally compresses) all souces into bundles for more efficient delivery to the browser.
+**buddy** is a fast and simple build tool for web projects. It compiles source code from higher order js/css/html languages, statically resolves dependencies, and concatenates (and optionally compresses) all souces into bundles for more efficient delivery to the browser.
 
 ## Features
 

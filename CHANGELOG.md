@@ -1,5 +1,8 @@
 # Changelog
 
+**6.0.0** - Sept X, 2016
+* 
+
 **5.1.4** - June 29, 2016
 * add console warning for missing/unresolvable module (when `process.env.NODE_ENV == "development"`)
 
