@@ -16,5 +16,3 @@ function bat (foo) {
 for (let foo = 0; foo < 3; foo++) {
   bat(foo);
 }
-
-module.exports = foo;

@@ -465,92 +465,84 @@ describe('file', () => {
       });
     });
 
-    describe('transpile()', () => {
+    describe('flatten()', () => {
       describe('namespace root declarations', () => {
-        beforeEach(() => {
-          file.workflows.transpile = [['namespaceRootDeclarations']];
-        });
-
         it('should namespace variable declarations', (done) => {
           file.content = 'const foo = "foo";';
-          file.transpile({}, (err) => {
+          file.flatten({}, (err) => {
             expect(file.content).to.equal('const _foojs_foo = "foo";');
             done();
           });
         });
         it('should namespace function declarations', (done) => {
           file.content = 'function foo () {}';
-          file.transpile({}, (err) => {
+          file.flatten({}, (err) => {
             expect(file.content).to.equal('function _foojs_foo() {}');
             done();
           });
         });
         it('should namespace class declarations', (done) => {
           file.content = 'class Foo {}';
-          file.transpile({}, (err) => {
+          file.flatten({}, (err) => {
             expect(file.content).to.equal('class _foojs_Foo {}');
             done();
           });
         });
         it('should namespace all declarations and their references', (done) => {
           file.content = fs.readFileSync('src/namespace.js', 'utf8');
-          file.transpile({}, (err) => {
-            expect(file.content).to.equal("const _foojs_bar = require('bar');\nconst _foojs_foo = require('./foo');\n\nclass _foojs_Foo {\n  constructor() {\n    console.log(_foojs_foo);\n  }\n}\n\nfunction _foojs_bat(foo) {\n  const f = new _foojs_Foo();\n\n  console.log(f, foo, _foojs_bar, 'bat');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  _foojs_bat(foo);\n}\n\nmodule.exports = _foojs_foo;");
+          file.flatten({}, (err) => {
+            expect(file.content).to.equal("const _foojs_bar = require(\'bar\');\nconst _foojs_foo = require(\'./foo\');\n\nclass _foojs_Foo {\n  constructor() {\n    console.log(_foojs_foo);\n  }\n}\n\nfunction _foojs_bat(foo) {\n  const f = new _foojs_Foo();\n\n  console.log(f, foo, _foojs_bar, \'bat\');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  _foojs_bat(foo);\n}");
             done();
           });
         });
       });
 
       describe('replace module/exports', () => {
-        beforeEach(() => {
-          file.workflows.transpile = [['replaceModuleExports']];
-        });
-
         it('should replace "module.exports"', (done) => {
           file.content = 'module.exports = function foo() {};';
-          file.transpile({}, (err) => {
+          file.flatten({}, (err) => {
             expect(file.content).to.equal("$m['foo.js'] = function foo() {};");
             done();
           });
         });
         it('should replace "module[\'exports\']"', (done) => {
           file.content = 'module[\'exports\'] = function foo() {};';
-          file.transpile({}, (err) => {
+          file.flatten({}, (err) => {
             expect(file.content).to.equal("$m['foo.js'] = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports.*"', (done) => {
           file.content = 'module.exports.foo = function foo() {};';
-          file.transpile({}, (err) => {
+          file.flatten({}, (err) => {
             expect(file.content).to.equal("$m['foo.js'].foo = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports[\'*\']"', (done) => {
           file.content = "module.exports['foo'] = function foo() {};";
-          file.transpile({}, (err) => {
+          file.flatten({}, (err) => {
             expect(file.content).to.equal("$m['foo.js']['foo'] = function foo() {};");
             done();
           });
         });
         it('should replace "exports.*"', (done) => {
           file.content = "exports.foo = 'foo';";
-          file.transpile({}, (err) => {
+          file.flatten({}, (err) => {
             expect(file.content).to.equal("$m['foo.js'].foo = 'foo';");
             done();
           });
         });
         it('should replace "exports[\'*\']"', (done) => {
           file.content = "exports['foo'] = 'foo';";
-          file.transpile({}, (err) => {
+          file.flatten({}, (err) => {
             expect(file.content).to.equal("$m['foo.js']['foo'] = 'foo';");
             done();
           });
         });
         it('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
-          file.transpile({}, (err) => {
+          file.flatten({}, (err) => {
             expect(file.content).to.equal("$m['foo.js'] = {};\n$m['foo.js'] = {};\n// module['ex' + 'ports'] = {};\n\n$m['foo.js'].foo = 'foo';\n$m['foo.js']['foo'] = 'foo';");
             done();
           });
@@ -572,7 +564,7 @@ describe('file', () => {
           }
         ];
         file.concat({ bootstrap: true }, (err) => {
-          expect(file.content).to.eql("!(function () {\n/*== src/bar.js ==*/\n$m[bar.js] = {};\nvar bar = \'bar\';\n\n/*== src/foo.js ==*/\n$m[foo.js] = {};\nvar foo = \'foo\';\n})()");
+          expect(file.content).to.eql("!(function () {\n/*== src/bar.js ==*/\n$m['bar.js'] = {};\nvar bar = 'bar';\n\n/*== src/foo.js ==*/\n$m['foo.js'] = {};\nvar foo = 'foo';\n})()");
           done();
         });
       });
@@ -587,7 +579,7 @@ describe('file', () => {
           }
         ];
         file.concat({ bootstrap: false }, (err) => {
-          expect(file.content).to.eql("$m[foo.js] = function () {\n/*== src/bar.js ==*/\n$m[bar.js] = {};\nvar bar = \'bar\';\n\n/*== src/foo.js ==*/\n$m[foo.js] = {};\nvar foo = \'foo\';\n}\n$m[foo.js].__b__=1;");
+          expect(file.content).to.eql("$m['foo.js'] = function () {\n/*== src/bar.js ==*/\n$m['bar.js'] = {};\nvar bar = 'bar';\n\n/*== src/foo.js ==*/\n$m['foo.js'] = {};\nvar foo = 'foo';\n}\n$m['foo.js'].__b__=1;");
           done();
         });
       });
