@@ -63,49 +63,45 @@ describe('Buddy', () => {
     });
 
     describe('js', () => {
-      it.skip('should build a js file when passed a json config path', (done) => {
-        buddy.build('buddy-single-file.json', null, (err, filepaths) => {
+      it('should build a js file when passed a json config path', (done) => {
+        buddy = buddyFactory('buddy-single-file.json');
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("_m_[\'foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = this;\n\n  return module.exports;\n}).call({exports:{}});");
+          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain('/*== foo.js ==*/\n$m[foo.js] = {};');
           done();
         });
       });
-      it.skip('should build a js file when passed a js config path', (done) => {
-        buddy.build('buddy-single-file.js', null, (err, filepaths) => {
+      it('should build a js file when passed a js config path', (done) => {
+        buddy = buddyFactory('buddy-single-file.js');
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("_m_[\'foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = this;\n\n  return module.exports;\n}).call({exports:{}});");
+          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain('/*== foo.js ==*/\n$m[foo.js] = {};');
           done();
         });
       });
-      it.skip('should build a js file when passed a json config object', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'foo.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build a js file when passed a json config object', (done) => {
+        buddy = buddyFactory({
+          input: 'foo.js',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("_m_[\'foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = this;\n\n  return module.exports;\n}).call({exports:{}});");
+          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain('/*== foo.js ==*/\n$m[foo.js] = {};');
           done();
         });
       });
-      it.skip('should build a js file with 1 dependency', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'bar.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build a js file with 1 dependency', (done) => {
+        buddy = buddyFactory({
+          input: 'bar.js',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("_m_[\'foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = this;\n\n  return module.exports;\n}).call({exports:{}});\n_m_[\'bar.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = _m_[\'foo.js\']\n  \t, bar = this;\n\n  return module.exports;\n}).call({exports:{}});");
+          const contents = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(contents).to.contain('/*== foo.js ==*/\n$m[foo.js] = {};');
+          expect(contents).to.contain('/*== bar.js ==*/\n$m[bar.js] = {};');
+          expect(contents).to.contain("var _barjs_foo = $m['foo.js']");
           done();
         });
       });

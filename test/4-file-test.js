@@ -337,6 +337,57 @@ describe('file', () => {
       });
     });
 
+    describe('replaceReferences()', () => {
+      it('should replace relative ids with absolute ones', (done) => {
+        file.content = "var foo = require('./foo');";
+        file.dependencyReferences = [
+          {
+            id: './foo',
+            context: "require('./foo')",
+            file: { id: 'foo.js' },
+            isIgnored: true
+          }
+        ];
+        file.replaceReferences({}, (err) => {
+          expect(file.content).to.eql("var foo = require('foo.js');");
+          done();
+        });
+      });
+      it('should replace "require(*)" with resolved lookup', (done) => {
+        file.content = "var foo = require('./foo');";
+        file.dependencyReferences = [
+          {
+            id: './foo',
+            context: "require('./foo')",
+            file: { id: 'foo.js' }
+          }
+        ];
+        file.replaceReferences({}, (err) => {
+          expect(file.content).to.eql("var foo = $m['foo.js'];");
+          done();
+        });
+      });
+      it('should replace package ids with versioned ones', (done) => {
+        file.content = "var bar = require('bar');\nvar baz = require('view/baz');";
+        file.dependencyReferences = [
+          {
+            id: 'bar',
+            context: "require('bar')",
+            file: { id: 'bar@0.js' }
+          },
+          {
+            id: 'view/baz',
+            context: "require('view/baz')",
+            file: { id: 'view/baz.js' }
+          }
+        ];
+        file.replaceReferences({}, (err) => {
+          expect(file.content).to.eql("var bar = $m['bar@0.js'];\nvar baz = $m['view/baz.js'];");
+          done();
+        });
+      });
+    });
+
     describe('inline()', () => {
       it('should inline require(*.json) content', (done) => {
         file.content = "var foo = require('./foo.json');";
@@ -677,22 +728,6 @@ describe('file', () => {
 
   describe.skip('workflow--', () => {
     describe('replaceReferences()', () => {
-      it('should replace relative ids with absolute ones', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = "var foo = require('./foo');";
-        instance.dependencyReferences = [
-          {
-            filepath: './foo.js',
-            match: "require('./foo')",
-            instance: { id: 'foo.js' }
-          }
-        ];
-        instance.replaceReferences({}, (err) => {
-          expect(instance.content).to.eql("var foo = $m['foo.js'];");
-          done();
-        });
-      });
       it('should replace relative html include paths with absolute ones', (done) => {
         const instance = fileFactory(path.resolve('src/main.dust'), { sources: [path.resolve('src')], fileExtensions });
 
@@ -723,27 +758,6 @@ describe('file', () => {
         ];
         instance.replaceReferences({}, (err) => {
           expect(instance.dependencyReferences[0].filepath).to.eql(path.resolve('src/main.js'));
-          done();
-        });
-      });
-      it('should replace package ids with versioned ones', (done) => {
-        const instance = fileFactory(path.resolve('src/main.js'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = "var bar = require('bar');\nvar baz = require('view/baz');";
-        instance.dependencyReferences = [
-          {
-            filepath: 'bar',
-            match: "require('bar')",
-            instance: { id: 'bar@0' }
-          },
-          {
-            filepath: 'view/baz',
-            match: "require('view/baz')",
-            instance: { id: 'view/baz' }
-          }
-        ];
-        instance.replaceReferences({}, (err) => {
-          expect(instance.content).to.eql("var bar = $m['bar@0'];\nvar baz = $m['view/baz'];");
           done();
         });
       });
