@@ -3,7 +3,6 @@
 const { regexpEscape, truncate, uniqueMatch } = require('../lib/utils/string');
 const callable = require('../lib/utils/callable');
 const expect = require('expect.js');
-const filetype = require('../lib/utils/filetype');
 const path = require('path');
 const pathname = require('../lib/utils/pathname');
 const unique = require('../lib/utils/unique');
@@ -120,21 +119,6 @@ describe('utils', () => {
       it('should return the passed in pattern when not hash or date', () => {
         expect(path.basename(unique.generate('foo-%foo%.js'))).to.eql('foo-%foo%.js');
       });
-    });
-  });
-
-  describe('filetype', () => {
-    it('should return the correct type for a js filepath', () => {
-      expect(filetype('foo.js', {js:['js','json'],css:['css'],html:['html']})).to.eql('js');
-    });
-    it('should return the correct type for a css filepath', () => {
-      expect(filetype('foo.css', {js:['js','json'],css:['css'],html:['html']})).to.eql('css');
-    });
-    it('should return the correct type for a html filepath', () => {
-      expect(filetype('foo.html', {js:['js','json'],css:['css'],html:['html']})).to.eql('html');
-    });
-    it('should return the correct type for a root html template filepath', () => {
-      expect(filetype('foo.nunjs', {js:['js','json'],css:['css'],html:['html','nunjs']})).to.eql('html');
     });
   });
 
