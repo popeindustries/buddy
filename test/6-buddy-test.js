@@ -1,8 +1,8 @@
 'use strict';
 
+const { exec } = require('child_process');
 const buddyFactory = require('../lib/buddy');
 const cssoPlugin = require('../packages/buddy-plugin-csso');
-const exec = require('child_process').exec;
 const expect = require('expect.js');
 const fs = require('fs');
 const imageminPlugin = require('../packages/buddy-plugin-imagemin');
@@ -11,6 +11,7 @@ const nunjucksPlugin = require('../packages/buddy-plugin-nunjucks');
 const path = require('path');
 const rimraf = require('rimraf');
 const stylusPlugin = require('../packages/buddy-plugin-stylus');
+const uglifyPlugin = require('../packages/buddy-plugin-uglify');
 let buddy;
 
 describe('Buddy', () => {
@@ -314,22 +315,17 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build a minified js file if "compress" is true', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'bar.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, { compress: true }, (err, filepaths) => {
+      it('should build a minified js file if "compress" is true', (done) => {
+        buddy = buddyFactory({
+          input: 'bar.js',
+          output: 'output'
+        }, { compress: true, plugins: [uglifyPlugin] });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;if("undefined"==typeof process)var process={env:{}};null==self._m_&&(self._m_={}),null==self.require&&(self.require=function(e){if(_m_[e])return _m_[e].boot?_m_[e]():_m_[e]}),_m_["foo.js"]=function(e,s){e=this,s=e.exports;return e.exports}.call({exports:{}}),_m_["bar.js"]=function(e,s){e=this,s=e.exports;_m_["foo.js"];return e.exports}.call({exports:{}});');
+          expect(content).to.equal('if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;if("undefined"==typeof process)var process={env:{}};null==self.$m&&(self.$m={}),null==self.require&&(self.require=function(e){if($m[e])return $m[e].__b__&&$m[e](),$m[e]}),!function(){$m["foo.js"]={};$m["bar.js"]={};$m["foo.js"]}();');
           done();
         });
       });
@@ -349,23 +345,18 @@ describe('Buddy', () => {
         });
       });
       it.skip('should remove dead code when referencing "process.env.RUNTIME" and compressing', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'zee.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, { compress: true }, (err, filepaths) => {
+        buddy = buddyFactory({
+          input: 'zee.js',
+          output: 'output'
+        }, { compress: true, plugins: [uglifyPlugin] });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.not.contain('_m_["foo.js"]=function');
-          expect(content).to.contain('_m_["boop.js"]=function');
-          expect(content).to.contain('var s=!1;return console.log("is dev: ",s)');
+          console.log(content)
+          // expect(content).to.not.contain('_m_["foo.js"]=function');
+          // expect(content).to.contain('_m_["boop.js"]=function');
+          // expect(content).to.contain('var s=!1;return console.log("is dev: ",s)');
           done();
         });
       });
@@ -398,17 +389,20 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build a node bundle when "version=node"', (done) => {
+      it('should build a node bundle when "version=node"', (done) => {
         buddy = buddyFactory({
-          input: 'env-2.js',
-          output: 'output'
+          input: 'node.js',
+          output: 'output',
+          version: 'node'
         });
         buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var _env2js_hash = '696768116e504ebcba3b436af9e645c9';");
+          expect(content).to.contain("var _nativejs_http = require('http');");
+          expect(content).to.contain("var _nodejs_http = $m['native.js'];");
+          expect(content).to.contain("var _nodejs_runtime = process.env.RUNTIME;");
           done();
         });
       });
