@@ -191,103 +191,79 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build a js file with json node_modules dependency', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'zing.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build a js file with json node_modules dependency', (done) => {
+        buddy = buddyFactory({
+          input: 'zing.js',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("_m_[\'zing.js\']=(function(module,exports){");
-          expect(content).to.contain('var json = {\n  "boo": "boo"\n};');
+          expect(content).to.contain("var _zingjs_boo = $m['boo/index.js#1.0.0'];");
+          expect(content).to.contain('var _booindexjs100_json = {\n  "boo": "boo"\n}');
           done();
         });
       });
-      it.skip('should build a js file with missing dependency', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'beep.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build a js file with missing dependency', (done) => {
+        buddy = buddyFactory({
+          input: 'beep.js',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("_m_['beep.js']=(function(module,exports){");
-          expect(content).to.contain("var what = require('what');");
+          expect(content).to.contain("$m['beep.js'] = {};");
+          expect(content).to.contain("var _beepjs_what = require('what');");
           done();
         });
       });
-      it.skip('should build a js file with disabled dependency', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'bong.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build a js file with disabled dependency', (done) => {
+        buddy = buddyFactory({
+          input: 'bong.js',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("_m_['bong.js']=(function(module,exports){");
-          expect(content).to.contain('var bat = {};');
+          expect(content).to.contain("$m['bong.js'] = {};");
+          expect(content).to.contain('var _bongjs_bat = {};');
           done();
         });
       });
-      it.skip('should build a js file with disabled native dependency', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'native.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build a js file with disabled native dependency', (done) => {
+        buddy = buddyFactory({
+          input: 'native.js',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("_m_['native.js']=(function(module,exports){");
-          expect(content).to.contain('var http = {};');
+          expect(content).to.contain("$m['native.js'] = {};");
+          expect(content).to.contain('var _nativejs_http = {};');
           done();
         });
       });
-      it.skip('should build a js file with specified source directory', (done) => {
-        buddy.build({
-          build: {
-            sources: ['js-directory/nested'],
-            build: [
-              {
-                input: 'js-directory/nested/foo.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build a js file with specified source directory', (done) => {
+        process.env.BROWSER_PATH = 'js-directory/nested';
+        buddy = buddyFactory({
+          input: 'js-directory/nested/foo.js',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("_m_['foo.js']=(function(module,exports){");
+          expect(content).to.contain("$m['foo.js'] = {};");
+          process.env.BROWSER_PATH = '';
           done();
         });
       });
@@ -327,19 +303,14 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build a js file with unique hashed name', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'foo.js',
-                output: 'output/foo-%hash%.js'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build a js file with unique hashed name', (done) => {
+        buddy = buddyFactory({
+          input: 'foo.js',
+          output: 'output/foo-%hash%.js'
+        });
+        buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(path.basename(filepaths[0])).to.eql('foo-5b70833df8ebf1be866cf34ae7908686.js');
+          expect(path.basename(filepaths[0])).to.eql('foo-f56f71dfeb0be8659be3069293871da3.js');
           done();
         });
       });
@@ -362,24 +333,18 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build a non-bootstrapped js file if "bootstrap" is false', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'foo.js',
-                output: 'output',
-                bootstrap: false
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build a non-bootstrapped js file if "bootstrap" is false', (done) => {
+        buddy = buddyFactory({
+          input: 'foo.js',
+          output: 'output',
+          bootstrap: false
+        });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("_m_[\'foo.js\']=function () {\n_m_[\'foo.js\']=(function(module,exports){");
-          expect(content).to.contain("return _m_[\'foo.js\'];");
+          expect(content).to.contain("$m['foo.js'] = function () {\n/*== foo.js ==*/\n$m['foo.js'] = {};\nvar _foojs_foo = this;\n}\n$m['foo.js'].__b__=1;");
           done();
         });
       });
@@ -404,42 +369,46 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should expose BUDDY_VERSION to source files', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'env-1.js',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should expose BUDDY_VERSION to source files', (done) => {
+        buddy = buddyFactory({
+          input: 'env-1.js',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.match(/var version = '\d\.\d\.\d';/);
+          expect(content).to.match(/var _env1js_version = '\d\.\d\.\d/);
           done();
         });
       });
-      it.skip('should expose BUDDY_X_X to source files', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'env-2.js',
-                output: 'output',
-                label: 'env'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should expose BUDDY_X_X to source files', (done) => {
+        buddy = buddyFactory({
+          input: 'env-2.js',
+          output: 'output',
+          label: 'env'
+        });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var hash = '696768116e504ebcba3b436af9e645c9';");
+          expect(content).to.contain("var _env2js_hash = '696768116e504ebcba3b436af9e645c9';");
+          done();
+        });
+      });
+      it.skip('should build a node bundle when "version=node"', (done) => {
+        buddy = buddyFactory({
+          input: 'env-2.js',
+          output: 'output'
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain("var _env2js_hash = '696768116e504ebcba3b436af9e645c9';");
           done();
         });
       });
