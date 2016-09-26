@@ -500,49 +500,50 @@ describe('file', () => {
       describe('replace module/exports', () => {
         it('should replace "module.exports"', (done) => {
           file.content = 'module.exports = function foo() {};';
-          file.flatten({}, (err) => {
+          file.flatten({ browser: true }, (err) => {
             expect(file.content).to.equal("$m['foo.js'] = function foo() {};");
             done();
           });
         });
         it('should replace "module[\'exports\']"', (done) => {
           file.content = 'module[\'exports\'] = function foo() {};';
-          file.flatten({}, (err) => {
+          file.flatten({ browser: true }, (err) => {
             expect(file.content).to.equal("$m['foo.js'] = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports.*"', (done) => {
           file.content = 'module.exports.foo = function foo() {};';
-          file.flatten({}, (err) => {
+          file.flatten({ browser: true }, (err) => {
             expect(file.content).to.equal("$m['foo.js'].foo = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports[\'*\']"', (done) => {
           file.content = "module.exports['foo'] = function foo() {};";
-          file.flatten({}, (err) => {
+          file.flatten({ browser: true }, (err) => {
             expect(file.content).to.equal("$m['foo.js']['foo'] = function foo() {};");
             done();
           });
         });
         it('should replace "exports.*"', (done) => {
           file.content = "exports.foo = 'foo';";
-          file.flatten({}, (err) => {
+          file.flatten({ browser: true }, (err) => {
             expect(file.content).to.equal("$m[foo.js] = {};\n$m['foo.js'].foo = 'foo';");
             done();
           });
         });
         it('should replace "exports[\'*\']"', (done) => {
           file.content = "exports['foo'] = 'foo';";
-          file.flatten({}, (err) => {
+          file.flatten({ browser: true }, (err) => {
             expect(file.content).to.equal("$m[foo.js] = {};\n$m['foo.js']['foo'] = 'foo';");
             done();
           });
         });
-        it('should replace all "module" and "exports"', (done) => {
+        it.only('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
-          file.flatten({}, (err) => {
+          file.flatten({ browser: true }, (err) => {
+            console.log(file.content)
             expect(file.content).to.equal("$m['foo.js'] = {};\n$m['foo.js'] = {};\n// module['ex' + 'ports'] = {};\n\n$m[foo.js] = {};\n$m['foo.js'].foo = 'foo';\n$m['foo.js']['foo'] = 'foo';");
             done();
           });
@@ -561,8 +562,8 @@ describe('file', () => {
             content: "var bar = 'bar';"
           }
         ];
-        file.concat({ bootstrap: true }, (err) => {
-          expect(file.content).to.eql("var $m = {};\n!(function () {\n/*++ src/bar.js ++*/\nvar bar = 'bar';\n/*-- src/bar.js --*/\n\n/*++ src/foo.js ++*/\nvar foo = 'foo';\n/*-- src/foo.js --*/\n})()");
+        file.concat({ bootstrap: true, browser: true }, (err) => {
+          expect(file.content).to.eql("!(function () {\n/*++ src/bar.js ++*/\nvar bar = 'bar';\n/*-- src/bar.js --*/\n\n/*++ src/foo.js ++*/\nvar foo = 'foo';\n/*-- src/foo.js --*/\n})()");
           done();
         });
       });
@@ -576,8 +577,8 @@ describe('file', () => {
             content: "var bar = 'bar';"
           }
         ];
-        file.concat({ bootstrap: false }, (err) => {
-          expect(file.content).to.eql("var $m = {};\n$m['foo.js'] = function () {\n/*++ src/bar.js ++*/\nvar bar = 'bar';\n/*-- src/bar.js --*/\n\n/*++ src/foo.js ++*/\nvar foo = 'foo';\n/*-- src/foo.js --*/\n}\n$m['foo.js'].__b__=1;");
+        file.concat({ bootstrap: false, browser: true }, (err) => {
+          expect(file.content).to.eql("$m['foo.js'] = function () {\n/*++ src/bar.js ++*/\nvar bar = 'bar';\n/*-- src/bar.js --*/\n\n/*++ src/foo.js ++*/\nvar foo = 'foo';\n/*-- src/foo.js --*/\n}\n$m['foo.js'].__b__=1;");
           done();
         });
       });
