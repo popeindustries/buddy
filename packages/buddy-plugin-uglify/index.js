@@ -50,6 +50,7 @@ function extend (prototype, utils) {
    *  - {Boolean} helpers
    *  - {Boolean} watchOnly
    * @param {Function} fn(err)
+   * @returns {null}
    */
   prototype.compress = function compress (buildOptions, fn) {
     try {
@@ -58,9 +59,9 @@ function extend (prototype, utils) {
 
       debug(`compress: ${strong(this.relpath)}`, 4);
       this.content = content;
-      fn();
     } catch (err) {
-      fn(err);
+      return fn(err);
     }
+    fn();
   };
 }

@@ -529,27 +529,25 @@ describe('file', () => {
         it('should replace "exports.*"', (done) => {
           file.content = "exports.foo = 'foo';";
           file.flatten({}, (err) => {
-            expect(file.content).to.equal("$m['foo.js'].foo = 'foo';");
+            expect(file.content).to.equal("$m[foo.js] = {};\n$m['foo.js'].foo = 'foo';");
             done();
           });
         });
         it('should replace "exports[\'*\']"', (done) => {
           file.content = "exports['foo'] = 'foo';";
           file.flatten({}, (err) => {
-            expect(file.content).to.equal("$m['foo.js']['foo'] = 'foo';");
+            expect(file.content).to.equal("$m[foo.js] = {};\n$m['foo.js']['foo'] = 'foo';");
             done();
           });
         });
         it('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
           file.flatten({}, (err) => {
-            expect(file.content).to.equal("$m['foo.js'] = {};\n$m['foo.js'] = {};\n// module['ex' + 'ports'] = {};\n\n$m['foo.js'].foo = 'foo';\n$m['foo.js']['foo'] = 'foo';");
+            expect(file.content).to.equal("$m['foo.js'] = {};\n$m['foo.js'] = {};\n// module['ex' + 'ports'] = {};\n\n$m[foo.js] = {};\n$m['foo.js'].foo = 'foo';\n$m['foo.js']['foo'] = 'foo';");
             done();
           });
         });
       });
-
-      it('should track global helpers');
     });
 
     describe('concat()', () => {
@@ -564,7 +562,7 @@ describe('file', () => {
           }
         ];
         file.concat({ bootstrap: true }, (err) => {
-          expect(file.content).to.eql("!(function () {\n/*== src/bar.js ==*/\n$m['bar.js'] = {};\nvar bar = 'bar';\n\n/*== src/foo.js ==*/\n$m['foo.js'] = {};\nvar foo = 'foo';\n})()");
+          expect(file.content).to.eql("var $m = {};\n!(function () {\n/*++ src/bar.js ++*/\nvar bar = 'bar';\n/*-- src/bar.js --*/\n\n/*++ src/foo.js ++*/\nvar foo = 'foo';\n/*-- src/foo.js --*/\n})()");
           done();
         });
       });
@@ -579,7 +577,7 @@ describe('file', () => {
           }
         ];
         file.concat({ bootstrap: false }, (err) => {
-          expect(file.content).to.eql("$m['foo.js'] = function () {\n/*== src/bar.js ==*/\n$m['bar.js'] = {};\nvar bar = 'bar';\n\n/*== src/foo.js ==*/\n$m['foo.js'] = {};\nvar foo = 'foo';\n}\n$m['foo.js'].__b__=1;");
+          expect(file.content).to.eql("var $m = {};\n$m['foo.js'] = function () {\n/*++ src/bar.js ++*/\nvar bar = 'bar';\n/*-- src/bar.js --*/\n\n/*++ src/foo.js ++*/\nvar foo = 'foo';\n/*-- src/foo.js --*/\n}\n$m['foo.js'].__b__=1;");
           done();
         });
       });

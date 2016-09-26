@@ -1,1 +1,1 @@
-var foo = this;
+module.exports = 'foo';

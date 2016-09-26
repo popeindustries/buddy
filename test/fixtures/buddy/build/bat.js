@@ -1,2 +1,1 @@
-var foo = require('foo')
-	, bat = this;
+var foo = require('foo');

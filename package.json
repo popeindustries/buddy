@@ -38,13 +38,18 @@
     "buddy": "./bin/buddy"
   },
   "scripts": {
-    "lint": "eslint lib",
-    "test": "NODE_ENV=test mocha \"./packages/buddy-plugin-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 10000"
+    "build": "./bin/build",
+    "test": "NODE_ENV=test mocha \"./packages/buddy-plugin-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 10000 --bail"
   },
   "engines": {
     "node": ">=6"
   },
   "repository": "git://github.com/popeindustries/buddy.git",
   "readmeFilename": "README.md",
-  "license": "MIT"
+  "license": "MIT",
+  "buddy": {
+    "input": "lib/buddy.js",
+    "output": "index.js",
+    "version": "node"
+  }
 }

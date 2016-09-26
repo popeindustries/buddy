@@ -1,2 +1,1 @@
-var bar = require('bar/dist/commonjs/lib/bar')
-	, boo = this;
+var bar = require('bar/dist/commonjs/lib/bar');

@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+const buddyFactory = require('../lib/buddy');
+
+buddyFactory('package.json').build();

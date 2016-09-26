@@ -1,2 +1,3 @@
 var foo = require('./foo')
-	, bar = this;
+
+module.exports = foo;
