@@ -250,7 +250,7 @@ describe('Buddy', () => {
         });
       });
       it('should build a js file with specified source directory', (done) => {
-        process.env.BROWSER_PATH = 'js-directory/nested';
+        process.env.NODE_PATH = 'js-directory/nested';
         buddy = buddyFactory({
           input: 'js-directory/nested/foo.js',
           output: 'output'
@@ -261,7 +261,7 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain("$m['foo.js'].exports = 'foo';");
-          process.env.BROWSER_PATH = '';
+          process.env.NODE_PATH = '';
           done();
         });
       });
