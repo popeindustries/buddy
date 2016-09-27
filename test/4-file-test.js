@@ -363,7 +363,7 @@ describe('file', () => {
           }
         ];
         file.replaceReferences({}, (err) => {
-          expect(file.content).to.eql("var foo = $m['foo.js'];");
+          expect(file.content).to.eql("var foo = $m['foo.js'].exports;");
           done();
         });
       });
@@ -382,7 +382,7 @@ describe('file', () => {
           }
         ];
         file.replaceReferences({}, (err) => {
-          expect(file.content).to.eql("var bar = $m['bar@0.js'];\nvar baz = $m['view/baz.js'];");
+          expect(file.content).to.eql("var bar = $m['bar@0.js'].exports;\nvar baz = $m['view/baz.js'].exports;");
           done();
         });
       });
@@ -501,50 +501,49 @@ describe('file', () => {
         it('should replace "module.exports"', (done) => {
           file.content = 'module.exports = function foo() {};';
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js'] = function foo() {};");
+            expect(file.content).to.equal("$m['foo.js'].exports = function foo() {};");
             done();
           });
         });
         it('should replace "module[\'exports\']"', (done) => {
           file.content = 'module[\'exports\'] = function foo() {};';
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js'] = function foo() {};");
+            expect(file.content).to.equal("$m['foo.js']['exports'] = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports.*"', (done) => {
           file.content = 'module.exports.foo = function foo() {};';
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js'].foo = function foo() {};");
+            expect(file.content).to.equal("$m['foo.js'].exports.foo = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports[\'*\']"', (done) => {
           file.content = "module.exports['foo'] = function foo() {};";
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js']['foo'] = function foo() {};");
+            expect(file.content).to.equal("$m['foo.js'].exports['foo'] = function foo() {};");
             done();
           });
         });
         it('should replace "exports.*"', (done) => {
           file.content = "exports.foo = 'foo';";
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m[foo.js] = {};\n$m['foo.js'].foo = 'foo';");
+            expect(file.content).to.equal("$m['foo.js'].exports.foo = 'foo';");
             done();
           });
         });
         it('should replace "exports[\'*\']"', (done) => {
           file.content = "exports['foo'] = 'foo';";
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m[foo.js] = {};\n$m['foo.js']['foo'] = 'foo';");
+            expect(file.content).to.equal("$m['foo.js'].exports['foo'] = 'foo';");
             done();
           });
         });
-        it.only('should replace all "module" and "exports"', (done) => {
+        it('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
           file.flatten({ browser: true }, (err) => {
-            console.log(file.content)
-            expect(file.content).to.equal("$m['foo.js'] = {};\n$m['foo.js'] = {};\n// module['ex' + 'ports'] = {};\n\n$m[foo.js] = {};\n$m['foo.js'].foo = 'foo';\n$m['foo.js']['foo'] = 'foo';");
+            expect(file.content).to.equal("$m['foo.js'];\n$m['foo.js'].exports = {};\n$m['foo.js']['exports'] = {};\n$m['foo.js']['ex' + 'ports'] = {};\n\n$m['foo.js'].exports;\n$m['foo.js'].exports && foo;\n$m['foo.js'].exports.foo = 'foo';\n$m['foo.js'].exports['foo'] = 'foo';\n$m['foo.js'].exports.BELL = '\\x07';\nfreeModule.exports === freeExports;\n\nif (true) {\n  const module = 'foo';\n  const exports = 'bar';\n}");
             done();
           });
         });
@@ -563,7 +562,7 @@ describe('file', () => {
           }
         ];
         file.concat({ bootstrap: true, browser: true }, (err) => {
-          expect(file.content).to.eql("!(function () {\n/*++ src/bar.js ++*/\nvar bar = 'bar';\n/*-- src/bar.js --*/\n\n/*++ src/foo.js ++*/\nvar foo = 'foo';\n/*-- src/foo.js --*/\n})()");
+          expect(file.content).to.eql("!(function () {\n/*== src/bar.js ==*/\n$m['bar.js'] = { exports: {} };\nvar bar = 'bar';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m['foo.js'] = { exports: {} };\nvar foo = 'foo';\n/*≠≠ src/foo.js ≠≠*/\n})()");
           done();
         });
       });
@@ -578,7 +577,7 @@ describe('file', () => {
           }
         ];
         file.concat({ bootstrap: false, browser: true }, (err) => {
-          expect(file.content).to.eql("$m['foo.js'] = function () {\n/*++ src/bar.js ++*/\nvar bar = 'bar';\n/*-- src/bar.js --*/\n\n/*++ src/foo.js ++*/\nvar foo = 'foo';\n/*-- src/foo.js --*/\n}\n$m['foo.js'].__b__=1;");
+          expect(file.content).to.eql("$m['foo.js'] = function () {\n/*== src/bar.js ==*/\n$m['bar.js'] = { exports: {} };\nvar bar = 'bar';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m['foo.js'] = { exports: {} };\nvar foo = 'foo';\n/*≠≠ src/foo.js ≠≠*/\n}");
           done();
         });
       });

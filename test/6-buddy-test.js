@@ -70,7 +70,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("!(function () {\n/*++ foo.js ++*/\n$m['foo.js'] = 'foo';\n/*-- foo.js --*/\n})()");
+          expect(content).to.contain("!(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
           done();
         });
       });
@@ -78,7 +78,7 @@ describe('Buddy', () => {
         buddy = buddyFactory('buddy-single-file.js');
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("!(function () {\n/*++ foo.js ++*/\n$m['foo.js'] = 'foo';\n/*-- foo.js --*/\n})()");
+          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("!(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
           done();
         });
       });
@@ -89,7 +89,7 @@ describe('Buddy', () => {
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("!(function () {\n/*++ foo.js ++*/\n$m['foo.js'] = 'foo';\n/*-- foo.js --*/\n})()");
+          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("!(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
           done();
         });
       });
@@ -100,10 +100,10 @@ describe('Buddy', () => {
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          const contents = fs.readFileSync(filepaths[0], 'utf8');
+          const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(contents).to.contain("/*++ foo.js ++*/\n$m['foo.js'] = 'foo';\n/*-- foo.js --*/");
-          expect(contents).to.contain("var _barjs_foo = $m['foo.js']");
+          expect(content).to.contain("/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/");
+          expect(content).to.contain("var _barjs_foo = $m[\'foo.js\'].exports;");
           done();
         });
       });
@@ -114,9 +114,9 @@ describe('Buddy', () => {
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          const contents = fs.readFileSync(filepaths[0], 'utf8');
+          const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(contents).to.contain("!(function () {\n/*++ b.js ++*/\n$m['b.js'] = function () {\n$m['b.js'] = _bjs_b;\n\nvar _bjs_a = $m['a.js'];\n\nfunction _bjs_b() {\n  console.log('b');\n}\n}\n$m['b.js'].__b__=1;\n/*-- b.js --*/\n\n/*++ a.js ++*/\n$m['a.js'] = _ajs_a;\n\nvar _ajs_b = require('b.js');\n\nfunction _ajs_a() {\n  console.log('a');\n}\n/*-- a.js --*/\n})()");
+          expect(content).to.contain("!(function () {\n/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m['b.js'] = { exports: {} };\n$m['b.js'].exports = _bjs_b;\n\nvar _bjs_a = $m['a.js'].exports;\n\nfunction _bjs_b() {\n  console.log('b');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m['a.js'] = { exports: {} };\n$m['a.js'].exports = _ajs_a;\n\nvar _ajs_b = require('b.js');\n\nfunction _ajs_a() {\n  console.log('a');\n}\n/*≠≠ a.js ≠≠*/\n})()");
           done();
         });
       });
@@ -127,9 +127,9 @@ describe('Buddy', () => {
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          const contents = fs.readFileSync(filepaths[0], 'utf8');
+          const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(contents).to.contain("!(function () {\n/*++ foo.js ++*/\n$m['foo.js'] = 'foo';\n/*-- foo.js --*/\n\n/*++ e.js ++*/\nvar _ejs_foo = $m['foo.js'];\n/*-- e.js --*/\n\n/*++ d.js ++*/\nvar _djs_e = $m['e.js'];\n/*-- d.js --*/\n\n/*++ c.js ++*/\nvar _cjs_foo = $m['foo.js'],\n    _cjs_d = $m['d.js'];\n/*-- c.js --*/\n})()");
+          expect(content).to.contain("!(function () {\n/*== foo.js ==*/\n$m['foo.js'] = { exports: {} };\n$m['foo.js'].exports = 'foo';\n/*≠≠ foo.js ≠≠*/\n\n/*== e.js ==*/\n$m['e.js'] = { exports: {} };\nvar _ejs_foo = $m['foo.js'].exports;\n/*≠≠ e.js ≠≠*/\n\n/*== d.js ==*/\n$m['d.js'] = { exports: {} };\nvar _djs_e = $m['e.js'].exports;\n/*≠≠ d.js ≠≠*/\n\n/*== c.js ==*/\n$m['c.js'] = { exports: {} };\nvar _cjs_foo = $m['foo.js'].exports,\n    _cjs_d = $m['d.js'].exports;\n/*≠≠ c.js ≠≠*/\n})()");
           done();
         });
       });
@@ -143,9 +143,9 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("$m['bar/bar.js#0.0.0'] = 'bar';");
-          expect(content).to.contain("var _foofoojs000_bar = $m['bar/bar.js#0.0.0'];");
-          expect(content).to.contain("var _batjs_foo = $m['foo/foo.js#0.0.0'];");
+          expect(content).to.contain("$m['bar/bar.js#0.0.0'].exports = 'bar';");
+          expect(content).to.contain("var _foofoojs000_bar = $m['bar/bar.js#0.0.0'].exports");
+          expect(content).to.contain("var _batjs_foo = $m['foo/foo.js#0.0.0'].exports;");
           done();
         });
       });
@@ -159,8 +159,8 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("$m['bar/dist/commonjs/lib/bar.js#0.0.0'] = 'bar';");
-          expect(content).to.contain("var _boojs_bar = $m['bar/dist/commonjs/lib/bar.js#0.0.0']");
+          expect(content).to.contain("$m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports = 'bar';");
+          expect(content).to.contain("var _boojs_bar = $m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports");
           done();
         });
       });
@@ -174,7 +174,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("$m['foo.js/index.js#1.0.0'] = 'foo.js';");
+          expect(content).to.contain("$m['foo.js/index.js#1.0.0'].exports = 'foo.js';");
           done();
         });
       });
@@ -187,6 +187,7 @@ describe('Buddy', () => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
+
           expect(content).to.contain('var _bingjs_json = {\n  "content": "foo"\n}');
           done();
         });
@@ -201,7 +202,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var _zingjs_boo = $m['boo/index.js#1.0.0'];");
+          expect(content).to.contain("var _zingjs_boo = $m['boo/index.js#1.0.0'].exports;");
           expect(content).to.contain('var _booindexjs100_json = {\n  "boo": "boo"\n}');
           done();
         });
@@ -259,7 +260,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("$m['foo.js'] = 'foo';");
+          expect(content).to.contain("$m['foo.js'].exports = 'foo';");
           process.env.BROWSER_PATH = '';
           done();
         });
@@ -307,7 +308,7 @@ describe('Buddy', () => {
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(path.basename(filepaths[0])).to.eql('foo-2b23c217cf1937e19576e0428db7afff.js');
+          expect(path.basename(filepaths[0])).to.eql('foo-135bf621ba1b26a834430f30a8e83559.js');
           done();
         });
       });
@@ -321,7 +322,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;if("undefined"==typeof process)var process={env:{}};self.$m||(self.$m={}),self.require||(self.require=function(e){if($m[e])return $m[e].__b__&&$m[e](),$m[e]}),!function(){$m["foo.js"]="foo";var e=$m["foo.js"];$m["bar.js"]=e}();');
+          expect(content).to.equal('if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;if("undefined"==typeof process)var process={env:{}};var $m=self.$m=self.$m||{},require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports};!function(){$m["foo.js"]={exports:{}},$m["foo.js"].exports="foo",$m["bar.js"]={exports:{}};var e=$m["foo.js"].exports;$m["bar.js"].exports=e}();');
           done();
         });
       });
@@ -336,7 +337,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("$m['foo.js'] = function () {\n/*++ foo.js ++*/\n$m['foo.js'] = 'foo';\n/*-- foo.js --*/\n}\n$m['foo.js'].__b__=1;");
+          expect(content).to.contain("$m['foo.js'] = function () {\n/*== foo.js ==*/\n$m['foo.js'] = { exports: {} };\n$m['foo.js'].exports = 'foo';\n/*≠≠ foo.js ≠≠*/\n}");
           done();
         });
       });
@@ -397,7 +398,7 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain("var _nativejs_http = require('http');");
-          expect(content).to.contain("var _nodejs_http = $m['native.js'];");
+          expect(content).to.contain("var _nodejs_http = $m['native.js'].exports;");
           expect(content).to.contain('var _nodejs_runtime = process.env.RUNTIME;');
           expect(content).to.contain('module.exports = function () {};');
           done();
