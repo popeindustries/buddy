@@ -395,6 +395,10 @@ describe('config', () => {
           process.chdir(path.join(__dirname, 'fixtures/config/src'));
           expect(configFactory().url.toLowerCase()).to.equal(path.join(__dirname, 'fixtures/config/buddy.js').toLowerCase());
         });
+        it('should parse all npm modules', () => {
+          process.chdir(path.join(__dirname, 'fixtures/config/pkgjson'));
+          expect(configFactory().npmModulepaths).to.eql([path.resolve('node_modules/@foo/foo'), path.resolve('node_modules/bar')]);
+        });
       });
 
       describe('from an invalid working directory', () => {

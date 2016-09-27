@@ -289,6 +289,27 @@ describe('file', () => {
       });
     });
 
+    describe('constructor()', () => {
+      it('should flag npm module files', () => {
+        process.chdir(path.resolve(__dirname, '..'));
+        config = configFactory({
+          input: 'foo.js',
+          output: 'js'
+        }, {});
+        file = config.fileFactory(path.resolve('node_modules/async/series.js'), {
+          caches: config.caches,
+          fileExtensions: config.fileExtensions,
+          fileFactory: config.fileFactory,
+          npmModulepaths: config.npmModulepaths,
+          pluginOptions: { babel: { plugins: [] } },
+          runtimeOptions: config.runtimeOptions,
+          sources: [path.resolve('.')]
+        });
+        expect(file.isNpmModule).to.equal(true);
+        process.chdir(path.resolve(__dirname, 'fixtures/file'));
+      });
+    });
+
     describe('parse()', () => {
       it('should store an array of dependencies', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./b');";

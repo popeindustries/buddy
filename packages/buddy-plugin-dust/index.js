@@ -46,6 +46,7 @@ function define (File, utils) {
      *  - {Object} caches
      *  - {Object} fileExtensions
      *  - {Function} fileFactory
+     *  - {Array} npmModulepaths
      *  - {Object} pluginOptions
      *  - {Object} runtimeOptions
      *  - {Array} sources
@@ -59,6 +60,7 @@ function define (File, utils) {
     /**
      * Parse file contents for dependency references
      * @param {Object} buildOptions
+     *  - {Boolean} batch
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
      *  - {Boolean} browser
@@ -87,6 +89,7 @@ function define (File, utils) {
     /**
      * Inline 'include' dependency content
      * @param {Object} buildOptions
+     *  - {Boolean} batch
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
      *  - {Boolean} browser
@@ -106,6 +109,7 @@ function define (File, utils) {
     /**
      * Compile file contents
      * @param {Object} buildOptions
+     *  - {Boolean} batch
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
      *  - {Boolean} browser
@@ -135,6 +139,7 @@ function define (File, utils) {
     /**
      * Parse file contents for inline dependency references
      * @param {Object} buildOptions
+     *  - {Boolean} batch
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
      *  - {Boolean} browser
@@ -152,6 +157,7 @@ function define (File, utils) {
     /**
      * Inline css/img/js dependency content
      * @param {Object} buildOptions
+     *  - {Boolean} batch
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
      *  - {Boolean} browser

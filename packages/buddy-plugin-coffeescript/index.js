@@ -42,6 +42,7 @@ function define (File, utils) {
      *  - {Object} caches
      *  - {Object} fileExtensions
      *  - {Function} fileFactory
+     *  - {Array} npmModulepaths
      *  - {Object} pluginOptions
      *  - {Object} runtimeOptions
      *  - {Array} sources
@@ -55,6 +56,7 @@ function define (File, utils) {
     /**
      * Compile file contents
      * @param {Object} buildOptions
+     *  - {Boolean} batch
      *  - {Boolean} bootstrap
      *  - {Boolean} boilerplate
      *  - {Boolean} browser
