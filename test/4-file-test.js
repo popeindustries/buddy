@@ -583,7 +583,7 @@ describe('file', () => {
           }
         ];
         file.concat({ bootstrap: true, browser: true }, (err) => {
-          expect(file.content).to.eql("!(function () {\n/*== src/bar.js ==*/\n$m['bar.js'] = { exports: {} };\nvar bar = 'bar';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m['foo.js'] = { exports: {} };\nvar foo = 'foo';\n/*≠≠ src/foo.js ≠≠*/\n})()");
+          expect(file.content).to.eql("/** BUDDY BUILT **/\n!(function () {\n/*== src/bar.js ==*/\n$m[\'bar.js\'] = { exports: {} };\nvar bar = \'bar\';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\nvar foo = \'foo\';\n/*≠≠ src/foo.js ≠≠*/\n})()");
           done();
         });
       });
@@ -598,7 +598,7 @@ describe('file', () => {
           }
         ];
         file.concat({ bootstrap: false, browser: true }, (err) => {
-          expect(file.content).to.eql("$m['foo.js'] = function () {\n/*== src/bar.js ==*/\n$m['bar.js'] = { exports: {} };\nvar bar = 'bar';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m['foo.js'] = { exports: {} };\nvar foo = 'foo';\n/*≠≠ src/foo.js ≠≠*/\n}");
+          expect(file.content).to.eql("/** BUDDY BUILT **/\n$m['foo.js'] = function () {\n/*== src/bar.js ==*/\n$m['bar.js'] = { exports: {} };\nvar bar = 'bar';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m['foo.js'] = { exports: {} };\nvar foo = 'foo';\n/*≠≠ src/foo.js ≠≠*/\n}");
           done();
         });
       });

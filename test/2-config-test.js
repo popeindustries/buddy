@@ -36,7 +36,7 @@ describe('config', () => {
         let options = {};
 
         pluginLoader.loadBuildPlugins(options);
-        expect(options.babel.plugins).to.have.length(1);
+        expect(options.babel.plugins).to.have.length(0);
       });
       it.skip('should generate and install Babel plugins based on target version', () => {
         let options = {};
@@ -49,7 +49,7 @@ describe('config', () => {
         let options = {};
 
         pluginLoader.loadBuildPlugins(options, 'foo');
-        expect(options.babel.plugins).to.have.length(1);
+        expect(options.babel.plugins).to.have.length(0);
       });
       it('should allow default plugins to be overridden', () => {
         let options = { babel: { plugins: [['babel-plugin-external-helpers', { foo: true }]] } };
