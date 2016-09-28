@@ -1,16 +1,16 @@
 'use strict';
 
-const cache = require('../lib/identify-resource/cache');
-const config = require('../lib/identify-resource/config');
+const cache = require('../lib/dependency-resolver/cache');
+const config = require('../lib/dependency-resolver/config');
 const expect = require('expect.js');
-const identify = require('../lib/identify-resource/identify');
-const pkg = require('../lib/identify-resource/package');
+const identify = require('../lib/dependency-resolver/identify');
+const pkg = require('../lib/dependency-resolver/package');
 const path = require('path');
-const resolve = require('../lib/identify-resource/resolve');
+const resolve = require('../lib/dependency-resolver/resolve');
 
-describe('identify-resource', () => {
+describe('dependency-resolver', () => {
   before(() => {
-    process.chdir(path.resolve(__dirname, 'fixtures/identify-resource'));
+    process.chdir(path.resolve(__dirname, 'fixtures/dependency-resolver'));
   });
   beforeEach(() => {
     cache.clear(true);

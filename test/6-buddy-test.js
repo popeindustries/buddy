@@ -374,20 +374,6 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should expose BUDDY_VERSION to source files', (done) => {
-        buddy = buddyFactory({
-          input: 'env-1.js',
-          output: 'output'
-        });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.match(/var _env1js_version = '\d\.\d\.\d/);
-          done();
-        });
-      });
       it('should expose BUDDY_X_X to source files', (done) => {
         buddy = buddyFactory({
           input: 'env-2.js',
