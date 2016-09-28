@@ -3,7 +3,7 @@
 const configFactory = require('../../../lib/config');
 const expect = require('expect.js');
 const path = require('path');
-const plugin = require('../index');
+const plugin = require('../src/index');
 const fs = require('fs');
 let config, file, fileFactoryOptions;
 

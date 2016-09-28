@@ -11,20 +11,27 @@
     "minify"
   ],
   "dependencies": {
-    "csso": "2.2.1"
   },
   "devDependencies": {
+    "csso": "2.2.1"
   },
   "peerDependencies": {
     "buddy": "6.x"
   },
   "main": "index.js",
   "scripts": {
+    "build": "./bin/build",
+    "prepublish": "npm run build"
   },
   "engines": {
     "node": ">=4"
   },
   "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-csso",
   "readmeFilename": "README.md",
-  "license": "MIT"
+  "license": "MIT",
+  "buddy": {
+    "input": "src/index.js",
+    "output": "index.js",
+    "version": "node"
+  }
 }

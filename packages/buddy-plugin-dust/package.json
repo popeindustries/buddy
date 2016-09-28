@@ -9,16 +9,18 @@
     "dust"
   ],
   "dependencies": {
-    "dustjs-helpers": "1.7.3",
-    "dustjs-linkedin": "2.7.4"
   },
   "devDependencies": {
+    "dustjs-helpers": "1.7.3",
+    "dustjs-linkedin": "2.7.4"
   },
   "peerDependencies": {
     "buddy": "6.x"
   },
   "main": "index.js",
   "scripts": {
+    "build": "./bin/build",
+    "prepublish": "npm run build",
     "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec -t 10000"
   },
   "engines": {
@@ -26,5 +28,10 @@
   },
   "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-dust",
   "readmeFilename": "README.md",
-  "license": "MIT"
+  "license": "MIT",
+  "buddy": {
+    "input": "src/index.js",
+    "output": "index.js",
+    "version": "node"
+  }
 }

@@ -2,6 +2,7 @@
 
 const { exec } = require('child_process');
 const buddyFactory = require('../lib/buddy');
+const coffeescriptPlugin = require('../packages/buddy-plugin-coffeescript');
 const cssoPlugin = require('../packages/buddy-plugin-csso');
 const expect = require('expect.js');
 const fs = require('fs');
@@ -90,6 +91,19 @@ describe('Buddy', () => {
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("!(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
+          done();
+        });
+      });
+      it('should build a coffeescript file', (done) => {
+        buddy = buddyFactory({
+          input: 'a.coffee',
+          output: 'output'
+        }, { plugins: [coffeescriptPlugin] });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.equal('/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n!(function () {\n/*== a.coffee ==*/\n$m[\'a.coffee\'] = { exports: {} };\nvar _acoffee_foo;\n\n_acoffee_foo = \'foo\';\n/*≠≠ a.coffee ≠≠*/\n})()');
           done();
         });
       });
