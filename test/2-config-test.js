@@ -38,11 +38,11 @@ describe('config', () => {
         pluginLoader.loadBuildPlugins(options);
         expect(options.babel.plugins).to.have.length(0);
       });
-      it.skip('should generate and install Babel plugins based on target version', () => {
+      it('should generate and install Babel plugins based on target version', () => {
         let options = {};
 
         pluginLoader.loadBuildPlugins(options, 'node6');
-        expect(options.babel.plugins).to.have.length(2);
+        expect(options.babel.plugins).to.have.length(1);
         exec('npm --save-dev uninstall babel-plugin-transform-es2015-modules-commonjs');
       });
       it('should ignore unknown target versions', () => {
@@ -90,7 +90,17 @@ describe('config', () => {
       };
     });
 
-    it('should handle deprecated "targets" format');
+    it('should handle deprecated "targets" format', () => {
+      dummyConfig.build = {
+        targets: [{
+          input: 'src/hey.js',
+          output: 'js'
+        }]
+      };
+      buildParser.parse(dummyConfig);
+
+      expect(dummyConfig.build[0].inputpaths[0]).to.equal(path.resolve('src/hey.js'));
+    });
     it('should allow passing build data "input" that doesn\'t exist', () => {
       dummyConfig.build = [{
         input: 'src/hey.js',
@@ -494,7 +504,12 @@ describe('config', () => {
     });
 
     describe('registerTargetVersionForType()', () => {
-      it('should register a target version for js type');
+      it.skip('should register a target version for js type', () => {
+        config = configFactory({ build: { input: 'src/main.js', output: '.', version: ['foo'] } });
+        config.registerTargetVersionForType('foo', ['foo'], 'js');
+        console.log(config)
+        // expect(config.fileExtensions.js).to.eql(['js', 'json', 'jsx', 'foo']);
+      });
     });
 
     describe('registerFileDefinitionAndExtensionsForType()', () => {

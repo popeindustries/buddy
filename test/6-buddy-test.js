@@ -1016,54 +1016,50 @@ describe('Buddy', () => {
     });
   });
 
-  describe.skip('script', () => {
+  describe('script', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/script'));
     });
 
     it('should run a script after successful build', (done) => {
-      buddy.build({
-        build: {
-          build: [
-            {
-              input: 'foo.js',
-              output: 'output'
-            }
-          ]
-        },
+      buddy = buddyFactory({
+        build: [{
+          input: 'foo.js',
+          output: 'output'
+        }],
         script: 'node mod.js output/foo.js'
-      }, { script: true }, (err, filepaths) => {
+      }, { script: true });
+      buddy.build((err, filepaths) => {
+        expect(fs.existsSync(filepaths[0])).to.be(true);
         setTimeout(() => {
-          expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.eql('oops!');
           done();
-        }, 1000);
+        }, 100);
       });
     });
   });
 
-  describe.skip('grep', () => {
+  describe('grep', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/grep'));
     });
 
     it('should only build matching build', (done) => {
-      buddy.build({
-        build: {
-          build: [
-            {
-              input: 'foo.js',
-              output: 'output'
-            },
-            {
-              input: 'foo.css',
-              output: 'output'
-            }
-          ]
-        }
-      }, { grep: '*.js' }, (err, filepaths) => {
+      buddy = buddyFactory({
+        build: [
+          {
+            input: 'foo.js',
+            output: 'output'
+          },
+          {
+            input: 'foo.css',
+            output: 'output'
+          }
+        ]
+      }, { grep: '*.js' });
+      buddy.build((err, filepaths) => {
         expect(filepaths).to.have.length(1);
         expect(fs.existsSync(filepaths[0])).to.be(true);
         expect(filepaths[0]).to.eql(path.resolve('output/foo.js'));
@@ -1071,20 +1067,19 @@ describe('Buddy', () => {
       });
     });
     it('should only build matching build when globbing input', (done) => {
-      buddy.build({
-        build: {
-          build: [
-            {
-              input: '*.js',
-              output: 'output'
-            },
-            {
-              input: 'foo.css',
-              output: 'output'
-            }
-          ]
-        }
-      }, { grep: 'foo.*' }, (err, filepaths) => {
+      buddy = buddyFactory({
+        build: [
+          {
+            input: '*.js',
+            output: 'output'
+          },
+          {
+            input: 'foo.css',
+            output: 'output'
+          }
+        ]
+      }, { grep: 'foo.*' });
+      buddy.build((err, filepaths) => {
         expect(filepaths).to.have.length(2);
         expect(filepaths[0]).to.match(/foo\./);
         expect(filepaths[1]).to.match(/foo\./);
@@ -1092,20 +1087,19 @@ describe('Buddy', () => {
       });
     });
     it('should only build matching build when using "--invert" option', (done) => {
-      buddy.build({
-        build: {
-          build: [
-            {
-              input: 'foo.js',
-              output: 'output'
-            },
-            {
-              input: 'foo.css',
-              output: 'output'
-            }
-          ]
-        }
-      }, { grep: '*.js', invert: true }, (err, filepaths) => {
+      buddy = buddyFactory({
+        build: [
+          {
+            input: 'foo.js',
+            output: 'output'
+          },
+          {
+            input: 'foo.css',
+            output: 'output'
+          }
+        ]
+      }, { grep: '*.js', invert: true });
+      buddy.build((err, filepaths) => {
         expect(filepaths).to.have.length(1);
         expect(fs.existsSync(filepaths[0])).to.be(true);
         expect(filepaths[0]).to.eql(path.resolve('output/foo.css'));

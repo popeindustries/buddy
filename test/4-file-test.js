@@ -734,44 +734,4 @@ describe('file', () => {
       });
     });
   });
-
-
-
-  describe.skip('workflow--', () => {
-    describe('replaceReferences()', () => {
-      it('should replace relative html include paths with absolute ones', (done) => {
-        const instance = fileFactory(path.resolve('src/main.dust'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = '{>foo /}';
-        instance.dependencyReferences = [
-          {
-            filepath: 'foo',
-            match: '{>foo ',
-            instance: { filepath: path.resolve('src/foo.dust') }
-          }
-        ];
-        instance.replaceReferences({}, (err) => {
-          expect(instance.content).to.eql('{>' + path.resolve('src/foo.dust') + ' /}');
-          done();
-        });
-      });
-      it('should replace relative html inline paths with absolute ones', (done) => {
-        const instance = fileFactory(path.resolve('src/main.dust'), { sources: [path.resolve('src')], fileExtensions });
-
-        instance.content = '<script inline src="./main.js"></script>';
-        instance.dependencyReferences = [
-          {
-            filepath: 'main.js',
-            match: '<script inline src="./main.js"></script>',
-            stack: [],
-            instance: { filepath: path.resolve('src/main.js') }
-          }
-        ];
-        instance.replaceReferences({}, (err) => {
-          expect(instance.dependencyReferences[0].filepath).to.eql(path.resolve('src/main.js'));
-          done();
-        });
-      });
-    });
-  });
 });
