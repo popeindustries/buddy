@@ -4,6 +4,7 @@ const { exec } = require('child_process');
 const buddyFactory = require('../lib/buddy');
 const coffeescriptPlugin = require('../packages/buddy-plugin-coffeescript');
 const cssoPlugin = require('../packages/buddy-plugin-csso');
+const dependencyResolverConfig = require('../lib/dependency-resolver/config');
 const expect = require('expect.js');
 const fs = require('fs');
 const imageminPlugin = require('../packages/buddy-plugin-imagemin');
@@ -264,7 +265,7 @@ describe('Buddy', () => {
         });
       });
       it('should build a js file with specified source directory', (done) => {
-        process.env.NODE_PATH = 'js-directory/nested';
+        dependencyResolverConfig.sources = ['js-directory/nested'];
         buddy = buddyFactory({
           input: 'js-directory/nested/foo.js',
           output: 'output'
@@ -275,7 +276,7 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain("$m['foo.js'].exports = 'foo';");
-          process.env.NODE_PATH = '';
+          dependencyResolverConfig.sources = [];
           done();
         });
       });

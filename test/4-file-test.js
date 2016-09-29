@@ -284,8 +284,7 @@ describe('file', () => {
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: { babel: { plugins: [] } },
-        runtimeOptions: config.runtimeOptions,
-        sources: [path.resolve('src')]
+        runtimeOptions: config.runtimeOptions
       });
     });
 
@@ -302,8 +301,7 @@ describe('file', () => {
           fileFactory: config.fileFactory,
           npmModulepaths: config.npmModulepaths,
           pluginOptions: { babel: { plugins: [] } },
-          runtimeOptions: config.runtimeOptions,
-          sources: [path.resolve('.')]
+          runtimeOptions: config.runtimeOptions
         });
         expect(file.isNpmModule).to.equal(true);
         process.chdir(path.resolve(__dirname, 'fixtures/file'));
@@ -491,28 +489,28 @@ describe('file', () => {
         it('should namespace variable declarations', (done) => {
           file.content = 'const foo = "foo";';
           file.flatten({}, (err) => {
-            expect(file.content).to.equal('const _foojs_foo = "foo";');
+            expect(file.content).to.equal('const _srcfoojs_foo = "foo";');
             done();
           });
         });
         it('should namespace function declarations', (done) => {
           file.content = 'function foo () {}';
           file.flatten({}, (err) => {
-            expect(file.content).to.equal('function _foojs_foo() {}');
+            expect(file.content).to.equal('function _srcfoojs_foo() {}');
             done();
           });
         });
         it('should namespace class declarations', (done) => {
           file.content = 'class Foo {}';
           file.flatten({}, (err) => {
-            expect(file.content).to.equal('class _foojs_Foo {}');
+            expect(file.content).to.equal('class _srcfoojs_Foo {}');
             done();
           });
         });
         it('should namespace all declarations and their references', (done) => {
           file.content = fs.readFileSync('src/namespace.js', 'utf8');
           file.flatten({}, (err) => {
-            expect(file.content).to.equal("const _foojs_bar = require(\'bar\');\nconst _foojs_foo = require(\'./foo\');\n\nclass _foojs_Foo {\n  constructor() {\n    console.log(_foojs_foo);\n  }\n}\n\nfunction _foojs_bat(foo) {\n  const f = new _foojs_Foo();\n\n  console.log(f, foo, _foojs_bar, \'bat\');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  _foojs_bat(foo);\n}");
+            expect(file.content).to.equal("const _srcfoojs_bar = require(\'bar\');\nconst _srcfoojs_foo = require(\'./foo\');\n\nclass _srcfoojs_Foo {\n  constructor() {\n    console.log(_srcfoojs_foo);\n  }\n}\n\nfunction _srcfoojs_bat(foo) {\n  const f = new _srcfoojs_Foo();\n\n  console.log(f, foo, _srcfoojs_bar, \'bat\');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  _srcfoojs_bat(foo);\n}");
             done();
           });
         });
@@ -522,49 +520,49 @@ describe('file', () => {
         it('should replace "module.exports"', (done) => {
           file.content = 'module.exports = function foo() {};';
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js'].exports = function foo() {};");
+            expect(file.content).to.equal("$m['src/foo.js'].exports = function foo() {};");
             done();
           });
         });
         it('should replace "module[\'exports\']"', (done) => {
           file.content = 'module[\'exports\'] = function foo() {};';
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js']['exports'] = function foo() {};");
+            expect(file.content).to.equal("$m['src/foo.js']['exports'] = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports.*"', (done) => {
           file.content = 'module.exports.foo = function foo() {};';
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js'].exports.foo = function foo() {};");
+            expect(file.content).to.equal("$m['src/foo.js'].exports.foo = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports[\'*\']"', (done) => {
           file.content = "module.exports['foo'] = function foo() {};";
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js'].exports['foo'] = function foo() {};");
+            expect(file.content).to.equal("$m['src/foo.js'].exports['foo'] = function foo() {};");
             done();
           });
         });
         it('should replace "exports.*"', (done) => {
           file.content = "exports.foo = 'foo';";
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js'].exports.foo = 'foo';");
+            expect(file.content).to.equal("$m['src/foo.js'].exports.foo = 'foo';");
             done();
           });
         });
         it('should replace "exports[\'*\']"', (done) => {
           file.content = "exports['foo'] = 'foo';";
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js'].exports['foo'] = 'foo';");
+            expect(file.content).to.equal("$m['src/foo.js'].exports['foo'] = 'foo';");
             done();
           });
         });
         it('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
           file.flatten({ browser: true }, (err) => {
-            expect(file.content).to.equal("$m['foo.js'];\n$m['foo.js'].exports = {};\n$m['foo.js']['exports'] = {};\n$m['foo.js']['ex' + 'ports'] = {};\n\n$m['foo.js'].exports;\n$m['foo.js'].exports && foo;\n$m['foo.js'].exports.foo = 'foo';\n$m['foo.js'].exports['foo'] = 'foo';\n$m['foo.js'].exports.BELL = '\\x07';\nfreeModule.exports === freeExports;\n\nif (true) {\n  const module = 'foo';\n  const exports = 'bar';\n}");
+            expect(file.content).to.equal("$m['src/foo.js'];\n$m['src/foo.js'].exports = {};\n$m['src/foo.js']['exports'] = {};\n$m['src/foo.js']['ex' + 'ports'] = {};\n\n$m['src/foo.js'].exports;\n$m['src/foo.js'].exports && foo;\n$m['src/foo.js'].exports.foo = 'foo';\n$m['src/foo.js'].exports['foo'] = 'foo';\n$m['src/foo.js'].exports.BELL = '\\x07';\nfreeModule.exports === freeExports;\n\nif (true) {\n  const module = 'foo';\n  const exports = 'bar';\n}");
             done();
           });
         });
@@ -583,7 +581,7 @@ describe('file', () => {
           }
         ];
         file.concat({ bootstrap: true, browser: true }, (err) => {
-          expect(file.content).to.eql("/** BUDDY BUILT **/\n!(function () {\n/*== src/bar.js ==*/\n$m[\'bar.js\'] = { exports: {} };\nvar bar = \'bar\';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\nvar foo = \'foo\';\n/*≠≠ src/foo.js ≠≠*/\n})()");
+          expect(file.content).to.eql("/** BUDDY BUILT **/\n!(function () {\n/*== src/bar.js ==*/\n$m[\'bar.js\'] = { exports: {} };\nvar bar = \'bar\';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m[\'src/foo.js\'] = { exports: {} };\nvar foo = \'foo\';\n/*≠≠ src/foo.js ≠≠*/\n})()");
           done();
         });
       });
@@ -598,7 +596,7 @@ describe('file', () => {
           }
         ];
         file.concat({ bootstrap: false, browser: true }, (err) => {
-          expect(file.content).to.eql("/** BUDDY BUILT **/\n$m['foo.js'] = function () {\n/*== src/bar.js ==*/\n$m['bar.js'] = { exports: {} };\nvar bar = 'bar';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m['foo.js'] = { exports: {} };\nvar foo = 'foo';\n/*≠≠ src/foo.js ≠≠*/\n}");
+          expect(file.content).to.eql("/** BUDDY BUILT **/\n$m[\'src/foo.js\'] = function () {\n/*== src/bar.js ==*/\n$m[\'bar.js\'] = { exports: {} };\nvar bar = \'bar\';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m[\'src/foo.js\'] = { exports: {} };\nvar foo = \'foo\';\n/*≠≠ src/foo.js ≠≠*/\n}");
           done();
         });
       });
@@ -616,8 +614,7 @@ describe('file', () => {
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: { babel: { plugins: [] } },
-        runtimeOptions: config.runtimeOptions,
-        sources: [path.resolve('src')]
+        runtimeOptions: config.runtimeOptions
       });
     });
 

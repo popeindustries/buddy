@@ -98,7 +98,8 @@ describe('dependency-resolver', () => {
         expect(details).to.have.property('manifestpath', path.resolve('node_modules/foo/package.json'));
         expect(details).to.have.property('name', 'foo');
         expect(details).to.have.property('main', path.resolve('node_modules/foo/lib/bat.js'));
-        expect(details).to.have.property('paths').eql([path.resolve('node_modules/foo'), path.resolve('node_modules'), path.resolve('node_modules/foo/node_modules')]);
+        expect(details.paths).to.contain(path.resolve('node_modules/foo/node_modules'));
+        expect(details.paths).to.contain(path.resolve('node_modules'));
       });
       it('should return details for a node_modules package with no "main" property', () => {
         const details = pkg.getDetails(path.resolve('node_modules/boom'), config());
@@ -123,7 +124,7 @@ describe('dependency-resolver', () => {
     });
   });
 
-  describe('resolve', () => {
+  describe('resolve()', () => {
     it('should not resolve a file if the reference file doesn\'t exist', () => {
       expect(resolve(path.resolve('blah.js'), '')).to.equal('');
     });
@@ -172,14 +173,17 @@ describe('dependency-resolver', () => {
     it('should resolve a js package module source path for a deeply nested package module', () => {
       expect(resolve(path.resolve('node_modules/bar/node_modules/bat/index.js'), 'foo/lib/bar')).to.equal(path.resolve('node_modules/foo/lib/bar.js'));
     });
-    it('should resolve a js file in a separate source directory when optionally specified', () => {
-      expect(resolve(path.resolve('foo.js'), 'package/foo', { sources: ['src'] })).to.equal(path.resolve('src/package/foo.js'));
-    });
     it('should resolve a scoped js package module path containing a package.json file and a "main" file field', () => {
       expect(resolve(path.resolve('baz.js'), '@popeindustries/test')).to.equal(path.resolve('node_modules/@popeindustries/test/test.js'));
     });
     it('should resolve a scoped js package module source path', () => {
       expect(resolve(path.resolve('baz.js'), '@popeindustries/test/lib/bar')).to.equal(path.resolve('node_modules/@popeindustries/test/lib/bar.js'));
+    });
+    it('should resolve an aliased module via global alias', () => {
+      expect(resolve(path.resolve('baz.js'), 'foo', { globalAliases: { foo: 'baz.js' } })).to.equal(path.resolve('baz.js'));
+    });
+    it('should resolve a disabled module via global alias', () => {
+      expect(resolve(path.resolve('baz.js'), 'foo', { globalAliases: { foo: false } })).to.equal(false);
     });
     it('should resolve an aliased main module file via simple "browser" field', () => {
       expect(resolve(path.resolve('baz.js'), 'browser')).to.equal(path.resolve('node_modules/browser/browser/foo.js'));
@@ -234,21 +238,12 @@ describe('dependency-resolver', () => {
     it('should resolve a css file in the same source directory', () => {
       expect(resolve(path.resolve('bar.css'), './foo.css')).to.eql(path.resolve('foo.css'));
     });
-    it('should resolve a css file in a separate source directory when optionally specified', () => {
-      expect(resolve(path.resolve('bar.css'), 'package/foo', { sources: ['src'] })).to.equal(path.resolve('src/package/foo.css'));
-    });
-    it('should resolve a root css file in a separate source directory when optionally specified', () => {
-      expect(resolve(path.resolve('foo.css'), 'bat', { sources: ['src-css'] })).to.equal(path.resolve('src-css/bat.css'));
-    });
-    it('should resolve a package css file in a separate source directory when optionally specified', () => {
-      expect(resolve(path.resolve('foo.css'), 'baz', { sources: ['src-css'] })).to.equal(path.resolve('src-css/baz/index.css'));
-    });
     it('should resolve an implicitly relative css file reference', () => {
       expect(resolve(path.resolve('src/package/foo.css'), 'bar')).to.equal(path.resolve('src/package/bar.css'));
     });
   });
 
-  describe('indentifying filepath ID', () => {
+  describe('identify()', () => {
     it('should not resolve a missing filepath', () => {
       expect(identify('blah')).to.equal('');
     });
@@ -260,9 +255,6 @@ describe('dependency-resolver', () => {
     });
     it('should resolve an ID for a filepath nested in the default source directory', () => {
       expect(identify(path.resolve('nested/bar.js'))).to.equal('nested/bar.js');
-    });
-    it('should resolve an ID for a filepath nested in the default source directory when additional source specified', () => {
-      expect(identify(path.resolve('nested/bar.js'), { sources: [path.resolve('nested')] })).to.equal('bar.js');
     });
     it('should resolve an ID for a package module with missing manifest', () => {
       expect(identify(path.resolve('node_modules/bar/index.js'))).to.equal('bar/index.js');

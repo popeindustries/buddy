@@ -532,8 +532,7 @@ describe('config', () => {
           caches: config.caches,
           fileExtensions: config.fileExtensions,
           fileFactory () {},
-          runtimeOptions: config.runtimeOptions,
-          sources: [process.cwd(), path.resolve('src')]
+          runtimeOptions: config.runtimeOptions
         };
       });
 
@@ -543,7 +542,7 @@ describe('config', () => {
         expect(file).to.be.ok();
         expect(file).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
         expect(file).to.have.property('type', 'js');
-        expect(file).to.have.property('id', 'main.js');
+        expect(file).to.have.property('id', 'src/main.js');
       });
       it('should return a file instance for custom type', () => {
         config.registerFileDefinitionAndExtensionsForType((File) => {
@@ -559,7 +558,7 @@ describe('config', () => {
         expect(file).to.be.ok();
         expect(file).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
         expect(file).to.have.property('type', 'bar');
-        expect(file).to.have.property('id', 'foo.bar');
+        expect(file).to.have.property('id', 'src/foo.bar');
       });
       it('should return a file instance for extended default type', () => {
         config.registerFileDefinitionAndExtensionsForType((File) => {
@@ -571,7 +570,7 @@ describe('config', () => {
         expect(file).to.be.ok();
         expect(file).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
         expect(file).to.have.property('type', 'js');
-        expect(file).to.have.property('id', 'foo.bar');
+        expect(file).to.have.property('id', 'src/foo.bar');
       });
     });
   });

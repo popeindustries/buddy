@@ -40,10 +40,10 @@ function define (File, utils) {
      *  - {Object} caches
      *  - {Object} fileExtensions
      *  - {Function} fileFactory
+     *  - {Object} globalAliases
      *  - {Array} npmModulepaths
      *  - {Object} pluginOptions
      *  - {Object} runtimeOptions
-     *  - {Array} sources
      */
     constructor (id, filepath, options) {
       super(id, filepath, options);
