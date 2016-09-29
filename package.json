@@ -35,10 +35,10 @@
   },
   "main": "index.js",
   "bin": {
-    "buddy": "./bin/buddy"
+    "buddy": "node ./bin/buddy"
   },
   "scripts": {
-    "build": "./bin/build",
+    "build": "node ./bin/build",
     "test:all": "NODE_ENV=test mocha \"./packages/buddy-plugin-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 10000 --bail",
     "test": "NODE_ENV=test mocha \"./test/*-test.js\" --reporter spec --timeout 10000 --bail"
   },
@@ -51,6 +51,11 @@
   "buddy": {
     "input": "lib/buddy.js",
     "output": "index.js",
-    "version": "node"
+    "version": "node",
+    "resolve": {
+      "uglify-js": false,
+      "svgo": false,
+      "core-js": false
+    }
   }
 }

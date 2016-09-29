@@ -428,6 +428,44 @@ describe('Buddy', () => {
           done();
         });
       });
+      it('should build a node bundle with disabled dependency in third-party dependency', (done) => {
+        buddy = buddyFactory({
+          input: 'zing.js',
+          output: 'output',
+          version: 'node',
+          resolve: {
+            'json': false
+          }
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain("var _booindexjs100_json = {};");
+          expect(content).to.not.contain('"boo": "boo"');
+          done();
+        });
+      });
+      it('should build a node bundle with disabled dependency in third-party dependency file', (done) => {
+        buddy = buddyFactory({
+          input: 'zang.js',
+          output: 'output',
+          version: 'node',
+          resolve: {
+            'json': false
+          }
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain("var _booboojs100_json = {};");
+          expect(content).to.not.contain('"boo": "boo"');
+          done();
+        });
+      });
     });
 
     describe('css', () => {
