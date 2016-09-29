@@ -474,7 +474,7 @@ describe('file', () => {
             filepath: 'path',
             context: "require('path')",
             id: 'path',
-            isDisabled: true
+            isDisabled: false
           }
         ];
         file.inline({ browser: false }, (err) => {

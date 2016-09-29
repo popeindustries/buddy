@@ -403,7 +403,27 @@ describe('Buddy', () => {
 
           expect(content).to.contain("var _nativejs_http = require('http');");
           expect(content).to.contain("var _nodejs_http = $m['native.js'].exports;");
-          expect(content).to.contain('var _nodejs_runtime = process.env.RUNTIME;');
+          expect(content).to.contain("var _nodejs_runtime = 'server';");
+          expect(content).to.contain('module.exports = function () {};');
+          done();
+        });
+      });
+      it('should build a node bundle with disabled dependency when "version=node"', (done) => {
+        buddy = buddyFactory({
+          input: 'node.js',
+          output: 'output',
+          version: 'node',
+          resolve: {
+            'native.js': false
+          }
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain("var _nodejs_http = {};");
+          expect(content).to.contain("var _nodejs_runtime = 'server';");
           expect(content).to.contain('module.exports = function () {};');
           done();
         });
