@@ -466,6 +466,20 @@ describe('Buddy', () => {
           done();
         });
       });
+      it('should build a complex dependency tree', (done) => {
+        buddy = buddyFactory({
+          input: 'lodash.js',
+          output: 'l.js',
+          version: 'node'
+        });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(eval(content)).to.be.ok();
+          done();
+        });
+      });
     });
 
     describe('css', () => {
