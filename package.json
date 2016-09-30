@@ -53,9 +53,10 @@
     "output": "index.js",
     "version": "node",
     "resolve": {
-      "uglify-js": false,
+      "csso": false,
+      "core-js": false,
       "svgo": false,
-      "core-js": false
+      "uglify-js": false
     }
   }
 }

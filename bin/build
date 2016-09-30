@@ -2,4 +2,4 @@
 
 const buddyFactory = require('../lib/buddy');
 
-buddyFactory('package.json').build();
+buddyFactory('package.json', {verbose: false}).build();
