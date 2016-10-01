@@ -260,8 +260,8 @@ describe('file', () => {
   describe('JSFile', () => {
     beforeEach(() => {
       config = configFactory({
-        input: 'src/js/foo.js',
-        output: 'js'
+        input: '.',
+        output: '.'
       }, {});
       file = config.fileFactory(path.resolve('src/foo.js'), {
         caches: config.caches,
@@ -275,6 +275,7 @@ describe('file', () => {
     describe('constructor()', () => {
       it('should flag npm module files', () => {
         process.chdir(path.resolve(__dirname, '..'));
+        config.destroy();
         config = configFactory({
           input: 'foo.js',
           output: 'js'
@@ -608,14 +609,14 @@ describe('file', () => {
       it('should store an array of dependencies', (done) => {
         file.content = "@import 'main';";
         file.parse({}, (err) => {
-          expect(file.dependencies).to.have.length(1);
+          expect(file.dependencies).to.have.property('size', 1);
           done();
         });
       });
       it('should only store 1 dependency object when there are duplicates', (done) => {
         file.content = "@import 'main'; @import 'main';";
         file.parse({}, (err) => {
-          expect(file.dependencies).to.have.length(1);
+          expect(file.dependencies).to.have.property('size', 1);
           done();
         });
       });
@@ -631,8 +632,8 @@ describe('file', () => {
               extension: 'css',
               type: 'css',
               content: 'div {\n\twidth: 50%;\n}\n',
-              dependencies: [],
-              dependencyReferences: []
+              dependencies: new Set(),
+              dependencyReferences: new Set()
             },
             filepath: './foo.css',
             context: "@import 'foo';",
@@ -653,8 +654,8 @@ describe('file', () => {
               extension: 'css',
               type: 'css',
               content: 'div {\n\twidth: 50%;\n}\n',
-              dependencies: [],
-              dependencyReferences: []
+              dependencies: new Set(),
+              dependencyReferences: new Set()
             },
             filepath: './foo.css',
             context: "@import 'foo';",
@@ -680,8 +681,7 @@ describe('file', () => {
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: { babel: { plugins: [] } },
-        runtimeOptions: config.runtimeOptions,
-        sources: [path.resolve('src')]
+        runtimeOptions: config.runtimeOptions
       });
     });
 
@@ -689,8 +689,8 @@ describe('file', () => {
       it('should store an array of "inline" dependency references', (done) => {
         file.content = '<script inline src="src/foo.js"></script>';
         file.parse({}, (err) => {
-          expect(file.dependencies).to.have.length(1);
-          expect(file.dependencies[0]).to.have.property('isInline', true);
+          expect(file.dependencies).to.have.property('size', 1);
+          expect([...file.dependencies][0]).to.have.property('isInline', true);
           done();
         });
       });

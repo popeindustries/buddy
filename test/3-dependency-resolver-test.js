@@ -12,7 +12,7 @@ describe('dependency-resolver', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/dependency-resolver'));
   });
-  beforeEach(() => {
+  afterEach(() => {
     cache.clear(true);
   });
 

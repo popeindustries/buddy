@@ -122,7 +122,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with circular dependency', (done) => {
+      it.skip('should build a js file with circular dependency', (done) => {
         buddy = buddyFactory({
           input: 'a.js',
           output: 'output'
@@ -469,7 +469,7 @@ describe('Buddy', () => {
       it('should build a complex dependency tree', (done) => {
         buddy = buddyFactory({
           input: 'lodash.js',
-          output: 'l.js',
+          output: 'output',
           version: 'node'
         });
         buddy.build((err, filepaths) => {

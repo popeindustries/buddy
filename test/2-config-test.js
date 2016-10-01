@@ -14,6 +14,9 @@ describe('config', () => {
   beforeEach(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/config'));
   });
+  afterEach(() => {
+    if (config) config.destroy();
+  });
 
   describe('filetype', () => {
     it('should return the correct type for a js filepath', () => {
