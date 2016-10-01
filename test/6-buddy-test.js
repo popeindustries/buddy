@@ -124,14 +124,14 @@ describe('Buddy', () => {
       });
       it.skip('should build a js file with circular dependency', (done) => {
         buddy = buddyFactory({
-          input: 'a.js',
+          input: 'circular.js',
           output: 'output'
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain("!(function () {\n/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m['b.js'] = { exports: {} };\n$m['b.js'].exports = _bjs_b;\n\nvar _bjs_a = $m['a.js'].exports;\n\nfunction _bjs_b() {\n  console.log('b');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m['a.js'] = { exports: {} };\n$m['a.js'].exports = _ajs_a;\n\nvar _ajs_b = require('b.js');\n\nfunction _ajs_a() {\n  console.log('a');\n}\n/*≠≠ a.js ≠≠*/\n})()");
+          console.log(content)
+          // expect(content).to.contain("!(function () {\n/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m[\'b.js\'] = { exports: {} };\n$m[\'b.js\'].exports = _bjs_b;\n\nvar _bjs_a = $m[\'a.js\'].exports;\n\nfunction _bjs_b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a.js\'] = { exports: {} };\n$m[\'a.js\'].exports = _ajs_a;\n\nvar _ajs_b = require(\'b.js\');\n\nfunction _ajs_a() {\n  console.log(\'a\');\n}\n/*≠≠ a.js ≠≠*/\n\n/*== circular.js ==*/\n$m[\'circular.js\'] = { exports: {} };\nvar _circularjs_a = $m[\'a.js\'].exports;\n/*≠≠ circular.js ≠≠*/\n})()");
           done();
         });
       });

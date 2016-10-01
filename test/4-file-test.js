@@ -125,7 +125,7 @@ describe('file', () => {
       file.dependencies = new Set([files.a]);
       const deps = file.getAllDependencies(false);
 
-      expect(deps.map((dep) => dep.id).join('')).to.equal('acb');
+      expect(deps.map((dep) => dep.id).join('')).to.equal('bca');
     });
   });
 
@@ -563,7 +563,8 @@ describe('file', () => {
             relpath: 'src/bar.js',
             type: 'js',
             content: "var bar = 'bar';",
-            dependencies: new Set()
+            dependencies: new Set(),
+            dependencyReferences: new Set()
           }
         ]);
         file.concat({ bootstrap: true, browser: true }, (err) => {
@@ -579,7 +580,8 @@ describe('file', () => {
             relpath: 'src/bar.js',
             type: 'js',
             content: "var bar = 'bar';",
-            dependencies: new Set()
+            dependencies: new Set(),
+            dependencyReferences: new Set()
           }
         ]);
         file.concat({ bootstrap: false, browser: true }, (err) => {
