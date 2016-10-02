@@ -5,7 +5,7 @@ const callable = require('../lib/utils/callable');
 const expect = require('expect.js');
 const path = require('path');
 const pathname = require('../lib/utils/pathname');
-const unique = require('../lib/utils/unique');
+const uniqueFilepath = require('../lib/utils/uniqueFilepath');
 
 describe('utils', () => {
   describe('callable', () => {
@@ -80,44 +80,44 @@ describe('utils', () => {
     });
   });
 
-  describe('unique', () => {
+  describe('uniqueFilepath', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/utils/unique'));
     });
 
     describe('isUniquePattern()', () => {
       it('should return true for "%hash%" patterns', () => {
-        expect(unique.isUniquePattern('foo-%hash%.js')).to.equal(true);
+        expect(uniqueFilepath.isUniquePattern('foo-%hash%.js')).to.equal(true);
       });
       it('should return true for "%date%" patterns', () => {
-        expect(unique.isUniquePattern('foo-%date%.js')).to.equal(true);
+        expect(uniqueFilepath.isUniquePattern('foo-%date%.js')).to.equal(true);
       });
       it('should return false for other patterns', () => {
-        expect(unique.isUniquePattern('foo-%foo%.js')).to.equal(false);
+        expect(uniqueFilepath.isUniquePattern('foo-%foo%.js')).to.equal(false);
       });
     });
 
-    describe('find()', () => {
+    describe('findFile()', () => {
       it('should find a matching file', () => {
-        expect(unique.find('foo-bar-%hash%.js')).to.eql(path.resolve('foo-bar-0f7807e7171c078a8c5bfb565e35ef88.js'));
+        expect(uniqueFilepath.findFile('foo-bar-%hash%.js')).to.eql(path.resolve('foo-bar-0f7807e7171c078a8c5bfb565e35ef88.js'));
       });
       it('should return "" when no match', () => {
-        expect(unique.find('bar-%hash%.js')).to.eql('');
+        expect(uniqueFilepath.findFile('bar-%hash%.js')).to.eql('');
       });
     });
 
     describe('generate()', () => {
       it('should generate a date based unique filename', () => {
-        expect(path.basename(unique.generate('foo-%date%.js', 'var foo = "foo"'))).to.match(/foo\-(\d+)\.js/);
+        expect(path.basename(uniqueFilepath.generate('foo-%date%.js', 'var foo = "foo"'))).to.match(/foo\-(\d+)\.js/);
       });
       it('should generate a hash based unique filename', () => {
-        expect(path.basename(unique.generate('foo-%hash%.js', 'var foo = "foo"'))).to.match(/foo\-(.+)\.js/);
+        expect(path.basename(uniqueFilepath.generate('foo-%hash%.js', 'var foo = "foo"'))).to.match(/foo\-(.+)\.js/);
       });
       it('should remove the unique pattern if no content passed', () => {
-        expect(path.basename(unique.generate('foo-%hash%.js'))).to.eql('foo-.js');
+        expect(path.basename(uniqueFilepath.generate('foo-%hash%.js'))).to.eql('foo-.js');
       });
       it('should return the passed in pattern when not hash or date', () => {
-        expect(path.basename(unique.generate('foo-%foo%.js'))).to.eql('foo-%foo%.js');
+        expect(path.basename(uniqueFilepath.generate('foo-%foo%.js'))).to.eql('foo-%foo%.js');
       });
     });
   });
