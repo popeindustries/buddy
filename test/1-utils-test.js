@@ -5,6 +5,7 @@ const callable = require('../lib/utils/callable');
 const expect = require('expect.js');
 const path = require('path');
 const pathname = require('../lib/utils/pathname');
+const tree = require('../lib/utils/tree');
 const uniqueFilepath = require('../lib/utils/uniqueFilepath');
 
 describe('utils', () => {
@@ -76,6 +77,31 @@ describe('utils', () => {
       });
       it('should uniquely match multiple instances', () => {
         expect(uniqueMatch('foo bar foo', /fo(o)/g)).to.eql([{ context: 'foo', match: 'o' }]);
+      });
+    });
+  });
+
+  describe('tree', () => {
+    describe('getSharedDecendants()', () => {
+      it('should return empty array for unrelated nodes', () => {
+        const a = { parent: null };
+        const b = { parent: null };
+
+        expect(tree.getSharedDecendants(a, b)).to.eql([]);
+      });
+      it('should return an array of related nodes for shallow tree', () => {
+        const a = { parent: null };
+        const b = { parent: a };
+
+        expect(tree.getSharedDecendants(b, a)).to.eql([a]);
+      });
+      it('should return an array of related nodes for deep tree', () => {
+        const a = { parent: null };
+        const b = { parent: a };
+        const c = { parent: b };
+        const d = { parent: c };
+
+        expect(tree.getSharedDecendants(d, a)).to.eql([c, b, a]);
       });
     });
   });
