@@ -81,31 +81,6 @@ describe('utils', () => {
     });
   });
 
-  describe('tree', () => {
-    describe('getSharedDecendants()', () => {
-      it('should return empty array for unrelated nodes', () => {
-        const a = { parent: null };
-        const b = { parent: null };
-
-        expect(tree.getSharedDecendants(a, b)).to.eql([]);
-      });
-      it('should return an array of related nodes for shallow tree', () => {
-        const a = { parent: null };
-        const b = { parent: a };
-
-        expect(tree.getSharedDecendants(b, a)).to.eql([a]);
-      });
-      it('should return an array of related nodes for deep tree', () => {
-        const a = { parent: null };
-        const b = { parent: a };
-        const c = { parent: b };
-        const d = { parent: c };
-
-        expect(tree.getSharedDecendants(d, a)).to.eql([c, b, a]);
-      });
-    });
-  });
-
   describe('uniqueFilepath', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/utils/unique'));

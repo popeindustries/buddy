@@ -32,23 +32,23 @@ describe('file', () => {
   describe('addDependencies()', () => {
     it('should ignore invalid dependency id', () => {
       file.addDependencies([{ id: './zoop' }], {});
-      expect(file.dependencyReferences).to.have.property('size', 0);
+      expect(file.dependencyReferences).to.have.length(0);
     });
     it('should disable dependency reference when watch only build', () => {
       const dependency = { id: 'bar' };
 
       file.addDependencies([dependency], { watchOnly: true });
-      expect(file.dependencyReferences).to.have.property('size', 1);
+      expect(file.dependencyReferences).to.have.length(1);
       expect(dependency).to.have.property('isDisabled', true);
-      expect(file.dependencies).to.have.property('size', 0);
+      expect(file.dependencies).to.have.length(0);
     });
     it('should disable dependency reference when disabled via package.json', () => {
       const dependency = { id: 'bat/boop' };
 
       file.addDependencies([dependency], {});
-      expect(file.dependencyReferences).to.have.property('size', 1);
+      expect(file.dependencyReferences).to.have.length(1);
       expect(dependency).to.have.property('isDisabled', true);
-      expect(file.dependencies).to.have.property('size', 0);
+      expect(file.dependencies).to.have.length(0);
     });
     it('should ignore dependency reference when it is a parent file', () => {
       const index = new File('index', path.resolve('src/index.js'), 'js', {});
@@ -59,20 +59,8 @@ describe('file', () => {
         return index;
       };
       file.addDependencies([dependency], {});
-      expect(file.dependencyReferences).to.have.property('size', 1);
-      expect(file.dependencies).to.have.property('size', 0);
-    });
-    it.skip('should ignore dependency reference when it is a circular reference', () => {
-      const index = new File('index', path.resolve('src/index.js'), 'js', {});
-      const dependency = { id: './index' };
-
-      file.options.fileFactory = function () {
-        index.dependencies = [file];
-        return index;
-      };
-      file.addDependencies([dependency], {});
-      expect(file.dependencyReferences).to.have.property('size', 1);
-      expect(file.dependencies).to.have.property('size', 0);
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(file.dependencies).to.have.length(0);
     });
     it('should ignore dependency reference when it is a child file', () => {
       const index = new File('index', path.resolve('src/index.js'), 'js', {});
@@ -82,8 +70,8 @@ describe('file', () => {
         return index;
       };
       file.addDependencies([dependency], { ignoredFiles: [index.filepath] });
-      expect(file.dependencyReferences).to.have.property('size', 1);
-      expect(file.dependencies).to.have.property('size', 0);
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(file.dependencies).to.have.length(0);
     });
     it('should store dependant file instance', () => {
       const index = new File('index', path.resolve('src/index.js'), 'js', {});
@@ -93,8 +81,8 @@ describe('file', () => {
         return index;
       };
       file.addDependencies([dependency], {});
-      expect(file.dependencyReferences).to.have.property('size', 1);
-      expect(file.dependencies.has(index)).to.eql(true);
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(file.dependencies.includes(index)).to.eql(true);
     });
     it('should flag dependant file instance as inline if parsed as inline source', () => {
       const index = new File('index', path.resolve('src/index.js'), 'js', {});
@@ -104,28 +92,9 @@ describe('file', () => {
         return index;
       };
       file.addDependencies([dependency], {});
-      expect(file.dependencyReferences).to.have.property('size', 1);
-      expect(file.dependencies.has(index)).to.eql(true);
+      expect(file.dependencyReferences).to.have.length(1);
+      expect(file.dependencies.includes(index)).to.eql(true);
       expect(index).to.have.property('isInline', true);
-    });
-  });
-
-  describe('getAllDependencies()', () => {
-    beforeEach(() => {
-      files = {
-        a: new File('a', path.resolve('src/a.js'), 'js', {}),
-        b: new File('b', path.resolve('src/b.js'), 'js', {}),
-        c: new File('c', path.resolve('src/c.js'), 'js', {}),
-        d: new File('d', path.resolve('src/d.js'), 'js', {})
-      };
-    });
-
-    it('should return an array of dependencies', () => {
-      files.a.dependencies = new Set([files.b, files.c]);
-      file.dependencies = new Set([files.a]);
-      const deps = file.getAllDependencies(false);
-
-      expect(deps.map((dep) => dep.id).join('')).to.equal('bca');
     });
   });
 
@@ -165,7 +134,7 @@ describe('file', () => {
         fn();
       };
       file.parse = function (buildOptions, fn) {
-        this.dependencies.add(bar);
+        this.dependencies.push(bar);
         this.foo = true;
         fn();
       };
@@ -177,7 +146,7 @@ describe('file', () => {
     it('should run a standard workflow, including for existing dependencies', (done) => {
       const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
 
-      file.dependencies.add(bar);
+      file.dependencies.push(bar);
       file.workflows.standard[1] = bar.workflows.standard[1] = ['runWorkflowForDependencies', 'load', 'parse'];
       bar.parse = function (buildOptions, fn) {
         this.bar = true;
@@ -215,7 +184,7 @@ describe('file', () => {
         fn();
       };
       file.parse = function (buildOptions, fn) {
-        this.dependencies.add(bar);
+        this.dependencies.push(bar);
         this.foo = true;
         fn();
       };
@@ -246,7 +215,7 @@ describe('file', () => {
         fn();
       };
       file.parse = function (buildOptions, fn) {
-        this.dependencies.add(bar);
+        this.dependencies.push(bar);
         this.foo = true;
         fn();
       };
@@ -297,21 +266,21 @@ describe('file', () => {
       it('should store an array of dependencies', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./b');";
         file.parse({}, (err) => {
-          expect(file.dependencies).to.have.property('size', 2);
+          expect(file.dependencies).to.have.length(2);
           done();
         });
       });
       it('should only store 1 dependency object when there are duplicates', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./a');";
         file.parse({}, (err) => {
-          expect(file.dependencies).to.have.property('size', 1);
+          expect(file.dependencies).to.have.length(1);
           done();
         });
       });
       it('should store 2 dependency objects when there are case sensitive package references', (done) => {
         file.content = "var a = require('./a');\nvar boo = require('Boo');";
         file.parse({}, (err) => {
-          expect(file.dependencies).to.have.property('size', 2);
+          expect(file.dependencies).to.have.length(2);
           done();
         });
       });
@@ -553,43 +522,6 @@ describe('file', () => {
         });
       });
     });
-
-    describe('concat()', () => {
-      it('should wrap and concat content', (done) => {
-        file.content = "var foo = 'foo';";
-        file.dependencies = new Set([
-          {
-            id: 'bar.js',
-            relpath: 'src/bar.js',
-            type: 'js',
-            content: "var bar = 'bar';",
-            dependencies: new Set(),
-            dependencyReferences: new Set()
-          }
-        ]);
-        file.concat({ bootstrap: true, browser: true }, (err) => {
-          expect(file.content).to.eql("/** BUDDY BUILT **/\n!(function () {\n/*== src/bar.js ==*/\n$m[\'bar.js\'] = { exports: {} };\nvar bar = \'bar\';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m[\'src/foo.js\'] = { exports: {} };\nvar foo = \'foo\';\n/*≠≠ src/foo.js ≠≠*/\n})()");
-          done();
-        });
-      });
-      it('should wrap and concat content when "bootstrap=false"', (done) => {
-        file.content = "var foo = 'foo';";
-        file.dependencies = new Set([
-          {
-            id: 'bar.js',
-            relpath: 'src/bar.js',
-            type: 'js',
-            content: "var bar = 'bar';",
-            dependencies: new Set(),
-            dependencyReferences: new Set()
-          }
-        ]);
-        file.concat({ bootstrap: false, browser: true }, (err) => {
-          expect(file.content).to.eql("/** BUDDY BUILT **/\n$m[\'src/foo.js\'] = function () {\n/*== src/bar.js ==*/\n$m[\'bar.js\'] = { exports: {} };\nvar bar = \'bar\';\n/*≠≠ src/bar.js ≠≠*/\n\n/*== src/foo.js ==*/\n$m[\'src/foo.js\'] = { exports: {} };\nvar foo = \'foo\';\n/*≠≠ src/foo.js ≠≠*/\n}");
-          done();
-        });
-      });
-    });
   });
 
   describe('CSSFile', () => {
@@ -611,14 +543,14 @@ describe('file', () => {
       it('should store an array of dependencies', (done) => {
         file.content = "@import 'main';";
         file.parse({}, (err) => {
-          expect(file.dependencies).to.have.property('size', 1);
+          expect(file.dependencies).to.have.length(1);
           done();
         });
       });
       it('should only store 1 dependency object when there are duplicates', (done) => {
         file.content = "@import 'main'; @import 'main';";
         file.parse({}, (err) => {
-          expect(file.dependencies).to.have.property('size', 1);
+          expect(file.dependencies).to.have.length(1);
           done();
         });
       });
@@ -634,8 +566,8 @@ describe('file', () => {
               extension: 'css',
               type: 'css',
               content: 'div {\n\twidth: 50%;\n}\n',
-              dependencies: new Set(),
-              dependencyReferences: new Set()
+              dependencies: [],
+              dependencyReferences: []
             },
             filepath: './foo.css',
             context: "@import 'foo';",
@@ -656,8 +588,8 @@ describe('file', () => {
               extension: 'css',
               type: 'css',
               content: 'div {\n\twidth: 50%;\n}\n',
-              dependencies: new Set(),
-              dependencyReferences: new Set()
+              dependencies: [],
+              dependencyReferences: []
             },
             filepath: './foo.css',
             context: "@import 'foo';",
@@ -691,8 +623,8 @@ describe('file', () => {
       it('should store an array of "inline" dependency references', (done) => {
         file.content = '<script inline src="src/foo.js"></script>';
         file.parse({}, (err) => {
-          expect(file.dependencies).to.have.property('size', 1);
-          expect([...file.dependencies][0]).to.have.property('isInline', true);
+          expect(file.dependencies).to.have.length(1);
+          expect(file.dependencies[0]).to.have.property('isInline', true);
           done();
         });
       });
