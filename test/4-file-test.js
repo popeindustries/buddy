@@ -1,11 +1,12 @@
 'use strict';
 
+const { unwrap } = require('../lib/plugins/js/concat');
 const configFactory = require('../lib/config');
 const expect = require('expect.js');
 const File = require('../lib/File');
 const fs = require('fs');
 const path = require('path');
-let config, file, files;
+let config, file;
 
 describe('file', () => {
   before(() => {
@@ -313,14 +314,14 @@ describe('file', () => {
     describe('replaceReferences()', () => {
       it('should replace relative ids with absolute ones', (done) => {
         file.content = "var foo = require('./foo');";
-        file.dependencyReferences = new Set([
+        file.dependencyReferences = [
           {
             id: './foo',
             context: "require('./foo')",
-            file: { id: 'foo.js' },
+            file: { dependencyReferences: [], id: 'foo.js' },
             isIgnored: true
           }
-        ]);
+        ];
         file.replaceReferences({}, (err) => {
           expect(file.content).to.eql("var foo = require('foo.js');");
           done();
@@ -328,13 +329,13 @@ describe('file', () => {
       });
       it('should replace "require(*)" with resolved lookup', (done) => {
         file.content = "var foo = require('./foo');";
-        file.dependencyReferences = new Set([
+        file.dependencyReferences = [
           {
             id: './foo',
             context: "require('./foo')",
-            file: { id: 'foo.js' }
+            file: { dependencyReferences: [], id: 'foo.js' }
           }
-        ]);
+        ];
         file.replaceReferences({}, (err) => {
           expect(file.content).to.eql("var foo = $m['foo.js'].exports;");
           done();
@@ -342,18 +343,18 @@ describe('file', () => {
       });
       it('should replace package ids with versioned ones', (done) => {
         file.content = "var bar = require('bar');\nvar baz = require('view/baz');";
-        file.dependencyReferences = new Set([
+        file.dependencyReferences = [
           {
             id: 'bar',
             context: "require('bar')",
-            file: { id: 'bar@0.js' }
+            file: { dependencyReferences: [], id: 'bar@0.js' }
           },
           {
             id: 'view/baz',
             context: "require('view/baz')",
-            file: { id: 'view/baz.js' }
+            file: { dependencyReferences: [], id: 'view/baz.js' }
           }
-        ]);
+        ];
         file.replaceReferences({}, (err) => {
           expect(file.content).to.eql("var bar = $m['bar@0.js'].exports;\nvar baz = $m['view/baz.js'].exports;");
           done();
@@ -364,7 +365,7 @@ describe('file', () => {
     describe('inline()', () => {
       it('should inline require(*.json) content', (done) => {
         file.content = "var foo = require('./foo.json');";
-        file.dependencyReferences = new Set([
+        file.dependencyReferences = [
           {
             file: {
               filepath: path.resolve('./foo.json'),
@@ -378,7 +379,7 @@ describe('file', () => {
             context: "require('./foo.json')",
             id: './foo.json'
           }
-        ]);
+        ];
         file.inline({}, (err) => {
           expect(file.content).to.eql('var foo = {\n\t"foo": "bar"\n};');
           done();
@@ -386,7 +387,7 @@ describe('file', () => {
       });
       it('should inline an empty object when unable to locate require(*.json) content', (done) => {
         file.content = "var foo = require('./bar.json');";
-        file.dependencyReferences = new Set([
+        file.dependencyReferences = [
           {
             file: {
               filepath: path.resolve('./bar.json'),
@@ -400,7 +401,7 @@ describe('file', () => {
             context: "require('./bar.json')",
             id: './bar.json'
           }
-        ]);
+        ];
         file.inline({}, (err) => {
           expect(file.content).to.eql('var foo = {};');
           done();
@@ -408,14 +409,14 @@ describe('file', () => {
       });
       it('should inline an empty object when dependency is a native module', (done) => {
         file.content = "var foo = require('path');";
-        file.dependencyReferences = new Set([
+        file.dependencyReferences = [
           {
             filepath: 'path',
             context: "require('path')",
             id: 'path',
             isDisabled: true
           }
-        ]);
+        ];
         file.inline({ browser: true }, (err) => {
           expect(file.content).to.eql('var foo = {};');
           done();
@@ -423,14 +424,14 @@ describe('file', () => {
       });
       it('should not inline an empty object when dependency is a native module for server builds', (done) => {
         file.content = "var foo = require('path');";
-        file.dependencyReferences = new Set([
+        file.dependencyReferences = [
           {
             filepath: 'path',
             context: "require('path')",
             id: 'path',
             isDisabled: false
           }
-        ]);
+        ];
         file.inline({ browser: false }, (err) => {
           expect(file.content).to.eql("var foo = require('path');");
           done();
@@ -519,6 +520,25 @@ describe('file', () => {
             expect(file.content).to.equal("$m['src/foo.js'];\n$m['src/foo.js'].exports = {};\n$m['src/foo.js']['exports'] = {};\n$m['src/foo.js']['ex' + 'ports'] = {};\n\n$m['src/foo.js'].exports;\n$m['src/foo.js'].exports && foo;\n$m['src/foo.js'].exports.foo = 'foo';\n$m['src/foo.js'].exports['foo'] = 'foo';\n$m['src/foo.js'].exports.BELL = '\\x07';\nfreeModule.exports === freeExports;\n\nif (true) {\n  const module = 'foo';\n  const exports = 'bar';\n}");
             done();
           });
+        });
+      });
+    });
+
+    describe('concat()', () => {
+      describe('unwrap()', () => {
+        it('should unwrap file contents', () => {
+          file.content = fs.readFileSync(path.resolve('src/wrapped.js'), 'utf8');
+          file.id = 'wrapped.js';
+          const content = unwrap(file);
+
+          expect(content).to.equal('(function () {\n/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m[\'b.js\'] = { exports: {} };\n$m[\'b.js\'].exports = _bjs_b;\n\nvar _bjs_a = require(\'a.js\');\n\nfunction _bjs_b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a.js\'] = function () {\n$m[\'a.js\'] = { exports: {} };\n$m[\'a.js\'].exports = _ajs_a;\n\nvar _ajs_b = require(\'b.js\');\n\nfunction _ajs_a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== wrapped.js ==*/\n$m[\'wrapped.js\'] = { exports: {} };\nvar _wrappedjs_a = require(\'a.js\');\n/*≠≠ wrapped.js ≠≠*/\n})()\n');
+        });
+        it('should unwrap node file contents', () => {
+          file.content = fs.readFileSync(path.resolve('src/wrapped.js'), 'utf8');
+          file.id = 'wrapped-node.js';
+          const content = unwrap(file);
+
+          expect(content).to.equal('(function () {\n/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m[\'b.js\'] = { exports: {} };\n$m[\'b.js\'].exports = _bjs_b;\n\nvar _bjs_a = require(\'a.js\');\n\nfunction _bjs_b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a.js\'] = function () {\n$m[\'a.js\'] = { exports: {} };\n$m[\'a.js\'].exports = _ajs_a;\n\nvar _ajs_b = require(\'b.js\');\n\nfunction _ajs_a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== wrapped.js ==*/\n$m[\'wrapped-node.js\'] = $m[\'wrapped.js\'] = { exports: {} };\nvar _wrappedjs_a = require(\'a.js\');\n/*≠≠ wrapped.js ≠≠*/\n})()\n');
         });
       });
     });

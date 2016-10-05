@@ -40,8 +40,8 @@ function _ajs_a() {
 };
 /*≠≠ a.js ≠≠*/
 
-/*== circular.js ==*/
-$m['circular.js'] = { exports: {} };
-var _circularjs_a = require('a.js');
-/*≠≠ circular.js ≠≠*/
+/*== wrapped.js ==*/
+$m['wrapped.js'] = { exports: {} };
+var _wrappedjs_a = require('a.js');
+/*≠≠ wrapped.js ≠≠*/
 })()
