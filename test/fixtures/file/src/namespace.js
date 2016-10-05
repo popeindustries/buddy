@@ -1,5 +1,13 @@
 const bar = require('bar');
-const foo = require('./foo');
+let foo = require('./foo');
+var boo;
+
+console.log(foo, bar);
+
+foo = bar;
+var baz = foo.baz;
+var boo = {};
+boo[baz] = 'baz';
 
 class Foo {
   constructor () {
@@ -15,4 +23,5 @@ function bat (foo) {
 
 for (let foo = 0; foo < 3; foo++) {
   bat(foo);
+  console.log(bar);
 }
