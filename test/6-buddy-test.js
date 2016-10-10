@@ -13,7 +13,6 @@ const nunjucksPlugin = require('../packages/buddy-plugin-nunjucks');
 const path = require('path');
 const rimraf = require('rimraf');
 const stylusPlugin = require('../packages/buddy-plugin-stylus');
-const uglifyPlugin = require('../packages/buddy-plugin-uglify');
 let buddy;
 
 describe('Buddy', () => {
@@ -351,13 +350,28 @@ describe('Buddy', () => {
         buddy = buddyFactory({
           input: 'bar.js',
           output: 'output'
-        }, { compress: true, plugins: [uglifyPlugin] });
+        }, { compress: true });
         buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;if("undefined"==typeof process)var process={env:{}};var $m=self.$m=self.$m||{},require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports};!function(){$m["foo.js"]={exports:{}},$m["foo.js"].exports="foo",$m["bar.js"]={exports:{}};var e=$m["foo.js"].exports;$m["bar.js"].exports=e}();');
+          expect(content).to.equal('if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;if("undefined"==typeof process)var process={env:{}};var $m=self.$m=self.$m||{},require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports};(function(){$m["foo.js"]={exports:{}},$m["foo.js"].exports="foo",$m["bar.js"]={exports:{}};var e=$m["foo.js"].exports;$m["bar.js"].exports=e})();');
+          done();
+        });
+      });
+      it.skip('should build a minified js file if "compress" is true, preserving special comments', (done) => {
+        buddy = buddyFactory({
+          input: 'comment.js',
+          output: 'output'
+        }, { compress: true });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+          console.log(content)
+
+          expect(content).to.equal('');
           done();
         });
       });
@@ -380,7 +394,7 @@ describe('Buddy', () => {
         buddy = buddyFactory({
           input: 'zee.js',
           output: 'output'
-        }, { compress: true, plugins: [uglifyPlugin] });
+        });
         buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
