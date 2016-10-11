@@ -525,6 +525,20 @@ describe('Buddy', () => {
           done();
         });
       });
+      it.skip('should build a browser version', (done) => {
+        buddy = buddyFactory({
+          input: 'babel.js',
+          output: 'output',
+          version: 'node'
+        });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(eval(content)).to.be.ok();
+          done();
+        });
+      });
     });
 
     describe('css', () => {
