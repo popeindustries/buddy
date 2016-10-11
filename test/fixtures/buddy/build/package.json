@@ -1,0 +1,8 @@
+{
+  "name": "build",
+  "description": "build",
+  "version": "0.0.0",
+  "devDependencies": {},
+  "repository": "build",
+  "license": "MIT"
+}

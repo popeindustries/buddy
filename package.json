@@ -31,6 +31,7 @@
     "yaw": "0.1.1"
   },
   "devDependencies": {
+    "babel-plugin-external-helpers": "6.8.0",
     "buddy-server": "*",
     "expect.js": "*",
     "mocha": "*",
@@ -42,7 +43,7 @@
   },
   "scripts": {
     "build": "node ./bin/build",
-    "test:all": "NODE_ENV=test mocha \"./packages/buddy-plugin-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 10000 --bail",
+    "test:all": "NODE_ENV=test mocha \"./packages/buddy-plugin-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
     "test": "NODE_ENV=test mocha \"./test/*-test.js\" --reporter spec --timeout 10000 --bail"
   },
   "engines": {

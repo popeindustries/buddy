@@ -39,20 +39,20 @@ describe('config', () => {
         let options = {};
 
         pluginLoader.loadBuildPlugins(options);
-        expect(options.babel.plugins).to.have.length(0);
+        expect(options.babel.plugins).to.have.length(1);
       });
       it('should generate and install Babel plugins based on target version', () => {
         let options = {};
 
         pluginLoader.loadBuildPlugins(options, 'node6');
-        expect(options.babel.plugins).to.have.length(1);
+        expect(options.babel.plugins).to.have.length(2);
         exec('npm --save-dev uninstall babel-plugin-transform-es2015-modules-commonjs');
       });
       it('should ignore unknown target versions', () => {
         let options = {};
 
         pluginLoader.loadBuildPlugins(options, 'foo');
-        expect(options.babel.plugins).to.have.length(0);
+        expect(options.babel.plugins).to.have.length(1);
       });
       it('should allow default plugins to be overridden', () => {
         let options = { babel: { plugins: [['babel-plugin-external-helpers', { foo: true }]] } };

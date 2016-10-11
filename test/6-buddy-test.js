@@ -26,6 +26,10 @@ describe('Buddy', () => {
     buddy.destroy();
     rimraf.sync(path.resolve('output'));
   });
+  after(() => {
+    exec('npm --save-dev uninstall babel-plugin-syntax-trailing-function-commas babel-plugin-transform-async-to-generator');
+    rimraf.sync(path.resolve('node_modules/.bin'));
+  });
 
   describe('factory', () => {
     before(() => {
@@ -525,17 +529,32 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build a browser version', (done) => {
+      it('should build an es2016 browser version', (done) => {
         buddy = buddyFactory({
-          input: 'babel.js',
+          input: 'comma.js',
           output: 'output',
-          version: 'node'
+          version: 'es2016'
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(eval(content)).to.be.ok();
+          expect(content).to.contain('function _es2016js_foo(a, b) {');
+          done();
+        });
+      });
+      it('should build an es2016 browser version with helpers', (done) => {
+        buddy = buddyFactory({
+          input: 'async.js',
+          output: 'output',
+          version: 'es2016'
+        });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain('babelHelpers.asyncToGenerator = function (fn)');
+          expect(content).to.contain('var _ref = babelHelpers.asyncToGenerator(function*');
           done();
         });
       });
