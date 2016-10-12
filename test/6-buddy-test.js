@@ -69,6 +69,8 @@ describe('Buddy', () => {
         .forEach((p) => {
           if (!nodeModules.includes(p)) rimraf.sync(path.resolve('node_modules', p));
         });
+      rimraf.sync(path.resolve('yarn.lock'));
+
       let json = require(path.resolve('package.json'));
 
       json.devDependencies = {};
@@ -536,7 +538,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build an es2016 browser version', (done) => {
+      it.only('should build an es2016 browser version', (done) => {
         buddy = buddyFactory({
           input: 'comma.js',
           output: 'output',
