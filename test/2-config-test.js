@@ -7,6 +7,7 @@ const expect = require('expect.js');
 const filetype = require('../lib/config/filetype');
 const path = require('path');
 const pluginLoader = require('../lib/config/pluginLoader');
+const rimraf = require('rimraf');
 
 let config, dummyConfig;
 
@@ -16,6 +17,11 @@ describe('config', () => {
   });
   afterEach(() => {
     if (config) config.destroy();
+  });
+  after(() => {
+    rimraf.sync(path.resolve('package.json'));
+    rimraf.sync(path.resolve('yarn.lock'));
+    rimraf.sync(path.resolve('node_modules'));
   });
 
   describe('filetype', () => {

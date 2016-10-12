@@ -13,7 +13,7 @@ const nunjucksPlugin = require('../packages/buddy-plugin-nunjucks');
 const path = require('path');
 const rimraf = require('rimraf');
 const stylusPlugin = require('../packages/buddy-plugin-stylus');
-let buddy, nodeModules;
+let buddy;
 
 describe('Buddy', () => {
   before(() => {
@@ -62,13 +62,8 @@ describe('Buddy', () => {
   describe('build()', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/build'));
-      nodeModules = fs.readdirSync(path.resolve('node_modules'));
     });
     after(() => {
-      fs.readdirSync(path.resolve('node_modules'))
-        .forEach((p) => {
-          if (!nodeModules.includes(p)) rimraf.sync(path.resolve('node_modules', p));
-        });
       rimraf.sync(path.resolve('yarn.lock'));
 
       let json = require(path.resolve('package.json'));
@@ -538,34 +533,46 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.only('should build an es2016 browser version', (done) => {
-        buddy = buddyFactory({
-          input: 'comma.js',
-          output: 'output',
-          version: 'es2016'
-        });
-        buddy.build((err, filepaths) => {
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('function _commajs_foo(a, b) {');
-          done();
+      describe('browser bundles', () => {
+        before(() => {
+          fs.rename(path.resolve('node_modules'), path.resolve('node_modules-backup'));
         });
-      });
-      it('should build an es2016 browser version with helpers', (done) => {
-        buddy = buddyFactory({
-          input: 'async.js',
-          output: 'output',
-          version: 'es2016'
+        after(() => {
+          rimraf.sync(path.resolve('node_modules'));
+          fs.rename(path.resolve('node_modules-backup'), path.resolve('node_modules'));
         });
-        buddy.build((err, filepaths) => {
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('babelHelpers.asyncToGenerator = function (fn)');
-          expect(content).to.contain('var _ref = babelHelpers.asyncToGenerator(function*');
-          done();
+        it('should build an es2016 browser version', (done) => {
+          buddy = buddyFactory({
+            input: 'comma.js',
+            output: 'output',
+            version: 'es2016'
+          });
+          buddy.build((err, filepaths) => {
+            expect(fs.existsSync(filepaths[0])).to.be(true);
+            const content = fs.readFileSync(filepaths[0], 'utf8');
+
+            expect(content).to.contain('function _commajs_foo(a, b) {');
+            done();
+          });
         });
+        it('should build an es2016 browser version with helpers', (done) => {
+          buddy = buddyFactory({
+            input: 'async.js',
+            output: 'output',
+            version: 'es2016'
+          });
+          buddy.build((err, filepaths) => {
+            expect(fs.existsSync(filepaths[0])).to.be(true);
+            const content = fs.readFileSync(filepaths[0], 'utf8');
+
+            expect(content).to.contain('babelHelpers.asyncToGenerator = function (fn)');
+            expect(content).to.contain('var _ref = babelHelpers.asyncToGenerator(function*');
+            done();
+          });
+        });
+
       });
     });
 
