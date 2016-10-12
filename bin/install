@@ -9,6 +9,6 @@ const path = require('path');
 fs.readdirSync(path.resolve('packages'))
   .forEach((resource) => {
     if (/^buddy-/.test(resource)) {
-      exec('npm install', { cwd: path.resolve(__dirname, '../packages', resource), stdio: 'inherit' });
+      exec('yarn', { cwd: path.resolve(__dirname, '../packages', resource), stdio: 'inherit' });
     }
   });
