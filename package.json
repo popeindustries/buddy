@@ -44,7 +44,7 @@
   "scripts": {
     "build": "node ./bin/build",
     "test:all": "NODE_ENV=test mocha \"./packages/buddy-plugin-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
-    "test": "NODE_ENV=test mocha \"./test/*-test.js\" --reporter spec --timeout 10000 --bail"
+    "test": "NODE_ENV=test mocha \"./test/*-test.js\" --reporter spec --timeout 20000 --bail"
   },
   "engines": {
     "node": ">=6"

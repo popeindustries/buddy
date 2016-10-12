@@ -223,8 +223,8 @@ camelcase@^1.0.2:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-1.2.1.tgz#9bb5304d2e0b56698b2c758b08a3eaa9daa58a39"
 
 caniuse-db@^1.0.30000539, caniuse-db@^1.0.30000540:
-  version "1.0.30000553"
-  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000553.tgz#e7e908f43b788e6ac78fc161fedc4626d6a39f24"
+  version "1.0.30000554"
+  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000554.tgz#cd1dbe423d00b6203ba93f05973a476428dec919"
 
 center-align@^0.1.1:
   version "0.1.3"

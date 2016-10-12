@@ -13,7 +13,7 @@ const nunjucksPlugin = require('../packages/buddy-plugin-nunjucks');
 const path = require('path');
 const rimraf = require('rimraf');
 const stylusPlugin = require('../packages/buddy-plugin-stylus');
-let buddy;
+let buddy, nodeModules;
 
 describe('Buddy', () => {
   before(() => {
@@ -25,10 +25,6 @@ describe('Buddy', () => {
   afterEach(() => {
     buddy.destroy();
     rimraf.sync(path.resolve('output'));
-  });
-  after(() => {
-    exec('npm --save-dev uninstall babel-plugin-syntax-trailing-function-commas babel-plugin-transform-async-to-generator');
-    rimraf.sync(path.resolve('node_modules/.bin'));
   });
 
   describe('factory', () => {
@@ -66,6 +62,17 @@ describe('Buddy', () => {
   describe('build()', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/build'));
+      nodeModules = fs.readdirSync(path.resolve('node_modules'));
+    });
+    after(() => {
+      fs.readdirSync(path.resolve('node_modules'))
+        .forEach((p) => {
+          if (!nodeModules.includes(p)) rimraf.sync(path.resolve('node_modules', p));
+        });
+      let json = require(path.resolve('package.json'));
+
+      json.devDependencies = {};
+      fs.writeFileSync(path.resolve('package.json'), JSON.stringify(json, null, 2));
     });
 
     describe('js', () => {
@@ -539,7 +546,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('function _es2016js_foo(a, b) {');
+          expect(content).to.contain('function _commajs_foo(a, b) {');
           done();
         });
       });
