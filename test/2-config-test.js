@@ -52,6 +52,26 @@ describe('config', () => {
         expect(options.babel.plugins).to.have.length(2);
         expect(options.babel.plugins[0]).to.be.a(Function);
       });
+      it('should generate and install Babel plugins based on target version specified with object notation', () => {
+        const options = pluginLoader.loadBuildPlugins(undefined, { node: 6 });
+
+        expect(options.babel.plugins).to.have.length(2);
+        expect(options.babel.plugins[0]).to.be.a(Function);
+      });
+      it('should generate and install Babel plugins based on browser target version', () => {
+        const options = pluginLoader.loadBuildPlugins(undefined, { chrome: 46 });
+
+        expect(options.babel.plugins).to.have.length(14);
+        expect(options.babel.plugins[0]).to.be.a(Function);
+      });
+      it('should generate and install Babel and Postcss plugins based on browsers list', () => {
+        const options = pluginLoader.loadBuildPlugins(undefined, { browsers: ['last 2 versions'] });
+
+        // Don't know how many babel plugins
+        expect(options.babel.plugins[0]).to.be.a(Function);
+        expect(options.postcss.plugins).to.have.length(1);
+        expect(options.postcss.plugins[0]).to.be.an(Array);
+      });
       it('should ignore unknown target versions', () => {
         const options = pluginLoader.loadBuildPlugins(undefined, 'foo');
 

@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+
+'use strict';
+
+/**
+ * Grab list of plugins from https://github.com/babel/babel-preset-env
+ * Dirty, but this way it's possible to avoid installing all plugin dependencies
+ */
+
+const { request } = require('https');
+const fs = require('fs');
+const path = require('path');
+
+const URL = 'https://raw.githubusercontent.com/babel/babel-preset-env/master/data/plugins.json';
+
+const req = request(URL, (res) => {
+  let body = '';
+
+  res.setEncoding('utf8');
+  res.on('data', (chunk) => {
+    body += chunk;
+  });
+  res.on('end', () => {
+    fs.writeFileSync(path.resolve(__dirname, '../lib/config/babel-plugins.json'), body);
+  });
+});
+
+req.on('error', (err) => {
+  console.error(err);
+});
+
+req.end();
