@@ -83,7 +83,7 @@ describe('build', () => {
         output: 'js'
       }, {});
       build = buildFactory(config.build[0]);
-      const files = [build.fileFactory(build.inputpaths[0], build.fileFactoryOptions)];
+      const files = [build.fileFactory(build.inputpaths[0])];
 
       build.processFiles(files, (err, referencedFiles) => {
         expect(referencedFiles).to.have.length(1);

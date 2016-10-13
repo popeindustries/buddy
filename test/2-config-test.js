@@ -1,6 +1,5 @@
 'use strict';
 
-const { execSync: exec } = require('child_process');
 const buildParser = require('../lib/config/buildParser');
 const configFactory = require('../lib/config');
 const expect = require('expect.js');
@@ -42,30 +41,32 @@ describe('config', () => {
   describe('pluginLoader', () => {
     describe('loadBuildPlugins()', () => {
       it('should generate default Babel plugins', () => {
-        let options = {};
+        const options = pluginLoader.loadBuildPlugins();
 
-        pluginLoader.loadBuildPlugins(options);
         expect(options.babel.plugins).to.have.length(1);
+        expect(options.babel.plugins[0]).to.be.a(Function);
       });
       it('should generate and install Babel plugins based on target version', () => {
-        let options = {};
+        const options = pluginLoader.loadBuildPlugins(undefined, 'node6');
 
-        pluginLoader.loadBuildPlugins(options, 'node6');
         expect(options.babel.plugins).to.have.length(2);
-        exec('npm --save-dev uninstall babel-plugin-transform-es2015-modules-commonjs');
+        expect(options.babel.plugins[0]).to.be.a(Function);
       });
       it('should ignore unknown target versions', () => {
-        let options = {};
+        const options = pluginLoader.loadBuildPlugins(undefined, 'foo');
 
-        pluginLoader.loadBuildPlugins(options, 'foo');
         expect(options.babel.plugins).to.have.length(1);
       });
       it('should allow default plugins to be overridden', () => {
-        let options = { babel: { plugins: [['babel-plugin-external-helpers', { foo: true }]] } };
+        const options = pluginLoader.loadBuildPlugins({ babel: { plugins: [['babel-plugin-external-helpers', { foo: true }]] } });
 
-        pluginLoader.loadBuildPlugins(options);
         expect(options.babel.plugins).to.have.length(1);
         expect(options.babel.plugins[0][1]).to.have.property('foo', true);
+      });
+      it('should allow adding custom plugins', () => {
+        const options = pluginLoader.loadBuildPlugins({ foo: { plugins: ['yaw'] } });
+
+        expect(options.foo.plugins).to.have.length(1);
       });
     });
   });
