@@ -439,32 +439,32 @@ describe('file', () => {
       });
     });
 
-    describe('flatten()', () => {
+    describe('transpile()', () => {
       describe('namespace root declarations', () => {
         it('should namespace variable declarations', (done) => {
           file.content = 'const foo = "foo";';
-          file.flatten({}, (err) => {
+          file.transpile({ bundle: true }, (err) => {
             expect(file.content).to.equal('const _srcfoojs_foo = "foo";');
             done();
           });
         });
         it('should namespace function declarations', (done) => {
           file.content = 'function foo () {}';
-          file.flatten({}, (err) => {
+          file.transpile({ bundle: true }, (err) => {
             expect(file.content).to.equal('function _srcfoojs_foo() {}');
             done();
           });
         });
         it('should namespace class declarations', (done) => {
           file.content = 'class Foo {}';
-          file.flatten({}, (err) => {
+          file.transpile({ bundle: true }, (err) => {
             expect(file.content).to.equal('class _srcfoojs_Foo {}');
             done();
           });
         });
         it('should namespace all declarations and their references', (done) => {
           file.content = fs.readFileSync('src/namespace.js', 'utf8');
-          file.flatten({}, (err) => {
+          file.transpile({ bundle: true }, (err) => {
             expect(file.content).to.equal("const _srcfoojs_bar = require(\'bar\');\nlet _srcfoojs_foo = require(\'./foo\');\nvar _srcfoojs_boo;\n\nconsole.log(_srcfoojs_foo, _srcfoojs_bar);\n\n_srcfoojs_foo = _srcfoojs_bar;\nvar _srcfoojs_baz = _srcfoojs_foo.baz;\nvar _srcfoojs_boo = {};\n_srcfoojs_boo[_srcfoojs_baz] = \'baz\';\n\nclass _srcfoojs_Foo {\n  constructor() {\n    console.log(_srcfoojs_foo);\n  }\n}\n\nfunction _srcfoojs_bat(foo) {\n  const f = new _srcfoojs_Foo();\n\n  console.log(f, foo, _srcfoojs_bar, \'bat\');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  _srcfoojs_bat(foo);\n  console.log(_srcfoojs_bar);\n}");
             done();
           });
@@ -474,49 +474,49 @@ describe('file', () => {
       describe('replace module/exports', () => {
         it('should replace "module.exports"', (done) => {
           file.content = 'module.exports = function foo() {};';
-          file.flatten({ browser: true }, (err) => {
+          file.transpile({ browser: true, bundle: true }, (err) => {
             expect(file.content).to.equal("$m['src/foo.js'].exports = function foo() {};");
             done();
           });
         });
         it('should replace "module[\'exports\']"', (done) => {
           file.content = 'module[\'exports\'] = function foo() {};';
-          file.flatten({ browser: true }, (err) => {
+          file.transpile({ browser: true, bundle: true }, (err) => {
             expect(file.content).to.equal("$m['src/foo.js']['exports'] = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports.*"', (done) => {
           file.content = 'module.exports.foo = function foo() {};';
-          file.flatten({ browser: true }, (err) => {
+          file.transpile({ browser: true, bundle: true }, (err) => {
             expect(file.content).to.equal("$m['src/foo.js'].exports.foo = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports[\'*\']"', (done) => {
           file.content = "module.exports['foo'] = function foo() {};";
-          file.flatten({ browser: true }, (err) => {
+          file.transpile({ browser: true, bundle: true }, (err) => {
             expect(file.content).to.equal("$m['src/foo.js'].exports['foo'] = function foo() {};");
             done();
           });
         });
         it('should replace "exports.*"', (done) => {
           file.content = "exports.foo = 'foo';";
-          file.flatten({ browser: true }, (err) => {
+          file.transpile({ browser: true, bundle: true }, (err) => {
             expect(file.content).to.equal("$m['src/foo.js'].exports.foo = 'foo';");
             done();
           });
         });
         it('should replace "exports[\'*\']"', (done) => {
           file.content = "exports['foo'] = 'foo';";
-          file.flatten({ browser: true }, (err) => {
+          file.transpile({ browser: true, bundle: true }, (err) => {
             expect(file.content).to.equal("$m['src/foo.js'].exports['foo'] = 'foo';");
             done();
           });
         });
         it('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
-          file.flatten({ browser: true }, (err) => {
+          file.transpile({ browser: true, bundle: true }, (err) => {
             expect(file.content).to.equal("$m['src/foo.js'];\n$m['src/foo.js'].exports = {};\n$m['src/foo.js']['exports'] = {};\n$m['src/foo.js']['ex' + 'ports'] = {};\n\n$m['src/foo.js'].exports;\n$m['src/foo.js'].exports && foo;\n$m['src/foo.js'].exports.foo = 'foo';\n$m['src/foo.js'].exports['foo'] = 'foo';\n$m['src/foo.js'].exports.BELL = '\\x07';\nfreeModule.exports === freeExports;\n\nif (true) {\n  const module = 'foo';\n  const exports = 'bar';\n}");
             done();
           });
