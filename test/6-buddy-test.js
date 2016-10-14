@@ -652,6 +652,21 @@ describe('Buddy', () => {
           done();
         });
       });
+      it('should build a file with prefixes using simplified version string', (done) => {
+        buddy = buddyFactory({
+          input: 'c.css',
+          output: 'output',
+          version: 'last 5 versions'
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.equal(':-webkit-full-screen a {\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}');
+          done();
+        });
+      });
     });
 
     describe('img', () => {
