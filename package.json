@@ -18,7 +18,6 @@
     "babel-core": "6.17.0",
     "babel-plugin-external-helpers": "6.8.0",
     "browserslist": "1.4.0",
-    "buddy-cli": "*",
     "chalk": "1.1.3",
     "cssnano": "3.7.7",
     "glob": "7.1.1",
@@ -30,7 +29,7 @@
     "postcss": "5.2.4",
     "recur-fs": "2.2.3",
     "uglify-js": "2.7.3",
-    "yaw": "0.1.1"
+    "yaw": "1.0.0"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "6.8.0",
@@ -54,16 +53,5 @@
   },
   "repository": "git://github.com/popeindustries/buddy.git",
   "readmeFilename": "README.md",
-  "license": "MIT",
-  "buddy": {
-    "input": "lib/buddy.js",
-    "output": "index.js",
-    "version": "node",
-    "resolve": {
-      "csso": false,
-      "core-js": false,
-      "svgo": false,
-      "uglify-js": false
-    }
-  }
+  "license": "MIT"
 }
