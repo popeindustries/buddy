@@ -358,42 +358,6 @@ describe('config', () => {
 
       expect(dummyConfig.build[0]).to.have.property('browser', false);
     });
-    it('should return a build target with an executable "before" hook function', () => {
-      dummyConfig.build = [{
-        input: 'src/main.js',
-        output: 'js',
-        before: 'console.log(context);'
-      }];
-      buildParser.parse(dummyConfig);
-
-      expect(typeof dummyConfig.build[0].before == 'function').to.be(true);
-    });
-    it('should return a build target with an executable "before" hook function when passed a path', () => {
-      dummyConfig.build = [{
-        input: 'src/main.js',
-        output: 'js',
-        before: './hooks/before.js'
-      }];
-      buildParser.parse(dummyConfig);
-
-      expect(typeof dummyConfig.build[0].before == 'function').to.be(true);
-    });
-    it('should throw an error when passed invalid "before" hook path', () => {
-      let errored = false;
-
-      dummyConfig.build = [{
-        input: 'src/main.js',
-        output: 'js',
-        before: './hook/before.js'
-      }];
-      try {
-        buildParser.parse(dummyConfig);
-      } catch (err) {
-        errored = true;
-        expect(err).to.be.an(Error);
-      }
-      expect(errored).to.equal(true);
-    });
   });
 
   describe('factory', () => {
