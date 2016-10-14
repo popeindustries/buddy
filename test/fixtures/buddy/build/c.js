@@ -1,2 +1,1 @@
-var foo = require('./foo')
-  , d = require('./d');
+var foo = require('./foo');
