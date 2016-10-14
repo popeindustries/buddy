@@ -1,8 +1,4 @@
 exports.build = {
-	targets: [
-		{
-			input: 'foo.js',
-			output: 'output'
-		}
-	]
-}
+  input: 'foo.js',
+  output: 'output'
+};

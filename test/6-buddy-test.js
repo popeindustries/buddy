@@ -787,60 +787,45 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build an html template file with include and inline css dependency', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'bing.nunjs',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build an html template file with include and inline css dependency', (done) => {
+        buddy = buddyFactory({
+          input: 'e.nunjs',
+          output: 'output'
+        }, { plugins: [nunjucksPlugin] });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title>Title</title>\n  <style>body {\n\tcolor: white;\n\tfont-size: 12px;\n}\nbody p {\n\tfont-size: 10px;\n}\n</style>\n</head>\n<body>\n\n</body>\n</html>');
+          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <style>body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n</style>\n</head>\n<body>\n\n</body>\n</html>');
           done();
         });
       });
-      it.skip('should build an html template file with compressed inline js dependency when "compress" is true', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'boo.nunjs',
-                output: 'output'
-              }
-            ]
-          }
-        }, { compress: true }, (err, filepaths) => {
+      it('should build an html template file with compressed inline js dependency when "compress" is true', (done) => {
+        buddy = buddyFactory({
+          input: 'f.nunjs',
+          output: 'output'
+        }, { compress: true, plugins: [nunjucksPlugin] });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('<script>var bang=this,boo="bang";</script>');
+          expect(content).to.contain('<script>var f="f";</script>');
           done();
         });
       });
-      it.skip('should build an html template file with dynamically generated inline svg dependencies', (done) => {
-        buddy.build({
-          build: {
-            build: [
-              {
-                input: 'bar.nunjs',
-                output: 'output'
-              }
-            ]
-          }
-        }, null, (err, filepaths) => {
+      it('should build an html template file with dynamically generated inline svg dependencies', (done) => {
+        buddy = buddyFactory({
+          input: 'g.nunjs',
+          output: 'output'
+        }, { plugins: [nunjucksPlugin] });
+        buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('<svg id="Layer_1" x="0px" y="0px" enable-background="new 0 0 100 100" xml:space="preserve" viewBox="0 0 100 100">\n<circle cx="50" cy="50" r="25"/>\n</svg>\n  \n\t <svg id="Layer_1" x="0px" y="0px" enable-background="new 0 0 100 100" xml:space="preserve" viewBox="0 0 100 100">\n<circle cx="25" cy="25" r="25"/>\n</svg>');
+          expect(content).to.contain('<svg id="Layer_1" x="0px" y="0px" enable-background="new 0 0 100 100" xml:space="preserve" viewBox="0 0 100 100">\n<circle cx="50" cy="50" r="25"/>\n</svg>\n  \n   <svg id="Layer_1" x="0px" y="0px" enable-background="new 0 0 100 100" xml:space="preserve" viewBox="0 0 100 100">\n<circle cx="50" cy="50" r="25"/>\n</svg>');
           done();
         });
       });
@@ -1237,28 +1222,23 @@ describe('Buddy', () => {
     });
   });
 
-  describe.skip('watch', () => {
+  describe('watch', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/watch'));
     });
 
     it('should build watch build', (done) => {
-      buddy.build({
-        build: {
-          build: [
-            {
-              input: ['foo.js', 'bar.js']
-            }
-          ]
-        }
-      }, { watch: true }, (err, filepaths) => {
+      buddy = buddyFactory({
+        input: ['foo.js', 'bar.js']
+      }, { watch: true });
+      buddy.build((err, filepaths) => {
         expect(filepaths).to.have.length(0);
         done();
       });
     });
 
     if (process.platform != 'win32') {
-      it('should rebuild a watched file on change', (done) => {
+      it.skip('should rebuild a watched file on change', (done) => {
         const child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, (err, stdout, stderr) => {
           console.log(arguments);
           done(err);
