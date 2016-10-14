@@ -63,12 +63,9 @@ describe('Buddy', () => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/build'));
     });
     after(() => {
-      rimraf.sync(path.resolve('yarn.lock'));
-
-      let json = require(path.resolve('package.json'));
-
-      json.devDependencies = {};
-      fs.writeFileSync(path.resolve('package.json'), JSON.stringify(json, null, 2));
+      ['yarn.lock', 'node_modules', 'package.json'].forEach((p) => {
+        if (fs.existsSync(path.resolve(p))) rimraf.sync(path.resolve(p));
+      });
     });
 
     describe('js', () => {
@@ -171,51 +168,6 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with node_modules dependencies', (done) => {
-        buddy = buddyFactory({
-          input: 'bat.js',
-          output: 'output'
-        });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain("$m['bar/bar.js#0.0.0'].exports = 'bar';");
-          expect(content).to.contain("var _foofoojs000_bar = $m['bar/bar.js#0.0.0'].exports");
-          expect(content).to.contain("var _batjs_foo = $m['foo/foo.js#0.0.0'].exports;");
-          done();
-        });
-      });
-      it('should build a js file with relative node_modules dependencies', (done) => {
-        buddy = buddyFactory({
-          input: 'boo.js',
-          output: 'output'
-        });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain("$m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports = 'bar';");
-          expect(content).to.contain("var _boojs_bar = $m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports");
-          done();
-        });
-      });
-      it('should build a js file with node_modules dependencies with missing "main" reference', (done) => {
-        buddy = buddyFactory({
-          input: 'zong.js',
-          output: 'output'
-        });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain("$m['foo.js/index.js#1.0.0'].exports = 'foo.js';");
-          done();
-        });
-      });
       it('should build a js file with json dependency', (done) => {
         buddy = buddyFactory({
           input: 'bing.js',
@@ -230,21 +182,6 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with json node_modules dependency', (done) => {
-        buddy = buddyFactory({
-          input: 'zing.js',
-          output: 'output'
-        });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain("var _zingjs_boo = $m['boo/index.js#1.0.0'].exports;");
-          expect(content).to.contain('var _booindexjs100_json = {\n  "boo": "boo"\n}');
-          done();
-        });
-      });
       it('should build a js file with missing dependency', (done) => {
         buddy = buddyFactory({
           input: 'beep.js',
@@ -256,20 +193,6 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain("var _beepjs_what = require('what');");
-          done();
-        });
-      });
-      it('should build a js file with disabled dependency', (done) => {
-        buddy = buddyFactory({
-          input: 'bong.js',
-          output: 'output'
-        });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('var _bongjs_bat = {};');
           done();
         });
       });
@@ -466,44 +389,6 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a node bundle with disabled dependency in third-party dependency', (done) => {
-        buddy = buddyFactory({
-          input: 'zing.js',
-          output: 'output',
-          version: 'node',
-          resolve: {
-            'json': false
-          }
-        });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain("var _booindexjs100_json = {};");
-          expect(content).to.not.contain('"boo": "boo"');
-          done();
-        });
-      });
-      it('should build a node bundle with disabled dependency in third-party dependency file', (done) => {
-        buddy = buddyFactory({
-          input: 'zang.js',
-          output: 'output',
-          version: 'node',
-          resolve: {
-            'json': false
-          }
-        });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain("var _booboojs100_json = {};");
-          expect(content).to.not.contain('"boo": "boo"');
-          done();
-        });
-      });
       it('should build a complex dependency tree', (done) => {
         buddy = buddyFactory({
           input: 'lodash.js',
@@ -532,46 +417,156 @@ describe('Buddy', () => {
           done();
         });
       });
+      it('should build an es2016 browser version', (done) => {
+        buddy = buddyFactory({
+          input: 'comma.js',
+          output: 'output',
+          version: 'es2016'
+        });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
 
-      describe('browser bundles', () => {
+          expect(content).to.contain('function _commajs_foo(a, b) {');
+          done();
+        });
+      });
+      it('should build an es2016 browser version with helpers', (done) => {
+        buddy = buddyFactory({
+          input: 'async.js',
+          output: 'output',
+          version: 'es2016'
+        });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain('babelHelpers.asyncToGenerator = function (fn)');
+          expect(content).to.contain('var _ref = babelHelpers.asyncToGenerator(function*');
+          done();
+        });
+      });
+
+      describe('packages', () => {
         before(() => {
-          fs.rename(path.resolve('node_modules'), path.resolve('node_modules-backup'));
+          process.chdir(path.resolve(__dirname, 'fixtures/buddy/build/packages'));
         });
         after(() => {
-          rimraf.sync(path.resolve('node_modules'));
-          fs.rename(path.resolve('node_modules-backup'), path.resolve('node_modules'));
+          process.chdir(path.resolve(__dirname, 'fixtures/buddy/build'));
         });
 
-        it('should build an es2016 browser version', (done) => {
+        it('should build a js file with node_modules dependencies', (done) => {
           buddy = buddyFactory({
-            input: 'comma.js',
-            output: 'output',
-            version: 'es2016'
+            input: 'bat.js',
+            output: 'output'
           });
           buddy.build((err, filepaths) => {
+            expect(filepaths).to.have.length(1);
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain('function _commajs_foo(a, b) {');
+            expect(content).to.contain("$m['bar/bar.js#0.0.0'].exports = 'bar';");
+            expect(content).to.contain("var _foofoojs000_bar = $m['bar/bar.js#0.0.0'].exports");
+            expect(content).to.contain("var _batjs_foo = $m['foo/foo.js#0.0.0'].exports;");
             done();
           });
         });
-        it('should build an es2016 browser version with helpers', (done) => {
+        it('should build a js file with relative node_modules dependencies', (done) => {
           buddy = buddyFactory({
-            input: 'async.js',
-            output: 'output',
-            version: 'es2016'
+            input: 'boo.js',
+            output: 'output'
           });
           buddy.build((err, filepaths) => {
+            expect(filepaths).to.have.length(1);
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain('babelHelpers.asyncToGenerator = function (fn)');
-            expect(content).to.contain('var _ref = babelHelpers.asyncToGenerator(function*');
+            expect(content).to.contain("$m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports = 'bar';");
+            expect(content).to.contain("var _boojs_bar = $m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports");
             done();
           });
         });
+        it('should build a js file with node_modules dependencies with missing "main" reference', (done) => {
+          buddy = buddyFactory({
+            input: 'zong.js',
+            output: 'output'
+          });
+          buddy.build((err, filepaths) => {
+            expect(filepaths).to.have.length(1);
+            expect(fs.existsSync(filepaths[0])).to.be(true);
+            const content = fs.readFileSync(filepaths[0], 'utf8');
 
+            expect(content).to.contain("$m['foo.js/index.js#1.0.0'].exports = 'foo.js';");
+            done();
+          });
+        });
+        it('should build a js file with json node_modules dependency', (done) => {
+          buddy = buddyFactory({
+            input: 'zing.js',
+            output: 'output'
+          });
+          buddy.build((err, filepaths) => {
+            expect(filepaths).to.have.length(1);
+            expect(fs.existsSync(filepaths[0])).to.be(true);
+            const content = fs.readFileSync(filepaths[0], 'utf8');
+
+            expect(content).to.contain("var _zingjs_boo = $m['boo/index.js#1.0.0'].exports;");
+            expect(content).to.contain('var _booindexjs100_json = {\n  "boo": "boo"\n}');
+            done();
+          });
+        });
+        it('should build a js file with disabled dependency', (done) => {
+          buddy = buddyFactory({
+            input: 'bong.js',
+            output: 'output'
+          });
+          buddy.build((err, filepaths) => {
+            expect(filepaths).to.have.length(1);
+            expect(fs.existsSync(filepaths[0])).to.be(true);
+            const content = fs.readFileSync(filepaths[0], 'utf8');
+
+            expect(content).to.contain('var _bongjs_bat = {};');
+            done();
+          });
+        });
+        it('should build a node bundle with disabled dependency in third-party dependency', (done) => {
+          buddy = buddyFactory({
+            input: 'zing.js',
+            output: 'output',
+            version: 'node',
+            resolve: {
+              'json': false
+            }
+          });
+          buddy.build((err, filepaths) => {
+            expect(filepaths).to.have.length(1);
+            expect(fs.existsSync(filepaths[0])).to.be(true);
+            const content = fs.readFileSync(filepaths[0], 'utf8');
+
+            expect(content).to.contain("var _booindexjs100_json = {};");
+            expect(content).to.not.contain('"boo": "boo"');
+            done();
+          });
+        });
+        it('should build a node bundle with disabled dependency in third-party dependency file', (done) => {
+          buddy = buddyFactory({
+            input: 'zang.js',
+            output: 'output',
+            version: 'node',
+            resolve: {
+              'json': false
+            }
+          });
+          buddy.build((err, filepaths) => {
+            expect(filepaths).to.have.length(1);
+            expect(fs.existsSync(filepaths[0])).to.be(true);
+            const content = fs.readFileSync(filepaths[0], 'utf8');
+
+            expect(content).to.contain("var _booboojs100_json = {};");
+            expect(content).to.not.contain('"boo": "boo"');
+            done();
+          });
+        });
       });
     });
 
