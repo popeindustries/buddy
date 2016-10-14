@@ -7,3 +7,4 @@ packages/
 .travis.yml
 CHANGELOG.md
 README.md
+yarn.lock
