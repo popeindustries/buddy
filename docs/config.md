@@ -29,16 +29,6 @@ exports.build = [
         }
       }
     },
-    // Override 'require()' file resolution behaviour
-    resolve: {
-      // Substitute a project file for another.
-      'server.js': './browser.js',
-      // Substitute a package for another
-      'http': 'browser-http',
-      // Ignore a package, including references in nested dependencies
-      // (resolves to empty object).
-      'isarray': false
-    },
     // Builds can have children.
     // Any sources included in the parent target will NOT be included in the child.
     build: [

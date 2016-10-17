@@ -33,13 +33,14 @@ $ npm install --save-dev buddy
 ### Usage
 
 ```text
-Usage: buddy [options] <command> [path-to-config]
+  Usage: buddy [options] <command> [configpath]
+
 
   Commands:
 
-    build [config]   build js, css, html, and image sources
-    watch [config]   watch js, css, html, and image source files and build changes
-    deploy [config]  build compressed js, css, html, and image sources
+    build [configpath]   build js, css, html, and image sources
+    watch [configpath]   watch js, css, html, and image source files and build changes
+    deploy [configpath]  build compressed js, css, html, and image sources
 
   Options:
 
@@ -48,8 +49,10 @@ Usage: buddy [options] <command> [path-to-config]
     -c, --compress        compress output for production deployment
     -g, --grep <pattern>  only run build targets matching <pattern>
     -i, --invert          inverts grep matches
-    -r, --reload          reload all connected live-reload clients on file change during watch [ADD-ON buddy-server]
-    -s, --serve           create a webserver to serve static files during watch [ADD-ON buddy-server]
+    --input               input file/directory for simple config-free build
+    --output              output file/directory for simple config-free build
+    -r, --reload          reload all connected live-reload clients on file change during watch
+    -s, --serve           create (or launch) a webserver to serve files during watch
     -S, --script          run script on build completion
     -v, --verbose         print all messages for debugging
 ```
@@ -77,9 +80,11 @@ One of the most common use cases for extending **buddy** is to enable working wi
 
 Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/docs/plugins.md) to learn about writing your own.
 
-## How do I?
+## How do I...
 
 #### Manage *JS* dependencies?
+
+*JS* dependencies are declared by use of `require()` expressions, and closely follow the module semantics as used in [Node.js](http://nodejs.org/api/modules.html). 
 
 #### Manage *CSS* dependencies?
 
@@ -429,7 +434,7 @@ $ buddy build --invert --grep images
 
 #### Alias a *JS* dependency?
 
-#### Make a buddy plugin?
+#### Make a language plugin?
 
 Check out the [plugins guide](https://github.com/popeindustries/buddy/blob/master/docs/plugins.md) if you want to get your hands dirty.
 
@@ -502,7 +507,7 @@ Plugins are configured via the `options.{plugin}` build configuration parameter:
 }
 ```
 
-#### Build React (.jsx) source?
+#### Build *React* (.jsx) source?
 
 A React language plugin is provided by default. Just specify `react` as a build target version to compile `.jsx` files:
 
@@ -520,7 +525,7 @@ A React language plugin is provided by default. Just specify `react` as a build 
 }
 ```
 
-#### Write js with Flow types?
+#### Write *JS* with Flow types?
 
 A Flow plugin is provided by default. Just specify `flow` as a build target version to strip Flow types from `.js` files:
 
