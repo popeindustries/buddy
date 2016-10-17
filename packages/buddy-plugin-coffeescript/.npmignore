@@ -1,4 +1,3 @@
-bin/
-src/
 test/
 .DS_Store
+yarn.lock

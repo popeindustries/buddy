@@ -10,10 +10,10 @@
     "buddy"
   ],
   "dependencies": {
-  },
-  "devDependencies": {
     "commander": "2.9.0",
     "recur-fs": "2.2.x"
+  },
+  "devDependencies": {
   },
   "main": "index.js",
   "bin": {
@@ -23,15 +23,9 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "",
     "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec"
   },
   "repository": "https://github.com/popeindustries/buddy/packages/buddy-cli",
   "readmeFilename": "README.md",
-  "license": "MIT",
-  "buddy": {
-    "input": "lib/index.js",
-    "output": "index.js",
-    "version": "node"
-  }
+  "license": "MIT"
 }
