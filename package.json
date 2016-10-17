@@ -34,7 +34,6 @@
     "yaw": "1.0.0"
   },
   "devDependencies": {
-    "babel-plugin-external-helpers": "6.8.0",
     "buddy-server": "*",
     "expect.js": "*",
     "mocha": "*",
