@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-imagemin",
   "description": "Buddy plugin for image minification (via imagemin)",
-  "version": "5.2.2",
+  "version": "5.2.2-2",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
