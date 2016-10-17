@@ -127,7 +127,7 @@ describe('config', () => {
           output: 'js'
         }]
       };
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].inputpaths[0]).to.equal(path.resolve('src/hey.js'));
     });
@@ -136,7 +136,7 @@ describe('config', () => {
         input: 'src/hey.js',
         output: 'js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].inputpaths[0]).to.equal(path.resolve('src/hey.js'));
     });
@@ -145,7 +145,7 @@ describe('config', () => {
         input: ['src/hey.js', 'src/ho.js'],
         output: 'js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].input).to.eql(['src/hey.js', 'src/ho.js']);
       expect(dummyConfig.build[0].inputpaths).to.eql([path.resolve('src/hey.js'), path.resolve('src/ho.js')]);
@@ -156,7 +156,7 @@ describe('config', () => {
         input: ['src/main.js', 'src/sub.js'],
         output: ['js/main.js', 'js/sub.js']
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].inputpaths).to.eql([path.resolve('src/main.js'), path.resolve('src/sub.js')]);
       expect(dummyConfig.build[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/sub.js')]);
@@ -167,7 +167,7 @@ describe('config', () => {
         input: 'src',
         output: 'js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].inputpaths).to.eql([path.resolve('src/main.js'), path.resolve('src/module.js')]);
       expect(dummyConfig.build[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/module.js')]);
@@ -179,7 +179,7 @@ describe('config', () => {
         input: 'src-nested',
         output: 'js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].inputpaths).to.eql([path.resolve('src-nested/main.js'), path.resolve('src-nested/module.js'), path.resolve('src-nested/nested/sub.js'), path.resolve('src-nested/nested/sub2.js')]);
       expect(dummyConfig.build[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/module.js'), path.resolve('js/nested/sub.js'), path.resolve('js/nested/sub2.js')]);
@@ -197,7 +197,7 @@ describe('config', () => {
           }
         ]
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].build).to.have.length(1);
       expect(dummyConfig.build[0].hasChildren).to.equal(true);
@@ -211,7 +211,7 @@ describe('config', () => {
         input: 'src/ma*.js',
         output: 'js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].inputpaths).to.eql([path.resolve('src/main.js')]);
       expect(dummyConfig.build[0].outputpaths).to.eql([path.resolve('js/main.js')]);
@@ -221,7 +221,7 @@ describe('config', () => {
         input: 'src/m*.js',
         output: 'js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].inputpaths).to.eql([path.resolve('src/main.js'), path.resolve('src/module.js')]);
       expect(dummyConfig.build[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/module.js')]);
@@ -232,7 +232,7 @@ describe('config', () => {
         input: 'src/hey.js',
         output: 'js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build).to.eql([]);
     });
@@ -241,7 +241,7 @@ describe('config', () => {
         input: 'src/hey.js',
         output: 'js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].output).to.eql('js');
       expect(dummyConfig.build[0].outputpaths).to.eql([path.resolve('js/hey.js')]);
@@ -251,7 +251,7 @@ describe('config', () => {
         input: ['src', 'src-nested/nested'],
         output: 'js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].outputpaths).to.contain(path.resolve('js/main.js'));
       expect(dummyConfig.build[0].outputpaths).to.contain(path.resolve('js/sub.js'));
@@ -263,7 +263,7 @@ describe('config', () => {
         output: 'js',
         output_compressed: 'c'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0].output).to.eql('c');
       expect(dummyConfig.build[0].outputpaths).to.eql([path.resolve('c/hey.js')]);
@@ -276,7 +276,7 @@ describe('config', () => {
         output: 'js/main.js'
       }];
       try {
-        buildParser.parse(dummyConfig);
+        buildParser(dummyConfig);
       } catch (err) {
         errored = true;
         expect(err).to.be.an(Error);
@@ -291,7 +291,7 @@ describe('config', () => {
         output: ['js/main.js', 'js/foo.js']
       }];
       try {
-        buildParser.parse(dummyConfig);
+        buildParser(dummyConfig);
       } catch (err) {
         errored = true;
         expect(err).to.be.an(Error);
@@ -306,7 +306,7 @@ describe('config', () => {
         output: ['js/main.js', 'js/foo.js']
       }];
       try {
-        buildParser.parse(dummyConfig);
+        buildParser(dummyConfig);
       } catch (err) {
         errored = true;
         expect(err).to.be.an(Error);
@@ -318,7 +318,7 @@ describe('config', () => {
       dummyConfig.build = [{
         input: 'src/main.js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0]).to.have.property('isAppServer', true);
     });
@@ -327,7 +327,7 @@ describe('config', () => {
       dummyConfig.build = [{
         input: 'src'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0]).to.have.property('isAppServer', true);
     });
@@ -336,7 +336,7 @@ describe('config', () => {
       dummyConfig.build = [{
         input: 'src/*.js'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0]).to.have.property('isAppServer', true);
     });
@@ -345,7 +345,7 @@ describe('config', () => {
         input: 'src/*.js',
         version: 'node'
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0]).to.have.property('browser', false);
     });
@@ -354,7 +354,7 @@ describe('config', () => {
         input: 'src/*.js',
         version: ['server']
       }];
-      buildParser.parse(dummyConfig);
+      buildParser(dummyConfig);
 
       expect(dummyConfig.build[0]).to.have.property('browser', false);
     });
