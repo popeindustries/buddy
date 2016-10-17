@@ -133,7 +133,7 @@ describe('Buddy', () => {
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-          console.log(content)
+
           // expect(content).to.contain("/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/");
           // expect(content).to.contain("var _barjs_foo = $m[\'foo.js\'].exports;");
           done();
@@ -313,7 +313,6 @@ describe('Buddy', () => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-          console.log(content)
 
           expect(content).to.equal('');
           done();
@@ -343,7 +342,7 @@ describe('Buddy', () => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-          console.log(content)
+
           // expect(content).to.not.contain('_m_["foo.js"]=function');
           // expect(content).to.contain('_m_["boop.js"]=function');
           // expect(content).to.contain('var s=!1;return console.log("is dev: ",s)');

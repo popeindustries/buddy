@@ -28,7 +28,7 @@ Install **buddy** as a `devDependency` in your project directory:
 $ npm install --save-dev buddy
 ```
 
-> If you want a global **buddy** command, install the [buddy-cli](https://github.com/popeindustries/buddy-cli) with `$ npm install --global buddy-cli`
+> If you want a global **buddy** command, in addition to a local copy of **buddy**, install the [buddy-cli](https://github.com/popeindustries/buddy-cli) with `$ npm install --global buddy-cli`
 
 ### Usage
 
@@ -61,7 +61,7 @@ $ npm install --save-dev buddy
 
 **buddy** is configurable via `js` or `json` formatted configuration files. By default, **buddy** looks for the nearest `buddy.js`, `buddy.json`, or `package.json` (with a `buddy` entry). Alternatively, you can specify the path to your configuration file while running the `buddy` command.
 
-Note that, whichever way you configure it, **buddy** will treat *the directory that contains the configuration file as the project root*.
+Note that, whichever way you configure it, **buddy** will treat ***the directory that contains the configuration file as the project root***.
 
 Please refer to the annotated [configuration guide](https://github.com/popeindustries/buddy/blob/master/docs/config.md) to see all the different options.
 
@@ -82,9 +82,91 @@ Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/d
 
 ## How do I...
 
+- [Manage *JS* dependencies?](#manage-js-dependencies)
+- [Manage *CSS* dependencies?](#manage-css-dependencies)
+- [Manage *HTML* dependencies?](#manage-html-dependencies)
+- [Specify target *JS* versions?](#specify-target-js-versions)
+- [Specify target *CSS* versions?](#specify-target-css-versions)
+- [Break-up *JS* bundles into smaller files?](#break-up-js-bundles-into-smaller-files)
+- [Lazily evaluate a JS bundle?](#lazily-evaluate-a-js-bundle)
+- [Inline environment variables?](#inline-environment-variables)
+- [Avoid writing relative dependency paths?](#avoid-writing-relative-dependency-paths)
+- [Alias a dependency?](#alias-a-dependency)
+- [Build React (.jsx) source?](#build-react-jsx-source)
+- [Write JS with Flow types?](#write-js-with-flow-types)
+- [Configure Babel?](#configure-babel)
+- [Configure PostCSS?](#configure-postcss)
+- [Configure a plugin?](#configure-a-plugin)
+- [Generate unique filenames?](#generate-unique-filenames)
+- [Skip a build?](#skip-a-build)
+- [Serve files while developing?](#serve-files-while-developing)
+
 #### Manage *JS* dependencies?
 
-*JS* dependencies are declared by use of `require()` expressions, and closely follow the module semantics as used in [Node.js](http://nodejs.org/api/modules.html). 
+*JS* dependencies are declared by use of `require()` expressions, and closely follow the module semantics as used in [Node.js](http://nodejs.org/api/modules.html). This makes it possible to write modules for the browser the same way as you would for Node.js server environments. Although **buddy** preserves similar author-time semantics, run-time behaviour does differ. In Node.js modules, each file is wrapped in a function closure to provide an isolated scope for module-level variable/function/class declarations, ensuring that there are no conflicts between modules. In the browser, however, wrapping each module in a closure can impose significant startup [cost](https://nolanlawson.com/2016/08/15/the-cost-of-small-modules/) and overhead. As a result, for performance reasons, **buddy** flattens all modules into a shared scope, renames all declarations, and inlines all calls to `require()`:
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "src/index.js",
+        "output": "www"
+      }
+    ]
+  }
+}
+```
+```js
+// src/index.js
+const foo = require('./foo');
+
+console.log(foo());
+```
+```js
+// src/foo.js
+module.exports = function foo () { 
+  return 'foo'; 
+};
+```
+Resulting in:
+```js
+/** BUDDY BUILT **/
+if ('undefined' === typeof self) var self = this;
+if ('undefined' === typeof global) var global = self;
+if ('undefined' === typeof process) var process = { env: {} };
+var $m = self.$m = self.$m || {};
+var require = self.require || function require (id) {
+  if ($m[id]) {
+    if ('function' == typeof $m[id]) $m[id]();
+    return $m[id].exports;
+  }
+
+  if ('test' == 'development') {
+    console.warn('module ' + id + ' not found');
+  }
+};
+(function () {
+/*== src/foo.js ==*/
+$m['src/foo.js'] = { exports: {} };
+$m['src/foo.js'].exports = function foo () { 
+  return 'foo'; 
+};
+/*≠≠ src/foo.js ≠≠*/
+
+/*== src/index.js ==*/
+$m['src/index.js'] = { exports: {} };
+const _srcindexjs_foo = $m['src/foo.js'].exports;
+
+console.log(_srcindexjs_foo());
+/*≠≠ src/index.js ≠≠*/
+})()
+```
+
+Although these optimizations are possible to apply in most cases, there are two scenarios where **buddy** needs to deoptimize by wrapping module contents and/or preserving calls to `require()`:
+
+- **referencing modules in another bundle**: `require('module-from-another-bundle')` will be preserved as it cannot be safely inlined ([read more](#break-up-js-bundles-into-smaller-files) about working with multiple bundles)
+- **circular dependencies**: modules that `require` each other (including several orders removed) will be wrapped in a closure function and lazily evaluated when eventually called with a non-inlined `require()`
 
 #### Manage *CSS* dependencies?
 
@@ -306,44 +388,42 @@ const react = require('react');
 const lodash = require('lodash');
 ```
 
-#### Generate unique filenames?
+#### Lazily evaluate a *JS* bundle?
 
-Unique filenames can be automatically generated by including one of two types of token in the output filename:
-
-- **%date%**: inserts the current timestamp at the time of build
-- **%hash%**: inserts a hash of the file's content
+By default, js modules in a bundle are evaluated in reverse dependency order as soon as the file is loaded, with the `input` module evaluated and executed last. Sometimes, however, it is useful to delay evaluation and execution until a later time (so-called lazy evaluation). For example, when loading several bundles in parallel, it may be important to have more control over the order of evaluation:
 
 ```json
 {
   "buddy": {
     "build": [
       {
-        "input": "somefile.js",
-        "output": "somefile-%hash%.js"
-      },
-      {
-        "input": "somefile.css",
-        "output": "somefile-%date%.css"
+        "input": "src/libs.js",
+        "output": "www",
+        "build": [
+          {
+            "input": "src/index.js",
+            "output": "www",
+            "bootstrap": false,
+            "build": [
+              {
+                "input": "src/extras.js",
+                "output": "www",
+                "bootstrap": false
+              }
+            ]
+          }
+        ]
       }
     ]
   }
 }
 ```
+```js
+// After loading libs.js, index.js, and extras.js in parallel...
+// ...guarantee that index.js is evaluated before extras.js
+require('src/index.js');
+require('src/extras.js');
 
-Unique filenames are generally recommended as a cache optimisation for production deploys, so it's often a good idea to only specify a unique name when compressing:
-
-```json
-{
-  "buddy": {
-    "build": [
-      {
-        "input": "somefile.js",
-        "output": "www",
-        "output_compressed": "www/somefile-%hash%.js"
-      }
-    ]
-  }
-}
 ```
 
 #### Inline environment variables?
@@ -396,9 +476,63 @@ The last target (labelled `sw`) will have access to the unique outputs of the pr
   const ASSET_CSS = 'www/index-cf4e0949af42961334452b1e11fe1cfd.css';
 ```
 
-#### Skip a build?
+#### Avoid writing relative dependency paths?
 
-Individual builds can be skipped by using the `--grep` and `--invert` command flags. The `--grep` command flag will isolate builds with `input` or `label` that match the provided pattern, and the `--invert` pattern negates the match:
+Since **buddy** implements the same dependency resolution semantics as Node.js, it is possible to end up with unwieldy relative paths when referencing files from deeply nested project directories: `require('../../../../some-module')`. And as for Node.js, you have a choice between the following two work arounds:
+
+- nest your project source files in a `node_modules` directory:
+```text
+project/
+  node_modules/ (installed with npm)
+  src/
+    node_modules/ (manually created)
+      app/
+      libs/
+```
+- add your project source directory to the `$NODE_PATH` environment variable:
+```bash
+$ NODE_PATH=./src buddy watch
+```
+Allowing you to `require('libs/some-module')` from anywhere in your project directory structure.
+
+#### Alias a dependency?
+
+When writing universal modules for use in both server and browser environments, it is sometimes desirable to specify an alternative entry point for inclusion in the browser. The alternative to the `main` *package.json* parameter is `browser`:
+
+```json
+{
+  "name": "myModule",
+  "version": "1.0.0",
+  "main": "lib/server.js",
+  "browser": "lib/browser.js"
+}
+```
+
+**buddy** correctly handles this remapping when resolving *node_modules* dependencies that use the `browser` parameter. In addition, it is possible to employ more advanced uses to alias files and modules directly in your project:
+
+```json
+{
+  "browser": {
+    "someModule": "node_modules/someModule/dist/someModule-with-addons.js"
+  }
+}
+```
+
+...or even disable a module completely when bundling for the browser:
+
+```json
+{
+  "browser": {
+    "someModule": false
+  }
+}
+```
+
+[Read more](https://gist.github.com/defunctzombie/4339901) about the possible uses of `browser`.
+
+#### Build *React* (.jsx) source?
+
+A React language plugin is provided by default. Just specify `react` as a build target version to compile `.jsx` files:
 
 ```json
 {
@@ -407,36 +541,30 @@ Individual builds can be skipped by using the `--grep` and `--invert` command fl
       {
         "input": "src/index.js",
         "output": "www",
-        "label": "js"
-      },
-      {
-        "input": "src/index.css",
-        "output": "www",
-        "label": "css"
-      },
-      {
-        "input": "src/images",
-        "output": "www/images",
-        "label": "images"
+        "version": ["es5", "react"]
       }
     ]
   }
 }
 ```
-```bash
-# Build everything except 'images'
-$ buddy build --invert --grep images
+
+#### Write *JS* with Flow types?
+
+A Flow plugin is provided by default. Just specify `flow` as a build target version to strip Flow types from `.js` files:
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "src/index.js",
+        "output": "www",
+        "version": ["es5", "flow"]
+      }
+    ]
+  }
+}
 ```
-
-#### Serve files while developing?
-
-#### Avoid writing relative dependency paths?
-
-#### Alias a *JS* dependency?
-
-#### Make a language plugin?
-
-Check out the [plugins guide](https://github.com/popeindustries/buddy/blob/master/docs/plugins.md) if you want to get your hands dirty.
 
 #### Configure Babel?
 
@@ -507,9 +635,49 @@ Plugins are configured via the `options.{plugin}` build configuration parameter:
 }
 ```
 
-#### Build *React* (.jsx) source?
+#### Generate unique filenames?
 
-A React language plugin is provided by default. Just specify `react` as a build target version to compile `.jsx` files:
+Unique filenames can be automatically generated by including one of two types of token in the output filename:
+
+- **%date%**: inserts the current timestamp at the time of build
+- **%hash%**: inserts a hash of the file's content
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "somefile.js",
+        "output": "somefile-%hash%.js"
+      },
+      {
+        "input": "somefile.css",
+        "output": "somefile-%date%.css"
+      }
+    ]
+  }
+}
+```
+
+Unique filenames are generally recommended as a cache optimisation for production deploys, so it's often a good idea to only specify a unique name when compressing:
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "somefile.js",
+        "output": "www",
+        "output_compressed": "www/somefile-%hash%.js"
+      }
+    ]
+  }
+}
+```
+
+#### Skip a build?
+
+Individual builds can be skipped by using the `--grep` and `--invert` command flags. The `--grep` command flag will isolate builds with `input` or `label` that match the provided pattern, and the `--invert` pattern negates the match:
 
 ```json
 {
@@ -518,66 +686,26 @@ A React language plugin is provided by default. Just specify `react` as a build 
       {
         "input": "src/index.js",
         "output": "www",
-        "version": ["es5", "react"]
-      }
-    ]
-  }
-}
-```
-
-#### Write *JS* with Flow types?
-
-A Flow plugin is provided by default. Just specify `flow` as a build target version to strip Flow types from `.js` files:
-
-```json
-{
-  "buddy": {
-    "build": [
+        "label": "js"
+      },
       {
-        "input": "src/index.js",
+        "input": "src/index.css",
         "output": "www",
-        "version": ["es5", "flow"]
-      }
-    ]
-  }
-}
-```
-
-#### Lazily evaluate a *JS* bundle?
-
-By default, js modules in a bundle are evaluated in reverse dependency order as soon as the file is loaded, with the `input` module evaluated and executed last. Sometimes, however, it is useful to delay evaluation and execution until a later time (so-called lazy evaluation). For example, when loading several bundles in parallel, it may be important to have more control over the order of evaluation:
-
-```json
-{
-  "buddy": {
-    "build": [
+        "label": "css"
+      },
       {
-        "input": "src/libs.js",
-        "output": "www",
-        "build": [
-          {
-            "input": "src/index.js",
-            "output": "www",
-            "bootstrap": false,
-            "build": [
-              {
-                "input": "src/extras.js",
-                "output": "www",
-                "bootstrap": false
-              }
-            ]
-          }
-        ]
+        "input": "src/images",
+        "output": "www/images",
+        "label": "images"
       }
     ]
   }
 }
 ```
-```js
-// After loading libs.js, index.js, and extras.js in parallel...
-// ...guarantee that index.js is evaluated before extras.js
-require('src/index.js');
-require('src/extras.js');
-
+```bash
+# Build everything except 'images'
+$ buddy build --invert --grep images
 ```
+
+#### Serve files while developing?
 
