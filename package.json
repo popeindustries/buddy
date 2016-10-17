@@ -44,6 +44,7 @@
     "buddy": "node ./bin/buddy"
   },
   "scripts": {
+    "install:packages": "./bin/install",
     "dl": "node ./bin/dl",
     "test:all": "NODE_ENV=test mocha \"./packages/buddy-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
     "test": "NODE_ENV=test mocha \"./test/*-test.js\" --reporter spec --timeout 20000 --bail"
