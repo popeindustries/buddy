@@ -5,6 +5,7 @@ install:
   - npm install -g yarn
   - yarn
   - ./bin/install
+  - npm run test:all
 cache:
   directories:
     - ~/.yarn

@@ -20,7 +20,7 @@ describe('buddy-cli', () => {
         done();
       });
     });
-    it('should find a local instance of a buddy module', (done) => {
+    it.skip('should find a local instance of a buddy module', (done) => {
       process.chdir(path.resolve(__dirname, 'fixtures'));
       find(true, (err, buddyFactory, version) => {
         expect(buddyFactory).to.be.a('function');

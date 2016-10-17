@@ -20,6 +20,7 @@
     "babel-core": "6.17.0",
     "babel-plugin-external-helpers": "6.8.0",
     "browserslist": "1.4.0",
+    "buddy-cli": "6.0.0-beta",
     "chalk": "1.1.3",
     "cssnano": "3.7.7",
     "glob": "7.1.1",
@@ -34,7 +35,6 @@
     "yaw": "1.0.0"
   },
   "devDependencies": {
-    "buddy-server": "*",
     "expect.js": "*",
     "mocha": "*",
     "rimraf": "*"
@@ -44,9 +44,8 @@
     "buddy": "node ./bin/buddy"
   },
   "scripts": {
-    "build": "node ./bin/build",
     "dl": "node ./bin/dl",
-    "test:all": "NODE_ENV=test mocha \"./packages/buddy-plugin-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
+    "test:all": "NODE_ENV=test mocha \"./packages/buddy-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
     "test": "NODE_ENV=test mocha \"./test/*-test.js\" --reporter spec --timeout 20000 --bail"
   },
   "engines": {
