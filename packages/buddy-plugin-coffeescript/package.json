@@ -10,10 +10,9 @@
     "coffee-script"
   ],
   "dependencies": {
-    "coffee-script": "1.11.0"
+    "coffee-script": "1.11.1"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "peerDependencies": {
     "buddy": "6.x"
   },
