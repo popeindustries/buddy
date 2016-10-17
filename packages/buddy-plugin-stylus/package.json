@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-stylus",
   "description": "Buddy plugin for stylus source transforms (via Stylus)",
-  "version": "0.54.5",
+  "version": "0.54.5-2",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
