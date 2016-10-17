@@ -1,8 +1,6 @@
-exports.build = {
-	targets: [
-		{
-			input: 'main.js',
-			output: 'www'
-		}
-	]
-};
+exports.build = [
+  {
+    input: 'main.js',
+    output: 'www'
+  }
+];

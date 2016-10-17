@@ -1,0 +1,31 @@
+{
+  "name": "buddy-cli",
+  "version": "6.0.0-beta",
+  "description": "The command-line bootstrapper for Buddy",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "cli",
+    "build",
+    "buildtool",
+    "buddy"
+  ],
+  "dependencies": {
+    "commander": "2.9.0",
+    "recur-fs": "2.2.x"
+  },
+  "devDependencies": {
+  },
+  "main": "index.js",
+  "bin": {
+    "buddy": "./bin/buddy"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "scripts": {
+    "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec"
+  },
+  "repository": "https://github.com/popeindustries/buddy/packages/buddy-cli",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}

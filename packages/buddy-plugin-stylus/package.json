@@ -1,0 +1,29 @@
+{
+  "name": "buddy-plugin-stylus",
+  "description": "Buddy plugin for stylus source transforms (via Stylus)",
+  "version": "0.54.5-2",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "buddy",
+    "compile",
+    "stylus"
+  ],
+  "dependencies": {
+    "stylus": "0.54.5"
+  },
+  "devDependencies": {
+  },
+  "peerDependencies": {
+    "buddy": "6.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec -t 10000"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-stylus",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}

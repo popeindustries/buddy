@@ -1,0 +1,29 @@
+{
+  "name": "buddy-plugin-nunjucks",
+  "description": "Buddy plugin for nunjucks source transforms (via nunjucks)",
+  "version": "2.5.2-2",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "buddy",
+    "compile",
+    "nunjucks"
+  ],
+  "dependencies": {
+    "nunjucks": "2.5.2"
+  },
+  "devDependencies": {
+  },
+  "peerDependencies": {
+    "buddy": "6.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec -t 10000"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-nunjucks",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}

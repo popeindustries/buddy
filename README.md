@@ -3,65 +3,44 @@
 
 # buddy
 
-**buddy** is a fast and simple build tool for js/css/html projects. It compiles source code from higher order js/css/html languages (*CoffeeScript, es6, JSX, Handlebars, Dust, Nunjucks, Stylus, Less, Jade, Twig*), automatically wraps js files in module definitions, statically resolves js/css/html dependencies, and concatenates (and optionally compresses) all souces into bundles for more efficient delivery to the browser.
+<h4 align="center"><em>Helping you get sh*t done since 2010</em></h4>
 
-## Features
+**buddy** is a fast and simple build tool for web projects. It can compile source code from higher order *JS/CSS/HTML* languages, resolves dependencies, and bundle (and optionally compress) all souces for more efficient delivery to the browser.
 
-- Allows you to write js __modules__ without module boilerplate (similar to _node.js_)
-- Resolves js __dependencies__ automatically (including those installed with `npm`)
-- __Compiles__ _CoffeeScript_, _es6_, _JSX_, _Handlebars_, _Dust_, _Nunjucks_, _Stylus_, _Less_, _Twig_, and _Jade_ source files (or others via custom __plugins__)
-- __Concatenates__ js modules into file bundles
-- __Watches__ for source changes and builds automatically
-- [Add-on] __Serves__ static files from specified directory on specified port
-- [Add-on] __Restarts__ custom server after each change
-- [Add-on] __Refreshes__ connected browsers after each change
-- __Inlines__ css `@imports` automatically
-- __Inlines__ html `<script>`, `<link>`, and `<img>` tags when flagged with an `inline` attribute
-- __Inlines__ json content with `require("path/to/my.json")`
-- Supports execution of a custom ___script___ after each build
-- Supports extension via execution of ___hook___ scripts `afterEach` file is processed, and `before` and `after` a target is built
-- Supports output of __unique__ file names
-- Supports compression of __image__ assets
-- Inlines environment variables (`process.env.FOO`)
+### Features
 
-## Installation
+- Resolves and concatenates *JS/CSS/HTML* dependencies into file bundles
+- Compiles other languages to *JS/CSS/HTML*
+- Installs Babel and PostCSS plugins automatically based on target language version
+- For development:
+    - Watches source files for changes 
+    - Runs a static file server (or a custom server)
+    - Refreshes connected browsers
+- For production:
+    - Outputs unique filenames
+    - Compresses sources, including images
 
-To avoid running **buddy** directly as a global command, and thus avoid versioning problems across different projects, it is recommended that you install the separate [buddy-cli](https://github.com/popeindustries/buddy-cli) command line interface system-wide:
+### Installation
+
+Install **buddy** as a `devDependency` in your project directory:
 
 ```bash
-$ npm -g install buddy-cli
+$ npm install --save-dev buddy
 ```
 
-...create a *package.json* file for each project, locally installing **buddy** as a `devDependency`:
+> If you want a global **buddy** command, install the [buddy-cli](https://github.com/popeindustries/buddy-cli) with `$ npm install --global buddy-cli`
 
-```json
-{
-  "name": "myproject",
-  "description": "This is my web project",
-  "version": "1.0.0",
-  "devDependencies": {
-    "buddy": "5.0.x"
-  },
-  "buddy": {
-    ...
-  }
-}
-```
-```bash
-$ cd path/to/project
-$ npm install
-```
-
-## Usage
+### Usage
 
 ```text
-Usage: buddy [options] <command> [path-to-config]
+  Usage: buddy [options] <command> [configpath]
+
 
   Commands:
 
-    build [config]   build js, css, html, and image sources
-    watch [config]   watch js, css, html, and image source files and build changes
-    deploy [config]  build compressed js, css, html, and image sources
+    build [configpath]   build js, css, html, and image sources
+    watch [configpath]   watch js, css, html, and image source files and build changes
+    deploy [configpath]  build compressed js, css, html, and image sources
 
   Options:
 
@@ -70,141 +49,264 @@ Usage: buddy [options] <command> [path-to-config]
     -c, --compress        compress output for production deployment
     -g, --grep <pattern>  only run build targets matching <pattern>
     -i, --invert          inverts grep matches
-    -r, --reload          reload all connected live-reload clients on file change during watch [ADD-ON buddy-server]
-    -s, --serve           create a webserver to serve static files during watch [ADD-ON buddy-server]
+    --input               input file/directory for simple config-free build
+    --output              output file/directory for simple config-free build
+    -r, --reload          reload all connected live-reload clients on file change during watch
+    -s, --serve           create (or launch) a webserver to serve files during watch
     -S, --script          run script on build completion
     -v, --verbose         print all messages for debugging
 ```
 
-## Configuration
+### Configuration
 
-Please refer to the annotated [configuration](https://github.com/popeindustries/buddy/blob/master/docs/config.md) file for all possible settings, and **note that the configuration format has changed considerably as of version 3**.
+**buddy** is configurable via `js` or `json` formatted configuration files. By default, **buddy** looks for the nearest `buddy.js`, `buddy.json`, or `package.json` (with a `buddy` entry). Alternatively, you can specify the path to your configuration file while running the `buddy` command.
 
-## Plugins
+Note that, whichever way you configure it, **buddy** will treat *the directory that contains the configuration file as the project root*.
 
-As of version 4, all `transfigure-*` packages have been deprecated in favour of `buddy-plugin-*` package names, now properly referred to as "plugins". In addition, in order to keep install times in check, all compressors have been broken out into separate plugin packages as well.
+Please refer to the annotated [configuration guide](https://github.com/popeindustries/buddy/blob/master/docs/config.md) to see all the different options.
 
-#### Compiler plugins
+### Plugins
 
-The following compiler plugins are currently available:
+**buddy**'s ability to transform and manipulate different source files is made possible  by a flexible plugin system. In fact, all of the core language features are implemented as plugins internally, so there should be very few features that cannot be implemented this way.
 
-- **[buddy-plugin-babel](https://www.npmjs.com/package/buddy-plugin-babel)**: transform es6 `.js` and `.jsx` files to es5 `.js` (`npm install buddy-plugin-babel`)
-- **[buddy-plugin-coffeescript](https://www.npmjs.com/package/buddy-plugin-coffeescript)**: transform `.coffee` files to `.js` (`npm install buddy-plugin-coffeescript`)
-- **[buddy-plugin-dust](https://www.npmjs.com/package/buddy-plugin-dust)**: transform `.dust` html template files to `.html` (`npm install buddy-plugin-dust`)
-- **[buddy-plugin-handlebars](https://www.npmjs.com/package/buddy-plugin-handlebars)**: transform `.handlebars` html template files to `.html` (`npm install buddy-plugin-handlebars`)
-- **[buddy-plugin-jade](https://www.npmjs.com/package/buddy-plugin-jade)**: transform `.jade` html template files to `.html` (`npm install buddy-plugin-jade`)
-- **[buddy-plugin-less](https://www.npmjs.com/package/buddy-plugin-less)**: transform `.less` files to `.css` (`npm install buddy-plugin-less`)
-- **[buddy-plugin-nunjucks](https://www.npmjs.com/package/buddy-plugin-nunjucks)**: transform `.nunjucks` html template files to `.html` (`npm install buddy-plugin-nunjucks`)
-- **[buddy-plugin-stylus](https://www.npmjs.com/package/buddy-plugin-stylus)**: transform `.styl` files to `.css` (`npm install buddy-plugin-stylus`)
-- **[buddy-plugin-twig](https://www.npmjs.com/package/buddy-plugin-twig)**: transform `.twig` html template files to `.html` (`npm install buddy-plugin-twig`)
+One of the most common use cases for extending **buddy** is to enable working with higher-order *JS/CSS/HTML* languages. The following plugins can be installed (`$ npm install --save-dev {plugin}`) if you prefer not to write vanilla *JS/CSS/HTML*:
 
-#### Compressor plugins
+- **[buddy-plugin-coffeescript](https://www.npmjs.com/package/buddy-plugin-coffeescript)**: transform `.coffee` source files to `.js`
+- **[buddy-plugin-dust](https://www.npmjs.com/package/buddy-plugin-dust)**: transform `.dust` html template source files to `.html`
+- **[buddy-plugin-handlebars](https://www.npmjs.com/package/buddy-plugin-handlebars)**: transform `.handlebars` html template source files to `.html`
+- **[buddy-plugin-nunjucks](https://www.npmjs.com/package/buddy-plugin-nunjucks)**: transform `.nunjucks` html template source files to `.html`
+- **[buddy-plugin-less](https://www.npmjs.com/package/buddy-plugin-less)**: transform `.less` source files to `.css`
+- **[buddy-plugin-stylus](https://www.npmjs.com/package/buddy-plugin-stylus)**: transform `.styl` source files to `.css`
 
-The following compressor plugins are currently available:
+Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/docs/plugins.md) to learn about writing your own.
 
-- **[buddy-plugin-csso](https://www.npmjs.com/package/buddy-plugin-csso)**: compress `.css` content with [csso](https://www.npmjs.com/package/csso) (`npm install buddy-plugin-csso`)
-- **[buddy-plugin-imagemin](https://www.npmjs.com/package/buddy-plugin-imagemin)**: compress `.gif`, `.jpg`, `.png`, `.svg`  content with [imagemin](https://www.npmjs.com/package/imagemin) (`npm install buddy-plugin-imagemin`)
-- **[buddy-plugin-uglify](https://www.npmjs.com/package/buddy-plugin-uglify)**: compress `.js` content with [uglifyjs](https://www.npmjs.com/package/uglifyjs) (`npm install buddy-plugin-uglify`)
+## How do I...
 
-## Build concepts
+#### Manage *JS* dependencies?
 
-**Project Root**: The directory from which all paths resolve to. Determined by location of the configuration file.
+*JS* dependencies are declared by use of `require()` expressions, and closely follow the module semantics as used in [Node.js](http://nodejs.org/api/modules.html). 
 
-**Sources**: An array of additional directories from which referenced files may be retrieved from. The *Project Root* and *node_modules* directories are added by default. ***Note:*** A module's id is derived from it's relative path to it's source directory.
+#### Manage *CSS* dependencies?
 
-**Targets**: Objects that specify the *input* and *output* files or directories for each build. Targets are built in sequence, allowing builds to be chained together. ***Note:*** A *js* target can also have nested child targets, ensuring that dependencies are not duplicated across related builds.
-
-**Target parameters**:
-
-- **input**: file, directory, glob/expansion pattern, or array of files to build.
-
-- **output**: file, directory, or array of files to output to. *Optional*: when omitted, input files are only watched for changes (during `watch` command).
-
-- **output_compressed**: an alternate file or directory to use for compressed output.
-
-- **targets**: a nested target that prevents the duplication of .js source code with it's parent target.
-
-- **modular**: a flag to prevent .js files from being wrapped with a module definition.
-
-- **before**, **after**, **afterEach**: hooks for modifying the build process
-
-- **bootstrap**: a flag to specify that the entry-point .js module should be lazily evaluated (default value is `true`, triggering evaluation on load. Set to `false` if you want to lazily evaluate by calling `require('myModule')` manually).
-
-- **label**: an arbitrary name to use for matching when using the `--grep` subcommand
-
-### Hooks
-
-It is possible to intervene in the build process through the use of *hooks*. Hooks are assigned to specific targets and defined in the target configuration. There are three types available:
-
-- **before**: executed before a *target* is built
-
-- **after**: executed after a *target* is built
-
-- **afterEach**: executed after an output *file* is processed, but before it is written to disk
-
-Hooks can be written as inline JavaScript, or loaded from a file if a path is specified:
+*CSS* dependencies are declared by use of the `@import` statement. **buddy** replaces these statements with the referenced file contents, ***inlining*** a file's dependencies rather than concatenating them:
 
 ```json
 {
   "buddy": {
-    "build": {
-      "targets": [
-        {
-          "input": "somefile.js",
-          "output": "somedir",
-          "before": "console.log('before hook'); done();",
-          "after": "path/to/afterHook.js"
-        }
-      ]
+    "build": [
+      {
+        "input": "src/index.css",
+        "output": "www"
+      }
+    ]
+  }
+}
+```
+```css
+/* src/index.css */
+@import 'foo.css';
+
+body {
+  color: red;
+}
+
+@import './utils/bar.css';
+```
+```css
+/* src/foo.css */
+/* Import from module installed in node_modules */
+@import 'normalize.css';
+```
+```css
+/* src/utils/bar.css*/
+p {
+  color: blue;
+}
+```
+Resulting in:
+```css
+/* 
+  normalize.css content here
+*/
+
+body {
+  color: red;
+}
+
+p {
+  color: blue;
+}
+```
+
+Note that, while a *JS* dependency tree can be optimized to avoid duplicates, the cascading nature of *CSS* requires that dependency order be strictly observed, and as a result, **duplicate `@import` statements will result in duplicate file content**.
+
+#### Manage *HTML* dependencies?
+
+Although *HTML* dependencies are numerous and varid, **buddy** only manages a specific subset of dependencies that are flagged for inlining. Specifying an `inline` attribute on certain tags results in the file contents being copied into the *HTML*:
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "src/index.html",
+        "output": "www"
+      }
+    ]
+  }
+}
+```
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <link inline rel="stylesheet" href="src/index.css">
+  <script inline src="src/index.js"></script>
+</head>
+<body>
+  <img inline src="src/image.svg">
+</body>
+</html>
+```
+Resulting in:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      color: red;
     }
+  </style>
+  <script>
+    console.log('foo');
+  </script>
+</head>
+<body>
+  <svg>
+    <circle cx="50" cy="50" r="25"/>
+  </svg>
+</body>
+</html>
+```
+
+#### Specify target *JS* versions?
+
+Since **buddy** uses [Babel](https://babeljs.io) to transform *JS* sources, it is easy to target a specific version of JavaScript you want to output to. Specifying one or more output versions simply loads the appropriate Babel plugins required to generate the correct syntax. If one or more of the plugins have not yet been installed, **buddy** will automatically install them to your `dev-dependencies`:
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "src/browser.js",
+        "output": "www",
+        "version": "es5"
+      },
+      {
+        "input": "src",
+        "output": "dist",
+        "bundle": false,
+        "version": "node6"
+      }
+    ]
   }
 }
 ```
 
-All hooks are passed the following arguments:
+The following *JS* version targets are valid:
+- **es5**
+- **es2015** (alias **es6**)
+- **es2016** (alias **es7**)
+- **node4**
+- **node6**
 
-- **context**: the `target` (before and after) or `file` (afterEach) instance
-
-- **options**: the runtime options used to execute buddy (`compress`, `reload`, `watch`, `deploy`, etc)
-
-- **done**: a callback function that accepts an optional `error`. **MUST** be called in order to return control back to the program.
-
-### Aliases
-
-When writing universal modules for use in both server and browser environments, it is sometimes desirable to specify an alternative entrypoint for inclusion in the browser. The alternative to the `main` *package.json* parameter is `browser`:
+In addition to generic language/environment versions, **buddy** also supports browser version targets, and [Autoprefixer](https://github.com/ai/browserslist#queries)-style browser list configuration:
 
 ```json
 {
-  "name": "myModule",
-  "version": "1.0.0",
-  "main": "lib/server.js",
-  "browser": "lib/browser.js"
-}
-```
-
-**buddy** correctly handles this remapping when resolving npm dependencies that use the `browser` parameter. In addition, it is possible to employ more advanced uses to alias files and modules directly in your project:
-
-```json
-{
-  "browser": {
-    "someModule": "node_modules/someModule/dist/someModule-with-addons.js"
+  "buddy": {
+    "build": [
+      {
+        "input": "src/chrome.js",
+        "output": "www",
+        "version": { 
+          "chrome": 50
+        }
+      },
+      {
+        "input": "src/browsers.js",
+        "output": "www",
+        "version": ["last 2 versions", "iOS >= 7"]
+      }
+    ]
   }
 }
 ```
 
-...or even disable a module completely when bundling for the browser:
+#### Specify target *CSS* versions?
+
+Since **buddy** uses [PostCSS](http://postcss.org) and [Autoprefixer](https://github.com/postcss/autoprefixer) to transform *CSS* sources, it is easy to target specific browser versions (via vendor prefixes) you want to output to:
 
 ```json
 {
-  "browser": {
-    "someModule": false
+  "buddy": {
+    "build": [
+      {
+        "input": "src/index.css",
+        "output": "www",
+        "version": ["last 2 versions", "iOS >= 7"]
+      }
+    ]
   }
 }
 ```
 
-Read more about the uses of `browser` [here](https://gist.github.com/defunctzombie/4339901).
+#### Break-up *JS* bundles into smaller files?
 
-### Unique filenames
+Large *JS* bundles can be broken up into a collection of smaller bundles by nesting builds. Each build can have one or more child builds, and any parent modules that are referenced in child builds will **not** be duplicated:
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "src/libs.js",
+        "output": "www",
+        "build": [
+          {
+            "input": "src/index.js",
+            "output": "www"
+          },
+          {
+            "input": "src/extras.js",
+            "output": "www"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+```js
+// src/libs.js
+const lodash = require('lodash');
+```
+```js
+// src/index.js
+const react = require('react');
+// The 'lodash' module will not be included because index.js is a child of libs.js
+const lodash = require('lodash');
+```
+```js
+// src/extras.js
+// The 'react' module will be included because extras.js is not a child of index.js
+const react = require('react');
+// The 'lodash' module will not be included because index.js is a child of libs.js
+const lodash = require('lodash');
+```
+
+#### Generate unique filenames?
 
 Unique filenames can be automatically generated by including one of two types of token in the output filename:
 
@@ -214,63 +316,74 @@ Unique filenames can be automatically generated by including one of two types of
 ```json
 {
   "buddy": {
-    "build": {
-      "targets": [
-        {
-          "input": "somefile.js",
-          "output": "somefile-%hash%.js"
-        },
-        {
-          "input": "somefile.css",
-          "output": "somefile-%date%.css"
-        }
-      ]
-    }
+    "build": [
+      {
+        "input": "somefile.js",
+        "output": "somefile-%hash%.js"
+      },
+      {
+        "input": "somefile.css",
+        "output": "somefile-%date%.css"
+      }
+    ]
   }
 }
 ```
 
-### Environment variables
-
-All references to `process.env.*` variables are automatically inlined in JS source files. In addition to all the system variables set before build, the following special variables are set *during* build:
-
-- `RUNTIME`: current runtime for browser code (value `browser`)
-- `BUDDY_VERSION`: current version number of **buddy** tool
-- `BUDDY_{LABEL or INDEX}_INPUT`: input filepath(s) for target identified with `LABEL` or `INDEX` (value `filepath` or `filepath,filepath,...` if multiple inputs)
-- `BUDDY_{LABEL or INDEX}_INPUT_HASH`: hash(es) of input file(s) for target identified with `LABEL` or `INDEX` (value `xxxxxx` or `xxxxxx,xxxxxx,...` if multiple inputs)
-- `BUDDY_{LABEL or INDEX}_INPUT_DATE`: timestamp(s) of input file(s) for target identified with `LABEL` or `INDEX` (value `000000` or `000000,000000,...` if multiple inputs)
-- `BUDDY_{LABEL or INDEX}_OUTPUT`: output filepath(s) for target identified with `LABEL` or `INDEX` (value `filepath` or `filepath,filepath,...` if multiple outputs)
-- `BUDDY_{LABEL or INDEX}_OUTPUT_HASH`: hash(es) of output file(s) for target identified with `LABEL` or `INDEX` (value `xxxxxx` or `xxxxxx,xxxxxx,...` if multiple outputs)
-- `BUDDY_{LABEL or INDEX}_OUTPUT_DATE`: timestamp(s) of output file(s) for target identified with `LABEL` or `INDEX` (value `000000` or `000000,000000,...` if multiple outputs)
+Unique filenames are generally recommended as a cache optimisation for production deploys, so it's often a good idea to only specify a unique name when compressing:
 
 ```json
 {
   "buddy": {
-    "build": {
-      "targets": [
-        {
-          "input": "src/index.js",
-          "output": "www/index-%hash%.js",
-          "label": "js"
-        },
-        {
-          "input": "src/index.css",
-          "output": "www/index-%hash%.css",
-          "label": "css"
-        },
-        {
-          "input": "src/service-worker.js",
-          "output": "www",
-          "label": "sw"
-        }
-      ]
-    }
+    "build": [
+      {
+        "input": "somefile.js",
+        "output": "www",
+        "output_compressed": "www/somefile-%hash%.js"
+      }
+    ]
+  }
+}
+```
+
+#### Inline environment variables?
+
+All references to `process.env.*` variables are automatically inlined in *JS* source files. In addition to all the system variables set before build, the following special variables are set *during* build:
+
+- **`RUNTIME`**: current runtime for browser code (value `browser` or `server`)
+- **`BUDDY_{LABEL or INDEX}_INPUT`**: input filepath(s) for target identified with `LABEL` or `INDEX` (value `filepath` or `filepath,filepath,...` if multiple inputs)
+- **`BUDDY_{LABEL or INDEX}_INPUT_HASH`**: hash(es) of input file(s) for target identified with `LABEL` or `INDEX` (value `xxxxxx` or `xxxxxx,xxxxxx,...` if multiple inputs)
+- **`BUDDY_{LABEL or INDEX}_INPUT_DATE`**: timestamp(s) of input file(s) for target identified with `LABEL` or `INDEX` (value `000000` or `000000,000000,...` if multiple inputs)
+- **`BUDDY_{LABEL or INDEX}_OUTPUT`**: output filepath(s) for target identified with `LABEL` or `INDEX` (value `filepath` or `filepath,filepath,...` if multiple outputs)
+- **`BUDDY_{LABEL or INDEX}_OUTPUT_HASH`**: hash(es) of output file(s) for target identified with `LABEL` or `INDEX` (value `xxxxxx` or `xxxxxx,xxxxxx,...` if multiple outputs)
+- **`BUDDY_{LABEL or INDEX}_OUTPUT_DATE`**: timestamp(s) of output file(s) for target identified with `LABEL` or `INDEX` (value `000000` or `000000,000000,...` if multiple outputs)
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "src/index.js",
+        "output": "www/index-%hash%.js",
+        "label": "js"
+      },
+      {
+        "input": "src/index.css",
+        "output": "www/index-%hash%.css",
+        "label": "css"
+      },
+      {
+        "input": "src/service-worker.js",
+        "output": "www",
+        "label": "sw"
+      }
+    ]
   }
 }
 ```
 The last target (labelled `sw`) will have access to the unique outputs of the previous targets:
 ```js
-  // service-worker.js
+  // src/service-worker.js
   const VERSION = process.env.BUDDY_SW_INPUT_HASH;
   const ASSET_JS = process.env.BUDDY_JS_OUTPUT;
   const ASSET_CSS = process.env.BUDDY_CSS_OUTPUT;
@@ -283,225 +396,188 @@ The last target (labelled `sw`) will have access to the unique outputs of the pr
   const ASSET_CSS = 'www/index-cf4e0949af42961334452b1e11fe1cfd.css';
 ```
 
-## Server
+#### Skip a build?
 
-When developing locally, the **[buddy-server](https://www.npmjs.org/package/buddy-server)** add-on and `buddy watch --serve` command will start a simple webserver on `localhost` to test against. Adding the `--reload` flag will enable automatic reloading of connected browsers through a [livereload](http://livereload.com) plugin. Specifying a `file` path will start/restart a custom application server instead of the default development server.
-
-Install the add-on alongside **buddy**, and see **[buddy-server](https://github.com/popeindustries/buddy-server)** for more details.
+Individual builds can be skipped by using the `--grep` and `--invert` command flags. The `--grep` command flag will isolate builds with `input` or `label` that match the provided pattern, and the `--invert` pattern negates the match:
 
 ```json
 {
-  "dependencies": {
-    "buddy": "5.0.0",
-    "buddy-server": "1.0.0"
-  },
   "buddy": {
-    "server": {
-      "port": 8000,
-      "file": "./index.js",
-      "env": {
-        "DEBUG": "*"
+    "build": [
+      {
+        "input": "src/index.js",
+        "output": "www",
+        "label": "js"
+      },
+      {
+        "input": "src/index.css",
+        "output": "www",
+        "label": "css"
+      },
+      {
+        "input": "src/images",
+        "output": "www/images",
+        "label": "images"
       }
-    }
+    ]
   }
 }
 ```
 ```bash
-$ buddy watch --serve --reload
+# Build everything except 'images'
+$ buddy build --invert --grep images
 ```
 
-## Working with JS
+#### Serve files while developing?
 
-Each JS file is wrapped in a module declaration based on the file's location. Dependencies are determined by the use of `require()` statements:
+#### Avoid writing relative dependency paths?
 
-```javascript
-var lib = require('./my/lib'); // in current package
-var SomeClass = require('../SomeClass'); // in parent package
-var module = require('module'); // from node_modules
+#### Alias a *JS* dependency?
 
-lib.doSomething();
-var something = new SomeClass();
-util.log('hey');
-```
+#### Make a language plugin?
 
-Specifying a module's public behaviour is achieved by decorating an `exports` object:
+Check out the [plugins guide](https://github.com/popeindustries/buddy/blob/master/docs/plugins.md) if you want to get your hands dirty.
 
-```javascript
-var myModuleVar = 'my module';
+#### Configure Babel?
 
-exports.myModuleMethod = function() {
-  return myModuleVar;
-};
-```
-
-...or overwriting the `exports` object completely:
-
-```javascript
-function MyModule() {
-  this.myVar = 'my instance var';
-};
-
-MyModule.prototype.myMethod = function() {
-  return this.myVar;
-};
-
-module.exports = MyModule;
-```
-
-Each module is provided with a `module`, `exports`, and `require` reference.
-
-When `require()`-ing a module, keep in mind that the module id is resolved based on the following rules:
-
- * packages begin at the root project directory, or those specified in *build > sources*: `'Users/alex/project/src/package/main.js' > 'src/package/main'`
- * ids are case-sensitive: `'package/MyClass.js' > 'package/MyClass'` (depends on platform)
-
-See [node.js modules](http://nodejs.org/api/modules.html) for more info on modules.
-
-### EXAMPLES
-
-Generate `www/main.js` by concatenating and modularizing all dependencies referenced by `src/js/main.js`, including modules installed via npm (from the `node_modules` directory):
+Babel is configured via the `options.babel` build configuration parameter:
 
 ```json
 {
-  "name": "myProject",
-  "version": "1.0.0",
-  "devDependencies": {
-    "buddy": "5.0.0"
-  },
   "buddy": {
-    "build": {
-      "targets": [
-        {
-          "input": "src/js/main.js",
-          "output": "www"
+    "build": [
+      {
+        "input": "src/index.js",
+        "output": "www",
+        "options": {
+          "babel": {
+            "plugins": [["babel-plugin-transform-es2015-classes", { "loose": false }]],
+            "presets": ["my-cool-babel-preset"]
+          }
         }
-      ]
-    }
+      }
+    ]
   }
 }
 ```
-```javascript
-// src/main.js
-var lodash = require('lodash') // npm module (node_modules/lodash)
-  , view = require('./views/view') // src module (src/views/view.js);
-```
 
-Generate `www/main.js` and an additional widget `www/widget.js` using shared sources (avoiding duplicate dependencies):
+#### Configure PostCSS?
+
+PostCSS is configured via the `options.postcss` build configuration parameter:
 
 ```json
 {
   "buddy": {
-    "build": {
-      "targets": [
-        {
-          "input": "src/js/main.js",
-          "output": "www",
-          "targets": [
-            {
-              "input": "src/js/widget.js",
-              "output": "www"
+    "build": [
+      {
+        "input": "src/index.css",
+        "output": "www",
+        "options": {
+          "postcss": {
+            "plugins": ["postcss-color-function"]
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+#### Configure a plugin?
+
+Plugins are configured via the `options.{plugin}` build configuration parameter:
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "src/index.js",
+        "output": "www",
+        "options": {
+          "uglify": {
+            "compressor": {
+              "drop_debugger": true
             }
-          ]
+          }
         }
-      ]
-    }
+      }
+    ]
   }
 }
 ```
 
-Compile a directory of ES6 files for Node.js, skipping module wrapping and concatenation:
+#### Build *React* (.jsx) source?
+
+A React language plugin is provided by default. Just specify `react` as a build target version to compile `.jsx` files:
 
 ```json
 {
   "buddy": {
-    "build": {
-      "targets": [
-        {
-          "input": "src/es6",
-          "output": "js",
-          "modular": false
-        }
-      ]
-    }
+    "build": [
+      {
+        "input": "src/index.js",
+        "output": "www",
+        "version": ["es5", "react"]
+      }
+    ]
   }
 }
 ```
 
-Alias a custom build of *jquery*:
+#### Write *JS* with Flow types?
 
-```json
-{
-  "browser": {
-    "jquery": "libs/js/jquery-custom.js"
-  },
-  "buddy": {
-    "build": {
-      "targets": [
-        {
-          "input": "src/js/main.js",
-          "output": "www"
-        }
-      ]
-    }
-  }
-}
-```
-```javascript
-var jquery = require('jquery');
-```
-
-## Working with CSS
-
-Like .js modules, .css dependencies are automatically resolved through parsing and inlining of `@import` directives. ***NOTE***: unlike .js dependencies, .css dependencies are inlined, and may be inlined more than once if several `@import` directives point to the same file.
-
-### Examples
-
-Generate `www/main.css` by concatenating all dependencies referenced in `src/css/main.css`:
+A Flow plugin is provided by default. Just specify `flow` as a build target version to strip Flow types from `.js` files:
 
 ```json
 {
   "buddy": {
-    "build": {
-      "targets": [
-        {
-          "input": "src/css/main.css",
-          "output": "www"
-        }
-      ]
-    }
+    "build": [
+      {
+        "input": "src/index.js",
+        "output": "www",
+        "version": ["es5", "flow"]
+      }
+    ]
   }
 }
 ```
 
-## Working with HTML
+#### Lazily evaluate a *JS* bundle?
 
-When working with html or html templating languages (*dust*, *handlebars*, *nunjucks*, *jade*, etc), dependencies (partials, includes) are automatically resolved and registered before source files are compiled. In addition, files are parsed for inlineable js and css sources (those with an `inline` attribute).
+By default, js modules in a bundle are evaluated in reverse dependency order as soon as the file is loaded, with the `input` module evaluated and executed last. Sometimes, however, it is useful to delay evaluation and execution until a later time (so-called lazy evaluation). For example, when loading several bundles in parallel, it may be important to have more control over the order of evaluation:
 
-### Examples
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "src/libs.js",
+        "output": "www",
+        "build": [
+          {
+            "input": "src/index.js",
+            "output": "www",
+            "bootstrap": false,
+            "build": [
+              {
+                "input": "src/extras.js",
+                "output": "www",
+                "bootstrap": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+```js
+// After loading libs.js, index.js, and extras.js in parallel...
+// ...guarantee that index.js is evaluated before extras.js
+require('src/index.js');
+require('src/extras.js');
 
-Resolve template includes when compiling a handlebars template:
-
-```html
-<!-- layout.handlebars depends on header.handlebars -->
-{{> header}}
-<body>
-  ...
-  <!-- ...and footer.handlebars -->
-  {{> footer}}
-</body>
 ```
 
-Inline .js and .css source files with `inline` attribute (see [inline-source](https://github.com/popeindustries/inline-source)):
-
-```html
-<!-- project/src/html/index.html -->
-<!DOCTYPE html>
-<html>
-<head>
-  <!-- inline project/src/js/inlineScript.js -->
-  <script inline src="../js/inlineScript.js"></script>
-  <!-- inline project/src/css/inlineStyle.css -->
-  <link inline href="../css/inlineStyle.css"></link>
-</head>
-</html>
-```

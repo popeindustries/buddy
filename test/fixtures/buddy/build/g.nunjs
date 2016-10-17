@@ -1,0 +1,13 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>foo</title>
+  {% for id in ids %}
+   <img inline src="./g{{ id }}.svg" />
+  {% endfor %}
+</head>
+<body>
+
+</body>
+</html>

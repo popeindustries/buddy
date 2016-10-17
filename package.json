@@ -1,11 +1,13 @@
 {
   "name": "buddy",
   "description": "A fast, simple build tool for web projects.",
-  "version": "5.1.4",
+  "version": "6.0.0-beta",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "build",
     "buildtool",
+    "bundle",
+    "bundler",
     "modules",
     "javascript",
     "js",
@@ -13,46 +15,42 @@
     "html"
   ],
   "dependencies": {
-    "async": "1.5.2",
-    "buddy-cli": "4.0.1",
+    "async": "2.0.1",
+    "autoprefixer": "6.5.1",
+    "babel-core": "6.17.0",
+    "babel-plugin-external-helpers": "6.8.0",
+    "browserslist": "1.4.0",
+    "buddy-cli": "6.0.0-beta",
     "chalk": "1.1.3",
-    "glob": "7.0.5",
-    "inline-source": "4.2.5",
-    "lodash": "4.13.1",
-    "md5": "2.1.0",
-    "minimatch": "3.0.2",
+    "cssnano": "3.7.7",
+    "glob": "7.1.1",
+    "inline-source": "5.1.1",
+    "lodash": "4.16.4",
+    "md5": "2.2.1",
+    "minimatch": "3.0.3",
     "portscanner": "1.0.0",
+    "postcss": "5.2.4",
     "recur-fs": "2.2.3",
-    "yaw": "0.1.1"
+    "uglify-js": "2.7.3",
+    "yaw": "1.0.0"
   },
   "devDependencies": {
-    "buddy-plugin-coffeescript": "*",
-    "buddy-plugin-csso": "*",
-    "buddy-plugin-dust": "*",
-    "buddy-plugin-imagemin": "*",
-    "buddy-plugin-jade": "*",
-    "buddy-plugin-less": "*",
-    "buddy-plugin-nunjucks": "*",
-    "buddy-plugin-stylus": "*",
-    "buddy-plugin-twig": "*",
-    "buddy-plugin-uglify": "2.6.4",
-    "buddy-server": "*",
     "expect.js": "*",
     "mocha": "*",
-    "rimraf": "*",
-    "transfigure-handlebars": "*"
+    "rimraf": "*"
   },
-  "main": "index.js",
+  "main": "lib/buddy.js",
   "bin": {
-    "buddy": "./bin/buddy"
+    "buddy": "node ./bin/buddy"
   },
   "scripts": {
-    "lint": "eslint lib",
-    "test": "NODE_ENV=test mocha --reporter spec --timeout 10000",
-    "test-windows": "set NODE_ENV=test&&node.exe ./node_modules/mocha/bin/mocha --reporter spec -t 20000"
+    "install:packages": "./bin/install",
+    "dl": "node ./bin/dl",
+    "test:all": "NODE_ENV=test mocha \"./packages/buddy-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
+    "test": "NODE_ENV=test mocha \"./test/*-test.js\" --reporter spec --timeout 20000 --bail"
   },
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6"
   },
   "repository": "git://github.com/popeindustries/buddy.git",
   "readmeFilename": "README.md",

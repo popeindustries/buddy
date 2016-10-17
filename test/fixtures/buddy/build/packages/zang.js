@@ -1,0 +1,1 @@
+var boo = require('boo/boo.js');

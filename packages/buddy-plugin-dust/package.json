@@ -1,0 +1,30 @@
+{
+  "name": "buddy-plugin-dust",
+  "description": "Buddy plugin for dust source transforms (via dustjs-linkedin)",
+  "version": "2.7.4-2",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "buddy",
+    "compile",
+    "dust"
+  ],
+  "dependencies": {
+    "dustjs-helpers": "1.7.3",
+    "dustjs-linkedin": "2.7.4"
+  },
+  "devDependencies": {
+  },
+  "peerDependencies": {
+    "buddy": "6.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec -t 10000"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-dust",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}

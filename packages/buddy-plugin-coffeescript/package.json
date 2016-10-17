@@ -1,0 +1,29 @@
+{
+  "name": "buddy-plugin-coffeescript",
+  "description": "Buddy plugin for coffee-script source transforms (via Coffee-script)",
+  "version": "1.11.1",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "buddy",
+    "compile",
+    "coffeescript",
+    "coffee-script"
+  ],
+  "dependencies": {
+    "coffee-script": "1.11.1"
+  },
+  "devDependencies": {},
+  "peerDependencies": {
+    "buddy": "6.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec -t 10000"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-coffeescript",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}

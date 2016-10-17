@@ -1,5 +1,10 @@
 .git*
 test/
+docs/
 examples/
-plugins/
+packages/
 .DS_Store
+.travis.yml
+CHANGELOG.md
+README.md
+yarn.lock
