@@ -13,8 +13,7 @@
     "commander": "2.9.0",
     "recur-fs": "2.2.x"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "main": "index.js",
   "bin": {
     "buddy": "./bin/buddy"
