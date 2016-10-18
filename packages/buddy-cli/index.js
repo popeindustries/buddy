@@ -18,8 +18,6 @@ process.on('uncaughtException', (err) => {
 find(useCli, (err, buddyFactory, version) => {
   if (err) throw err;
 
-  buddy = buddyFactory();
-
   program
     .version(version)
     .usage('[options] <command> [configpath]')
@@ -37,7 +35,7 @@ find(useCli, (err, buddyFactory, version) => {
     .command('build [configpath]')
     .description('build js, css, html, and image sources')
     .action((configpath) => {
-      buddyFactory(parseConfig(configpath), getOptions()).build();
+      buddy = buddyFactory(parseConfig(configpath), getOptions()).build();
     });
 
   program
@@ -47,7 +45,7 @@ find(useCli, (err, buddyFactory, version) => {
       let options = getOptions();
 
       options.watch = true;
-      buddyFactory(parseConfig(configpath), options).watch();
+      buddy = buddyFactory(parseConfig(configpath), options).watch();
     });
 
   program
@@ -57,7 +55,7 @@ find(useCli, (err, buddyFactory, version) => {
       let options = getOptions();
 
       options.deploy = options.compress = true;
-      buddyFactory(parseConfig(configpath), options).build();
+      buddy = buddyFactory(parseConfig(configpath), options).build();
     });
 
   program.parse(process.argv);

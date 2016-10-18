@@ -1,8 +1,8 @@
 'use strict';
 
+const { walk } = require('recur-fs');
 const fs = require('fs');
 const path = require('path');
-const { walk } = require('recur-fs');
 
 /**
  * Walk directory tree from cwd to find nearest buddy dir
