@@ -66,8 +66,10 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     compile (buildOptions, fn) {
-      // TODO: add 'paths'?
-      const options = this.options.pluginOptions.stylus || {};
+      const options = Object.assign({}, this.options.pluginOptions.stylus, {
+        // Gather all source directories
+        paths: this.options.caches.fileInstances.getDirs()
+      });
 
       stylus.render(this.content, options, (err, content) => {
         if (err) return fn(err);
