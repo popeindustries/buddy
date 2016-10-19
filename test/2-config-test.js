@@ -523,7 +523,7 @@ describe('config', () => {
       beforeEach(() => {
         config = configFactory({ build: {} });
         options = {
-          caches: config.caches,
+          fileCache: config.fileCache,
           fileExtensions: config.fileExtensions,
           fileFactory () {},
           runtimeOptions: config.runtimeOptions

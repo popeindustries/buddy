@@ -68,7 +68,7 @@ function define (File, utils) {
     compile (buildOptions, fn) {
       const options = Object.assign({}, this.options.pluginOptions.stylus, {
         // Gather all source directories
-        paths: this.options.caches.fileInstances.getDirs()
+        paths: this.options.fileCache.getDirs()
       });
 
       stylus.render(this.content, options, (err, content) => {

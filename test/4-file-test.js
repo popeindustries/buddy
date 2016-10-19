@@ -234,7 +234,7 @@ describe('file', () => {
         output: '.'
       }, {});
       file = config.fileFactory(path.resolve('src/foo.js'), {
-        caches: config.caches,
+        fileCache: config.fileCache,
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: { babel: { plugins: [] } },
@@ -251,7 +251,7 @@ describe('file', () => {
           output: 'js'
         }, {});
         file = config.fileFactory(path.resolve('node_modules/async/series.js'), {
-          caches: config.caches,
+          fileCache: config.fileCache,
           fileExtensions: config.fileExtensions,
           fileFactory: config.fileFactory,
           npmModulepaths: config.npmModulepaths,
@@ -551,7 +551,7 @@ describe('file', () => {
         output: 'css'
       }, {});
       file = config.fileFactory(path.resolve('src/main.css'), {
-        caches: config.caches,
+        fileCache: config.fileCache,
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: { babel: { plugins: [] } },
@@ -631,7 +631,7 @@ describe('file', () => {
         output: 'html'
       }, {});
       file = config.fileFactory(path.resolve('src/main.html'), {
-        caches: config.caches,
+        fileCache: config.fileCache,
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: { babel: { plugins: [] } },
