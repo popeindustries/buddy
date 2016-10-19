@@ -14,3 +14,4 @@ if (true) {
   const module = 'foo';
   const exports = 'bar';
 }
+foo[exports.foo] = 'foo';

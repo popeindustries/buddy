@@ -444,28 +444,28 @@ describe('file', () => {
         it('should namespace variable declarations', (done) => {
           file.content = 'const foo = "foo";';
           file.transpile({ bundle: true }, (err) => {
-            expect(file.content).to.equal('const _srcfoojs_foo = "foo";');
+            expect(file.content).to.equal('const srcfoojs__foo = "foo";');
             done();
           });
         });
         it('should namespace function declarations', (done) => {
           file.content = 'function foo () {}';
           file.transpile({ bundle: true }, (err) => {
-            expect(file.content).to.equal('function _srcfoojs_foo() {}');
+            expect(file.content).to.equal('function srcfoojs__foo() {}');
             done();
           });
         });
         it('should namespace class declarations', (done) => {
           file.content = 'class Foo {}';
           file.transpile({ bundle: true }, (err) => {
-            expect(file.content).to.equal('class _srcfoojs_Foo {}');
+            expect(file.content).to.equal('class srcfoojs__Foo {}');
             done();
           });
         });
         it('should namespace all declarations and their references', (done) => {
           file.content = fs.readFileSync('src/namespace.js', 'utf8');
           file.transpile({ bundle: true }, (err) => {
-            expect(file.content).to.equal("const _srcfoojs_bar = require(\'bar\');\nlet _srcfoojs_foo = require(\'./foo\');\nvar _srcfoojs_boo;\n\nconsole.log(_srcfoojs_foo, _srcfoojs_bar);\n\n_srcfoojs_foo = _srcfoojs_bar;\nvar _srcfoojs_baz = _srcfoojs_foo.baz;\nvar _srcfoojs_boo = {};\n_srcfoojs_boo[_srcfoojs_baz] = \'baz\';\n\nclass _srcfoojs_Foo {\n  constructor() {\n    console.log(_srcfoojs_foo);\n  }\n}\n\nfunction _srcfoojs_bat(foo) {\n  const f = new _srcfoojs_Foo();\n\n  console.log(f, foo, _srcfoojs_bar, \'bat\');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  _srcfoojs_bat(foo);\n  console.log(_srcfoojs_bar);\n}\n\nzip = {\n  foo: _srcfoojs_foo\n};");
+            expect(file.content).to.equal("const srcfoojs__bar = require(\'bar\');\nlet srcfoojs__foo = require(\'./foo\');\nvar srcfoojs__boo;\n\nconsole.log(srcfoojs__foo, srcfoojs__bar);\n\nsrcfoojs__foo = srcfoojs__bar;\nvar srcfoojs__baz = srcfoojs__foo.baz;\nvar srcfoojs__boo = {};\nsrcfoojs__boo[srcfoojs__baz] = \'baz\';\n\nclass srcfoojs__Foo {\n  constructor() {\n    console.log(srcfoojs__foo);\n  }\n}\n\nfunction srcfoojs__bat(foo) {\n  const f = new srcfoojs__Foo();\n\n  console.log(f, foo, srcfoojs__bar, \'bat\');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  srcfoojs__bat(foo);\n  console.log(srcfoojs__bar);\n}\n\nzip = {\n  foo: srcfoojs__foo\n};");
             done();
           });
         });
@@ -517,7 +517,7 @@ describe('file', () => {
         it('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
           file.transpile({ browser: true, bundle: true }, (err) => {
-            expect(file.content).to.equal("$m['src/foo.js'];\n$m['src/foo.js'].exports = {};\n$m['src/foo.js']['exports'] = {};\n$m['src/foo.js']['ex' + 'ports'] = {};\n\n$m['src/foo.js'].exports;\n$m['src/foo.js'].exports && foo;\n$m['src/foo.js'].exports.foo = 'foo';\n$m['src/foo.js'].exports['foo'] = 'foo';\n$m['src/foo.js'].exports.BELL = '\\x07';\nfreeModule.exports === freeExports;\n\nif (true) {\n  const module = 'foo';\n  const exports = 'bar';\n}");
+            expect(file.content).to.equal("$m[\'src/foo.js\'];\n$m[\'src/foo.js\'].exports = {};\n$m[\'src/foo.js\'][\'exports\'] = {};\n$m[\'src/foo.js\'][\'ex\' + \'ports\'] = {};\n\n$m[\'src/foo.js\'].exports;\n$m[\'src/foo.js\'].exports && foo;\n$m[\'src/foo.js\'].exports.foo = \'foo\';\n$m[\'src/foo.js\'].exports[\'foo\'] = \'foo\';\n$m[\'src/foo.js\'].exports.BELL = \'\\x07\';\nfreeModule.exports === freeExports;\n\nif (true) {\n  const module = \'foo\';\n  const exports = \'bar\';\n}\nfoo[$m[\'src/foo.js\'].exports.foo] = \'foo\';");
             done();
           });
         });

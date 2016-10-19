@@ -107,7 +107,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n(function () {\n/*== a.coffee ==*/\n$m[\'a.coffee\'] = { exports: {} };\nvar _acoffee_foo;\n\n_acoffee_foo = \'foo\';\n/*≠≠ a.coffee ≠≠*/\n})()');
+          expect(content).to.equal('/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n(function () {\n/*== a.coffee ==*/\n$m[\'a.coffee\'] = { exports: {} };\nvar acoffee__foo;\n\nacoffee__foo = \'foo\';\n/*≠≠ a.coffee ≠≠*/\n})()');
           done();
         });
       });
@@ -121,7 +121,7 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain("/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/");
-          expect(content).to.contain("var _barjs_foo = $m[\'foo.js\'].exports;");
+          expect(content).to.contain("var barjs__foo = $m[\'foo.js\'].exports;");
           done();
         });
       });
@@ -149,7 +149,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m[\'b.js\'] = { exports: {} };\n$m[\'b.js\'].exports = _bjs_b;\n\nvar _bjs_a = require(\'a.js\');\n\nfunction _bjs_b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a.js\'] = function () {\n$m[\'a.js\'] = { exports: {} };\n$m[\'a.js\'].exports = _ajs_a;\n\nvar _ajs_b = require(\'b.js\');\n\nfunction _ajs_a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== circular.js ==*/\n$m[\'circular.js\'] = { exports: {} };\nvar _circularjs_a = require(\'a.js\');\n/*≠≠ circular.js ≠≠*/");
+          expect(content).to.contain("/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m[\'b.js\'] = { exports: {} };\n$m[\'b.js\'].exports = bjs__b;\n\nvar bjs__a = require(\'a.js\');\n\nfunction bjs__b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a.js\'] = function () {\n$m[\'a.js\'] = { exports: {} };\n$m[\'a.js\'].exports = ajs__a;\n\nvar ajs__b = require(\'b.js\');\n\nfunction ajs__a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== circular.js ==*/\n$m[\'circular.js\'] = { exports: {} };\nvar circularjs__a = require(\'a.js\');\n/*≠≠ circular.js ≠≠*/");
           expect(eval(content)).to.be.ok();
           done();
         });
@@ -164,7 +164,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("/*== k.js ==*/\n$m[\'k.js\'] = function () {\n$m[\'k.js\'] = { exports: {} };\nvar _kjs_i = require(\'i.js\');\n};\n/*≠≠ k.js ≠≠*/\n\n/*== j.js ==*/\n$m[\'j.js\'] = function () {\n$m[\'j.js\'] = { exports: {} };\nvar _jjs_k = require(\'k.js\');\n};\n/*≠≠ j.js ≠≠*/\n\n/*== i.js ==*/\n$m[\'i.js\'] = function () {\n$m[\'i.js\'] = { exports: {} };\nvar _ijs_j = require(\'j.js\');\n};\n/*≠≠ i.js ≠≠*/\n\n/*== circular-complex.js ==*/\n$m[\'circular-complex.js\'] = { exports: {} };\nvar _circularcomplexjs_i = require(\'i.js\');\n/*≠≠ circular-complex.js ≠≠*/");
+          expect(content).to.contain("/*== k.js ==*/\n$m[\'k.js\'] = function () {\n$m[\'k.js\'] = { exports: {} };\nvar kjs__i = require(\'i.js\');\n};\n/*≠≠ k.js ≠≠*/\n\n/*== j.js ==*/\n$m[\'j.js\'] = function () {\n$m[\'j.js\'] = { exports: {} };\nvar jjs__k = require(\'k.js\');\n};\n/*≠≠ j.js ≠≠*/\n\n/*== i.js ==*/\n$m[\'i.js\'] = function () {\n$m[\'i.js\'] = { exports: {} };\nvar ijs__j = require(\'j.js\');\n};\n/*≠≠ i.js ≠≠*/\n\n/*== circular-complex.js ==*/\n$m[\'circular-complex.js\'] = { exports: {} };\nvar circularcomplexjs__i = require(\'i.js\');\n/*≠≠ circular-complex.js ≠≠*/");
           expect(eval(content)).to.be.ok();
           done();
         });
@@ -178,7 +178,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n\n/*== e.js ==*/\n$m[\'e.js\'] = { exports: {} };\nvar _ejs_foo = $m[\'foo.js\'].exports;\n/*≠≠ e.js ≠≠*/\n\n/*== d.js ==*/\n$m[\'d.js\'] = { exports: {} };\nvar _djs_e = $m[\'e.js\'].exports;\n/*≠≠ d.js ≠≠*/\n})()");
+          expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n\n/*== e.js ==*/\n$m[\'e.js\'] = { exports: {} };\nvar ejs__foo = $m[\'foo.js\'].exports;\n/*≠≠ e.js ≠≠*/\n\n/*== d.js ==*/\n$m[\'d.js\'] = { exports: {} };\nvar djs__e = $m[\'e.js\'].exports;\n/*≠≠ d.js ≠≠*/\n})()");
           done();
         });
       });
@@ -192,7 +192,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('var _bingjs_json = {\n  "content": "foo"\n}');
+          expect(content).to.contain('var bingjs__json = {\n  "content": "foo"\n}');
           done();
         });
       });
@@ -206,7 +206,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var _beepjs_what = require('what');");
+          expect(content).to.contain("var beepjs__what = require('what');");
           done();
         });
       });
@@ -220,7 +220,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('var _nativejs_http = {};');
+          expect(content).to.contain('var nativejs__http = {};');
           done();
         });
       });
@@ -249,7 +249,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n(function () {\n(function () {\n/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m[\'b.js\'] = { exports: {} };\n$m[\'b.js\'].exports = _bjs_b;\n\nvar _bjs_a = require(\'a.js\');\n\nfunction _bjs_b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a.js\'] = function () {\n$m[\'a.js\'] = { exports: {} };\n$m[\'a.js\'].exports = _ajs_a;\n\nvar _ajs_b = require(\'b.js\');\n\nfunction _ajs_a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== circular.js ==*/\n$m[\'built.js\'] = $m[\'circular.js\'] = { exports: {} };\nvar _circularjs_a = require(\'a.js\');\n/*≠≠ circular.js ≠≠*/\n})()\n\n/*== h.js ==*/\n$m[\'h.js\'] = { exports: {} };\nconst _hjs_foo = $m[\'built.js\'].exports;\n\n$m[\'h.js\'].exports = \'h\';\n/*≠≠ h.js ≠≠*/\n})()');
+          expect(content).to.equal('/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n(function () {\n(function () {\n/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m[\'b.js\'] = { exports: {} };\n$m[\'b.js\'].exports = bjs__b;\n\nvar bjs__a = require(\'a.js\');\n\nfunction bjs__b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a.js\'] = function () {\n$m[\'a.js\'] = { exports: {} };\n$m[\'a.js\'].exports = ajs__a;\n\nvar ajs__b = require(\'b.js\');\n\nfunction ajs__a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== circular.js ==*/\n$m[\'built.js\'] = $m[\'circular.js\'] = { exports: {} };\nvar circularjs__a = require(\'a.js\');\n/*≠≠ circular.js ≠≠*/\n})()\n\n/*== h.js ==*/\n$m[\'h.js\'] = { exports: {} };\nconst hjs__foo = $m[\'built.js\'].exports;\n\n$m[\'h.js\'].exports = \'h\';\n/*≠≠ h.js ≠≠*/\n})()');
           done();
         });
       });
@@ -360,7 +360,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var _env2js_hash = '696768116e504ebcba3b436af9e645c9';");
+          expect(content).to.contain("var env2js__hash = '696768116e504ebcba3b436af9e645c9';");
           done();
         });
       });
@@ -375,9 +375,9 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var _nativejs_http = require('http');");
-          expect(content).to.contain("var _nodejs_http = $m['native.js'].exports;");
-          expect(content).to.contain("var _nodejs_runtime = 'server';");
+          expect(content).to.contain("var nativejs__http = require('http');");
+          expect(content).to.contain("var nodejs__http = $m['native.js'].exports;");
+          expect(content).to.contain("var nodejs__runtime = 'server';");
           expect(content).to.contain('module.exports = function () {};');
           done();
         });
@@ -396,8 +396,8 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var _nodejs_http = {};");
-          expect(content).to.contain("var _nodejs_runtime = 'server';");
+          expect(content).to.contain('var nodejs__http = {};');
+          expect(content).to.contain("var nodejs__runtime = 'server';");
           expect(content).to.contain('module.exports = function () {};');
           done();
         });
@@ -440,7 +440,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('function _commajs_foo(a, b) {');
+          expect(content).to.contain('function commajs__foo(a, b) {');
           done();
         });
       });
@@ -479,8 +479,8 @@ describe('Buddy', () => {
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
             expect(content).to.contain("$m['bar/bar.js#0.0.0'].exports = 'bar';");
-            expect(content).to.contain("var _foofoojs000_bar = $m['bar/bar.js#0.0.0'].exports");
-            expect(content).to.contain("var _batjs_foo = $m['foo/foo.js#0.0.0'].exports;");
+            expect(content).to.contain("var foofoojs000__bar = $m['bar/bar.js#0.0.0'].exports");
+            expect(content).to.contain("var batjs__foo = $m['foo/foo.js#0.0.0'].exports;");
             done();
           });
         });
@@ -495,7 +495,7 @@ describe('Buddy', () => {
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
             expect(content).to.contain("$m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports = 'bar';");
-            expect(content).to.contain("var _boojs_bar = $m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports");
+            expect(content).to.contain("var boojs__bar = $m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports");
             done();
           });
         });
@@ -523,8 +523,8 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain("var _zingjs_boo = $m['boo/index.js#1.0.0'].exports;");
-            expect(content).to.contain('var _booindexjs100_json = {\n  "boo": "boo"\n}');
+            expect(content).to.contain("var zingjs__boo = $m['boo/index.js#1.0.0'].exports;");
+            expect(content).to.contain('var booindexjs100__json = {\n  "boo": "boo"\n}');
             done();
           });
         });
@@ -538,7 +538,7 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain('var _bongjs_bat = {};');
+            expect(content).to.contain('var bongjs__bat = {};');
             done();
           });
         });
@@ -556,7 +556,7 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain("var _booindexjs100_json = {};");
+            expect(content).to.contain("var booindexjs100__json = {};");
             expect(content).to.not.contain('"boo": "boo"');
             done();
           });
@@ -575,7 +575,7 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain("var _booboojs100_json = {};");
+            expect(content).to.contain("var booboojs100__json = {};");
             expect(content).to.not.contain('"boo": "boo"');
             done();
           });
@@ -1129,11 +1129,11 @@ describe('Buddy', () => {
             const content = fs.readFileSync(filepath, 'utf8');
 
             if (name == 'c') {
-              expect(content).to.contain("_cjs_foo = $m['foo.js'].exports");
+              expect(content).to.contain("cjs__foo = $m['foo.js'].exports");
               expect(content).to.contain("$m['foo.js'].exports = 'foo';");
             } else if (name == 'd') {
               expect(content).to.contain("e = $m['e.js'].exports");
-              expect(content).to.contain("_ejs_foo = require('foo.js')");
+              expect(content).to.contain("ejs__foo = require('foo.js')");
               expect(content).to.not.contain("$m['foo.js'].exports = 'foo';");
             }
           });

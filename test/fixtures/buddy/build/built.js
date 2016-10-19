@@ -17,11 +17,11 @@ var require = self.require || function require (id) {
 /*== b.js ==*/
 $m['b.js'] = function () {
 $m['b.js'] = { exports: {} };
-$m['b.js'].exports = _bjs_b;
+$m['b.js'].exports = bjs__b;
 
-var _bjs_a = require('a.js');
+var bjs__a = require('a.js');
 
-function _bjs_b() {
+function bjs__b() {
   console.log('b');
 }
 };
@@ -30,11 +30,11 @@ function _bjs_b() {
 /*== a.js ==*/
 $m['a.js'] = function () {
 $m['a.js'] = { exports: {} };
-$m['a.js'].exports = _ajs_a;
+$m['a.js'].exports = ajs__a;
 
-var _ajs_b = require('b.js');
+var ajs__b = require('b.js');
 
-function _ajs_a() {
+function ajs__a() {
   console.log('a');
 }
 };
@@ -42,6 +42,6 @@ function _ajs_a() {
 
 /*== circular.js ==*/
 $m['circular.js'] = { exports: {} };
-var _circularjs_a = require('a.js');
+var circularjs__a = require('a.js');
 /*≠≠ circular.js ≠≠*/
 })()
