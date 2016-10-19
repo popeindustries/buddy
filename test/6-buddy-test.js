@@ -225,7 +225,7 @@ describe('Buddy', () => {
         });
       });
       it('should build a js file with specified source directory', (done) => {
-        dependencyResolverConfig.sources = ['js-directory/nested'];
+        dependencyResolverConfig.sources = [path.resolve('js-directory/nested')];
         buddy = buddyFactory({
           input: 'js-directory/nested/foo.js',
           output: 'output'
@@ -542,7 +542,7 @@ describe('Buddy', () => {
             done();
           });
         });
-        it('should build a node bundle with disabled dependency in third-party dependency', (done) => {
+        it.skip('should build a node bundle with disabled dependency in third-party dependency', (done) => {
           buddy = buddyFactory({
             input: 'zing.js',
             output: 'output',
@@ -561,7 +561,7 @@ describe('Buddy', () => {
             done();
           });
         });
-        it('should build a node bundle with disabled dependency in third-party dependency file', (done) => {
+        it.skip('should build a node bundle with disabled dependency in third-party dependency file', (done) => {
           buddy = buddyFactory({
             input: 'zang.js',
             output: 'output',
