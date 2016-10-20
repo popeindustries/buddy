@@ -100,6 +100,7 @@ Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/d
 - [Generate unique filenames?](#generate-unique-filenames)
 - [Skip a build?](#skip-a-build)
 - [Serve files while developing?](#serve-files-while-developing)
+- [Reload files while developing?](#reload-files-while-developing)
 
 #### Manage *JS* dependencies?
 
@@ -709,3 +710,43 @@ $ buddy build --invert --grep images
 
 #### Serve files while developing?
 
+When executing the `watch` command with the `--serve` flag, **buddy** will rely on the [buddy-server](https://www.npmjs.com/package/buddy-server) plugin to launch a local development server. If the plugin is not already installed, **buddy** will automatically install it to your `dev-dependencies`. 
+
+**buddy-server** has two primary modes:
+
+A default static file server that serves files from a local `directory`:
+```json
+"buddy": {
+  "server": {
+    "port": 8000,
+    "directory": "www"
+  }
+}
+```
+Or a custom application server:
+```json
+"buddy": {
+  "server": {
+    "port": 8000,
+    "file": "./index.js"
+  }
+}
+```
+
+When working with a custom server, you can pass along application environment variables and flags to the Node.js runtime:
+```json
+"buddy": {
+  "server": {
+    "port": 8000,
+    "file": "./index.js",
+    "env": {
+      "DEBUG": "*"
+    },
+    "flags": ["--inspect"]
+  }
+}
+```
+
+### Reload files while developing?
+
+When executing the `watch` command with the `--serve` and `--reload` flags, **buddy** will rely on the [buddy-server](https://www.npmjs.com/package/buddy-server) plugin to launch a local development server, reloading any connected clients after re-builds. If the plugin is not already installed, **buddy** will automatically install it to your `dev-dependencies`. 
