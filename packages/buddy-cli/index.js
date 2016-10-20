@@ -29,7 +29,7 @@ find(useCli, (err, buddyFactory, version) => {
     .option('-r, --reload', 'reload all connected live-reload clients on file change during watch')
     .option('-s, --serve', 'create (or launch) a webserver to serve files during watch')
     .option('-S, --script', 'run script on build completion')
-    .option('-v, --verbose', 'print all messages for debugging');
+    .option('--debug', 'print all messages for debugging');
 
   program
     .command('build [configpath]')

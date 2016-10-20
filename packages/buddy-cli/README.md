@@ -37,7 +37,7 @@ $ npm -g install buddy-cli
     -r, --reload          reload all connected live-reload clients on file change during watch
     -s, --serve           create (or launch) a webserver to serve files during watch
     -S, --script          run script on build completion
-    -v, --verbose         print all messages for debugging
+    --debug               print all messages for debugging
 ```
 
 Once installed, run **buddy** as described [here](https://github.com/popeindustries/buddy#readme)
