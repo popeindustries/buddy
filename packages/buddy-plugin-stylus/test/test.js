@@ -18,7 +18,7 @@ describe('buddy-plugin-stylus', () => {
     }, {});
     plugin.register(config);
     fileFactoryOptions = {
-      caches: config.caches,
+      fileCache: config.fileCache,
       fileExtensions: config.fileExtensions,
       fileFactory: config.fileFactory,
       pluginOptions: { babel: { plugins: [] } },
