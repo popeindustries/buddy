@@ -2,6 +2,7 @@
 
 const configFactory = require('../../../lib/config');
 const expect = require('expect.js');
+const fileCacheFactory = require('../../../lib/config/fileCache');
 const fs = require('fs');
 const path = require('path');
 const plugin = require('../index');
@@ -18,7 +19,7 @@ describe('buddy-plugin-coffeescript', () => {
     }, {});
     plugin.register(config);
     fileFactoryOptions = {
-      caches: config.caches,
+      fileCache: fileCacheFactory(),
       fileExtensions: config.fileExtensions,
       fileFactory: config.fileFactory,
       pluginOptions: { babel: { plugins: [] } },

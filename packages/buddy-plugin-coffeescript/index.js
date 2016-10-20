@@ -7,9 +7,6 @@ const DEFAULT_OPTIONS = {
   bare: true
 };
 const FILE_EXTENSIONS = ['coffee'];
-const WORKFLOW_STANDARD = [
-  'compile'
-];
 
 module.exports = {
   name: 'coffeescript',
@@ -50,8 +47,7 @@ function define (File, utils) {
     constructor (id, filepath, options) {
       super(id, filepath, options);
 
-      // Prepend to existing extended workflow
-      this.workflows.standard[1] = WORKFLOW_STANDARD.concat(this.workflows.standard[1]);
+      this.compiled = false;
     }
 
     /**
@@ -70,16 +66,28 @@ function define (File, utils) {
      * @returns {null}
      */
     compile (buildOptions, fn) {
+      if (this.compiled) return fn();
+
       try {
         const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.coffeescript);
         const content = coffee.compile(this.content, options);
 
         this.content = content;
+        this.compiled = true;
         debug(`compile: ${strong(this.relpath)}`, 4);
       } catch (err) {
         return fn(err);
       }
       fn();
+    }
+
+    /**
+     * Reset content
+     * @param {Boolean} hard
+     */
+    reset (hard) {
+      if (hard) this.compiled = false;
+      super.reset(hard);
     }
   };
 }

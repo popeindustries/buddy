@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-coffeescript",
   "description": "Buddy plugin for coffee-script source transforms (via Coffee-script)",
-  "version": "1.11.1",
+  "version": "1.11.1-2",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -12,9 +12,8 @@
   "dependencies": {
     "coffee-script": "1.11.1"
   },
-  "devDependencies": {},
   "peerDependencies": {
-    "buddy": "6.x"
+    "buddy": "^6.0.0"
   },
   "main": "index.js",
   "scripts": {
