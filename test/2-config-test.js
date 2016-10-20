@@ -3,6 +3,7 @@
 const buildParser = require('../lib/config/buildParser');
 const configFactory = require('../lib/config');
 const expect = require('expect.js');
+const fileCacheFactory = require('../lib/config/fileCache');
 const filetype = require('../lib/config/filetype');
 const path = require('path');
 const pluginLoader = require('../lib/config/pluginLoader');
@@ -523,7 +524,7 @@ describe('config', () => {
       beforeEach(() => {
         config = configFactory({ build: {} });
         options = {
-          fileCache: config.fileCache,
+          fileCache: fileCacheFactory(),
           fileExtensions: config.fileExtensions,
           fileFactory () {},
           runtimeOptions: config.runtimeOptions
