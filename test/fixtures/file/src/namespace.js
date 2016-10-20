@@ -29,3 +29,7 @@ for (let foo = 0; foo < 3; foo++) {
 zip = {
   foo: foo
 };
+
+function y (...rest) {
+  console.log(rest)
+}

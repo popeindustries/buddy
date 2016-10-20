@@ -97,6 +97,66 @@ babel-generator@^6.17.0:
     lodash "^4.2.0"
     source-map "^0.5.0"
 
+babel-helper-call-delegate@^6.8.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/babel-helper-call-delegate/-/babel-helper-call-delegate-6.8.0.tgz#9d283e7486779b6b0481864a11b371ea5c01fa64"
+  dependencies:
+    babel-helper-hoist-variables "^6.8.0"
+    babel-runtime "^6.0.0"
+    babel-traverse "^6.8.0"
+    babel-types "^6.8.0"
+
+babel-helper-define-map@^6.9.0:
+  version "6.9.0"
+  resolved "https://registry.yarnpkg.com/babel-helper-define-map/-/babel-helper-define-map-6.9.0.tgz#6629f9b2a7e58e18e8379a57d1e6fbb2969902fb"
+  dependencies:
+    babel-helper-function-name "^6.8.0"
+    babel-runtime "^6.9.0"
+    babel-types "^6.9.0"
+    lodash "^4.2.0"
+
+babel-helper-function-name@^6.8.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/babel-helper-function-name/-/babel-helper-function-name-6.8.0.tgz#a0336ba14526a075cdf502fc52d3fe84b12f7a34"
+  dependencies:
+    babel-helper-get-function-arity "^6.8.0"
+    babel-runtime "^6.0.0"
+    babel-template "^6.8.0"
+    babel-traverse "^6.8.0"
+    babel-types "^6.8.0"
+
+babel-helper-get-function-arity@^6.8.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/babel-helper-get-function-arity/-/babel-helper-get-function-arity-6.8.0.tgz#88276c24bd251cdf6f61b6f89f745f486ced92af"
+  dependencies:
+    babel-runtime "^6.0.0"
+    babel-types "^6.8.0"
+
+babel-helper-hoist-variables@^6.8.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/babel-helper-hoist-variables/-/babel-helper-hoist-variables-6.8.0.tgz#8b0766dc026ea9ea423bc2b34e665a4da7373aaf"
+  dependencies:
+    babel-runtime "^6.0.0"
+    babel-types "^6.8.0"
+
+babel-helper-optimise-call-expression@^6.8.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/babel-helper-optimise-call-expression/-/babel-helper-optimise-call-expression-6.8.0.tgz#4175628e9c89fc36174904f27070f29d38567f06"
+  dependencies:
+    babel-runtime "^6.0.0"
+    babel-types "^6.8.0"
+
+babel-helper-replace-supers@^6.14.0:
+  version "6.16.0"
+  resolved "https://registry.yarnpkg.com/babel-helper-replace-supers/-/babel-helper-replace-supers-6.16.0.tgz#21c97623cc7e430855753f252740122626a39e6b"
+  dependencies:
+    babel-helper-optimise-call-expression "^6.8.0"
+    babel-messages "^6.8.0"
+    babel-runtime "^6.0.0"
+    babel-template "^6.16.0"
+    babel-traverse "^6.16.0"
+    babel-types "^6.16.0"
+
 babel-helpers@^6.16.0:
   version "6.16.0"
   resolved "https://registry.yarnpkg.com/babel-helpers/-/babel-helpers-6.16.0.tgz#1095ec10d99279460553e67eb3eee9973d3867e3"
@@ -115,6 +175,31 @@ babel-plugin-external-helpers@6.8.0:
   resolved "https://registry.yarnpkg.com/babel-plugin-external-helpers/-/babel-plugin-external-helpers-6.8.0.tgz#febfe50cec910b6dfcbc6caaabddd99f72b12697"
   dependencies:
     babel-runtime "^6.0.0"
+
+babel-plugin-transform-es2015-classes:
+  version "6.14.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-es2015-classes/-/babel-plugin-transform-es2015-classes-6.14.0.tgz#87d5149ee91fb475922409f9af5b2ba5d1e39287"
+  dependencies:
+    babel-helper-define-map "^6.9.0"
+    babel-helper-function-name "^6.8.0"
+    babel-helper-optimise-call-expression "^6.8.0"
+    babel-helper-replace-supers "^6.14.0"
+    babel-messages "^6.8.0"
+    babel-runtime "^6.9.0"
+    babel-template "^6.14.0"
+    babel-traverse "^6.14.0"
+    babel-types "^6.14.0"
+
+babel-plugin-transform-es2015-parameters:
+  version "6.17.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-es2015-parameters/-/babel-plugin-transform-es2015-parameters-6.17.0.tgz#e06d30cef897f46adb4734707bbe128a0d427d58"
+  dependencies:
+    babel-helper-call-delegate "^6.8.0"
+    babel-helper-get-function-arity "^6.8.0"
+    babel-runtime "^6.9.0"
+    babel-template "^6.16.0"
+    babel-traverse "^6.16.0"
+    babel-types "^6.16.0"
 
 babel-register@^6.16.0:
   version "6.16.3"
@@ -136,7 +221,7 @@ babel-runtime@^6.0.0, babel-runtime@^6.11.6, babel-runtime@^6.9.0, babel-runtime
     core-js "^2.4.0"
     regenerator-runtime "^0.9.5"
 
-babel-template@^6.16.0:
+babel-template@^6.14.0, babel-template@^6.16.0, babel-template@^6.8.0:
   version "6.16.0"
   resolved "https://registry.yarnpkg.com/babel-template/-/babel-template-6.16.0.tgz#e149dd1a9f03a35f817ddbc4d0481988e7ebc8ca"
   dependencies:
@@ -146,7 +231,7 @@ babel-template@^6.16.0:
     babylon "^6.11.0"
     lodash "^4.2.0"
 
-babel-traverse@^6.16.0:
+babel-traverse@^6.14.0, babel-traverse@^6.16.0, babel-traverse@^6.8.0:
   version "6.16.0"
   resolved "https://registry.yarnpkg.com/babel-traverse/-/babel-traverse-6.16.0.tgz#fba85ae1fd4d107de9ce003149cc57f53bef0c4f"
   dependencies:
@@ -160,7 +245,7 @@ babel-traverse@^6.16.0:
     invariant "^2.2.0"
     lodash "^4.2.0"
 
-babel-types@^6.16.0:
+babel-types@^6.14.0, babel-types@^6.16.0, babel-types@^6.8.0, babel-types@^6.9.0:
   version "6.16.0"
   resolved "https://registry.yarnpkg.com/babel-types/-/babel-types-6.16.0.tgz#71cca1dbe5337766225c5c193071e8ebcbcffcfe"
   dependencies:

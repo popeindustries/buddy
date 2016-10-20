@@ -238,7 +238,7 @@ describe('file', () => {
         fileCache: fileCacheFactory(),
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
-        pluginOptions: { babel: { plugins: [] } },
+        pluginOptions: { babel: { plugins: [require('babel-plugin-transform-es2015-parameters'), [require('babel-plugin-transform-es2015-classes'), { loose: true }]] } },
         runtimeOptions: config.runtimeOptions
       });
     });
@@ -459,14 +459,14 @@ describe('file', () => {
         it('should namespace class declarations', (done) => {
           file.content = 'class Foo {}';
           file.transpile({ bundle: true }, (err) => {
-            expect(file.content).to.equal('class srcfoojs__Foo {}');
+            expect(file.content).to.contain('let srcfoojs__Foo = function Foo() {');
             done();
           });
         });
         it('should namespace all declarations and their references', (done) => {
           file.content = fs.readFileSync('src/namespace.js', 'utf8');
           file.transpile({ bundle: true }, (err) => {
-            expect(file.content).to.equal("const srcfoojs__bar = require(\'bar\');\nlet srcfoojs__foo = require(\'./foo\');\nvar srcfoojs__boo;\n\nconsole.log(srcfoojs__foo, srcfoojs__bar);\n\nsrcfoojs__foo = srcfoojs__bar;\nvar srcfoojs__baz = srcfoojs__foo.baz;\nvar srcfoojs__boo = {};\nsrcfoojs__boo[srcfoojs__baz] = \'baz\';\n\nclass srcfoojs__Foo {\n  constructor() {\n    console.log(srcfoojs__foo);\n  }\n}\n\nfunction srcfoojs__bat(foo) {\n  const f = new srcfoojs__Foo();\n\n  console.log(f, foo, srcfoojs__bar, \'bat\');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  srcfoojs__bat(foo);\n  console.log(srcfoojs__bar);\n}\n\nzip = {\n  foo: srcfoojs__foo\n};");
+            expect(file.content).to.equal('function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }\n\nconst srcfoojs__bar = require(\'bar\');\nlet srcfoojs__foo = require(\'./foo\');\nvar srcfoojs__boo;\n\nconsole.log(srcfoojs__foo, srcfoojs__bar);\n\nsrcfoojs__foo = srcfoojs__bar;\nvar srcfoojs__baz = srcfoojs__foo.baz;\nvar srcfoojs__boo = {};\nsrcfoojs__boo[srcfoojs__baz] = \'baz\';\n\nlet srcfoojs__Foo = function Foo() {\n  _classCallCheck(this, Foo);\n\n  console.log(srcfoojs__foo);\n};\n\nfunction srcfoojs__bat(foo) {\n  const f = new srcfoojs__Foo();\n\n  console.log(f, foo, srcfoojs__bar, \'bat\');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  srcfoojs__bat(foo);\n  console.log(srcfoojs__bar);\n}\n\nzip = {\n  foo: srcfoojs__foo\n};\n\nfunction srcfoojs__y() {\n  for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {\n    rest[_key] = arguments[_key];\n  }\n\n  console.log(rest);\n}');
             done();
           });
         });

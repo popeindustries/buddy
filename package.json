@@ -35,6 +35,8 @@
     "yaw": "1.0.1"
   },
   "devDependencies": {
+    "babel-plugin-transform-es2015-classes": "6.14.0",
+    "babel-plugin-transform-es2015-parameters": "6.17.0",
     "expect.js": "*",
     "mocha": "*",
     "rimraf": "*"
