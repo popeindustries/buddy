@@ -90,6 +90,7 @@ function parseConfig (configpath) {
 function getOptions () {
   return {
     compress: program.compress,
+    debug: program.debug,
     deploy: false,
     grep: program.grep,
     invert: program.invert,
@@ -97,7 +98,6 @@ function getOptions () {
     // Backwards compat
     script: program.script || program.test,
     serve: program.serve,
-    watch: false,
-    verbose: program.verbose
+    watch: false
   };
 }
