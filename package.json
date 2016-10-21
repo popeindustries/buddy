@@ -44,7 +44,7 @@
   },
   "main": "lib/buddy.js",
   "bin": {
-    "buddy": "node ./bin/buddy"
+    "buddy": "./bin/buddy"
   },
   "scripts": {
     "install:packages": "./bin/install",
