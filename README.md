@@ -5,20 +5,20 @@
 
 <h4 align="center"><em>Helping you get sh*t done since 2010</em></h4>
 
-**buddy** is a fast and simple build tool for web projects. It can compile source code from higher order *JS/CSS/HTML* languages, resolves dependencies, and bundle (and optionally compress) all souces for more efficient delivery to the browser.
+**buddy** is a fast and simple build tool for web projects. It can compile source code from higher order *JS/CSS/HTML* languages, resolves dependencies, and bundle (and optionally compress) all sources for more efficient delivery to the browser.
 
 ### Features
 
-- Resolves and concatenates *JS/CSS/HTML* dependencies into file bundles
-- Compiles other languages to *JS/CSS/HTML*
-- Installs Babel and PostCSS plugins automatically based on target language version
+- Resolves and manages *JS/CSS/HTML* **dependencies**, efficiently packaging resources into bundled files
+- **Transforms** other languages to *JS/CSS/HTML*
+- Built around **Babel** and **PostCSS**: installs and configures plugins automatically based on target language version
 - For development:
-    - Watches source files for changes 
-    - Runs a static file server (or a custom server)
-    - Refreshes connected browsers
+    - **Watches** source files for changes 
+    - Runs a static file **server** (or a custom application server)
+    - **Refreshes** connected browsers
 - For production:
-    - Outputs unique filenames
-    - Compresses sources, including images
+    - Outputs **unique** filenames
+    - **Compresses** sources, including images
 
 ### Installation
 
@@ -28,7 +28,7 @@ Install **buddy** as a `devDependency` in your project directory:
 $ npm install --save-dev buddy
 ```
 
-> If you want a global **buddy** command, in addition to a local copy of **buddy**, install the [buddy-cli](https://github.com/popeindustries/buddy-cli) with `$ npm install --global buddy-cli`
+> If you want a global **buddy** command, install the [buddy-cli](https://github.com/popeindustries/buddy-cli) with `$ npm install --global buddy-cli`
 
 ### Usage
 
@@ -104,7 +104,7 @@ Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/d
 
 #### Manage *JS* dependencies?
 
-*JS* dependencies are declared by use of `require()` expressions, and closely follow the module semantics as used in [Node.js](http://nodejs.org/api/modules.html). This makes it possible to write modules for the browser the same way as you would for Node.js server environments. Although **buddy** preserves similar author-time semantics, run-time behaviour does differ. In Node.js modules, each file is wrapped in a function closure to provide an isolated scope for module-level variable/function/class declarations, ensuring that there are no conflicts between modules. In the browser, however, wrapping each module in a closure can impose significant startup [cost](https://nolanlawson.com/2016/08/15/the-cost-of-small-modules/) and overhead. As a result, for performance reasons, **buddy** flattens all modules into a shared scope, renames all declarations, and inlines all calls to `require()`:
+*JS* dependencies are declared by use of `require()` expressions, and closely follow the module semantics as used in [Node.js](http://nodejs.org/api/modules.html). This makes it possible to write modules for the browser the same way as you would for Node.js server environments. Although **buddy** preserves similar author-time semantics, run-time behaviour does differ. In Node.js modules, each file is wrapped in a function closure to provide an isolated scope for module-level variable/function/class declarations, ensuring that there are no conflicts between modules. In the browser, however, wrapping each module in a closure can impose significant start-up [cost](https://nolanlawson.com/2016/08/15/the-cost-of-small-modules/) and overhead. As a result, for performance reasons, **buddy** flattens all modules into a shared scope, renames all declarations, and inlines all calls to `require()`:
 
 ```json
 {
@@ -164,7 +164,7 @@ console.log(_srcindexjs_foo());
 })()
 ```
 
-Although these optimizations are possible to apply in most cases, there are two scenarios where **buddy** needs to deoptimize by wrapping module contents and/or preserving calls to `require()`:
+Although these optimizations are possible to apply in most cases, there are two scenarios where **buddy** needs to de-optimize by wrapping module contents and/or preserving calls to `require()`:
 
 - **referencing modules in another bundle**: `require('module-from-another-bundle')` will be preserved as it cannot be safely inlined ([read more](#break-up-js-bundles-into-smaller-files) about working with multiple bundles)
 - **circular dependencies**: modules that `require` each other (including several orders removed) will be wrapped in a closure function and lazily evaluated when eventually called with a non-inlined `require()`
@@ -225,7 +225,7 @@ Note that, while a *JS* dependency tree can be optimized to avoid duplicates, th
 
 #### Manage *HTML* dependencies?
 
-Although *HTML* dependencies are numerous and varid, **buddy** only manages a specific subset of dependencies that are flagged for inlining. Specifying an `inline` attribute on certain tags results in the file contents being copied into the *HTML*:
+Although *HTML* dependencies are numerous and varied, **buddy** only manages a specific subset of dependencies that are flagged for inlining. Specifying an `inline` attribute on certain tags results in the file contents being copied into the *HTML*:
 
 ```json
 {
@@ -479,7 +479,7 @@ The last target (labelled `sw`) will have access to the unique outputs of the pr
 
 #### Avoid writing relative dependency paths?
 
-Since **buddy** implements the same dependency resolution semantics as Node.js, it is possible to end up with unwieldy relative paths when referencing files from deeply nested project directories: `require('../../../../some-module')`. And as for Node.js, you have a choice between the following two work arounds:
+Since **buddy** implements the same dependency resolution semantics as Node.js, it is possible to end up with unwieldy relative paths when referencing files from deeply nested project directories: `require('../../../../some-module')`. And as for Node.js, you have a choice between the following two workarounds:
 
 - nest your project source files in a `node_modules` directory:
 ```text
@@ -640,7 +640,7 @@ Plugins are configured via the `options.{plugin}` build configuration parameter:
 
 Unique filenames can be automatically generated by including one of two types of token in the output filename:
 
-- **%date%**: inserts the current timestamp at the time of build
+- **%date%**: inserts the current time stamp at the time of build
 - **%hash%**: inserts a hash of the file's content
 
 ```json

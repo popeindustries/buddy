@@ -33,7 +33,7 @@ The passed `Config` instance exposes the following four methods:
 
 **registerFileDefinitionAndExtensionsForType (define: Function, extensions: Array, type: String)**: register definition for new file `type` with `extensions`. Enables defining the behaviour for a new file type (see [css](https://github.com/popeindustries/buddy/blob/master/lib/plugins/css/index.js),  [js](https://github.com/popeindustries/buddy/blob/master/lib/plugins/js/index.js), and [html](https://github.com/popeindustries/buddy/blob/master/lib/plugins/html/index.js) plugins).
 
-The `define` function will be called with a [`File`](https://github.com/popeindustries/buddy/blob/master/lib/File.js) *class*, and should return a new *class* definition. If a *class* definition has already been defined for `type`, `File` will be the existing subclass (`JSFile`, `CSSFile`, etc):
+The `define` function will be called with a [`File`](https://github.com/popeindustries/buddy/blob/master/lib/File.js) *class*, and should return a new *class* definition. If a *class* definition has already been defined for `type`, `File` will be the existing subclass (`JSFile`, `CSSFile`, etc.):
 
 ```js
 /**
