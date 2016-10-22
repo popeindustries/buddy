@@ -5,6 +5,7 @@ var boo;
 console.log(foo, bar);
 
 foo = bar;
+foo && 'zoo';
 var baz = foo.baz;
 var boo = {};
 boo[baz] = 'baz';
@@ -33,3 +34,15 @@ zip = {
 function y (...rest) {
   console.log(rest)
 }
+
+var units = {};
+
+var z = function () {
+  var params = {
+    units: function(v) {
+      if (units[v]) {
+        var t = units[v].t;
+      }
+    }
+  };
+};
