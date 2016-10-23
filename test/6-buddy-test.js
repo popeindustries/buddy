@@ -124,15 +124,16 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build a js file with es6 import', (done) => {
+      it.only('should build a js file with es6 import', (done) => {
         buddy = buddyFactory({
           input: 'es6.js',
-          output: 'output'
+          output: 'output',
+          version: 'node6'
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-
+          console.log(content)
           // expect(content).to.contain("/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/");
           // expect(content).to.contain("var _barjs_foo = $m[\'foo.js\'].exports;");
           done();
