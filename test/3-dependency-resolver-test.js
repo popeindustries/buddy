@@ -59,6 +59,9 @@ describe('dependency-resolver', () => {
         expect(pkg.resolvePath(path.resolve('node_modules/@foo/foo'))).to.eql(path.resolve('node_modules/@foo/foo'));
         expect(pkg.resolvePath(path.resolve('node_modules/@foo/bar/index.js'))).to.eql(path.resolve('node_modules/@foo/bar'));
       });
+      it('should return a package path relative to the nearest node_modules directory', () => {
+        expect(pkg.resolvePath(path.resolve('nested/bar.js'))).to.eql(path.resolve('nested'));
+      });
     });
 
     describe('resolving package name', () => {
@@ -91,6 +94,13 @@ describe('dependency-resolver', () => {
         expect(details).to.have.property('name', 'project');
         expect(details).to.have.property('main', path.resolve('index.js'));
         expect(details).to.have.property('manifestpath', path.resolve('package.json'));
+      });
+      it('should return details for a package nested under root', () => {
+        const details = pkg.getDetails(path.resolve('nested/foo.js'), config());
+
+        expect(details).to.have.property('name', 'dependency-resolver/nested');
+        expect(details).to.have.property('main', '');
+        expect(details).to.have.property('manifestpath', '');
       });
       it('should return details for a node_modules package', () => {
         const details = pkg.getDetails(path.resolve('node_modules/foo'), config());

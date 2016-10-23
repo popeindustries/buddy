@@ -69,13 +69,12 @@ describe('Buddy', () => {
     });
 
     describe('js', () => {
-      it.only('should build a js file when passed a json config path', (done) => {
+      it('should build a js file when passed a json config path', (done) => {
         buddy = buddyFactory('buddy-single-file.json');
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-          console.log(content)
-          // expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
+          expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
           done();
         });
       });
