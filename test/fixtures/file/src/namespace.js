@@ -16,10 +16,10 @@ class Foo {
   }
 }
 
-function bat (foo) {
+function bat (foo, options = {}) {
   const f = new Foo();
 
-  console.log(f, foo, bar, 'bat');
+  console.log(f, foo, bar, 'bat', options);
 }
 
 for (let foo = 0; foo < 3; foo++) {
@@ -52,3 +52,5 @@ var zing;
 if (true) {
   zing = 'zing';
 }
+
+var { a, b } = require('c');
