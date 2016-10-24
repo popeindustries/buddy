@@ -46,3 +46,9 @@ var z = function () {
     }
   };
 };
+
+var zing;
+
+if (true) {
+  zing = 'zing';
+}

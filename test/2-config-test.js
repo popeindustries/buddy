@@ -44,7 +44,7 @@ describe('config', () => {
       it('should generate default Babel plugins', () => {
         const options = pluginLoader.loadBuildPlugins('js');
 
-        expect(options.babel.plugins).to.have.length(1);
+        expect(options.babel.plugins).to.have.length(2);
         expect(options.babel.plugins[0]).to.be.a(Function);
       });
       it('should generate and install Babel plugins based on target version', () => {
@@ -62,7 +62,7 @@ describe('config', () => {
       it('should generate and install Babel plugins based on browser target version', () => {
         const options = pluginLoader.loadBuildPlugins('js', undefined, { chrome: 46 });
 
-        expect(options.babel.plugins).to.have.length(14);
+        expect(options.babel.plugins).to.have.length(15);
         expect(options.babel.plugins[0]).to.be.a(Function);
       });
       it('should generate and install Babel and Postcss plugins based on browsers list', () => {
@@ -76,12 +76,12 @@ describe('config', () => {
       it('should ignore unknown target versions', () => {
         const options = pluginLoader.loadBuildPlugins('js', undefined, 'foo');
 
-        expect(options.babel.plugins).to.have.length(1);
+        expect(options.babel.plugins).to.have.length(2);
       });
       it('should allow default plugins to be overridden', () => {
         const options = pluginLoader.loadBuildPlugins('js', { babel: { plugins: [['babel-plugin-external-helpers', { foo: true }]] } });
 
-        expect(options.babel.plugins).to.have.length(1);
+        expect(options.babel.plugins).to.have.length(2);
         expect(options.babel.plugins[0][1]).to.have.property('foo', true);
       });
       it('should allow adding custom plugins', () => {
