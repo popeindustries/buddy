@@ -241,6 +241,7 @@ describe('file', () => {
         pluginOptions: {
           babel: {
             plugins: [
+              require('babel-plugin-external-helpers'),
               require('babel-plugin-transform-es2015-function-name'),
               require('babel-plugin-transform-es2015-parameters'),
               [require('babel-plugin-transform-es2015-destructuring'), { loose: true }],
@@ -525,7 +526,7 @@ describe('file', () => {
             done();
           });
         });
-        it.only('should replace all "module" and "exports"', (done) => {
+        it('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
           file.transpile({ browser: true, bundle: true }, (err) => {
             expect(file.content).to.equal("$m[\'src/foo.js\'].exports = {};\n$m[\'src/foo.js\'][\'exports\'] = {};\n$m[\'src/foo.js\'][\'ex\' + \'ports\'] = {};\n\n$m[\'src/foo.js\'].exports.foo = \'foo\';\n$m[\'src/foo.js\'].exports[\'foo\'] = \'foo\';\n$m[\'src/foo.js\'].exports.BELL = \'\\x07\';\n\nvar srcfoojs__freeExports = typeof $m[\'src/foo.js\'].exports == \'object\' && $m[\'src/foo.js\'].exports && !$m[\'src/foo.js\'].exports.nodeType && $m[\'src/foo.js\'].exports;\nvar srcfoojs__freeModule = srcfoojs__freeExports && typeof $m[\'src/foo.js\'] == \'object\' && $m[\'src/foo.js\'] && !$m[\'src/foo.js\'].nodeType && $m[\'src/foo.js\'];\n\nif (true) {\n  const module = \'foo\';\n  const exports = \'bar\';\n\n  exports.foo = \'foo\';\n}\nfoo[$m[\'src/foo.js\'].exports.foo] = \'foo\';");

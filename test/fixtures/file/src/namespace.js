@@ -1,4 +1,5 @@
 const bar = require('bar');
+const Bar = require('Bar');
 let foo = require('./foo');
 var boo;
 
@@ -10,8 +11,10 @@ var baz = foo.baz;
 var boo = {};
 boo[baz] = 'baz';
 
-class Foo {
+class Foo extends Bar {
   constructor () {
+    super()
+    this.foo = foo;
     console.log(foo);
   }
 }
