@@ -57,3 +57,17 @@ if (true) {
 }
 
 var { a, b } = require('c');
+
+function S () {
+  Object.assign(S.prototype, { foo: foo });
+
+  if (true) {
+    S = new Proxy(S, {});
+  }
+}
+
+if (true) {
+  var t = {};
+  let u;
+  t.foo = 'c';
+}
