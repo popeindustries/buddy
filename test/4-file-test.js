@@ -241,8 +241,10 @@ describe('file', () => {
         pluginOptions: {
           babel: {
             plugins: [
+              require('babel-plugin-external-helpers'),
               require('babel-plugin-transform-es2015-function-name'),
               require('babel-plugin-transform-es2015-parameters'),
+              [require('babel-plugin-transform-es2015-destructuring'), { loose: true }],
               [require('babel-plugin-transform-es2015-classes'), { loose: true }]
             ]
           }
@@ -467,14 +469,14 @@ describe('file', () => {
         it('should namespace class declarations', (done) => {
           file.content = 'class Foo {}';
           file.transpile({ bundle: true }, (err) => {
-            expect(file.content).to.contain('let srcfoojs__Foo = function Foo() {');
+            expect(file.content).to.contain('let srcfoojs__Foo = function srcfoojs__Foo() {');
             done();
           });
         });
         it('should namespace all declarations and their references', (done) => {
           file.content = fs.readFileSync('src/namespace.js', 'utf8');
           file.transpile({ bundle: true }, (err) => {
-            expect(file.content).to.equal('function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }\n\nconst srcfoojs__bar = require(\'bar\');\nlet srcfoojs__foo = require(\'./foo\');\nvar srcfoojs__boo;\n\nconsole.log(srcfoojs__foo, srcfoojs__bar);\n\nsrcfoojs__foo = srcfoojs__bar;\nsrcfoojs__foo && \'zoo\';\nvar srcfoojs__baz = srcfoojs__foo.baz;\nvar srcfoojs__boo = {};\nsrcfoojs__boo[srcfoojs__baz] = \'baz\';\n\nlet srcfoojs__Foo = function Foo() {\n  _classCallCheck(this, Foo);\n\n  console.log(srcfoojs__foo);\n};\n\nfunction srcfoojs__bat(foo) {\n  const f = new srcfoojs__Foo();\n\n  console.log(f, foo, srcfoojs__bar, \'bat\');\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  srcfoojs__bat(foo);\n  console.log(srcfoojs__bar);\n}\n\nzip = {\n  foo: srcfoojs__foo\n};\n\nfunction srcfoojs__y() {\n  for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {\n    rest[_key] = arguments[_key];\n  }\n\n  console.log(rest);\n}\n\nvar srcfoojs__units = {};\n\nvar srcfoojs__z = function srcfoojs__z() {\n  var params = {\n    units: function units(v) {\n      if (srcfoojs__units[v]) {\n        var t = srcfoojs__units[v].t;\n      }\n    }\n  };\n};\n\nvar srcfoojs__zing;\n\nif (true) {\n  srcfoojs__zing = \'zing\';\n}');
+            expect(file.content).to.equal('const srcfoojs__bar = require(\'bar\');\nconst srcfoojs__Bar = require(\'Bar\');\nlet srcfoojs__foo = require(\'./foo\');\nvar srcfoojs__boo;\n\nconsole.log(srcfoojs__foo, srcfoojs__bar);\n\nsrcfoojs__foo = srcfoojs__bar;\nsrcfoojs__foo && \'zoo\';\nvar srcfoojs__baz = srcfoojs__foo.baz;\nvar srcfoojs__boo = {};\nsrcfoojs__boo[srcfoojs__baz] = \'baz\';\n\nlet srcfoojs__Foo = function (_srcfoojs__Bar) {\n  babelHelpers.inherits(srcfoojs__Foo, _srcfoojs__Bar);\n\n  function srcfoojs__Foo() {\n    babelHelpers.classCallCheck(this, srcfoojs__Foo);\n\n    var _this = babelHelpers.possibleConstructorReturn(this, _srcfoojs__Bar.call(this));\n\n    _this.foo = srcfoojs__foo;\n    console.log(srcfoojs__foo);\n    return _this;\n  }\n\n  return srcfoojs__Foo;\n}(srcfoojs__Bar);\n\nfunction srcfoojs__bat(foo) {\n  let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};\n\n  const f = new srcfoojs__Foo();\n\n  console.log(f, foo, srcfoojs__bar, \'bat\', options);\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  srcfoojs__bat(foo);\n  console.log(srcfoojs__bar);\n}\n\nzip = {\n  foo: srcfoojs__foo\n};\n\nfunction srcfoojs__y() {\n  for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {\n    rest[_key] = arguments[_key];\n  }\n\n  console.log(rest);\n}\n\nvar srcfoojs__units = {};\n\nvar srcfoojs__z = function srcfoojs__z() {\n  var params = {\n    units: function units(v) {\n      if (srcfoojs__units[v]) {\n        var t = srcfoojs__units[v].t;\n      }\n    }\n  };\n};\n\nvar srcfoojs__zing;\n\nif (true) {\n  srcfoojs__zing = \'zing\';\n}\n\nvar srcfoojs___require = require(\'c\'),\n    srcfoojs__a = srcfoojs___require.a,\n    srcfoojs__b = srcfoojs___require.b;\n\nfunction srcfoojs__S() {\n  Object.assign(srcfoojs__S.prototype, { foo: srcfoojs__foo });\n\n  if (true) {\n    srcfoojs__S = new Proxy(srcfoojs__S, {});\n  }\n}\n\nif (true) {\n  var srcfoojs__t = {};\n  let u;\n  srcfoojs__t.foo = \'c\';\n}');
             done();
           });
         });

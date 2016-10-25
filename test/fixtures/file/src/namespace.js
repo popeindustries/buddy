@@ -1,4 +1,5 @@
 const bar = require('bar');
+const Bar = require('Bar');
 let foo = require('./foo');
 var boo;
 
@@ -10,16 +11,18 @@ var baz = foo.baz;
 var boo = {};
 boo[baz] = 'baz';
 
-class Foo {
+class Foo extends Bar {
   constructor () {
+    super()
+    this.foo = foo;
     console.log(foo);
   }
 }
 
-function bat (foo) {
+function bat (foo, options = {}) {
   const f = new Foo();
 
-  console.log(f, foo, bar, 'bat');
+  console.log(f, foo, bar, 'bat', options);
 }
 
 for (let foo = 0; foo < 3; foo++) {
@@ -51,4 +54,20 @@ var zing;
 
 if (true) {
   zing = 'zing';
+}
+
+var { a, b } = require('c');
+
+function S () {
+  Object.assign(S.prototype, { foo: foo });
+
+  if (true) {
+    S = new Proxy(S, {});
+  }
+}
+
+if (true) {
+  var t = {};
+  let u;
+  t.foo = 'c';
 }

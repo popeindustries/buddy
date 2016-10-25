@@ -33,7 +33,6 @@ describe('dependency-resolver', () => {
       it('should store package details for a package path', () => {
         cache.setPackage({ name: 'foo', pkgpath: '/foo', version: '0.0.0', id: 'foo#0.0.0' });
         expect(cache.getPackage('/foo')).to.have.property('name', 'foo');
-        expect(cache.getPackage('foo#0.0.0')).to.have.property('name', 'foo');
       });
     });
     describe('clearing', () => {
@@ -98,9 +97,10 @@ describe('dependency-resolver', () => {
       it('should return details for a package nested under root', () => {
         const details = pkg.getDetails(path.resolve('nested/foo.js'), config());
 
-        expect(details).to.have.property('name', 'dependency-resolver/nested');
-        expect(details).to.have.property('main', '');
-        expect(details).to.have.property('manifestpath', '');
+        expect(details).to.have.property('name', 'project');
+        expect(details).to.have.property('main', path.resolve('index.js'));
+        expect(details).to.have.property('manifestpath', path.resolve('package.json'));
+        expect(details.paths).to.contain(path.resolve('nested/node_modules'));
       });
       it('should return details for a node_modules package', () => {
         const details = pkg.getDetails(path.resolve('node_modules/foo'), config());
@@ -234,10 +234,6 @@ describe('dependency-resolver', () => {
     });
     it('should resolve root project main file with "browser" alias', () => {
       expect(resolve(path.resolve('foo.js'), 'project')).to.equal(path.resolve('index.js'));
-    });
-    it('should resolve cached packages of same version', () => {
-      expect(resolve(path.resolve('node_modules/foo/index.js'), 'boo')).to.equal(path.resolve('node_modules/boo/index.js'));
-      expect(resolve(path.resolve('node_modules/bar/index.js'), 'boo')).to.equal(path.resolve('node_modules/boo/index.js'));
     });
     it('should resolve cached aliased package file of same version', () => {
       expect(resolve(path.resolve('node_modules/foo/index.js'), 'boo/boo.js')).to.equal(path.resolve('node_modules/boo/foo.js'));
