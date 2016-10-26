@@ -38,7 +38,7 @@ class ReloadConnection extends Event {
 
     // Register for socket events
     this.socket.on('message', (data) => {
-      this.parser.received(data);
+      this.parser.received(data.utf8Data);
     });
     this.socket.on('close', () => {
       if (timeoutID) clearTimeout(timeoutID);

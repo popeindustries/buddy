@@ -11,8 +11,9 @@ process.on('uncaughtException', (err) => {
   console.log(err.stack ? err.stack : err);
   // Ding!
   console.log('\x07');
+});
+process.on('exit', (code) => {
   if (buddy) buddy.exceptionalCleanup();
-  process.exit(1);
 });
 
 find(useCli, (err, buddyFactory, version) => {

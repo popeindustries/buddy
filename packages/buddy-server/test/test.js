@@ -1,10 +1,10 @@
 'use strict';
 
 const { ReloadServerFactory, ServerFactory } = require('..');
+const { client: WSClient } = require('websocket');
 const path = require('path');
 const expect = require('expect.js');
 const request = require('request');
-const Client = require('ws');
 
 describe('buddy-server', () => {
   before(() => {
@@ -107,12 +107,13 @@ describe('buddy-server', () => {
       });
     });
     it('it should open a socket connection', (done) => {
-      const client = new Client('ws://localhost:35729');
+      const client = new WSClient();
 
-      client.on('open', () => {
-        client.close();
+      client.on('connect', (connection) => {
+        client.abort();
         done();
       });
+      client.connect('ws://localhost:35729');
     });
   });
 });
