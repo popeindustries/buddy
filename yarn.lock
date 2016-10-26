@@ -540,9 +540,9 @@ browserslist@^1.4.0, browserslist@~1.4.0, browserslist@1.4.0:
   dependencies:
     caniuse-db "^1.0.30000539"
 
-buddy-cli@6.0.3-beta:
-  version "6.0.3-beta"
-  resolved "https://registry.yarnpkg.com/buddy-cli/-/buddy-cli-6.0.3-beta.tgz#8e1de7d5237595af56dc89b26ba843c9d8138427"
+buddy-cli@6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/buddy-cli/-/buddy-cli-6.0.3.tgz#5b46e2f4f78dcb2a6ab142bc4877019048a2153c"
   dependencies:
     commander "2.9.0"
     recur-fs "2.2.x"
