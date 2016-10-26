@@ -104,7 +104,7 @@ describe('config', () => {
           js: ['js'],
           json: ['json']
         },
-        fileFactory () {},
+        fileFactory: configFactory({}).fileFactory,
         runtimeOptions: {
           compress: false,
           deploy: false,
@@ -116,7 +116,6 @@ describe('config', () => {
           watch: false,
           verbose: false
         },
-        sources: [process.cwd()],
         url: ''
       };
     });
@@ -163,7 +162,6 @@ describe('config', () => {
       expect(dummyConfig.build[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/sub.js')]);
     });
     it('should parse batch build', () => {
-      dummyConfig.sources = [process.cwd(), path.resolve('src')];
       dummyConfig.build = [{
         input: 'src',
         output: 'js'
@@ -175,7 +173,6 @@ describe('config', () => {
       expect(dummyConfig.build[0].batch).to.be(true);
     });
     it('should parse batch build target with nested resources', () => {
-      dummyConfig.sources = [process.cwd(), path.resolve('src-nested')];
       dummyConfig.build = [{
         input: 'src-nested',
         output: 'js'
@@ -187,7 +184,6 @@ describe('config', () => {
       expect(dummyConfig.build[0].batch).to.be(true);
     });
     it('should parse build target with nested builds', () => {
-      dummyConfig.sources = [process.cwd(), path.resolve('src-nested')];
       dummyConfig.build = [{
         input: 'src-nested/main.js',
         output: 'js',
@@ -206,6 +202,30 @@ describe('config', () => {
       expect(dummyConfig.build[0].index).to.equal(1);
       expect(dummyConfig.build[0].build[0].index).to.equal(2);
       expect(dummyConfig.build[0].options).to.equal(dummyConfig.build[0].build[0].options);
+    });
+    it('should parse build target with nested builds and different "version"', () => {
+      dummyConfig.build = [{
+        input: 'src-nested/main.js',
+        output: 'js',
+        version: 'es2015',
+        build: [
+          {
+            input: 'src-nested/nested/sub.js',
+            output: 'js',
+            version: 'es2016'
+          }
+        ]
+      }];
+      buildParser(dummyConfig);
+
+      const parentFileFactory = dummyConfig.build[0].fileFactory;
+      const childFileFactory = dummyConfig.build[0].build[0].fileFactory;
+
+      const parentFile = parentFileFactory(dummyConfig.build[0].inputpaths[0]);
+      const childFile = childFileFactory(dummyConfig.build[0].build[0].inputpaths[0]);
+
+      expect(parentFileFactory).to.not.equal(childFileFactory);
+      expect(parentFile.options.pluginOptions.babelFingerprint).to.not.equal(childFile.options.pluginOptions.babelFingerprint)
     });
     it('should parse build target glob pattern "input"', () => {
       dummyConfig.build = [{
