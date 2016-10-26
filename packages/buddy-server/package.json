@@ -12,11 +12,10 @@
     "filed": "0.1.0",
     "livereload-protocol": "0.2.2",
     "node-static": "0.7.9",
-    "websocket.io": "0.2.1"
+    "websocket": "1.0.23"
   },
   "devDependencies": {
-    "request": "*",
-    "ws": "1.1.1"
+    "request": "*"
   },
   "peerDependencies": {
     "buddy": "^6.0.0"
