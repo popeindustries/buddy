@@ -4,8 +4,8 @@ node_js:
 install:
   - npm install -g yarn
   - yarn
-  - ./bin/install
-  - npm run test:all
+  - yarn run install:packages
+  - yarn run test:all
 cache:
   directories:
     - ~/.yarn
