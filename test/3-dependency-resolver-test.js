@@ -194,7 +194,7 @@ describe.only('dependency-resolver', () => {
     it('should resolve a file name containing multiple "."', () => {
       expect(resolve(path.resolve('foo.js'), './foo.bar')).to.equal(path.resolve('foo.bar.js'));
     });
-    it('should resolve a js package module path containing a package.json file and a "main" file field', () => {
+    it.only('should resolve a js package module path containing a package.json file and a "main" file field', () => {
       expect(resolve(path.resolve('baz.js'), 'foo')).to.equal(path.resolve('node_modules/foo/lib/bat.js'));
     });
     it('should resolve a js package module path containing a package.json file and a "main" directory field', () => {
@@ -233,7 +233,7 @@ describe.only('dependency-resolver', () => {
     it('should resolve an aliased id via "browser" hash', () => {
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), 'index')).to.equal(path.resolve('node_modules/browser2/browser/foo.js'));
     });
-    it.only('should resolve an aliased id via "browser" hash from a nested project package', () => {
+    it('should resolve an aliased id via "browser" hash from a nested project package', () => {
       expect(resolve(path.resolve('nested/node_modules/boop/boop.js'), 'index')).to.equal(path.resolve('foo.js'));
     });
     it('should resolve a disabled package via "browser" hash', () => {
