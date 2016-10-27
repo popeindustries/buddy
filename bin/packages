@@ -5,10 +5,13 @@
 const { execSync: exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const cmd = process.argv[2];
+const cmdStr = `yarn ${cmd || ''}`;
 
 fs.readdirSync(path.resolve('packages'))
   .forEach((resource) => {
     if (/^buddy-/.test(resource)) {
-      exec('yarn', { cwd: path.resolve(__dirname, '../packages', resource), stdio: 'inherit' });
+      console.log(`\n${resource}`);
+      exec(cmdStr, { cwd: path.resolve(__dirname, '../packages', resource), stdio: 'inherit' });
     }
   });

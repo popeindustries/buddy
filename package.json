@@ -46,7 +46,8 @@
     "buddy": "./bin/buddy"
   },
   "scripts": {
-    "install:packages": "./bin/install",
+    "install:packages": "./bin/packages",
+    "outdated:packages": "./bin/packages outdated",
     "copy": "cp ./node_modules/babel-preset-env/data/plugins.json ./lib/config/babel-plugins.json",
     "test:all": "NODE_ENV=test mocha \"./packages/buddy-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
     "test": "NODE_ENV=test mocha \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
