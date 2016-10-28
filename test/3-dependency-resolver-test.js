@@ -266,10 +266,10 @@ describe('dependency-resolver', () => {
       expect(resolve(path.resolve('foo.js'), 'project')).to.equal(path.resolve('index.js'));
     });
     it('should resolve cached aliased package file of same version', () => {
-      expect(resolve(path.resolve('node_modules/foo/index.js'), 'boo/boo.js')).to.equal(path.resolve('node_modules/boo/foo.js'));
-      expect(resolve(path.resolve('node_modules/foo/index.js'), 'boo/boo')).to.equal(path.resolve('node_modules/boo/foo.js'));
-      expect(resolve(path.resolve('node_modules/bar/index.js'), 'boo/boo.js')).to.equal(path.resolve('node_modules/boo/foo.js'));
-      expect(resolve(path.resolve('node_modules/bar/index.js'), 'boo/boo')).to.equal(path.resolve('node_modules/boo/foo.js'));
+      expect(resolve(path.resolve('node_modules/foo/index.js'), 'boo/boo.js'), { js: ['js'] }).to.equal(path.resolve('node_modules/boo/foo.js'));
+      expect(resolve(path.resolve('node_modules/foo/index.js'), 'boo/boo'), { js: ['js'] }).to.equal(path.resolve('node_modules/boo/foo.js'));
+      expect(resolve(path.resolve('node_modules/bar/index.js'), 'boo/boo.js'), { js: ['js'] }).to.equal(path.resolve('node_modules/boo/foo.js'));
+      expect(resolve(path.resolve('node_modules/bar/index.js'), 'boo/boo'), { js: ['js'] }).to.equal(path.resolve('node_modules/boo/foo.js'));
     });
     it('should resolve a css file in the same source directory', () => {
       expect(resolve(path.resolve('bar.css'), './foo.css')).to.eql(path.resolve('foo.css'));
