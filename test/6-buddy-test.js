@@ -75,7 +75,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
+          expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
           done();
         });
       });
@@ -83,7 +83,7 @@ describe('Buddy', () => {
         buddy = buddyFactory('buddy-single-file.js');
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
+          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
           done();
         });
       });
@@ -94,7 +94,7 @@ describe('Buddy', () => {
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
+          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
           done();
         });
       });
@@ -107,7 +107,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('\'use strict\';\n\n/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n\n(function () {\n/*== a.coffee ==*/\n$m[\'a.coffee\'] = { exports: {} };\n\nvar acoffee__foo;\n\nacoffee__foo = \'foo\';\n/*≠≠ a.coffee ≠≠*/\n})()');
+          expect(content).to.equal('\'use strict\';\n\n/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n\n(function () {\n/*== a.coffee ==*/\n$m[\'a\'] = { exports: {} };\n\nvar a__foo;\n\na__foo = \'foo\';\n/*≠≠ a.coffee ≠≠*/\n})()');
           done();
         });
       });
@@ -120,8 +120,8 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/");
-          expect(content).to.contain("var barjs__foo = $m[\'foo.js\'].exports;");
+          expect(content).to.contain("/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/");
+          expect(content).to.contain("var bar__foo = $m[\'foo\'].exports;");
           done();
         });
       });
@@ -139,7 +139,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("$m['es6.js'].exports.__esModule = true;\n\n$m['es6.js'].exports.default = function () {\n  console.log(es6js__foo);\n  console.log(es6js___bar2.default);\n  console.log(es6js__batModule.default, es6js__batModule.bat);\n};\n\nvar es6js___foo = require('./foo');\n\nvar es6js__foo = babelHelpers.interopRequireWildcard(es6js___foo);\n\nvar es6js___bar = require('./bar');\n\nvar es6js___bar2 = babelHelpers.interopRequireDefault(es6js___bar);\n\nvar es6js___bat = require('./bat');\n\nvar es6js__batModule = babelHelpers.interopRequireWildcard(es6js___bat);");
+          expect(content).to.contain("$m['es6'].exports.__esModule = true;\n\n$m['es6'].exports.default = function () {\n  console.log(es6__foo);\n  console.log(es6___bar2.default);\n  console.log(es6__batModule.default, es6__batModule.bat);\n};\n\nvar es6___foo = require('./foo');\n\nvar es6__foo = babelHelpers.interopRequireWildcard(es6___foo);\n\nvar es6___bar = require('./bar');\n\nvar es6___bar2 = babelHelpers.interopRequireDefault(es6___bar);\n\nvar es6___bat = require('./bat');\n\nvar es6__batModule = babelHelpers.interopRequireWildcard(es6___bat);");
           done();
         });
       });
@@ -153,7 +153,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m[\'b.js\'] = { exports: {} };\n\n$m[\'b.js\'].exports = bjs__b;\n\nvar bjs__a = require(\'a.js\');\n\nfunction bjs__b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a.js\'] = function () {\n$m[\'a.js\'] = { exports: {} };\n\n$m[\'a.js\'].exports = ajs__a;\n\nvar ajs__b = require(\'b.js\');\n\nfunction ajs__a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== circular.js ==*/\n$m[\'circular.js\'] = { exports: {} };\n\nvar circularjs__a = require(\'a.js\');\n/*≠≠ circular.js ≠≠*/");
+          expect(content).to.contain("/*== b.js ==*/\n$m[\'b\'] = function () {\n$m[\'b\'] = { exports: {} };\n\n$m[\'b\'].exports = b__b;\n\nvar b__a = require(\'a\');\n\nfunction b__b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a\'] = function () {\n$m[\'a\'] = { exports: {} };\n\n$m[\'a\'].exports = a__a;\n\nvar a__b = require(\'b\');\n\nfunction a__a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== circular.js ==*/\n$m[\'circular\'] = { exports: {} };\n\nvar circular__a = require(\'a\');\n/*≠≠ circular.js ≠≠*/");
           expect(eval(content)).to.be.ok();
           done();
         });
@@ -168,7 +168,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("/*== k.js ==*/\n$m[\'k.js\'] = function () {\n$m[\'k.js\'] = { exports: {} };\n\nvar kjs__i = require(\'i.js\');\n};\n/*≠≠ k.js ≠≠*/\n\n/*== j.js ==*/\n$m[\'j.js\'] = function () {\n$m[\'j.js\'] = { exports: {} };\n\nvar jjs__k = require(\'k.js\');\n};\n/*≠≠ j.js ≠≠*/\n\n/*== i.js ==*/\n$m[\'i.js\'] = function () {\n$m[\'i.js\'] = { exports: {} };\n\nvar ijs__j = require(\'j.js\');\n};\n/*≠≠ i.js ≠≠*/\n\n/*== circular-complex.js ==*/\n$m[\'circular-complex.js\'] = { exports: {} };\n\nvar circularcomplexjs__i = require(\'i.js\');\n/*≠≠ circular-complex.js ≠≠*/");
+          expect(content).to.contain("/*== k.js ==*/\n$m[\'k\'] = function () {\n$m[\'k\'] = { exports: {} };\n\nvar k__i = require(\'i\');\n};\n/*≠≠ k.js ≠≠*/\n\n/*== j.js ==*/\n$m[\'j\'] = function () {\n$m[\'j\'] = { exports: {} };\n\nvar j__k = require(\'k\');\n};\n/*≠≠ j.js ≠≠*/\n\n/*== i.js ==*/\n$m[\'i\'] = function () {\n$m[\'i\'] = { exports: {} };\n\nvar i__j = require(\'j\');\n};\n/*≠≠ i.js ≠≠*/\n\n/*== circular-complex.js ==*/\n$m[\'circular-complex\'] = { exports: {} };\n\nvar circularcomplex__i = require(\'i\');\n/*≠≠ circular-complex.js ≠≠*/");
           expect(eval(content)).to.be.ok();
           done();
         });
@@ -182,7 +182,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo.js\'] = { exports: {} };\n\n$m[\'foo.js\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n\n/*== e.js ==*/\n$m[\'e.js\'] = { exports: {} };\n\nvar ejs__foo = $m[\'foo.js\'].exports;\n/*≠≠ e.js ≠≠*/\n\n/*== d.js ==*/\n$m[\'d.js\'] = { exports: {} };\n\nvar djs__e = $m[\'e.js\'].exports;\n/*≠≠ d.js ≠≠*/\n})()");
+          expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n\n/*== e.js ==*/\n$m[\'e\'] = { exports: {} };\n\nvar e__foo = $m[\'foo\'].exports;\n/*≠≠ e.js ≠≠*/\n\n/*== d.js ==*/\n$m[\'d\'] = { exports: {} };\n\nvar d__e = $m[\'e\'].exports;\n/*≠≠ d.js ≠≠*/\n})()");
           done();
         });
       });
@@ -196,7 +196,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('var bingjs__json = {\n  "content": "foo"\n}');
+          expect(content).to.contain('var bing__json = {\n  "content": "foo"\n}');
           done();
         });
       });
@@ -210,7 +210,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var beepjs__what = require('what');");
+          expect(content).to.contain("var beep__what = require('what');");
           done();
         });
       });
@@ -224,7 +224,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('var nativejs__http = {};');
+          expect(content).to.contain('var native__http = {};');
           done();
         });
       });
@@ -239,7 +239,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("$m['foo.js'].exports = 'foo';");
+          expect(content).to.contain("$m['foo'].exports = 'foo';");
           dependencyResolverConfig.sources = [];
           done();
         });
@@ -253,7 +253,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('\'use strict\';\n\n/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n\n(function () {\n(function () {\n/*== b.js ==*/\n$m[\'b.js\'] = function () {\n$m[\'b.js\'] = { exports: {} };\n$m[\'b.js\'].exports = bjs__b;\n\nvar bjs__a = require(\'a.js\');\n\nfunction bjs__b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a.js\'] = function () {\n$m[\'a.js\'] = { exports: {} };\n$m[\'a.js\'].exports = ajs__a;\n\nvar ajs__b = require(\'b.js\');\n\nfunction ajs__a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== circular.js ==*/\n$m[\'built.js\'] = $m[\'circular.js\'] = { exports: {} };\nvar circularjs__a = require(\'a.js\');\n/*≠≠ circular.js ≠≠*/\n})()\n\n/*== h.js ==*/\n$m[\'h.js\'] = { exports: {} };\n\nconst hjs__foo = $m[\'built.js\'].exports;\n\n$m[\'h.js\'].exports = \'h\';\n/*≠≠ h.js ≠≠*/\n})()');
+          expect(content).to.equal('\'use strict\';\n\n/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n\n(function () {\n(function () {\n/*== b.js ==*/\n$m[\'b\'] = function () {\n$m[\'b\'] = { exports: {} };\n$m[\'b\'].exports = b__b;\n\nvar b__a = require(\'a\');\n\nfunction b__b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a\'] = function () {\n$m[\'a\'] = { exports: {} };\n$m[\'a\'].exports = a__a;\n\nvar a__b = require(\'b\');\n\nfunction a__a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== circular.js ==*/\n$m[\'built\'] = $m[\'circular\'] = { exports: {} };\nvar circular__a = require(\'a\');\n/*≠≠ circular.js ≠≠*/\n})()\n\n/*== h.js ==*/\n$m[\'h\'] = { exports: {} };\n\nconst h__foo = $m[\'built\'].exports;\n\n$m[\'h\'].exports = \'h\';\n/*≠≠ h.js ≠≠*/\n})()');
           done();
         });
       });
@@ -266,7 +266,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('\'use strict\';\n\n/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n\n(function () {\n/*== browserify.js ==*/\n$m[\'browserify.js\'] = { exports: {} };\n(function (f) {\n  if (typeof $m[\'browserify.js\'].exports === "object" && typeof $m[\'browserify.js\'] !== "undefined") {\n    $m[\'browserify.js\'].exports = f();\n  } else if (typeof define === "function" && define.amd) {\n    define([], f);\n  } else {\n    var g;if (typeof window !== "undefined") {\n      g = window;\n    } else if (typeof global !== "undefined") {\n      g = global;\n    } else if (typeof self !== "undefined") {\n      g = self;\n    } else {\n      g = this;\n    }g.test = f();\n  }\n})(function () {\n  var define, module, exports;return function e(t, n, r) {\n    function s(o, u) {\n      if (!n[o]) {\n        if (!t[o]) {\n          var a = typeof require == "function" && require;if (!u && a) return a(o, !0);if (i) return i(o, !0);var f = new Error("Cannot find module \'" + o + "\'");throw f.code = "MODULE_NOT_FOUND", f;\n        }var l = n[o] = { exports: {} };t[o][0].call(l.exports, function (e) {\n          var n = t[o][1][e];return s(n ? n : e);\n        }, l, l.exports, e, t, n, r);\n      }return n[o].exports;\n    }var i = typeof require == "function" && require;for (var o = 0; o < r.length; o++) s(r[o]);return s;\n  }({ 1: [function (require, module, exports) {\n      \n      module.exports = \'TEST\';\n    }, {}], 2: [function (require, module, exports) {\n      \n      var dep = require(\'./dep\');\n\n      module.exports = test;\n\n      function test() {\n        console.log(dep);\n      }\n\n      test();\n    }, { "./dep": 1 }] }, {}, [2])(2);\n});\n/*≠≠ browserify.js ≠≠*/\n})()');
+          expect(content).to.equal('\'use strict\';\n\n/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n\n(function () {\n/*== browserify.js ==*/\n$m[\'browserify\'] = { exports: {} };\n(function (f) {\n  if (typeof $m[\'browserify\'].exports === "object" && typeof $m[\'browserify\'] !== "undefined") {\n    $m[\'browserify\'].exports = f();\n  } else if (typeof define === "function" && define.amd) {\n    define([], f);\n  } else {\n    var g;if (typeof window !== "undefined") {\n      g = window;\n    } else if (typeof global !== "undefined") {\n      g = global;\n    } else if (typeof self !== "undefined") {\n      g = self;\n    } else {\n      g = this;\n    }g.test = f();\n  }\n})(function () {\n  var define, module, exports;return function e(t, n, r) {\n    function s(o, u) {\n      if (!n[o]) {\n        if (!t[o]) {\n          var a = typeof require == "function" && require;if (!u && a) return a(o, !0);if (i) return i(o, !0);var f = new Error("Cannot find module \'" + o + "\'");throw f.code = "MODULE_NOT_FOUND", f;\n        }var l = n[o] = { exports: {} };t[o][0].call(l.exports, function (e) {\n          var n = t[o][1][e];return s(n ? n : e);\n        }, l, l.exports, e, t, n, r);\n      }return n[o].exports;\n    }var i = typeof require == "function" && require;for (var o = 0; o < r.length; o++) s(r[o]);return s;\n  }({ 1: [function (require, module, exports) {\n      \n      module.exports = \'TEST\';\n    }, {}], 2: [function (require, module, exports) {\n      \n      var dep = require(\'./dep\');\n\n      module.exports = test;\n\n      function test() {\n        console.log(dep);\n      }\n\n      test();\n    }, { "./dep": 1 }] }, {}, [2])(2);\n});\n/*≠≠ browserify.js ≠≠*/\n})()');
           done();
         });
       });
@@ -279,7 +279,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('\'use strict\';\n\n/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n\n(function () {\n/*== webpack.js ==*/\n$m[\'webpack.js\'] = { exports: {} };\n\n(function webpackUniversalModuleDefinition(root, factory) {\n  if (typeof $m[\'webpack.js\'].exports === \'object\' && typeof $m[\'webpack.js\'] === \'object\') $m[\'webpack.js\'].exports = factory();else if (typeof define === \'function\' && define.amd) define([], factory);else {\n    var a = factory();\n    for (var i in a) (typeof $m[\'webpack.js\'].exports === \'object\' ? $m[\'webpack.js\'].exports : root)[i] = a[i];\n  }\n})(undefined, function () {\n  return (/******/function (modules) {\n      // webpackBootstrap\n      /******/ // The module cache\n      /******/var installedModules = {};\n\n      /******/ // The require function\n      /******/function __webpack_require__(moduleId) {\n\n        /******/ // Check if module is in cache\n        /******/if (installedModules[moduleId])\n          /******/return installedModules[moduleId].exports;\n\n        /******/ // Create a new module (and put it into the cache)\n        /******/var module = installedModules[moduleId] = {\n          /******/exports: {},\n          /******/id: moduleId,\n          /******/loaded: false\n          /******/ };\n\n        /******/ // Execute the module function\n        /******/modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n\n        /******/ // Flag the module as loaded\n        /******/module.loaded = true;\n\n        /******/ // Return the exports of the module\n        /******/return module.exports;\n        /******/\n      }\n\n      /******/ // expose the modules object (__webpack_modules__)\n      /******/__webpack_require__.m = modules;\n\n      /******/ // expose the module cache\n      /******/__webpack_require__.c = installedModules;\n\n      /******/ // __webpack_public_path__\n      /******/__webpack_require__.p = "";\n\n      /******/ // Load entry module and return exports\n      /******/return __webpack_require__(0);\n      /******/\n    }(\n    /************************************************************************/\n    /******/[\n    /* 0 */\n    /***/function (module, exports, __webpack_require__) {\n\n      \n      var dep = __webpack_require__(1);\n\n      module.exports = test;\n\n      function test() {\n        console.log(dep);\n      }\n\n      test();\n\n      /***/\n    },\n    /* 1 */\n    /***/function (module, exports) {\n\n      \n      module.exports = \'TEST\';\n\n      /***/\n    }\n    /******/])\n  );\n});\n;\n/*≠≠ webpack.js ≠≠*/\n})()');
+          expect(content).to.equal('\'use strict\';\n\n/** BUDDY BUILT **/\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nvar require = self.require || function require (id) {\n  if ($m[id]) {\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  }\n\n  if (\'test\' == \'development\') {\n    console.warn(\'module \' + id + \' not found\');\n  }\n};\n\n(function () {\n/*== webpack.js ==*/\n$m[\'webpack\'] = { exports: {} };\n\n(function webpackUniversalModuleDefinition(root, factory) {\n  if (typeof $m[\'webpack\'].exports === \'object\' && typeof $m[\'webpack\'] === \'object\') $m[\'webpack\'].exports = factory();else if (typeof define === \'function\' && define.amd) define([], factory);else {\n    var a = factory();\n    for (var i in a) (typeof $m[\'webpack\'].exports === \'object\' ? $m[\'webpack\'].exports : root)[i] = a[i];\n  }\n})(undefined, function () {\n  return (/******/function (modules) {\n      // webpackBootstrap\n      /******/ // The module cache\n      /******/var installedModules = {};\n\n      /******/ // The require function\n      /******/function __webpack_require__(moduleId) {\n\n        /******/ // Check if module is in cache\n        /******/if (installedModules[moduleId])\n          /******/return installedModules[moduleId].exports;\n\n        /******/ // Create a new module (and put it into the cache)\n        /******/var module = installedModules[moduleId] = {\n          /******/exports: {},\n          /******/id: moduleId,\n          /******/loaded: false\n          /******/ };\n\n        /******/ // Execute the module function\n        /******/modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);\n\n        /******/ // Flag the module as loaded\n        /******/module.loaded = true;\n\n        /******/ // Return the exports of the module\n        /******/return module.exports;\n        /******/\n      }\n\n      /******/ // expose the modules object (__webpack_modules__)\n      /******/__webpack_require__.m = modules;\n\n      /******/ // expose the module cache\n      /******/__webpack_require__.c = installedModules;\n\n      /******/ // __webpack_public_path__\n      /******/__webpack_require__.p = "";\n\n      /******/ // Load entry module and return exports\n      /******/return __webpack_require__(0);\n      /******/\n    }(\n    /************************************************************************/\n    /******/[\n    /* 0 */\n    /***/function (module, exports, __webpack_require__) {\n\n      \n      var dep = __webpack_require__(1);\n\n      module.exports = test;\n\n      function test() {\n        console.log(dep);\n      }\n\n      test();\n\n      /***/\n    },\n    /* 1 */\n    /***/function (module, exports) {\n\n      \n      module.exports = \'TEST\';\n\n      /***/\n    }\n    /******/])\n  );\n});\n;\n/*≠≠ webpack.js ≠≠*/\n})()');
           done();
         });
       });
@@ -290,7 +290,7 @@ describe('Buddy', () => {
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(path.basename(filepaths[0])).to.eql('foo-61c2f8a6a4da6cd2980b618935ed7def.js');
+          expect(path.basename(filepaths[0])).to.eql('foo-859540895c99975652ba35095742e480.js');
           done();
         });
       });
@@ -304,7 +304,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('"use strict";if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;if("undefined"==typeof process)var process={env:{}};var $m=self.$m=self.$m||{},require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports};(function(){$m["foo.js"]={exports:{}},$m["foo.js"].exports="foo",$m["bar.js"]={exports:{}};var e=$m["foo.js"].exports;$m["bar.js"].exports=e})();');
+          expect(content).to.equal('"use strict";if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;if("undefined"==typeof process)var process={env:{}};var $m=self.$m=self.$m||{},require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports};(function(){$m.foo={exports:{}},$m.foo.exports="foo",$m.bar={exports:{}};var e=$m.foo.exports;$m.bar.exports=e})();');
           done();
         });
       });
@@ -333,7 +333,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("$m['foo.js'] = function () {\n/*== foo.js ==*/\n$m['foo.js'] = { exports: {} };\n\n$m['foo.js'].exports = 'foo';\n/*≠≠ foo.js ≠≠*/\n}");
+          expect(content).to.contain("$m['foo'] = function () {\n/*== foo.js ==*/\n$m['foo'] = { exports: {} };\n\n$m['foo'].exports = 'foo';\n/*≠≠ foo.js ≠≠*/\n}");
           done();
         });
       });
@@ -364,7 +364,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var env2js__hash = '696768116e504ebcba3b436af9e645c9';");
+          expect(content).to.contain("var env2__hash = '696768116e504ebcba3b436af9e645c9';");
           done();
         });
       });
@@ -379,29 +379,9 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var nativejs__http = require('http');");
-          expect(content).to.contain("var nodejs__http = $m['native.js'].exports;");
-          expect(content).to.contain("var nodejs__runtime = 'server';");
-          expect(content).to.contain('module.exports = function () {};');
-          done();
-        });
-      });
-      it('should build a node bundle with disabled dependency when "version=node"', (done) => {
-        buddy = buddyFactory({
-          input: 'node.js',
-          output: 'output',
-          version: 'node',
-          resolve: {
-            'native.js': false
-          }
-        });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('var nodejs__http = {};');
-          expect(content).to.contain("var nodejs__runtime = 'server';");
+          expect(content).to.contain("var native__http = require('http');");
+          expect(content).to.contain("var node__http = $m['native'].exports;");
+          expect(content).to.contain("var node__runtime = 'server';");
           expect(content).to.contain('module.exports = function () {};');
           done();
         });
@@ -444,7 +424,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('function commajs__foo(a, b) {');
+          expect(content).to.contain('function comma__foo(a, b) {');
           done();
         });
       });
@@ -482,9 +462,9 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain("$m['bar/bar.js#0.0.0'].exports = 'bar';");
-            expect(content).to.contain("var foofoojs000__bar = $m['bar/bar.js#0.0.0'].exports");
-            expect(content).to.contain("var batjs__foo = $m['foo/foo.js#0.0.0'].exports;");
+            expect(content).to.contain("$m['bar'].exports = 'bar';");
+            expect(content).to.contain("var foo__bar = $m['bar'].exports;");
+            expect(content).to.contain("var bat__foo = $m['foo'].exports");
             done();
           });
         });
@@ -498,8 +478,8 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain("$m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports = 'bar';");
-            expect(content).to.contain("var boojs__bar = $m['bar/dist/commonjs/lib/bar.js#0.0.0'].exports");
+            expect(content).to.contain("$m['bar/dist/commonjs/lib/bar'].exports = 'bar';");
+            expect(content).to.contain("var boo__bar = $m['bar/dist/commonjs/lib/bar'].exports");
             done();
           });
         });
@@ -513,7 +493,7 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain("$m['foo.js/index.js#1.0.0'].exports = 'foo.js';");
+            expect(content).to.contain("$m['foo.js'].exports = 'foo.js';");
             done();
           });
         });
@@ -527,8 +507,8 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain("var zingjs__boo = $m['boo/index.js#1.0.0'].exports;");
-            expect(content).to.contain('var booindexjs100__json = {\n  "boo": "boo"\n}');
+            expect(content).to.contain("var zing__boo = $m['boo'].exports;");
+            expect(content).to.contain('var boo__json = {\n  "boo": "boo"\n}');
             done();
           });
         });
@@ -542,7 +522,7 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain('var bongjs__bat = {};');
+            expect(content).to.contain('var bong__bat = {};');
             done();
           });
         });
@@ -976,8 +956,8 @@ describe('Buddy', () => {
             const content = fs.readFileSync(filepath, 'utf8');
 
             if (ext == '.js') {
-              expect(content).to.contain("$m['mixed-directory/bar.js'] =");
-              expect(content).to.contain("$m['mixed-directory/foo.js'] =");
+              expect(content).to.contain("$m['mixed-directory/bar'] =");
+              expect(content).to.contain("$m['mixed-directory/foo'] =");
             } else {
               expect(content).to.contain('body {');
               expect(content).to.contain('h1 {');
@@ -1015,8 +995,8 @@ describe('Buddy', () => {
             const content = fs.readFileSync(filepath, 'utf8');
 
             if (ext == '.js') {
-              expect(content).to.contain("$m['mixed-directory/bar.js'] =");
-              expect(content).to.contain("$m['mixed-directory/foo.js'] =");
+              expect(content).to.contain("$m['mixed-directory/bar'] =");
+              expect(content).to.contain("$m['mixed-directory/foo'] =");
             } else {
               expect(content).to.contain('body {');
               expect(content).to.contain('h1 {');
@@ -1052,8 +1032,8 @@ describe('Buddy', () => {
             const content = fs.readFileSync(filepath, 'utf8');
 
             if (ext == '.js') {
-              expect(content).to.contain("$m['mixed-directory/bar.js'] =");
-              expect(content).to.contain("$m['mixed-directory/foo.js'] =");
+              expect(content).to.contain("$m['mixed-directory/bar'] =");
+              expect(content).to.contain("$m['mixed-directory/foo'] =");
             } else {
               expect(content).to.contain('body {');
               expect(content).to.contain('h1 {');
@@ -1086,7 +1066,7 @@ describe('Buddy', () => {
             if (name == 'foo') {
               expect(content).to.equal("\'use strict\';\n\nmodule.exports = \'foo\';");
             } else {
-              expect(content).to.contain("$m['foo.js'] =");
+              expect(content).to.contain("$m['foo'] =");
               expect(content).to.not.contain("module.exports = 'foo';");
             }
           });
@@ -1104,8 +1084,8 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepath)).to.be(true);
             const content = fs.readFileSync(filepath, 'utf8');
 
-            expect(content).to.contain("$m['foo.js'].exports = 'foo';");
-            expect(content).to.contain("_foo = $m['foo.js'].exports;");
+            expect(content).to.contain("$m['foo'].exports = 'foo';");
+            expect(content).to.contain("_foo = $m['foo'].exports;");
           });
           done();
         });
@@ -1133,12 +1113,12 @@ describe('Buddy', () => {
             const content = fs.readFileSync(filepath, 'utf8');
 
             if (name == 'c') {
-              expect(content).to.contain("cjs__foo = $m['foo.js'].exports");
-              expect(content).to.contain("$m['foo.js'].exports = 'foo';");
+              expect(content).to.contain("c__foo = $m['foo'].exports");
+              expect(content).to.contain("$m['foo'].exports = 'foo';");
             } else if (name == 'd') {
-              expect(content).to.contain("e = $m['e.js'].exports");
-              expect(content).to.contain("ejs__foo = require('foo.js')");
-              expect(content).to.not.contain("$m['foo.js'].exports = 'foo';");
+              expect(content).to.contain("e = $m['e'].exports");
+              expect(content).to.contain("e__foo = require('foo')");
+              expect(content).to.not.contain("$m['foo'].exports = 'foo';");
             }
           });
           done();
@@ -1267,7 +1247,7 @@ describe('Buddy', () => {
           setTimeout(() => {
             const content = fs.readFileSync(path.resolve('output/foo.js'), 'utf8');
 
-            expect(content).to.contain("_m_[\'foo.js\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = \"foo\";");
+            expect(content).to.contain("_m_[\'foo\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = \"foo\";");
             fs.writeFileSync(path.resolve('foo.js'), foo);
             child.kill();
             done();

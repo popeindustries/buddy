@@ -1,5 +1,6 @@
 'use strict';
 
+const alias = require('../lib/dependency-resolver/alias');
 const cache = require('../lib/dependency-resolver/cache');
 const config = require('../lib/dependency-resolver/config');
 const expect = require('expect.js');
@@ -24,9 +25,9 @@ describe('dependency-resolver', () => {
       });
       it('should track versioned modules', () => {
         cache.setFile({ path: '/node_modules/foo/index.js', id: 'foo#1.0.0' });
-        expect(cache.hasMultipleVersions('foo#1.0.0')).to.be(false);
+        expect(cache.hasMultipleFileVersions('foo#1.0.0')).to.be(false);
         cache.setFile({ path: '/node_modules/bar/node_modules/foo/index.js', id: 'foo#2.0.0' });
-        expect(cache.hasMultipleVersions('foo#1.0.0')).to.be(true);
+        expect(cache.hasMultipleFileVersions('foo#1.0.0')).to.be(true);
       });
     });
     describe('caching a package', () => {
@@ -40,6 +41,44 @@ describe('dependency-resolver', () => {
         cache.setFile({ path: '/foo/index.js', id: 'foo' });
         cache.clear();
         expect(cache.getFile('/foo/index.js')).to.eql(undefined);
+      });
+    });
+  });
+
+  describe('alias', () => {
+    describe('parse()', () => {
+      it('should parse relative paths', () => {
+        const aliases = alias.parse(process.cwd(), { './index.js': './foo.js' });
+
+        expect(aliases).to.have.property(path.resolve('index.js'), path.resolve('foo.js'));
+        expect(Object.keys(aliases)).to.have.length(1);
+      });
+      it('should parse disabled', () => {
+        const aliases = alias.parse(process.cwd(), { foo: false });
+
+        expect(aliases).to.have.property('foo', false);
+        expect(Object.keys(aliases)).to.have.length(1);
+      });
+    });
+
+    describe('resolve()', () => {
+      it('should resolve a filepath', () => {
+        expect(alias.resolve(path.resolve('index.js'), { [path.resolve('index.js')]: path.resolve('foo.js') })).to.equal(path.resolve('foo.js'));
+      });
+      it('should resolve a package id', () => {
+        expect(alias.resolve('foo', { foo: path.resolve('foo.js') })).to.equal(path.resolve('foo.js'));
+      });
+      it('should resolve a scoped package id', () => {
+        expect(alias.resolve('@foo/bar', { '@foo/bar': path.resolve('foo.js') })).to.equal(path.resolve('foo.js'));
+      });
+      it('should resolve a disabled package', () => {
+        expect(alias.resolve('foo', { foo: false })).to.equal(false);
+      });
+      it('should resolve a file in a disabled package', () => {
+        expect(alias.resolve('foo/bar', { foo: false })).to.equal(false);
+      });
+      it('should resolve a file in a disabled scoped package', () => {
+        expect(alias.resolve('@foo/bar/boo', { '@foo/bar': false })).to.equal(false);
       });
     });
   });
@@ -83,6 +122,7 @@ describe('dependency-resolver', () => {
       it('should return details for the project root package', () => {
         const details = pkg.getDetails(process.cwd(), config());
 
+        expect(details).to.have.property('isNestedProjectPackage', false);
         expect(details).to.have.property('name', 'project');
         expect(details).to.have.property('main', path.resolve('index.js'));
         expect(details).to.have.property('manifestpath', path.resolve('package.json'));
@@ -97,9 +137,10 @@ describe('dependency-resolver', () => {
       it('should return details for a package nested under root', () => {
         const details = pkg.getDetails(path.resolve('nested/foo.js'), config());
 
-        expect(details).to.have.property('name', 'project');
-        expect(details).to.have.property('main', path.resolve('index.js'));
-        expect(details).to.have.property('manifestpath', path.resolve('package.json'));
+        expect(details).to.have.property('isNestedProjectPackage', true);
+        expect(details).to.have.property('name', 'project/nested');
+        expect(details).to.have.property('main', '');
+        expect(details).to.have.property('manifestpath', '');
         expect(details.paths).to.contain(path.resolve('nested/node_modules'));
       });
       it('should return details for a node_modules package', () => {
@@ -122,11 +163,6 @@ describe('dependency-resolver', () => {
         expect(details).to.have.property('manifestpath', path.resolve('node_modules/@popeindustries/test/package.json'));
         expect(details).to.have.property('name', '@popeindustries/test');
         expect(details).to.have.property('main', path.resolve('node_modules/@popeindustries/test/test.js'));
-      });
-      it('should return details for a package with aliases', () => {
-        const details = pkg.getDetails(path.resolve('node_modules/browser2'), config());
-
-        expect(details.aliases).to.have.property(path.resolve('node_modules/browser2/bing.js'), 'bing');
       });
       it('should cache details', () => {
         expect(pkg.getDetails(path.resolve('src/index.js'), config())).to.equal(pkg.getDetails(process.cwd()));
@@ -189,26 +225,23 @@ describe('dependency-resolver', () => {
     it('should resolve a scoped js package module source path', () => {
       expect(resolve(path.resolve('baz.js'), '@popeindustries/test/lib/bar')).to.equal(path.resolve('node_modules/@popeindustries/test/lib/bar.js'));
     });
-    it('should resolve an aliased module via global alias', () => {
-      expect(resolve(path.resolve('baz.js'), 'foo', { globalAliases: { foo: 'baz.js' } })).to.equal(path.resolve('baz.js'));
-    });
-    it('should resolve a disabled module via global alias', () => {
-      expect(resolve(path.resolve('baz.js'), 'foo', { globalAliases: { foo: false } })).to.equal(false);
-    });
     it('should resolve an aliased main module file via simple "browser" field', () => {
       expect(resolve(path.resolve('baz.js'), 'browser')).to.equal(path.resolve('node_modules/browser/browser/foo.js'));
     });
     it('should resolve an aliased main file via "browser" hash', () => {
       expect(resolve(path.resolve('baz.js'), 'browser2')).to.equal(path.resolve('node_modules/browser2/browser/foo.js'));
     });
-    it('should resolve an aliased main file via "browser" hash with missing relative path prefix', () => {
-      expect(resolve(path.resolve('baz.js'), 'browser3')).to.equal(path.resolve('node_modules/browser3/browser/foo.js'));
+    it('should resolve an aliased id via "browser" hash', () => {
+      expect(resolve(path.resolve('node_modules/browser2/foo.js'), 'index')).to.equal(path.resolve('node_modules/browser2/browser/foo.js'));
+    });
+    it('should resolve an aliased id via "browser" hash from a nested project package', () => {
+      expect(resolve(path.resolve('nested/node_modules/boop/boop.js'), 'index')).to.equal(path.resolve('foo.js'));
     });
     it('should resolve a disabled package via "browser" hash', () => {
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), 'bat')).to.equal(false);
     });
-    it('should resolve an aliased package with aliased main file via "browser" hash', () => {
-      expect(resolve(path.resolve('node_modules/browser2/bar.js'), 'foo')).to.equal(path.resolve('node_modules/browser2/node_modules/bar/lib/bar.js'));
+    it('should resolve an aliased package with multiple aliases via "browser" hash', () => {
+      expect(resolve(path.resolve('node_modules/browser2/bar.js'), 'foo')).to.equal(path.resolve('node_modules/browser2/foo.js'));
     });
     it('should resolve an aliased package with a file via "browser" hash', () => {
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), 'bar')).to.equal(path.resolve('node_modules/browser2/foo.js'));
@@ -221,9 +254,6 @@ describe('dependency-resolver', () => {
     it('should resolve an aliased file with a package via "browser" hash', () => {
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), './bing')).to.equal(path.resolve('node_modules/browser2/node_modules/bing/index.js'));
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), './bing.js')).to.equal(path.resolve('node_modules/browser2/node_modules/bing/index.js'));
-    });
-    it('should resolve an aliased package with a package file via "browser" hash', () => {
-      expect(resolve(path.resolve('node_modules/browser2/foo.js'), 'bing')).to.equal(path.resolve('node_modules/browser2/node_modules/bing/bing.js'));
     });
     it('should resolve an aliased native module via a "browser" hash', () => {
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), 'http')).to.equal(false);
@@ -257,45 +287,45 @@ describe('dependency-resolver', () => {
       expect(identify('./foo.js')).to.equal('');
     });
     it('should resolve an ID for a filepath in the default source directory', () => {
-      expect(identify(path.resolve('foo.js'))).to.equal('foo.js');
+      expect(identify(path.resolve('foo.js'))).to.equal('index');
     });
     it('should resolve an ID for a filepath nested in the default source directory', () => {
-      expect(identify(path.resolve('nested/bar.js'))).to.equal('nested/bar.js');
+      expect(identify(path.resolve('nested/bar.js'))).to.equal('nested/bar');
     });
     it('should resolve an ID for a package module with missing manifest', () => {
-      expect(identify(path.resolve('node_modules/bar/index.js'))).to.equal('bar/index.js');
+      expect(identify(path.resolve('node_modules/bar/index.js'))).to.equal('bar/index');
     });
     it('should resolve an ID for a nested package module with missing manifest', () => {
-      expect(identify(path.resolve('node_modules/bar/node_modules/bat/index.js'))).to.equal('bat/index.js');
+      expect(identify(path.resolve('node_modules/bar/node_modules/bat/index.js'))).to.equal('bat/index');
     });
     it('should resolve an ID for a package module', () => {
-      expect(identify(path.resolve('node_modules/foo/lib/bat.js'))).to.equal('foo/lib/bat.js#1.0.0');
+      expect(identify(path.resolve('node_modules/foo/lib/bat.js'))).to.equal('foo');
     });
     it('should resolve an ID for a package module filepath', () => {
-      expect(identify(path.resolve('node_modules/foo/lib/bar.js'))).to.equal('foo/lib/bar.js#1.0.0');
+      expect(identify(path.resolve('node_modules/foo/lib/bar.js'))).to.equal('foo/lib/bar');
     });
     it('should resolve an ID for a package main filepath with "browser" alias', () => {
       expect(identify(path.resolve('index.js'))).to.equal('project');
     });
     it('should resolve separate IDs for different versions of the same package', () => {
-      expect(identify(path.resolve('node_modules/baz/node_modules/foo/lib/bat.js'))).to.equal('foo/lib/bat.js#2.0.0');
-      expect(identify(path.resolve('node_modules/foo/lib/bat.js'))).to.equal('foo/lib/bat.js#1.0.0');
+      expect(identify(path.resolve('node_modules/baz/node_modules/foo/lib/bat.js'))).to.equal('foo');
+      expect(identify(path.resolve('node_modules/foo/lib/bat.js'))).to.equal('foo#1.0.0');
     });
     it('should resolve an ID for a scoped package module', () => {
-      expect(identify(path.resolve('node_modules/@popeindustries/test/test.js'))).to.equal('@popeindustries/test/test.js#1.0.0');
-      expect(identify(path.resolve('node_modules/@popeindustries/test/node_modules/foo/lib/bat.js'))).to.equal('foo/lib/bat.js#2.0.0');
+      expect(identify(path.resolve('node_modules/@popeindustries/test/test.js'))).to.equal('@popeindustries/test');
+      expect(identify(path.resolve('node_modules/@popeindustries/test/node_modules/foo/lib/bat.js'))).to.equal('foo');
     });
     it('should resolve an ID for a scoped package module filepath', () => {
-      expect(identify(path.resolve('node_modules/@popeindustries/test/lib/bar.js'))).to.equal('@popeindustries/test/lib/bar.js#1.0.0');
+      expect(identify(path.resolve('node_modules/@popeindustries/test/lib/bar.js'))).to.equal('@popeindustries/test/lib/bar');
     });
     it('should resolve an ID for a filepath with multiple "."', () => {
-      expect(identify(path.resolve('foo.bar.js'))).to.equal('foo.bar.js');
+      expect(identify(path.resolve('foo.bar.js'))).to.equal('foo.bar');
     });
     it('should resolve an ID for an aliased filepath', () => {
-      expect(identify(path.resolve('node_modules/browser2/server/foo.js'))).to.equal('browser2/browser/foo.js#1.0.0');
+      expect(identify(path.resolve('node_modules/browser2/browser/foo.js'))).to.equal('index');
     });
     it('should not resolve an ID for a disabled filepath', () => {
-      expect(identify(path.resolve('node_modules/browser2/bar.js'))).to.equal('browser2/bar.js#1.0.0');
+      expect(identify(path.resolve('node_modules/browser2/bar.js'))).to.equal('browser2/bar');
     });
   });
 });

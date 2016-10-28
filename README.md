@@ -529,7 +529,7 @@ When writing universal modules for use in both server and browser environments, 
 }
 ```
 
-[Read more](https://gist.github.com/defunctzombie/4339901) about the possible uses of `browser`.
+[Read more](https://github.com/defunctzombie/package-browser-field-spec) about the possible uses of `browser`.
 
 #### Build *React* (.jsx) source?
 

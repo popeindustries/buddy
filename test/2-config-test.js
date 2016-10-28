@@ -557,7 +557,7 @@ describe('config', () => {
         expect(file).to.be.ok();
         expect(file).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
         expect(file).to.have.property('type', 'js');
-        expect(file).to.have.property('id', 'src/main.js');
+        expect(file).to.have.property('id', 'src/main');
       });
       it('should return a file instance for custom type', () => {
         config.registerFileDefinitionAndExtensionsForType((File) => {
@@ -573,7 +573,7 @@ describe('config', () => {
         expect(file).to.be.ok();
         expect(file).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
         expect(file).to.have.property('type', 'bar');
-        expect(file).to.have.property('id', 'src/foo.bar');
+        expect(file).to.have.property('id', 'src/foo');
       });
       it('should return a file instance for extended default type', () => {
         config.registerFileDefinitionAndExtensionsForType((File) => {
@@ -585,7 +585,7 @@ describe('config', () => {
         expect(file).to.be.ok();
         expect(file).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
         expect(file).to.have.property('type', 'js');
-        expect(file).to.have.property('id', 'src/foo.bar');
+        expect(file).to.have.property('id', 'src/foo');
       });
     });
   });
