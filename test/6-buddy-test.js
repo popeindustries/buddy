@@ -386,26 +386,6 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a node bundle with disabled dependency when "version=node"', (done) => {
-        buddy = buddyFactory({
-          input: 'node.js',
-          output: 'output',
-          version: 'node',
-          resolve: {
-            'native.js': false
-          }
-        });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('var node__http = {};');
-          expect(content).to.contain("var node__runtime = 'server';");
-          expect(content).to.contain('module.exports = function () {};');
-          done();
-        });
-      });
       it('should build a complex dependency tree', (done) => {
         buddy = buddyFactory({
           input: 'lodash.js',

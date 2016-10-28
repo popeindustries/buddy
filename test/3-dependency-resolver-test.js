@@ -9,7 +9,7 @@ const pkg = require('../lib/dependency-resolver/package');
 const path = require('path');
 const resolve = require('../lib/dependency-resolver/resolve');
 
-describe.only('dependency-resolver', () => {
+describe('dependency-resolver', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/dependency-resolver'));
   });
@@ -122,6 +122,7 @@ describe.only('dependency-resolver', () => {
       it('should return details for the project root package', () => {
         const details = pkg.getDetails(process.cwd(), config());
 
+        expect(details).to.have.property('isNestedProjectPackage', false);
         expect(details).to.have.property('name', 'project');
         expect(details).to.have.property('main', path.resolve('index.js'));
         expect(details).to.have.property('manifestpath', path.resolve('package.json'));
@@ -136,8 +137,8 @@ describe.only('dependency-resolver', () => {
       it('should return details for a package nested under root', () => {
         const details = pkg.getDetails(path.resolve('nested/foo.js'), config());
 
+        expect(details).to.have.property('isNestedProjectPackage', true);
         expect(details).to.have.property('name', 'project/nested');
-        expect(details).to.have.property('isRoot', false);
         expect(details).to.have.property('main', '');
         expect(details).to.have.property('manifestpath', '');
         expect(details.paths).to.contain(path.resolve('nested/node_modules'));
@@ -194,7 +195,7 @@ describe.only('dependency-resolver', () => {
     it('should resolve a file name containing multiple "."', () => {
       expect(resolve(path.resolve('foo.js'), './foo.bar')).to.equal(path.resolve('foo.bar.js'));
     });
-    it.only('should resolve a js package module path containing a package.json file and a "main" file field', () => {
+    it('should resolve a js package module path containing a package.json file and a "main" file field', () => {
       expect(resolve(path.resolve('baz.js'), 'foo')).to.equal(path.resolve('node_modules/foo/lib/bat.js'));
     });
     it('should resolve a js package module path containing a package.json file and a "main" directory field', () => {
@@ -239,8 +240,8 @@ describe.only('dependency-resolver', () => {
     it('should resolve a disabled package via "browser" hash', () => {
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), 'bat')).to.equal(false);
     });
-    it('should resolve an aliased package with aliased main file via "browser" hash', () => {
-      expect(resolve(path.resolve('node_modules/browser2/bar.js'), 'foo')).to.equal(path.resolve('node_modules/browser2/node_modules/bar/lib/bar.js'));
+    it('should resolve an aliased package with multiple aliases via "browser" hash', () => {
+      expect(resolve(path.resolve('node_modules/browser2/bar.js'), 'foo')).to.equal(path.resolve('node_modules/browser2/foo.js'));
     });
     it('should resolve an aliased package with a file via "browser" hash', () => {
       expect(resolve(path.resolve('node_modules/browser2/foo.js'), 'bar')).to.equal(path.resolve('node_modules/browser2/foo.js'));
@@ -286,7 +287,7 @@ describe.only('dependency-resolver', () => {
       expect(identify('./foo.js')).to.equal('');
     });
     it('should resolve an ID for a filepath in the default source directory', () => {
-      expect(identify(path.resolve('foo.js'))).to.equal('foo');
+      expect(identify(path.resolve('foo.js'))).to.equal('index');
     });
     it('should resolve an ID for a filepath nested in the default source directory', () => {
       expect(identify(path.resolve('nested/bar.js'))).to.equal('nested/bar');
@@ -321,7 +322,7 @@ describe.only('dependency-resolver', () => {
       expect(identify(path.resolve('foo.bar.js'))).to.equal('foo.bar');
     });
     it('should resolve an ID for an aliased filepath', () => {
-      expect(identify(path.resolve('node_modules/browser2/server/foo.js'))).to.equal('browser2');
+      expect(identify(path.resolve('node_modules/browser2/browser/foo.js'))).to.equal('index');
     });
     it('should not resolve an ID for a disabled filepath', () => {
       expect(identify(path.resolve('node_modules/browser2/bar.js'))).to.equal('browser2/bar');
