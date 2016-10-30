@@ -7,4 +7,6 @@
     root.ol = factory();
   }
 }(window, function () {
+var OPENLAYERS = {};
+var p,ca=this;
 }));
