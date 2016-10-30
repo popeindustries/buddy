@@ -25,9 +25,9 @@ describe('dependency-resolver', () => {
       });
       it('should track versioned modules', () => {
         cache.setFile({ path: '/node_modules/foo/index.js', id: 'foo#1.0.0' });
-        expect(cache.hasMultipleFileVersions('foo#1.0.0')).to.be(false);
+        expect(cache.getFileVersions('foo#1.0.0')).to.have.length(1);
         cache.setFile({ path: '/node_modules/bar/node_modules/foo/index.js', id: 'foo#2.0.0' });
-        expect(cache.hasMultipleFileVersions('foo#1.0.0')).to.be(true);
+        expect(cache.getFileVersions('foo#1.0.0')).to.have.length(2);
       });
     });
     describe('caching a package', () => {
