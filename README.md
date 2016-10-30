@@ -509,7 +509,7 @@ When writing universal modules for use in both server and browser environments, 
 }
 ```
 
-**buddy** correctly handles this remapping when resolving *node_modules* dependencies that use the `browser` parameter. In addition, it is possible to employ more advanced uses to alias files and modules directly in your project:
+**buddy** correctly handles this remapping when resolving *node_modules* dependencies that use the [`browser` package.json field](https://github.com/defunctzombie/package-browser-field-spec). In addition, it is possible to employ more advanced uses to alias files and modules directly in your project:
 
 ```json
 {
@@ -529,7 +529,21 @@ When writing universal modules for use in both server and browser environments, 
 }
 ```
 
-[Read more](https://github.com/defunctzombie/package-browser-field-spec) about the possible uses of `browser`.
+In addition to the standard behaviour of remapping a module to a file path, **buddy** extends this concept to allow renaming a project module's id reference:
+
+```json
+{
+  "browser": {
+    "extra-libs": "./src/extra/libs.js"
+  }
+}
+```
+```js
+// src/index.js
+const bar = require('extra-libs'); // Instead of './src/extra/libs'
+```
+
+This can be especially useful when using [child bundles](#break-up-js-bundles-into-smaller-files).
 
 #### Build *React* (.jsx) source?
 
