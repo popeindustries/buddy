@@ -307,7 +307,7 @@ describe('dependency-resolver', () => {
     it('should resolve an ID for a package main filepath with "browser" alias', () => {
       expect(identify(path.resolve('index.js'))).to.equal('project');
     });
-    it.only('should resolve separate IDs for different versions of the same package', () => {
+    it('should resolve separate IDs for different versions of the same package', () => {
       expect(identify(path.resolve('node_modules/baz/node_modules/foo/lib/bat.js'))).to.equal('foo');
       expect(identify(path.resolve('node_modules/foo/lib/bat.js'))).to.equal('foo#1.0.0');
     });
