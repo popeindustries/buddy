@@ -1,6 +1,6 @@
 {
   "name": "buddy-cli",
-  "version": "6.0.3",
+  "version": "6.0.4",
   "description": "The command-line bootstrapper for Buddy",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
