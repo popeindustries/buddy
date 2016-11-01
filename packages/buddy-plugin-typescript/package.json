@@ -2,7 +2,10 @@
   "name": "buddy-plugin-typescript",
   "description": "Buddy plugin for typescript source transforms (via TypeScript)",
   "version": "2.0.3",
-  "author": "popeindustries <alex@pope-industries.com>",
+  "author": "mariuslundgard <studio@mariuslundgard.com>",
+  "contributors": [
+    "popeindustries <alex@pope-industries.com>"
+  ],
   "keywords": [
     "buddy",
     "compile",
