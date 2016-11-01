@@ -43,30 +43,26 @@ function extend (prototype, utils) {
   prototype.compress = function compress (buildOptions, fn) {
     let content = this.content;
 
-    try {
-      const asString = ('string' == typeof content);
+    const asString = ('string' == typeof content);
 
-      // Requires buffer
-      if (asString) content = new Buffer(content);
+    // Requires buffer
+    if (asString) content = new Buffer(content);
 
-      imagemin
-        .buffer(content, {
-          plugins: [
-            gifsicle(),
-            jpegtran(),
-            optipng({ optimizationLevel: 3 }),
-            svgo()
-          ]
-        })
-        .then((content) => {
-          debug(`compress: ${strong(this.relpath)}`, 4);
-          if (asString) content = content.toString();
-          this.content = content;
-          fn();
-        })
-        .catch(fn);
-    } catch (err) {
-      fn(err);
-    }
+    imagemin
+      .buffer(content, {
+        plugins: [
+          gifsicle(),
+          jpegtran(),
+          optipng({ optimizationLevel: 3 }),
+          svgo()
+        ]
+      })
+      .then((content) => {
+        debug(`compress: ${strong(this.relpath)}`, 4);
+        if (asString) content = content.toString();
+        this.content = content;
+        fn();
+      })
+      .catch(fn);
   };
 }
