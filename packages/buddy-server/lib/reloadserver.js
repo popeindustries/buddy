@@ -1,12 +1,12 @@
 'use strict';
 
+const { server: WSServer } = require('websocket');
 const ConnectionFactory = require('./reloadconnection');
 const Event = require('events');
 const filed = require('filed');
 const http = require('http');
 const path = require('path');
 const url = require('url');
-const ws = require('websocket.io');
 
 const PORT = 35729;
 
@@ -59,8 +59,11 @@ class ReloadServer extends Event {
     });
 
     // Create socket server
-    this.wsServer = ws.attach(this.server);
-    this.wsServer.on('connection', (socket) => {
+    this.wsServer = new WSServer({
+      httpServer: this.server,
+      autoAcceptConnections: true
+    });
+    this.wsServer.on('connect', (socket) => {
       this._createConnection(socket);
     });
 
@@ -88,13 +91,14 @@ class ReloadServer extends Event {
    * Close server
    */
   close () {
-    try {
-      this.server.close();
-    } catch (err) { /* ignore */}
-
     for (const connection in this.connections) {
       connection.close();
     }
+
+    try {
+      this.wsServer.shutDown();
+      this.server.close();
+    } catch (err) { /* ignore */}
 
     this.connections = {};
   }

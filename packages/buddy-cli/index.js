@@ -11,8 +11,9 @@ process.on('uncaughtException', (err) => {
   console.log(err.stack ? err.stack : err);
   // Ding!
   console.log('\x07');
+});
+process.on('exit', (code) => {
   if (buddy) buddy.exceptionalCleanup();
-  process.exit(1);
 });
 
 find(useCli, (err, buddyFactory, version) => {
@@ -24,8 +25,8 @@ find(useCli, (err, buddyFactory, version) => {
     .option('-c, --compress', 'compress output for production deployment')
     .option('-g, --grep <pattern>', 'only run build targets matching <pattern>')
     .option('-i, --invert', 'inverts grep matches')
-    .option('--input', 'input file/directory for simple config-free build')
-    .option('--output', 'output file/directory for simple config-free build')
+    .option('--input <filepath>', 'input file/directory for simple config-free build')
+    .option('--output <filepath>', 'output file/directory for simple config-free build')
     .option('-r, --reload', 'reload all connected live-reload clients on file change during watch')
     .option('-s, --serve', 'create (or launch) a webserver to serve files during watch')
     .option('-S, --script', 'run script on build completion')

@@ -104,7 +104,7 @@ Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/d
 
 #### Manage *JS* dependencies?
 
-*JS* dependencies are declared by use of `require()` expressions, and closely follow the module semantics as used in [Node.js](http://nodejs.org/api/modules.html). This makes it possible to write modules for the browser the same way as you would for Node.js server environments. Although **buddy** preserves similar author-time semantics, run-time behaviour does differ. In Node.js modules, each file is wrapped in a function closure to provide an isolated scope for module-level variable/function/class declarations, ensuring that there are no conflicts between modules. In the browser, however, wrapping each module in a closure can impose significant start-up [cost](https://nolanlawson.com/2016/08/15/the-cost-of-small-modules/) and overhead. As a result, for performance reasons, **buddy** flattens all modules into a shared scope, renames all declarations, and inlines all calls to `require()`:
+*JS* dependencies are declared by use of `require()` expressions (or `import` statement for es6 modules), and closely follow the module semantics as used in [Node.js](http://nodejs.org/api/modules.html). This makes it possible to write modules for the browser the same way as you would for Node.js server environments. Although **buddy** preserves similar author-time semantics, run-time behaviour does differ. In Node.js modules, each file is wrapped in a function closure to provide an isolated scope for module-level variable/function/class declarations, ensuring that there are no conflicts between modules. In the browser, however, wrapping each module in a closure can impose significant start-up [cost](https://nolanlawson.com/2016/08/15/the-cost-of-small-modules/) and overhead. As a result, for performance reasons, **buddy** flattens all modules into a shared scope, renames all declarations, and inlines all calls to `require()`:
 
 ```json
 {
@@ -509,7 +509,7 @@ When writing universal modules for use in both server and browser environments, 
 }
 ```
 
-**buddy** correctly handles this remapping when resolving *node_modules* dependencies that use the `browser` parameter. In addition, it is possible to employ more advanced uses to alias files and modules directly in your project:
+**buddy** correctly handles this remapping when resolving *node_modules* dependencies that use the [`browser` package.json field](https://github.com/defunctzombie/package-browser-field-spec). In addition, it is possible to employ more advanced uses to alias files and modules directly in your project:
 
 ```json
 {
@@ -529,7 +529,21 @@ When writing universal modules for use in both server and browser environments, 
 }
 ```
 
-[Read more](https://gist.github.com/defunctzombie/4339901) about the possible uses of `browser`.
+In addition to the standard behaviour of remapping a module to a file path, **buddy** extends this concept to allow renaming a project module's id reference:
+
+```json
+{
+  "browser": {
+    "extra-libs": "./src/extra/libs.js"
+  }
+}
+```
+```js
+// src/index.js
+const bar = require('extra-libs'); // Instead of './src/extra/libs'
+```
+
+This can be especially useful when using [child bundles](#break-up-js-bundles-into-smaller-files).
 
 #### Build *React* (.jsx) source?
 

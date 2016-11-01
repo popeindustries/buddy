@@ -15,33 +15,33 @@ var require = self.require || function require (id) {
 };
 !(function () {
 /*== b.js ==*/
-$m['b.js'] = function () {
-$m['b.js'] = { exports: {} };
-$m['b.js'].exports = bjs__b;
+$m['b'] = function () {
+$m['b'] = { exports: {} };
+$m['b'].exports = b__b;
 
-var bjs__a = require('a.js');
+var b__a = require('a');
 
-function bjs__b() {
+function b__b() {
   console.log('b');
 }
 };
 /*≠≠ b.js ≠≠*/
 
 /*== a.js ==*/
-$m['a.js'] = function () {
-$m['a.js'] = { exports: {} };
-$m['a.js'].exports = ajs__a;
+$m['a'] = function () {
+$m['a'] = { exports: {} };
+$m['a'].exports = a__a;
 
-var ajs__b = require('b.js');
+var a__b = require('b');
 
-function ajs__a() {
+function a__a() {
   console.log('a');
 }
 };
 /*≠≠ a.js ≠≠*/
 
 /*== circular.js ==*/
-$m['circular.js'] = { exports: {} };
-var circularjs__a = require('a.js');
+$m['circular'] = { exports: {} };
+var circular__a = require('a');
 /*≠≠ circular.js ≠≠*/
 })()
