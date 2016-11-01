@@ -1137,6 +1137,34 @@ describe('Buddy', () => {
           done();
         });
       });
+      it('should inline BUDDY html envs from sibling build', (done) => {
+        buddy = buddyFactory({
+          build: [
+            {
+              input: 'foo.js',
+              output: 'output',
+              label: 'foo'
+            },
+            {
+              input: 'd.html',
+              output: 'output'
+            }
+          ]
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(2);
+          filepaths.forEach((filepath) => {
+            expect(fs.existsSync(filepath)).to.be(true);
+            const name = path.basename(filepath, '.js');
+            const content = fs.readFileSync(filepath, 'utf8');
+
+            if (name == 'd') {
+              expect(content).to.contain("$m['foo'] = { exports: {} };")
+            }
+          });
+          done();
+        });
+      });
     });
   });
 
