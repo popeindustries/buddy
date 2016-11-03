@@ -6,7 +6,7 @@ const FILE_EXTENSIONS = ['styl'];
 const WORKFLOW_WRITEABLE = [
   'inline',
   'compile',
-  'compress:compress'
+  'transpile'
 ];
 
 module.exports = {
