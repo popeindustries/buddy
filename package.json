@@ -17,7 +17,7 @@
   "dependencies": {
     "async": "2.1.2",
     "autoprefixer": "6.5.1",
-    "babel-core": "6.18.0",
+    "babel-core": "6.18.2",
     "babel-plugin-external-helpers": "6.18.0",
     "babel-plugin-transform-es2015-modules-commonjs": "6.18.0",
     "browserslist": "1.4.0",
@@ -37,7 +37,7 @@
     "yaw": "1.0.1"
   },
   "devDependencies": {
-    "babel-preset-env": "0.0.6",
+    "babel-preset-env": "0.0.7",
     "expect.js": "*",
     "mocha": "*",
     "rimraf": "*"
