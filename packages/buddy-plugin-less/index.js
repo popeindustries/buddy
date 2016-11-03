@@ -6,7 +6,7 @@ const FILE_EXTENSIONS = ['less'];
 const WORKFLOW_WRITEABLE = [
   'inline',
   'compile',
-  'compress:compress'
+  'transpile'
 ];
 
 module.exports = {
