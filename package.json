@@ -34,8 +34,7 @@
     "postcss": "5.2.5",
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
-    "uglify-js": "2.7.4",
-    "yaw": "1.0.1"
+    "uglify-js": "2.7.4"
   },
   "devDependencies": {
     "babel-preset-env": "0.0.7",

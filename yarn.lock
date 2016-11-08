@@ -682,7 +682,7 @@ charenc@~0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/charenc/-/charenc-0.0.1.tgz#004cff9feaf102382ed12db58dd6f962796d6e88"
 
-chokidar:
+chokidar@1.6.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-1.6.1.tgz#2f4447ab5e96e50fb3d789fd90d4c72e0e4c70c2"
   dependencies:
@@ -2332,8 +2332,4 @@ yargs@~3.10.0:
     cliui "^2.1.0"
     decamelize "^1.0.0"
     window-size "0.1.0"
-
-yaw@1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/yaw/-/yaw-1.0.1.tgz#3d2b6a80ba9cae2bf8ea76722a1f1cde1e1003bc"
 
