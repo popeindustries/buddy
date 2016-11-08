@@ -4,7 +4,6 @@ const buildParser = require('../lib/config/buildParser');
 const configFactory = require('../lib/config');
 const expect = require('expect.js');
 const fileCacheFactory = require('../lib/config/fileCache');
-const filetype = require('../lib/config/filetype');
 const path = require('path');
 const pluginLoader = require('../lib/config/pluginLoader');
 const rimraf = require('rimraf');
@@ -22,21 +21,6 @@ describe('config', () => {
     rimraf.sync(path.resolve('package.json'));
     rimraf.sync(path.resolve('yarn.lock'));
     rimraf.sync(path.resolve('node_modules'));
-  });
-
-  describe('filetype', () => {
-    it('should return the correct type for a js filepath', () => {
-      expect(filetype('foo.js', {js:['js','json'],css:['css'],html:['html']})).to.eql('js');
-    });
-    it('should return the correct type for a css filepath', () => {
-      expect(filetype('foo.css', {js:['js','json'],css:['css'],html:['html']})).to.eql('css');
-    });
-    it('should return the correct type for a html filepath', () => {
-      expect(filetype('foo.html', {js:['js','json'],css:['css'],html:['html']})).to.eql('html');
-    });
-    it('should return the correct type for a root html template filepath', () => {
-      expect(filetype('foo.nunjs', {js:['js','json'],css:['css'],html:['html','nunjs']})).to.eql('html');
-    });
   });
 
   describe('pluginLoader', () => {
