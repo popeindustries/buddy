@@ -3,7 +3,7 @@
 const { exec } = require('child_process');
 const buddyFactory = require('../lib/buddy');
 const coffeescriptPlugin = require('../packages/buddy-plugin-coffeescript');
-const dependencyResolverConfig = require('../lib/dependency-resolver/config');
+const dependencyResolverConfig = require('../lib/resolver/config');
 const expect = require('expect.js');
 const fs = require('fs');
 const imageminPlugin = require('../packages/buddy-plugin-imagemin');
@@ -1274,7 +1274,7 @@ describe('Buddy', () => {
     });
   });
 
-  describe('watch', () => {
+  describe.skip('watch', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/watch'));
     });

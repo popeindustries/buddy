@@ -1,17 +1,17 @@
 'use strict';
 
-const alias = require('../lib/dependency-resolver/alias');
-const cache = require('../lib/dependency-resolver/cache');
-const config = require('../lib/dependency-resolver/config');
+const alias = require('../lib/resolver/alias');
+const cache = require('../lib/resolver/cache');
+const config = require('../lib/resolver/config');
 const expect = require('expect.js');
-const identify = require('../lib/dependency-resolver/identify');
-const pkg = require('../lib/dependency-resolver/package');
+const identify = require('../lib/resolver/identify');
+const pkg = require('../lib/resolver/package');
 const path = require('path');
-const resolve = require('../lib/dependency-resolver/resolve');
+const resolve = require('../lib/resolver/resolve');
 
-describe('dependency-resolver', () => {
+describe('resolver', () => {
   before(() => {
-    process.chdir(path.resolve(__dirname, 'fixtures/dependency-resolver'));
+    process.chdir(path.resolve(__dirname, 'fixtures/resolver'));
   });
   afterEach(() => {
     cache.clear(true);
