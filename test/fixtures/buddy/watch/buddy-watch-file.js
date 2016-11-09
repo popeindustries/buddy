@@ -1,4 +1,4 @@
-exports.build = {
+exports.build = [{
   input: 'foo.js',
   output: 'output'
-};
+}];
