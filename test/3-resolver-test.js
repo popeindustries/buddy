@@ -1,6 +1,6 @@
 'use strict';
 
-const { resolver: cache } = require('../lib/cache');
+const { resolverCache: cache } = require('../lib/cache');
 const alias = require('../lib/resolver/alias');
 const config = require('../lib/resolver/config');
 const expect = require('expect.js');

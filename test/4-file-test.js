@@ -1,10 +1,10 @@
 'use strict';
 
 const { unwrap } = require('../lib/plugins/js/concat');
+const cache = require('../lib/cache');
 const configFactory = require('../lib/config');
 const expect = require('expect.js');
 const File = require('../lib/File');
-const fileCacheFactory = require('../lib/config/fileCache');
 const fs = require('fs');
 const path = require('path');
 let config, file;
@@ -235,7 +235,7 @@ describe('file', () => {
         output: '.'
       }, {});
       file = config.fileFactory(path.resolve('src/foo.js'), {
-        fileCache: fileCacheFactory(),
+        fileCache: cache.createFileCache(),
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: {
@@ -262,7 +262,7 @@ describe('file', () => {
           output: 'js'
         }, {});
         file = config.fileFactory(path.resolve('node_modules/async/series.js'), {
-          fileCache: fileCacheFactory(),
+          fileCache: cache.createFileCache(),
           fileExtensions: config.fileExtensions,
           fileFactory: config.fileFactory,
           npmModulepaths: config.npmModulepaths,
@@ -562,7 +562,7 @@ describe('file', () => {
         output: 'css'
       }, {});
       file = config.fileFactory(path.resolve('src/main.css'), {
-        fileCache: fileCacheFactory(),
+        fileCache: cache.createFileCache(),
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: { babel: { plugins: [] } },
@@ -642,7 +642,7 @@ describe('file', () => {
         output: 'html'
       }, {});
       file = config.fileFactory(path.resolve('src/main.html'), {
-        fileCache: fileCacheFactory(),
+        fileCache: cache.createFileCache(),
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: { babel: { plugins: [] } },

@@ -22,7 +22,7 @@ describe('Buddy', () => {
     buddy = null;
   });
   afterEach(() => {
-    buddy.destroy();
+    if (buddy) buddy.destroy();
     rimraf.sync(path.resolve('output'));
   });
 
@@ -1274,7 +1274,7 @@ describe('Buddy', () => {
     });
   });
 
-  describe.skip('watch', () => {
+  describe('watch', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/buddy/watch'));
     });
@@ -1290,9 +1290,8 @@ describe('Buddy', () => {
     });
 
     if (process.platform != 'win32') {
-      it.skip('should rebuild a watched file on change', (done) => {
+      it('should rebuild a watched file on change', (done) => {
         const child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, (err, stdout, stderr) => {
-          console.log(arguments);
           done(err);
         });
         const foo = fs.readFileSync(path.resolve('foo.js'), 'utf8');
@@ -1302,12 +1301,12 @@ describe('Buddy', () => {
           setTimeout(() => {
             const content = fs.readFileSync(path.resolve('output/foo.js'), 'utf8');
 
-            expect(content).to.contain("_m_[\'foo\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = \"foo\";");
+            expect(content).to.contain('$m[\'foo\'] = { exports: {} };\n"use strict";\n\nvar foo__foo = "foo";\n');
             fs.writeFileSync(path.resolve('foo.js'), foo);
             child.kill();
             done();
           }, 100);
-        }, 4000);
+        }, 2000);
       });
     }
   });
