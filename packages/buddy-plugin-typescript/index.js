@@ -29,7 +29,7 @@ module.exports = {
  * @returns {Class}
  */
 function define (File, utils) {
-  const { debug, strong } = utils.cnsl;
+  const { debug, error, strong } = utils.cnsl;
 
   return class TYPESCRIPTFile extends File {
     /**
@@ -77,7 +77,8 @@ function define (File, utils) {
         this.compiled = true;
         debug(`compile: ${strong(this.relpath)}`, 4);
       } catch (err) {
-        return fn(err);
+        if (!this.options.runtimeOptions.watch) return fn(err);
+        error(err, 4, false);
       }
       fn();
     }

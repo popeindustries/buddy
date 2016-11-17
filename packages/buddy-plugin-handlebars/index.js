@@ -34,7 +34,7 @@ module.exports = {
  * @returns {Class}
  */
 function define (File, utils) {
-  const { debug, strong } = utils.cnsl;
+  const { debug, error, strong } = utils.cnsl;
   const { uniqueMatch } = utils.string;
 
   return class HANDLEBARSFile extends File {
@@ -129,7 +129,8 @@ function define (File, utils) {
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       } catch (err) {
-        fn(err);
+        if (!this.options.runtimeOptions.watch) return fn(err);
+        error(err, 4, false);
       }
     }
 
