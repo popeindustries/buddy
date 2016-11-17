@@ -1,17 +1,17 @@
 'use strict';
 
-const alias = require('../lib/dependency-resolver/alias');
-const cache = require('../lib/dependency-resolver/cache');
-const config = require('../lib/dependency-resolver/config');
+const { resolverCache: cache } = require('../lib/cache');
+const alias = require('../lib/resolver/alias');
+const config = require('../lib/resolver/config');
 const expect = require('expect.js');
-const identify = require('../lib/dependency-resolver/identify');
-const pkg = require('../lib/dependency-resolver/package');
+const identify = require('../lib/resolver/identify');
+const pkg = require('../lib/resolver/package');
 const path = require('path');
-const resolve = require('../lib/dependency-resolver/resolve');
+const resolve = require('../lib/resolver/resolve');
 
-describe('dependency-resolver', () => {
+describe('resolver', () => {
   before(() => {
-    process.chdir(path.resolve(__dirname, 'fixtures/dependency-resolver'));
+    process.chdir(path.resolve(__dirname, 'fixtures/resolver'));
   });
   afterEach(() => {
     cache.clear(true);
@@ -20,14 +20,14 @@ describe('dependency-resolver', () => {
   describe('cache', () => {
     describe('caching a file', () => {
       it('should store a simple file', () => {
-        cache.setFile({ path: '/foo/index.js', id: 'foo' });
+        cache.setFile({ path: '/foo/index.js', id: 'foo' }, config.VERSION_DELIMITER);
         expect(cache.getFile('/foo/index.js')).to.eql('foo');
       });
       it('should track versioned modules', () => {
-        cache.setFile({ path: '/node_modules/foo/index.js', id: 'foo#1.0.0' });
-        expect(cache.getFileVersions('foo#1.0.0')).to.have.length(1);
-        cache.setFile({ path: '/node_modules/bar/node_modules/foo/index.js', id: 'foo#2.0.0' });
-        expect(cache.getFileVersions('foo#1.0.0')).to.have.length(2);
+        cache.setFile({ path: '/node_modules/foo/index.js', id: 'foo#1.0.0' }, config.VERSION_DELIMITER);
+        expect(cache.getFileVersions('foo#1.0.0', config.VERSION_DELIMITER)).to.have.length(1);
+        cache.setFile({ path: '/node_modules/bar/node_modules/foo/index.js', id: 'foo#2.0.0' }, config.VERSION_DELIMITER);
+        expect(cache.getFileVersions('foo#1.0.0', config.VERSION_DELIMITER)).to.have.length(2);
       });
     });
     describe('caching a package', () => {
@@ -38,7 +38,7 @@ describe('dependency-resolver', () => {
     });
     describe('clearing', () => {
       it('should reset all internal caches', () => {
-        cache.setFile({ path: '/foo/index.js', id: 'foo' });
+        cache.setFile({ path: '/foo/index.js', id: 'foo' }, config.VERSION_DELIMITER);
         cache.clear();
         expect(cache.getFile('/foo/index.js')).to.eql(undefined);
       });

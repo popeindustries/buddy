@@ -3,7 +3,7 @@
 const { exec } = require('child_process');
 const buddyFactory = require('../lib/buddy');
 const coffeescriptPlugin = require('../packages/buddy-plugin-coffeescript');
-const dependencyResolverConfig = require('../lib/dependency-resolver/config');
+const dependencyResolverConfig = require('../lib/resolver/config');
 const expect = require('expect.js');
 const fs = require('fs');
 const imageminPlugin = require('../packages/buddy-plugin-imagemin');
@@ -22,7 +22,7 @@ describe('Buddy', () => {
     buddy = null;
   });
   afterEach(() => {
-    buddy.destroy();
+    if (buddy) buddy.destroy();
     rimraf.sync(path.resolve('output'));
   });
 
@@ -303,7 +303,7 @@ describe('Buddy', () => {
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(path.basename(filepaths[0])).to.eql('foo-859540895c99975652ba35095742e480.js');
+          expect(path.basename(filepaths[0])).to.eql('foo-f4563c9dc98432dab7836716798c7394.js');
           done();
         });
       });
@@ -638,6 +638,20 @@ describe('Buddy', () => {
           input: 'a.css',
           output: 'output'
         }, { compress: true });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.equal('body{color:#fff;font-size:12px}body p{font-size:10px}');
+          done();
+        });
+      });
+      it('should build a minified styl file if "compress" is true', (done) => {
+        buddy = buddyFactory({
+          input: 'a.styl',
+          output: 'output'
+        }, { compress: true, plugins: [stylusPlugin] });
         buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
@@ -1276,9 +1290,8 @@ describe('Buddy', () => {
     });
 
     if (process.platform != 'win32') {
-      it.skip('should rebuild a watched file on change', (done) => {
+      it('should rebuild a watched file on change', (done) => {
         const child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, (err, stdout, stderr) => {
-          console.log(arguments);
           done(err);
         });
         const foo = fs.readFileSync(path.resolve('foo.js'), 'utf8');
@@ -1288,12 +1301,12 @@ describe('Buddy', () => {
           setTimeout(() => {
             const content = fs.readFileSync(path.resolve('output/foo.js'), 'utf8');
 
-            expect(content).to.contain("_m_[\'foo\']=(function(module,exports){\n  module=this;exports=module.exports;\n\n  var foo = \"foo\";");
+            expect(content).to.contain('$m[\'foo\'] = { exports: {} };\n"use strict";\n\nvar foo__foo = "foo";\n');
             fs.writeFileSync(path.resolve('foo.js'), foo);
             child.kill();
             done();
           }, 100);
-        }, 4000);
+        }, 2000);
       });
     }
   });

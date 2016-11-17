@@ -1,8 +1,8 @@
 'use strict';
 
+const cache = require('../../../lib/cache');
 const configFactory = require('../../../lib/config');
 const expect = require('expect.js');
-const fileCacheFactory = require('../../../lib/config/fileCache');
 const path = require('path');
 const plugin = require('../index');
 let config, file, fileFactoryOptions;
@@ -18,7 +18,7 @@ describe('buddy-plugin-imagemin', () => {
     }, {});
     plugin.register(config);
     fileFactoryOptions = {
-      fileCache: fileCacheFactory(),
+      fileCache: cache.createFileCache(),
       fileExtensions: config.fileExtensions,
       fileFactory: config.fileFactory,
       pluginOptions: { babel: { plugins: [] } },
