@@ -303,7 +303,7 @@ describe('Buddy', () => {
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(path.basename(filepaths[0])).to.eql('foo-859540895c99975652ba35095742e480.js');
+          expect(path.basename(filepaths[0])).to.eql('foo-f4563c9dc98432dab7836716798c7394.js');
           done();
         });
       });
