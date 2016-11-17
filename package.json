@@ -16,7 +16,7 @@
   ],
   "dependencies": {
     "async": "2.1.2",
-    "autoprefixer": "6.5.2",
+    "autoprefixer": "6.5.3",
     "babel-core": "6.18.2",
     "babel-plugin-external-helpers": "6.18.0",
     "babel-plugin-transform-es2015-modules-commonjs": "6.18.0",
@@ -27,7 +27,7 @@
     "cssnano": "3.8.0",
     "glob": "7.1.1",
     "inline-source": "5.1.2",
-    "lodash": "4.16.6",
+    "lodash": "4.17.2",
     "md5": "2.2.1",
     "minimatch": "3.0.3",
     "portscanner": "1.0.0",
@@ -37,7 +37,7 @@
     "uglify-js": "2.7.4"
   },
   "devDependencies": {
-    "babel-preset-env": "0.0.7",
+    "babel-preset-env": "0.0.8",
     "expect.js": "*",
     "mocha": "*",
     "rimraf": "*"
