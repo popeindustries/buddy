@@ -54,7 +54,7 @@ describe('Buddy', () => {
       });
 
       expect(buddy.builds).to.have.length(1);
-      expect(buddy.builds[0].build).to.have.length(1);
+      expect(buddy.builds[0].builds).to.have.length(1);
     });
   });
 
