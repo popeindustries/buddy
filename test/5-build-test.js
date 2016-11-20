@@ -61,14 +61,14 @@ describe('build', () => {
     });
   });
 
-  describe('initFiles()', () => {
+  describe('init()', () => {
     it('should return File instances', (done) => {
       config = configFactory({
         input: 'src/js/bat.js',
         output: 'js'
       }, {});
       build = buildFactory(config.builds[0]);
-      build.initFiles(build.inputpaths, (err, files) => {
+      build.init((err, files) => {
         expect(files).to.have.length(1);
         expect(files[0]).to.have.property('hash', '80f0a76176369c88dba5313c04a40ad9');
         done();
