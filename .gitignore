@@ -3,4 +3,3 @@ node_modules/*
 packages/**/node_modules/*
 examples/**/www/*.js
 npm-debug.log*
-test/fixtures/buddy/watch/output/foo.js

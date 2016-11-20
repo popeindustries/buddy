@@ -1304,7 +1304,7 @@ describe('Buddy', () => {
             expect(content).to.contain('$m[\'foo\'] = { exports: {} };\n"use strict";\n\nvar foo__foo = "foo";\n');
             fs.writeFileSync(path.resolve('foo.js'), foo);
             child.kill();
-            done();
+            setTimeout(done, 100);
           }, 100);
         }, 2000);
       });
