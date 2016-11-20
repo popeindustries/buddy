@@ -275,10 +275,24 @@ describe('file', () => {
     });
 
     describe('parse()', () => {
-      it('should store an array of dependencies', (done) => {
+      it('should store an array of require dependencies', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./b');";
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(2);
+          done();
+        });
+      });
+      it('should store an array of import dependencies', (done) => {
+        file.content = "import barDefault from './a';";
+        file.parse({}, (err) => {
+          expect(file.dependencies).to.have.length(1);
+          done();
+        });
+      });
+      it('should store an array of dynamic import dependencies', (done) => {
+        file.content = "buddyImport('./a').then((module) => {})";
+        file.parse({}, (err) => {
+          expect(file.dynamicDependencyReferences).to.have.length(1);
           done();
         });
       });
