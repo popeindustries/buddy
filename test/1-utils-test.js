@@ -156,7 +156,7 @@ describe('utils', () => {
       setTimeout(() => {
         const elapsed = stopwatch.stop('test');
 
-        expect(elapsed).to.be.within(500, 510);
+        expect(elapsed).to.be.within(490, 510);
         done();
       }, 500);
     });
