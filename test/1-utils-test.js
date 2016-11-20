@@ -174,7 +174,7 @@ describe('utils', () => {
       setTimeout(() => {
         const elapsed = stopwatch.stop('test', true);
 
-        expect(elapsed).to.match(/^1\.[0-9]s$/);
+        expect(elapsed).to.match(/^1\.[0-9]{1,2}s$/);
         done();
       }, 1100);
     });
