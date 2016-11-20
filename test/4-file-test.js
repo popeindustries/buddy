@@ -249,7 +249,8 @@ describe('file', () => {
             ]
           }
         },
-        runtimeOptions: config.runtimeOptions
+        runtimeOptions: config.runtimeOptions,
+        webroot: path.resolve('www')
       });
     });
 
@@ -382,6 +383,39 @@ describe('file', () => {
         ];
         file.replaceReferences({}, (err) => {
           expect(file.content).to.eql("var bar = $m['bar@0.js'].exports;\nvar baz = $m['view/baz.js'].exports;");
+          done();
+        });
+      });
+    });
+
+    describe('replaceDynamicReferences()', () => {
+      it('should replace relative id with url+id', (done) => {
+        file.content = "buddyImport('./a.js')";
+        file.writepath = path.resolve('www/assets/js', 'foo.js');
+        file.dynamicDependencyReferences = [
+          {
+            id: './a.js',
+            context: "buddyImport('./a.js')",
+            file: { filepath: path.resolve('src/a.js'), id: 'a' }
+          }
+        ];
+        file.replaceDynamicReferences({}, (err) => {
+          expect(file.content).to.equal("buddyImport('/assets/js/a.js', 'a')");
+          done();
+        });
+      });
+      it('should replace relative id with url+id with correct quote style', (done) => {
+        file.content = 'buddyImport("./a.js")';
+        file.writepath = path.resolve('www/assets/js', 'foo.js');
+        file.dynamicDependencyReferences = [
+          {
+            id: './a.js',
+            context: 'buddyImport("./a.js")',
+            file: { filepath: path.resolve('src/a.js'), id: 'a' }
+          }
+        ];
+        file.replaceDynamicReferences({}, (err) => {
+          expect(file.content).to.equal('buddyImport("/assets/js/a.js", "a")');
           done();
         });
       });

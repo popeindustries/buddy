@@ -100,6 +100,9 @@ describe('config', () => {
           watch: false,
           verbose: false
         },
+        server: {
+          webroot: ''
+        },
         url: ''
       };
     });
