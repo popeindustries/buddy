@@ -184,7 +184,6 @@ describe('config', () => {
       buildParser(dummyConfig);
 
       expect(dummyConfig.builds[0].builds).to.have.length(1);
-      expect(dummyConfig.builds[0].hasChildren).to.equal(true);
       expect(dummyConfig.builds[0].childInputpaths).to.eql([path.resolve('src-nested/nested/sub.js')]);
       expect(dummyConfig.builds[0].index).to.equal(1);
       expect(dummyConfig.builds[0].builds[0].index).to.equal(2);

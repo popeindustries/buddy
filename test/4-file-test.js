@@ -392,6 +392,7 @@ describe('file', () => {
       it('should replace relative id with url+id', (done) => {
         file.content = "buddyImport('./a.js')";
         file.writepath = path.resolve('www/assets/js', 'foo.js');
+        file.baseurl = '/assets/js';
         file.dynamicDependencyReferences = [
           {
             id: './a.js',
@@ -407,6 +408,7 @@ describe('file', () => {
       it('should replace relative id with url+id with correct quote style', (done) => {
         file.content = 'buddyImport("./a.js")';
         file.writepath = path.resolve('www/assets/js', 'foo.js');
+        file.baseurl = '/assets/js';
         file.dynamicDependencyReferences = [
           {
             id: './a.js',
