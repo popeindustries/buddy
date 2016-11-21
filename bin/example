@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const chalk = require('chalk');
+const fs = require('fs');
+const path = require('path');
+
+const exampleIdx = process.argv[3];
+const examplesDir = path.resolve(__dirname, '../examples');
+
+// Print usage
+if (!exampleIdx) {
+  const examples = fs.readdirSync(examplesDir)
+    .filter((item) => fs.statSync(path.resolve(examplesDir, item)).isDirectory())
+    .map((dir) => `* ${chalk.green(dir.slice(0, 2))} - ${dir.slice(3).replace('-', ' ')}`)
+    .join('\n');
+
+  return console.log(`
+  ${chalk.yellow('To run an example:')} npm run example ${chalk.green('01')}
+
+  ${examples}
+  `);
+}
+

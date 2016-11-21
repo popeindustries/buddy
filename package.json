@@ -47,6 +47,7 @@
     "buddy": "./bin/buddy"
   },
   "scripts": {
+    "example": "./bin/example --",
     "install:packages": "./bin/packages",
     "outdated:packages": "./bin/packages outdated",
     "copy": "cp ./node_modules/babel-preset-env/data/plugins.json ./lib/config/babel-plugins.json",
