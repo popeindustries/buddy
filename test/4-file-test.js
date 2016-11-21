@@ -400,7 +400,7 @@ describe('file', () => {
             file: { filepath: path.resolve('src/a.js'), id: 'a' }
           }
         ];
-        file.replaceDynamicReferences({}, (err) => {
+        file.replaceDynamicReferences({ browser: true }, (err) => {
           expect(file.content).to.equal("buddyImport('/assets/js/a.js', 'a')");
           done();
         });
@@ -416,7 +416,7 @@ describe('file', () => {
             file: { filepath: path.resolve('src/a.js'), id: 'a' }
           }
         ];
-        file.replaceDynamicReferences({}, (err) => {
+        file.replaceDynamicReferences({ browser: true }, (err) => {
           expect(file.content).to.equal('buddyImport("/assets/js/a.js", "a")');
           done();
         });
