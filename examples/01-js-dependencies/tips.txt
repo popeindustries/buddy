@@ -1,0 +1,19 @@
+#JS DEPENDENCIES#
+
+The config for this example points to a single JavaScript file:
+
+{buddy}
+
+`index.js` has one dependency (`dep.js`), and both files are bundled together as `output.js`:
+
+  - dependencies are declared with `require` (or es6 `import`) statements
+  - `require`, `module`, and `exports` statements are inlined (`$m['index'].exports` etc.)
+  - all files are concatenated and flattened into the same scope
+  - all declarations in module scope are namespaced to avoid collisions (`index__dep`)
+  - `require` boilerplate is included for three environments (Node.js, web worker, web page)
+  - all code is wrapped in an IIFE to prevent potential collisions with other running JavaScript
+  - modules are globally defined, and may be required from other scripts (`require('index')`)
+
+#OUTPUT#
+
+{output}

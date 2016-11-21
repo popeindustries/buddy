@@ -2,24 +2,60 @@
 
 'use strict';
 
+const buddyFactory = require('../lib/buddy');
 const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
+const rimraf = require('rimraf');
 
-const exampleIdx = process.argv[3];
-const examplesDir = path.resolve(__dirname, '../examples');
+const INLINE_COLOURS = {
+  buddy: chalk.yellow.bold,
+  output: chalk.yellow
+};
+
+const index = process.argv[3];
+const rootDir = path.resolve(__dirname, '../examples');
+const examples = fs.readdirSync(rootDir)
+  .filter((item) => fs.statSync(path.resolve(rootDir, item)).isDirectory());
 
 // Print usage
-if (!exampleIdx) {
-  const examples = fs.readdirSync(examplesDir)
-    .filter((item) => fs.statSync(path.resolve(examplesDir, item)).isDirectory())
+if (!index) {
+  const list = examples
     .map((dir) => `* ${chalk.green(dir.slice(0, 2))} - ${dir.slice(3).replace('-', ' ')}`)
     .join('\n');
 
   return console.log(`
   ${chalk.yellow('To run an example:')} npm run example ${chalk.green('01')}
 
-  ${examples}
+  ${list}
   `);
 }
 
+const exampleDir = examples.reduce((exampleDir, item) => {
+  if (item.indexOf(index) == 0) exampleDir = item;
+  return item;
+}, '');
+
+if (!exampleDir) return console.log(`couldn't find example for ${chalk.red(index)}`);
+
+const assets = fs.readdirSync(path.resolve(rootDir, exampleDir))
+  .reduce((assets, item) => {
+    assets[path.basename(item).replace(path.extname(item), '')] = fs.readFileSync(path.resolve(rootDir, exampleDir, item), 'utf8');
+    return assets;
+  }, {});
+
+const buddy = buddyFactory(path.resolve(rootDir, exampleDir, 'buddy.js'));
+
+buddy.build((err, filepaths) => {
+  if (err) return console.error(err);
+  assets.output = fs.readFileSync(filepaths[0], 'utf8');
+  rimraf.sync(filepaths[0]);
+  console.log(`\n\n\n${getInlinedTips(assets)}\n\n\n`);
+});
+
+function getInlinedTips (assets) {
+  return assets.tips
+    .replace(/{(.+)}/g, (match, p1) => INLINE_COLOURS[p1](assets[p1]))
+    .replace(/(`.+?`)/g, (match, p1) => chalk.bold.yellow(p1.slice(1, -1)))
+    .replace(/(#.+?#)/g, (match, p1) => chalk.bgYellow.black(p1.replace(/#/g, ' ')));
+}
