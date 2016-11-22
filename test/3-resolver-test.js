@@ -94,8 +94,8 @@ describe('resolver', () => {
         expect(pkg.resolvePath(path.resolve('node_modules/foo/bar/index.js'))).to.eql(path.resolve('node_modules/foo'));
       });
       it('should return a scoped package path when passed a scoped node_modules path', () => {
-        expect(pkg.resolvePath(path.resolve('node_modules/@foo/foo'))).to.eql(path.resolve('node_modules/@foo/foo'));
-        expect(pkg.resolvePath(path.resolve('node_modules/@foo/bar/index.js'))).to.eql(path.resolve('node_modules/@foo/bar'));
+        expect(pkg.resolvePath(path.resolve('node_modules/@popeindustries/test'))).to.eql(path.resolve('node_modules/@popeindustries/test'));
+        expect(pkg.resolvePath(path.resolve('node_modules/@popeindustries/test/test.js'))).to.eql(path.resolve('node_modules/@popeindustries/test'));
       });
       it('should return a package path relative to the nearest node_modules directory', () => {
         expect(pkg.resolvePath(path.resolve('nested/bar.js'))).to.eql(path.resolve('nested'));
@@ -114,10 +114,10 @@ describe('resolver', () => {
     });
 
     describe('retrieving details', () => {
-      it('should return nothing for a package that doesn\'t exist', () => {
+      it('should return details for the project root package if not found', () => {
         const details = pkg.getDetails(path.resolve('node_modules/zing'));
 
-        expect(details).to.eql(undefined);
+        expect(details).to.have.property('name', 'project');
       });
       it('should return details for the project root package', () => {
         const details = pkg.getDetails(process.cwd(), config());
