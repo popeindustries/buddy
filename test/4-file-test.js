@@ -702,7 +702,7 @@ describe('file', () => {
 
     describe('parse()', () => {
       it('should store an array of "inline" dependency references', (done) => {
-        file.content = '<script inline src="src/foo.js"></script>';
+        file.content = '<script inline src="foo.js"></script>';
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(1);
           expect(file.dependencies[0]).to.have.property('isInline', true);
@@ -713,7 +713,7 @@ describe('file', () => {
 
     describe('inline()', () => {
       it('should replace "inline" source with file contents', (done) => {
-        file.content = '<script inline src="src/foo.js"></script>';
+        file.content = '<script inline src="foo.js"></script>';
         file.parse({}, (err) => {
           file.inline({}, (err) => {
             expect(file.content).to.equal('<script>module.exports="foo";</script>');
@@ -722,7 +722,7 @@ describe('file', () => {
         });
       });
       it('should replace "inline" source with processed file contents', (done) => {
-        file.content = '<script inline src="src/bat.js"></script>';
+        file.content = '<script inline src="bat.js"></script>';
         file.parse({}, (err) => {
           file.inline({}, (err) => {
             expect(file.content).to.equal('<script>var runtime="browser";</script>');
