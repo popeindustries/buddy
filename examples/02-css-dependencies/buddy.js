@@ -1,4 +1,4 @@
 exports.build = {
   input: 'index.css',
-  output: 'output.css'
+  output: 'www/output.css'
 };

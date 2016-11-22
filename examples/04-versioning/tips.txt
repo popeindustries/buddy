@@ -1,22 +1,23 @@
 #VERSIONING#
 
-The config for this example points to a single JS file:
+The config for this example describes a single JS build:
 
-{buddy}
+{{buddy}}
 
-The input file (`index.js`) is processed and saved as `output.js`
-in a version of JavaScript specified under `version`:
+The input file (`index.js`) is processed and saved as `www/output.js`
+in a version of JavaScript specified by `version`:
 
   - both JS and CSS builds can specify a version target
   - for JS, target versions are based on official JavaScript versions (`es5`, `es2016`, etc.)
   - Node.js code may also be targeted with specific major versions (`node4`, `node6`)
   - both JS and CSS builds may specify autoprefixer-style browser versions (`["last 2 versions", "iOS >= 7"]`)
   - JS code is transpiled with Babel, and any `babelHelpers` boilerplate is included
+  - all Babel plugins required to satisfy a target version will be installed automatically
 
 #INPUT#
 
-{index}
+{{index}}
 
 #OUTPUT#
 
-{output}
+{{output}}

@@ -1,0 +1,33 @@
+#JS CHILD BUNDLES WITH buddyImport#
+
+The config for this example describes a single JS build:
+
+{{buddy}}
+
+The input file (`index.js`) has one static dependency (`arrify`), and one dynamic dependency
+(`./child`) declared with `buddyImport()`. The child input file (`child.js`) has one dependency (`arrify`),
+but because it is already bundled into `www/output.js`, it is not included in the child bundle:
+
+  - child bundles are automatically generated from `buddyImport()` expressions
+  - at runtime, bundles are loaded and evaluated dynamically
+  - load location at runtime may be configured with `server.webroot`
+  - dynamically generated bundles are given a unique output name based on id and contents
+  - `buddyImport` works in all three environments (Node.js, web worker, web page)
+  - `buddyImport` boilerplate is only included in the root bundle
+  - `buddyImport` may require a `Promise` polyfill in some environments
+
+#INPUT - INDEX#
+
+{{index}}
+
+#OUTPUT - INDEX#
+
+{{output}}
+
+#INPUT - CHILD#
+
+{{child}}
+
+#OUTPUT - CHILD#
+
+{{child-b621480767a88ba492db23fdc85df175}}

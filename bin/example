@@ -9,12 +9,6 @@ const fs = require('fs');
 const path = require('path');
 const rimraf = require('rimraf');
 
-const INLINE_COLOURS = {
-  buddy: chalk.yellow,
-  index: chalk.yellow,
-  output: chalk.yellow
-};
-
 const arg = process.argv[2];
 const rootDir = path.resolve(__dirname, '../examples');
 const examples = fs.readdirSync(rootDir)
@@ -50,14 +44,21 @@ const buddy = buddyFactory(path.resolve(rootDir, exampleDir, 'buddy.js'));
 
 buddy.build((err, filepaths) => {
   if (err) return console.error(err);
-  assets.output = fs.readFileSync(filepaths[0], 'utf8');
-  rimraf.sync(filepaths[0]);
+
+  filepaths.forEach((filepath) => {
+    const name = path.basename(filepath).replace(path.extname(filepath), '');
+
+    assets[name] = fs.readFileSync(filepath, 'utf8');
+  });
+
+  rimraf.sync(path.resolve(rootDir, exampleDir, 'www'));
+
   console.log(`\n\n\n${getInlinedTips(assets)}\n\n\n`);
 });
 
 function getInlinedTips (assets) {
   return assets.tips
-    .replace(/(`.+?`)/g, (match, p1) => chalk.yellow(p1.slice(1, -1)))
-    .replace(/(#.+?#)/g, (match, p1) => chalk.inverse(p1.replace(/#/g, ' ')))
-    .replace(/{(.+)}/g, (match, p1) => indent(INLINE_COLOURS[p1](assets[p1]), 3));
+    .replace(/(`[^`]+`)/g, (match, p) => chalk.yellow(p.slice(1, -1)))
+    .replace(/(#[^#]+#)/g, (match, p) => chalk.inverse(p.replace(/#/g, ' ')))
+    .replace(/{{([^}]+)}}/g, (match, p) => indent(chalk.yellow(assets[p]), 3));
 }

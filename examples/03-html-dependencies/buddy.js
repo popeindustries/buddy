@@ -1,4 +1,4 @@
 exports.build = {
   input: 'index.html',
-  output: 'output.html'
+  output: 'www/output.html'
 };

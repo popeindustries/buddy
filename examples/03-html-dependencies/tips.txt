@@ -1,11 +1,11 @@
 #HTML DEPENDENCIES#
 
-The config for this example points to a single HTML file:
+The config for this example describes a single HTML build:
 
-{buddy}
+{{buddy}}
 
-The input file (`index.html`) has one dependency (`dep.css`),
-and both files are bundled together as `output.html`:
+The input file (`index.html`) has two dependencies (`dep.css`, `arrify`),
+and all files are bundled together as `www/output.html`:
 
   - dependencies are declared with `inline` attributes in `<link>`, `<script>`, and `<img>` tags
   - npm installed dependencies may also be included (`<script inline src="arrify">`)
@@ -14,8 +14,8 @@ and both files are bundled together as `output.html`:
 
 #INPUT#
 
-{index}
+{{index}}
 
 #OUTPUT#
 
-{output}
+{{output}}
