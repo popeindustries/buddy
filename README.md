@@ -378,6 +378,42 @@ const react = require('react');
 const lodash = require('lodash');
 ```
 
+The same result may also be achieved with dynamic child builds using `buddyImport()`:
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "src/libs.js",
+        "output": "www/assets"
+      }
+    ],
+    "server": {
+      "webroot": "www"
+    }
+  }
+}
+```
+```js
+// src/libs.js
+buddyImport('./index.js')
+  .then((index) => {
+    console.log('index module loaded');
+  });
+```
+...compiles to:
+```js
+// www/assets/libs.js
+buddyImport('/assets/index-b621480767a88ba492db23fdc85df175.js', 'src/index')
+  .then((index) => {
+    console.log('index module loaded');
+  });
+```
+
+
+Child builds will be automatically generated and loaded asynchronously at runtime. **Note that some environments may require a `Promise` polyfill**, and that the id's passed to `buddyImport` must be statically resolvable strings. It may also be necessary to configure the child bundle url by declaring a `webroot` property in `buddy.server` config.
+
 #### Lazily evaluate a *JS* bundle?
 
 By default, js modules in a bundle are evaluated in reverse dependency order as soon as the file is loaded, with the `input` module evaluated and executed last. Sometimes, however, it is useful to delay evaluation and execution until a later time (so-called lazy evaluation). For example, when loading several bundles in parallel, it may be important to have more control over the order of evaluation:
@@ -411,8 +447,8 @@ By default, js modules in a bundle are evaluated in reverse dependency order as 
 ```js
 // After loading libs.js, index.js, and extras.js in parallel...
 // ...guarantee that index.js is evaluated before extras.js
-require('src/index.js');
-require('src/extras.js');
+require('src/index');
+require('src/extras');
 
 ```
 
@@ -427,6 +463,7 @@ All references to `process.env.*` variables are automatically inlined in *JS* so
 - **`BUDDY_{LABEL or INDEX}_OUTPUT`**: output filepath(s) for target identified with `LABEL` or `INDEX` (value `filepath` or `filepath,filepath,...` if multiple outputs)
 - **`BUDDY_{LABEL or INDEX}_OUTPUT_HASH`**: hash(es) of output file(s) for target identified with `LABEL` or `INDEX` (value `xxxxxx` or `xxxxxx,xxxxxx,...` if multiple outputs)
 - **`BUDDY_{LABEL or INDEX}_OUTPUT_DATE`**: timestamp(s) of output file(s) for target identified with `LABEL` or `INDEX` (value `000000` or `000000,000000,...` if multiple outputs)
+- **`BUDDY_{LABEL or INDEX}_OUTPUT_URL`**: url(s) of output file(s) for target identified with `LABEL` or `INDEX` (value `/xxx/xxxx` or `/xxx/xxxx,/xxx/xxxx,...` if multiple outputs)
 
 ```json
 {
