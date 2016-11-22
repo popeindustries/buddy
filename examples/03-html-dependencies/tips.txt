@@ -1,0 +1,21 @@
+#HTML DEPENDENCIES#
+
+The config for this example points to a single HTML file:
+
+{buddy}
+
+The input file (`index.html`) has one dependency (`dep.css`),
+and both files are bundled together as `output.html`:
+
+  - dependencies are declared with `inline` attributes in `<link>`, `<script>`, and `<img>` tags
+  - npm installed dependencies may also be included (`<script inline src="arrify">`)
+  - bitmap images are inlined as base64 strings
+  - SVG images are inlined as inline SVG elements
+
+#INPUT#
+
+{index}
+
+#OUTPUT#
+
+{output}

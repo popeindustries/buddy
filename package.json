@@ -37,6 +37,7 @@
     "uglify-js": "2.7.4"
   },
   "devDependencies": {
+    "babel-plugin-transform-es5-property-mutators": "^6.8.0",
     "babel-preset-env": "0.0.8",
     "expect.js": "*",
     "mocha": "*",
@@ -47,7 +48,7 @@
     "buddy": "./bin/buddy"
   },
   "scripts": {
-    "example": "./bin/example --",
+    "example": "./bin/example",
     "install:packages": "./bin/packages",
     "outdated:packages": "./bin/packages outdated",
     "copy": "cp ./node_modules/babel-preset-env/data/plugins.json ./lib/config/babel-plugins.json",

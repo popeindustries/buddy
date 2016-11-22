@@ -2,6 +2,7 @@
 
 'use strict';
 
+const { indent } = require('../lib/utils/string');
 const buddyFactory = require('../lib/buddy');
 const chalk = require('chalk');
 const fs = require('fs');
@@ -9,34 +10,35 @@ const path = require('path');
 const rimraf = require('rimraf');
 
 const INLINE_COLOURS = {
-  buddy: chalk.yellow.bold,
+  buddy: chalk.yellow,
+  index: chalk.yellow,
   output: chalk.yellow
 };
 
-const index = process.argv[3];
+const arg = process.argv[2];
 const rootDir = path.resolve(__dirname, '../examples');
 const examples = fs.readdirSync(rootDir)
   .filter((item) => fs.statSync(path.resolve(rootDir, item)).isDirectory());
 
+process.env.NODE_ENV = 'development';
+
 // Print usage
-if (!index) {
+if (!arg) {
   const list = examples
-    .map((dir) => `* ${chalk.green(dir.slice(0, 2))} - ${dir.slice(3).replace('-', ' ')}`)
+    .map((dir) => `- ${chalk.yellow(dir.slice(0, 2))} ${dir.slice(3).replace('-', ' ')}`)
     .join('\n');
 
   return console.log(`
-  ${chalk.yellow('To run an example:')} npm run example ${chalk.green('01')}
+  ${chalk.yellow('To run an example:')} npm run example ${chalk.yellow('01')}
 
-  ${list}
+${indent(list, 3)}
   `);
 }
 
-const exampleDir = examples.reduce((exampleDir, item) => {
-  if (item.indexOf(index) == 0) exampleDir = item;
-  return item;
-}, '');
+const index = parseInt(arg, 10) - 1;
+const exampleDir = examples[index];
 
-if (!exampleDir) return console.log(`couldn't find example for ${chalk.red(index)}`);
+if (!exampleDir) return console.log(`couldn't find example for ${chalk.red(arg)}`);
 
 const assets = fs.readdirSync(path.resolve(rootDir, exampleDir))
   .reduce((assets, item) => {
@@ -55,7 +57,7 @@ buddy.build((err, filepaths) => {
 
 function getInlinedTips (assets) {
   return assets.tips
-    .replace(/{(.+)}/g, (match, p1) => INLINE_COLOURS[p1](assets[p1]))
-    .replace(/(`.+?`)/g, (match, p1) => chalk.bold.yellow(p1.slice(1, -1)))
-    .replace(/(#.+?#)/g, (match, p1) => chalk.bgYellow.black(p1.replace(/#/g, ' ')));
+    .replace(/(`.+?`)/g, (match, p1) => chalk.yellow(p1.slice(1, -1)))
+    .replace(/(#.+?#)/g, (match, p1) => chalk.inverse(p1.replace(/#/g, ' ')))
+    .replace(/{(.+)}/g, (match, p1) => indent(INLINE_COLOURS[p1](assets[p1]), 3));
 }

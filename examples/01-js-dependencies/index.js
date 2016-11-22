@@ -1,4 +1,4 @@
 const dep = require('./dep');
+const arrify = require('arrify');
 
-dep.start();
-dep.stop();
+const depArr = arrify(dep);

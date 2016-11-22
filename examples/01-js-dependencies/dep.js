@@ -1,8 +1,4 @@
 module.exports = {
-  start () {
-    console.log('start');
-  },
-  stop () {
-    console.log('stop');
-  }
+  ONE: 'one',
+  TOW: 'two'
 };

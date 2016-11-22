@@ -1,0 +1,21 @@
+#CSS DEPENDENCIES#
+
+The config for this example points to a single CSS file:
+
+{buddy}
+
+The input file (`index.css`) has one dependency (`dep.css`),
+and both files are bundled together as `output.css`:
+
+  - dependencies are declared with `@import` statements
+  - npm installed dependencies may also be included (`@import 'mocha/mocha.css'`)
+  - due to the cascading nature of CSS, dependencies are inlined rather than concatenated
+  - duplicate `@import` statements will result in duplicate file content
+
+#INPUT#
+
+{index}
+
+#OUTPUT#
+
+{output}

@@ -473,6 +473,13 @@ babel-plugin-transform-es2015-unicode-regex@^6.3.13:
     babel-runtime "^6.0.0"
     regexpu-core "^2.0.0"
 
+babel-plugin-transform-es5-property-mutators@^6.8.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-es5-property-mutators/-/babel-plugin-transform-es5-property-mutators-6.8.0.tgz#b2288f96dc5ea2f8c466a6f60c566d3f77c42b84"
+  dependencies:
+    babel-helper-define-map "^6.8.0"
+    babel-runtime "^6.0.0"
+
 babel-plugin-transform-exponentiation-operator@^6.8.0:
   version "6.8.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-transform-exponentiation-operator/-/babel-plugin-transform-exponentiation-operator-6.8.0.tgz#db25742e9339eade676ca9acec46f955599a68a4"
