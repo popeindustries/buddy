@@ -30,8 +30,8 @@
     "lodash": "4.17.2",
     "md5": "2.2.1",
     "minimatch": "3.0.3",
-    "portscanner": "1.1.0",
-    "postcss": "5.2.5",
+    "portscanner": "2.1.0",
+    "postcss": "5.2.6",
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "uglify-js": "2.7.4"
