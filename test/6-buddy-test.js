@@ -1197,7 +1197,7 @@ describe('Buddy', () => {
 
             if (name == 'dynamic') {
               expect(content).to.contain('buddyLoad');
-              expect(content).to.contain("buddyImport('/output/foo.js', 'foo').then(foo => {");
+              expect(content).to.contain("buddyImport('/output/foo-859540895c99975652ba35095742e480.js', 'foo').then(foo => {");
             } else {
               expect(content).to.not.contain('buddyLoad');
             }
