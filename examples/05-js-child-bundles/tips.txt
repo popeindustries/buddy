@@ -1,0 +1,33 @@
+#JS CHILD BUNDLES#
+
+The config for this example describes a JS build with a nested child build:
+
+{{buddy}}
+
+The input file (`index.js`) has two dependencies (`./child` and `arrify`),
+but because `child.js` is defined as it's own build, only `arrify` and `index`
+modules are bundled into `www/output.js`. The child input file (`child.js`) has one dependency
+(`arrify`), but because it is already bundled into `output.js`, it is not included in `www/child-output.js`:
+
+  - parent bundles do not include their child modules
+  - child modules do not include any modules already included in a parent bundle
+  - there are no limits to the number of nested build levels
+  - boilerplate is only included in the root bundle
+  - `require` statements are preserved to access modules accross bundles
+  - loading of child bundles is not done automatically
+
+#INPUT - INDEX#
+
+{{index}}
+
+#OUTPUT - INDEX#
+
+{{output}}
+
+#INPUT - CHILD#
+
+{{child}}
+
+#OUTPUT - CHILD#
+
+{{output-child}}

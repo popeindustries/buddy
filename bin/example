@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const { indent } = require('../lib/utils/string');
+const buddyFactory = require('../lib/buddy');
+const chalk = require('chalk');
+const fs = require('fs');
+const path = require('path');
+const rimraf = require('rimraf');
+
+const arg = process.argv[2];
+const rootDir = path.resolve(__dirname, '../examples');
+const examples = fs.readdirSync(rootDir)
+  .filter((item) => fs.statSync(path.resolve(rootDir, item)).isDirectory());
+
+process.env.NODE_ENV = 'development';
+
+// Print usage
+if (!arg) {
+  const list = examples
+    .map((dir) => `- ${chalk.yellow(dir.slice(0, 2))} ${dir.slice(3).replace('-', ' ')}`)
+    .join('\n');
+
+  return console.log(`
+  ${chalk.yellow('To run an example:')} npm run example ${chalk.yellow('01')}
+
+${indent(list, 3)}
+  `);
+}
+
+const index = parseInt(arg, 10) - 1;
+const exampleDir = examples[index];
+
+if (!exampleDir) return console.log(`couldn't find example for ${chalk.red(arg)}`);
+
+const assets = fs.readdirSync(path.resolve(rootDir, exampleDir))
+  .reduce((assets, item) => {
+    assets[path.basename(item).replace(path.extname(item), '')] = fs.readFileSync(path.resolve(rootDir, exampleDir, item), 'utf8');
+    return assets;
+  }, {});
+
+const buddy = buddyFactory(path.resolve(rootDir, exampleDir, 'buddy.js'));
+
+buddy.build((err, filepaths) => {
+  if (err) return console.error(err);
+
+  filepaths.forEach((filepath) => {
+    const name = path.basename(filepath).replace(path.extname(filepath), '');
+
+    assets[name] = fs.readFileSync(filepath, 'utf8');
+  });
+
+  rimraf.sync(path.resolve(rootDir, exampleDir, 'www'));
+
+  console.log(`\n\n\n${getInlinedTips(assets)}\n\n\n`);
+});
+
+function getInlinedTips (assets) {
+  return assets.tips
+    .replace(/(`[^`]+`)/g, (match, p) => chalk.yellow(p.slice(1, -1)))
+    .replace(/(#[^#]+#)/g, (match, p) => chalk.inverse(p.replace(/#/g, ' ')))
+    .replace(/{{([^}]+)}}/g, (match, p) => indent(chalk.yellow(assets[p]), 3));
+}

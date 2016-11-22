@@ -30,13 +30,14 @@
     "lodash": "4.17.2",
     "md5": "2.2.1",
     "minimatch": "3.0.3",
-    "portscanner": "1.0.0",
+    "portscanner": "1.1.0",
     "postcss": "5.2.5",
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "uglify-js": "2.7.4"
   },
   "devDependencies": {
+    "babel-plugin-transform-es5-property-mutators": "^6.8.0",
     "babel-preset-env": "0.0.8",
     "expect.js": "*",
     "mocha": "*",
@@ -47,6 +48,7 @@
     "buddy": "./bin/buddy"
   },
   "scripts": {
+    "example": "./bin/example",
     "install:packages": "./bin/packages",
     "outdated:packages": "./bin/packages outdated",
     "copy": "cp ./node_modules/babel-preset-env/data/plugins.json ./lib/config/babel-plugins.json",

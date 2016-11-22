@@ -249,7 +249,8 @@ describe('file', () => {
             ]
           }
         },
-        runtimeOptions: config.runtimeOptions
+        runtimeOptions: config.runtimeOptions,
+        webroot: path.resolve('www')
       });
     });
 
@@ -275,10 +276,24 @@ describe('file', () => {
     });
 
     describe('parse()', () => {
-      it('should store an array of dependencies', (done) => {
+      it('should store an array of require dependencies', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./b');";
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(2);
+          done();
+        });
+      });
+      it('should store an array of import dependencies', (done) => {
+        file.content = "import barDefault from './a';";
+        file.parse({}, (err) => {
+          expect(file.dependencies).to.have.length(1);
+          done();
+        });
+      });
+      it('should store an array of dynamic import dependencies', (done) => {
+        file.content = "buddyImport('./a').then((module) => {})";
+        file.parse({}, (err) => {
+          expect(file.dynamicDependencyReferences).to.have.length(1);
           done();
         });
       });
@@ -368,6 +383,39 @@ describe('file', () => {
         ];
         file.replaceReferences({}, (err) => {
           expect(file.content).to.eql("var bar = $m['bar@0.js'].exports;\nvar baz = $m['view/baz.js'].exports;");
+          done();
+        });
+      });
+    });
+
+    describe('replaceDynamicReferences()', () => {
+      it('should replace relative id with url+id', (done) => {
+        file.content = "buddyImport('./a.js')";
+        file.writepath = path.resolve('www/assets/js', 'foo.js');
+        file.dynamicDependencyReferences = [
+          {
+            id: './a.js',
+            context: "buddyImport('./a.js')",
+            file: { filepath: path.resolve('src/a.js'), id: 'a', writeUrl: '/assets/js/a.js' }
+          }
+        ];
+        file.replaceDynamicReferences({ browser: true }, (err) => {
+          expect(file.content).to.equal("buddyImport('/assets/js/a.js', 'a')");
+          done();
+        });
+      });
+      it('should replace relative id with url+id with correct quote style', (done) => {
+        file.content = 'buddyImport("./a.js")';
+        file.writepath = path.resolve('www/assets/js', 'foo.js');
+        file.dynamicDependencyReferences = [
+          {
+            id: './a.js',
+            context: 'buddyImport("./a.js")',
+            file: { filepath: path.resolve('src/a.js'), id: 'a', writeUrl: '/assets/js/a.js' }
+          }
+        ];
+        file.replaceDynamicReferences({ browser: true }, (err) => {
+          expect(file.content).to.equal('buddyImport("/assets/js/a.js", "a")');
           done();
         });
       });
@@ -652,7 +700,7 @@ describe('file', () => {
 
     describe('parse()', () => {
       it('should store an array of "inline" dependency references', (done) => {
-        file.content = '<script inline src="src/foo.js"></script>';
+        file.content = '<script inline src="foo.js"></script>';
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(1);
           expect(file.dependencies[0]).to.have.property('isInline', true);
@@ -663,7 +711,7 @@ describe('file', () => {
 
     describe('inline()', () => {
       it('should replace "inline" source with file contents', (done) => {
-        file.content = '<script inline src="src/foo.js"></script>';
+        file.content = '<script inline src="foo.js"></script>';
         file.parse({}, (err) => {
           file.inline({}, (err) => {
             expect(file.content).to.equal('<script>module.exports="foo";</script>');
@@ -672,7 +720,7 @@ describe('file', () => {
         });
       });
       it('should replace "inline" source with processed file contents', (done) => {
-        file.content = '<script inline src="src/bat.js"></script>';
+        file.content = '<script inline src="bat.js"></script>';
         file.parse({}, (err) => {
           file.inline({}, (err) => {
             expect(file.content).to.equal('<script>var runtime="browser";</script>');

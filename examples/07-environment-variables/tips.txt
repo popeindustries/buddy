@@ -1,0 +1,30 @@
+#ENVIRONMENT VARIABLES#
+
+The config for this example describes a JS build labelled `one`,
+and an HTML build labelled `two`:
+
+{{buddy}}
+
+In JS, references to environment variables (`process.env.ENV`) are automatically inlined,
+and in HTML those same references are inlined as well (`{ENV}`). In addition to system level variables,
+Buddy sets `RUNTIME` and other build specific variables (`BUDDY_{LABEL or INDEX}_INPUT`, `BUDDY_{LABEL or INDEX}_OUTPUT`, etc.):
+
+  - build labels make it easy to reference build specific environment variables
+  - in `one.js` the variable `process.env.RUNTIME` is replaced with 'browser'
+  - in `two.html` the variable `{BUDDY_ONE_OUTPUT}` is replaced with the output filename from build `one`
+
+#INPUT - JS#
+
+{{one}}
+
+#OUTPUT - JS#
+
+{{output-one}}
+
+#INPUT - HTML#
+
+{{two}}
+
+#OUTPUT - HTML#
+
+{{output-two}}

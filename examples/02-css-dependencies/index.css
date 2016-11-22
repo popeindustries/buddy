@@ -1,0 +1,7 @@
+body {
+  color: #ccc;
+  background-color: #fff
+}
+
+@import 'dep';
+@import 'mocha/mocha.css';

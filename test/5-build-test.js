@@ -27,7 +27,7 @@ describe('build', () => {
         input: 'src/js/foo.js',
         output: 'js'
       }, {});
-      build = buildFactory(config.build[0]);
+      build = buildFactory(config.builds[0]);
 
       expect(build).to.have.property('output', 'js');
       expect(build).to.have.property('fileFactory');
@@ -37,7 +37,7 @@ describe('build', () => {
         input: 'src/js/foo.js',
         output: 'js'
       }, {});
-      build = buildFactory(config.build[0]);
+      build = buildFactory(config.builds[0]);
 
       expect(build).to.have.property('inputString', 'js/foo.js');
     });
@@ -46,7 +46,7 @@ describe('build', () => {
         input: ['src/js/foo.js', 'src/js/bar.js'],
         output: 'js'
       }, {});
-      build = buildFactory(config.build[0]);
+      build = buildFactory(config.builds[0]);
 
       expect(build).to.have.property('inputString', 'js/foo.js, js/bar.js');
     });
@@ -55,20 +55,20 @@ describe('build', () => {
         input: 'src/js',
         output: 'js'
       }, {});
-      build = buildFactory(config.build[0]);
+      build = buildFactory(config.builds[0]);
 
       expect(build).to.have.property('inputString', 'js/bar.js, js/bat.js, js/baz.js ...and 1 other');
     });
   });
 
-  describe('initFiles()', () => {
+  describe('init()', () => {
     it('should return File instances', (done) => {
       config = configFactory({
         input: 'src/js/bat.js',
         output: 'js'
       }, {});
-      build = buildFactory(config.build[0]);
-      build.initFiles(build.inputpaths, (err, files) => {
+      build = buildFactory(config.builds[0]);
+      build.init((err, files) => {
         expect(files).to.have.length(1);
         expect(files[0]).to.have.property('hash', '80f0a76176369c88dba5313c04a40ad9');
         done();
@@ -82,7 +82,7 @@ describe('build', () => {
         input: 'src/js/bat.js',
         output: 'js'
       }, {});
-      build = buildFactory(config.build[0]);
+      build = buildFactory(config.builds[0]);
       const files = [build.fileFactory(build.inputpaths[0])];
 
       build.processFiles(files, (err, referencedFiles) => {
@@ -96,7 +96,7 @@ describe('build', () => {
         input: 'src/js/bar.js',
         output: 'js'
       }, {});
-      build = buildFactory(config.build[0]);
+      build = buildFactory(config.builds[0]);
       const files = [build.fileFactory(build.inputpaths[0], build.fileFactoryOptions)];
 
       build.processFiles(files, (err, referencedFiles) => {
@@ -112,7 +112,7 @@ describe('build', () => {
         input: 'src/js/bat.js',
         output: 'temp'
       }, {});
-      build = buildFactory(config.build[0]);
+      build = buildFactory(config.builds[0]);
       build.run((err, results) => {
         expect(fs.existsSync(results[0].filepath)).to.equal(true);
         expect(results[0].filepath.toLowerCase()).to.equal(path.resolve('temp/bat.js').toLowerCase());
