@@ -17,6 +17,9 @@ class Foo extends Bar {
     this.foo = foo;
     console.log(foo);
   }
+  bar () {
+    foo();
+  }
 }
 
 function bat (foo, options = {}) {
