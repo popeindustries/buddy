@@ -2,7 +2,7 @@
 
 The config for this example describes a single HTML build:
 
-{{buddy}}
+{{buddy.js}}
 
 The input file (`index.html`) has two dependencies (`dep.css`, `arrify`),
 and all files are bundled together as `www/output.html`:
@@ -14,8 +14,8 @@ and all files are bundled together as `www/output.html`:
 
 #INPUT#
 
-{{index}}
+{{index.html}}
 
 #OUTPUT#
 
-{{output}}
+{{output.html}}

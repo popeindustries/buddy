@@ -6,6 +6,8 @@ const { indent } = require('../lib/utils/string');
 const buddyFactory = require('../lib/buddy');
 const chalk = require('chalk');
 const fs = require('fs');
+const lessPlugin = require('../packages/buddy-plugin-less');
+const nunjucksPlugin = require('../packages/buddy-plugin-nunjucks');
 const path = require('path');
 const rimraf = require('rimraf');
 
@@ -36,17 +38,20 @@ if (!exampleDir) return console.log(`couldn't find example for ${chalk.red(arg)}
 
 const assets = fs.readdirSync(path.resolve(rootDir, exampleDir))
   .reduce((assets, item) => {
-    assets[path.basename(item).replace(path.extname(item), '')] = fs.readFileSync(path.resolve(rootDir, exampleDir, item), 'utf8');
+    const filepath = path.resolve(rootDir, exampleDir, item);
+
+    if (fs.statSync(filepath).isDirectory()) return assets;
+    assets[path.basename(item)] = fs.readFileSync(filepath, 'utf8');
     return assets;
   }, {});
 
-const buddy = buddyFactory(path.resolve(rootDir, exampleDir, 'buddy.js'));
+const buddy = buddyFactory(path.resolve(rootDir, exampleDir, 'buddy.js'), { plugins: [lessPlugin, nunjucksPlugin] });
 
 buddy.build((err, filepaths) => {
   if (err) return console.error(err);
 
   filepaths.forEach((filepath) => {
-    const name = path.basename(filepath).replace(path.extname(filepath), '');
+    const name = path.basename(filepath);
 
     assets[name] = fs.readFileSync(filepath, 'utf8');
   });
@@ -57,7 +62,7 @@ buddy.build((err, filepaths) => {
 });
 
 function getInlinedTips (assets) {
-  return assets.tips
+  return assets['tips.txt']
     .replace(/(`[^`]+`)/g, (match, p) => chalk.yellow(p.slice(1, -1)))
     .replace(/(#[^#]+#)/g, (match, p) => chalk.inverse(p.replace(/#/g, ' ')))
     .replace(/{{([^}]+)}}/g, (match, p) => indent(chalk.yellow(assets[p]), 3));

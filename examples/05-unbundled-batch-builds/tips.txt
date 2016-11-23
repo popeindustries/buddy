@@ -1,0 +1,11 @@
+#UNBUNDLED BATCH BUILDS#
+
+The config for this example describes a single directory (batch) build:
+
+{{buddy.js}}
+
+All files in the `src` directory are processed, but because the `bundle` property is `false`,
+all files are output to `www`:
+
+  - unbundled files will not inline or concatenate dependencies
+  - unbundled builds are useful when transpiling or converting from another file type

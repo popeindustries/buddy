@@ -2,7 +2,7 @@
 
 The config for this example describes a single JS build:
 
-{{buddy}}
+{{buddy.js}}
 
 The input file (`index.js`) is processed and saved as `www/output.js`
 in a version of JavaScript specified by `version`:
@@ -16,8 +16,8 @@ in a version of JavaScript specified by `version`:
 
 #INPUT#
 
-{{index}}
+{{index.js}}
 
 #OUTPUT#
 
-{{output}}
+{{output.js}}

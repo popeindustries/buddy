@@ -2,7 +2,7 @@
 
 The config for this example describes a single JS build:
 
-{{buddy}}
+{{buddy.js}}
 
 The input file (`index.js`) has one static dependency (`arrify`), and one dynamic dependency
 (`./child`) declared with `buddyImport()`. The child input file (`child.js`) has one dependency (`arrify`),
@@ -18,16 +18,16 @@ but because it is already bundled into `www/output.js`, it is not included in th
 
 #INPUT - INDEX#
 
-{{index}}
+{{index.js}}
 
 #OUTPUT - INDEX#
 
-{{output}}
+{{output.js}}
 
 #INPUT - CHILD#
 
-{{child}}
+{{child.js}}
 
 #OUTPUT - CHILD#
 
-{{child-b621480767a88ba492db23fdc85df175}}
+{{child-b621480767a88ba492db23fdc85df175.js}}

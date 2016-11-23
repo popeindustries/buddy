@@ -2,7 +2,7 @@
 
 The config for this example describes a JS build with a nested child build:
 
-{{buddy}}
+{{buddy.js}}
 
 The input file (`index.js`) has two dependencies (`./child` and `arrify`),
 but because `child.js` is defined as it's own build, only `arrify` and `index`
@@ -18,16 +18,16 @@ modules are bundled into `www/output.js`. The child input file (`child.js`) has 
 
 #INPUT - INDEX#
 
-{{index}}
+{{index.js}}
 
 #OUTPUT - INDEX#
 
-{{output}}
+{{output.js}}
 
 #INPUT - CHILD#
 
-{{child}}
+{{child.js}}
 
 #OUTPUT - CHILD#
 
-{{output-child}}
+{{output-child.js}}

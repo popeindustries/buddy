@@ -1,0 +1,31 @@
+#LANGUAGE PLUGINS#
+
+The config for this example describes a single (grepped) batch build:
+
+{{buddy.js}}
+
+Installing language plugins for higher-order CSS/JS/HTML languages enables Buddy to parse and compile many file formats.
+In this case, a `less` file was built to `css`, and a `nunjucks` file was built to `html`:
+
+  - plugins are installed with npm (`npm install --save-dev buddy-plugin-less buddy-plugin-nunjucks`)
+  - html language plugins support loading sidecar data files to populate template variables (`index.json`)
+
+#INPUT - LESS#
+
+{{index.less}}
+
+#OUTPUT - CSS#
+
+{{index.css}}
+
+#INPUT - NUNJUCKS#
+
+{{index.nunjs}}
+
+#INPUT - JSON#
+
+{{index.json}}
+
+#OUTPUT - HTML#
+
+{{index.html}}

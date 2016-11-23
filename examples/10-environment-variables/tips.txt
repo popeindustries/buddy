@@ -3,7 +3,7 @@
 The config for this example describes a JS build labelled `one`,
 and an HTML build labelled `two`:
 
-{{buddy}}
+{{buddy.js}}
 
 In JS, references to environment variables (`process.env.ENV`) are automatically inlined,
 and in HTML those same references are inlined as well (`{ENV}`). In addition to system level variables,
@@ -15,16 +15,16 @@ Buddy sets `RUNTIME` and other build specific variables (`BUDDY_{LABEL or INDEX}
 
 #INPUT - JS#
 
-{{one}}
+{{one.js}}
 
 #OUTPUT - JS#
 
-{{output-one}}
+{{output-one.js}}
 
 #INPUT - HTML#
 
-{{two}}
+{{two.html}}
 
 #OUTPUT - HTML#
 
-{{output-two}}
+{{output-two.html}}

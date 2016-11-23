@@ -1,0 +1,6 @@
+body {
+  color: #ccc;
+  background-color: #fff
+}
+
+@import 'dep';

@@ -2,7 +2,7 @@
 
 The config for this example describes a single CSS build:
 
-{{buddy}}
+{{buddy.js}}
 
 The input file (`index.css`) has two dependencies (`dep`, `mocha/mocha.css`),
 and all files are bundled together as `www/output.css`:
@@ -14,8 +14,8 @@ and all files are bundled together as `www/output.css`:
 
 #INPUT#
 
-{{index}}
+{{index.css}}
 
 #OUTPUT#
 
-{{output}}
+{{output.css}}

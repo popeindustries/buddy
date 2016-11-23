@@ -2,7 +2,7 @@
 
 The config for this example describes a single JS build:
 
-{{buddy}}
+{{buddy.js}}
 
 The input file (`index.js`) has two dependencies (`./dep` and `arrify`),
 and all files are bundled together as `www/output.js`:
@@ -18,8 +18,8 @@ and all files are bundled together as `www/output.js`:
 
 #INPUT#
 
-{{index}}
+{{index.js}}
 
 #OUTPUT#
 
-{{output}}
+{{output.js}}

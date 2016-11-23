@@ -1,0 +1,10 @@
+#BATCH BUILDS#
+
+The config for this example describes a single directory (batch) build:
+
+{{buddy.js}}
+
+All files in the `src` directory are processed, but after resolving for dependencies,
+only two files are output to `www` (`index.css` and `index.js`):
+
+  - in addition to files and directories, the `input` build property can accept an array of files or grep patterns
