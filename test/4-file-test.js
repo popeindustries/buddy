@@ -386,7 +386,7 @@ describe('file', () => {
         it.only('should update source map content', (done) => {
           file = create('src/bar.js');
           file.transpile({ bundle: true }, (err) => {
-            console.log(file.map.toString())
+            console.log(file.map)
             done();
           });
         });
