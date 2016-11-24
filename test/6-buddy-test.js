@@ -23,7 +23,7 @@ describe('Buddy', () => {
   });
   afterEach(() => {
     if (buddy) buddy.destroy();
-    rimraf.sync(path.resolve('output'));
+    // rimraf.sync(path.resolve('output'));
   });
 
   describe('factory', () => {
@@ -133,7 +133,7 @@ describe('Buddy', () => {
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-
+          console.log(content)
           done();
         });
       });
