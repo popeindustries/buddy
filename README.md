@@ -77,6 +77,7 @@ One of the most common use cases for extending **buddy** is to enable working wi
 - **[buddy-plugin-nunjucks](https://www.npmjs.com/package/buddy-plugin-nunjucks)**: transform `.nunjucks` html template source files to `.html`
 - **[buddy-plugin-less](https://www.npmjs.com/package/buddy-plugin-less)**: transform `.less` source files to `.css`
 - **[buddy-plugin-stylus](https://www.npmjs.com/package/buddy-plugin-stylus)**: transform `.styl` source files to `.css`
+- **[buddy-plugin-typescript](https://www.npmjs.com/package/buddy-plugin-typescript)**: transform `.ts` and `.tsx` source files to `.js`
 
 Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/docs/plugins.md) to learn about writing your own.
 
