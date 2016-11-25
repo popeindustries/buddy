@@ -1,0 +1,1 @@
+{"version":3,"sources":["foo.js","bar.js"],"names":["module","exports","foo","require"],"mappings":";;;AAAAA,UAAOC,OAAP,GAAiB,KAAjB,C;;;ACAA,IAAIC,WAAMC,QAAQ,OAAR,CAAV;;AAEAH,UAAOC,OAAP,GAAiBC,QAAjB,C","file":"bar.js","sourcesContent":["module.exports = 'foo';","var foo = require('./foo')\n\nmodule.exports = foo;"]}

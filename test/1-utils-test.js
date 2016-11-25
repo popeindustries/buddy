@@ -1,6 +1,6 @@
 'use strict';
 
-const { regexpEscape, truncate, uniqueMatch } = require('../lib/utils/string');
+const { indexToLineColumn, regexpEscape, truncate, uniqueMatch } = require('../lib/utils/string');
 const callable = require('../lib/utils/callable');
 const expect = require('expect.js');
 const filepath = require('../lib/utils/filepath');
@@ -48,7 +48,7 @@ describe('utils', () => {
   });
 
   describe('string', () => {
-    describe('regexpEscape', () => {
+    describe('regexpEscape()', () => {
       it('should ignore valid characters', () => {
         expect(regexpEscape('foo')).to.equal('foo');
       });
@@ -57,7 +57,7 @@ describe('utils', () => {
       });
     });
 
-    describe('truncate', () => {
+    describe('truncate()', () => {
       it('should ignore short strings', () => {
         expect(truncate('foo/bar')).to.equal('foo/bar');
       });
@@ -67,7 +67,7 @@ describe('utils', () => {
       });
     });
 
-    describe('uniqueMatch', () => {
+    describe('uniqueMatch()', () => {
       it('should match a simple string', () => {
         expect(uniqueMatch('foo bar', /foo/g)).to.eql([{ context: 'foo', match: '' }]);
       });

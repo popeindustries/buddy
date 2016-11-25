@@ -6,6 +6,7 @@ const configFactory = require('../lib/config');
 const expect = require('expect.js');
 const File = require('../lib/File');
 const fs = require('fs');
+const MagicString = require('magic-string');
 const path = require('path');
 let config, file;
 
@@ -229,12 +230,8 @@ describe('file', () => {
   });
 
   describe('JSFile', () => {
-    beforeEach(() => {
-      config = configFactory({
-        input: '.',
-        output: '.'
-      }, {});
-      file = config.fileFactory(path.resolve('src/foo.js'), {
+    function create (filepath) {
+      return config.fileFactory(path.resolve(filepath), {
         fileCache: cache.createFileCache(),
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
@@ -252,6 +249,14 @@ describe('file', () => {
         runtimeOptions: config.runtimeOptions,
         webroot: path.resolve('www')
       });
+    }
+
+    beforeEach(() => {
+      config = configFactory({
+        input: '.',
+        output: '.'
+      }, {});
+      file = create('src/foo.js');
     });
 
     describe('constructor()', () => {
@@ -315,107 +320,23 @@ describe('file', () => {
 
     describe('replaceEnvironment()', () => {
       it('should inline calls to process.env', (done) => {
-        file.content = "process.env.NODE_ENV process.env['NODE_ENV'] process.env[\"NODE_ENV\"]";
+        file.content = new MagicString("process.env.NODE_ENV process.env['NODE_ENV'] process.env[\"NODE_ENV\"]");
         file.replaceEnvironment({}, (err) => {
-          expect(file.content).to.eql("'test' 'test' 'test'");
+          expect(file.content.toString()).to.eql("'test' 'test' 'test'");
           done();
         });
       });
       it('should inline calls to process.env.RUNTIME', (done) => {
-        file.content = 'process.env.RUNTIME';
+        file.content = new MagicString('process.env.RUNTIME');
         file.replaceEnvironment({}, (err) => {
-          expect(file.content).to.eql("'browser'");
+          expect(file.content.toString()).to.eql("'browser'");
           done();
         });
       });
       it('should handle undefined values when inlining calls to process.env', (done) => {
-        file.content = 'process.env.FEATURE_FOO';
+        file.content = new MagicString('process.env.FEATURE_FOO');
         file.replaceEnvironment({}, (err) => {
-          expect(file.content).to.eql('process.env.FEATURE_FOO');
-          done();
-        });
-      });
-    });
-
-    describe('replaceReferences()', () => {
-      it('should replace relative ids with absolute ones', (done) => {
-        file.content = "var foo = require('./foo');";
-        file.dependencyReferences = [
-          {
-            id: './foo',
-            context: "require('./foo')",
-            file: { dependencyReferences: [], id: 'foo.js' },
-            isIgnored: true
-          }
-        ];
-        file.replaceReferences({}, (err) => {
-          expect(file.content).to.eql("var foo = require('foo.js');");
-          done();
-        });
-      });
-      it('should replace "require(*)" with resolved lookup', (done) => {
-        file.content = "var foo = require('./foo');";
-        file.dependencyReferences = [
-          {
-            id: './foo',
-            context: "require('./foo')",
-            file: { dependencyReferences: [], id: 'foo.js' }
-          }
-        ];
-        file.replaceReferences({}, (err) => {
-          expect(file.content).to.eql("var foo = $m['foo.js'].exports;");
-          done();
-        });
-      });
-      it('should replace package ids with versioned ones', (done) => {
-        file.content = "var bar = require('bar');\nvar baz = require('view/baz');";
-        file.dependencyReferences = [
-          {
-            id: 'bar',
-            context: "require('bar')",
-            file: { dependencyReferences: [], id: 'bar@0.js' }
-          },
-          {
-            id: 'view/baz',
-            context: "require('view/baz')",
-            file: { dependencyReferences: [], id: 'view/baz.js' }
-          }
-        ];
-        file.replaceReferences({}, (err) => {
-          expect(file.content).to.eql("var bar = $m['bar@0.js'].exports;\nvar baz = $m['view/baz.js'].exports;");
-          done();
-        });
-      });
-    });
-
-    describe('replaceDynamicReferences()', () => {
-      it('should replace relative id with url+id', (done) => {
-        file.content = "buddyImport('./a.js')";
-        file.writepath = path.resolve('www/assets/js', 'foo.js');
-        file.dynamicDependencyReferences = [
-          {
-            id: './a.js',
-            context: "buddyImport('./a.js')",
-            file: { filepath: path.resolve('src/a.js'), id: 'a', writeUrl: '/assets/js/a.js' }
-          }
-        ];
-        file.replaceDynamicReferences({ browser: true }, (err) => {
-          expect(file.content).to.equal("buddyImport('/assets/js/a.js', 'a')");
-          done();
-        });
-      });
-      it('should replace relative id with url+id with correct quote style', (done) => {
-        file.content = 'buddyImport("./a.js")';
-        file.writepath = path.resolve('www/assets/js', 'foo.js');
-        file.dynamicDependencyReferences = [
-          {
-            id: './a.js',
-            context: 'buddyImport("./a.js")',
-            file: { filepath: path.resolve('src/a.js'), id: 'a', writeUrl: '/assets/js/a.js' }
-          }
-        ];
-        file.replaceDynamicReferences({ browser: true }, (err) => {
-          expect(file.content).to.equal('buddyImport("/assets/js/a.js", "a")');
+          expect(file.content.toString()).to.eql('process.env.FEATURE_FOO');
           done();
         });
       });
@@ -423,14 +344,14 @@ describe('file', () => {
 
     describe('inline()', () => {
       it('should inline require(*.json) content', (done) => {
-        file.content = "var foo = require('./foo.json');";
+        file.content = new MagicString("var foo = require('./foo.json');");
         file.dependencyReferences = [
           {
             file: {
               filepath: path.resolve('./foo.json'),
               extension: 'json',
               type: 'json',
-              content: fs.readFileSync(path.resolve('./src/foo.json'), 'utf8'),
+              content: new MagicString(fs.readFileSync(path.resolve('./src/foo.json'), 'utf8')),
               dependencies: [],
               dependencyReferences: []
             },
@@ -440,19 +361,19 @@ describe('file', () => {
           }
         ];
         file.inline({}, (err) => {
-          expect(file.content).to.eql('var foo = {\n\t"foo": "bar"\n};');
+          expect(file.content.toString()).to.eql('var foo = {  "foo": "bar"};');
           done();
         });
       });
       it('should inline an empty object when unable to locate require(*.json) content', (done) => {
-        file.content = "var foo = require('./bar.json');";
+        file.content = new MagicString("var foo = require('./bar.json');");
         file.dependencyReferences = [
           {
             file: {
               filepath: path.resolve('./bar.json'),
               extension: 'json',
               type: 'json',
-              content: '',
+              content: new MagicString(''),
               dependencies: [],
               dependencyReferences: []
             },
@@ -462,12 +383,12 @@ describe('file', () => {
           }
         ];
         file.inline({}, (err) => {
-          expect(file.content).to.eql('var foo = {};');
+          expect(file.content.toString()).to.eql('var foo = {};');
           done();
         });
       });
       it('should inline an empty object when dependency is a native module', (done) => {
-        file.content = "var foo = require('path');";
+        file.content = new MagicString("var foo = require('path');");
         file.dependencyReferences = [
           {
             filepath: 'path',
@@ -477,12 +398,12 @@ describe('file', () => {
           }
         ];
         file.inline({ browser: true }, (err) => {
-          expect(file.content).to.eql('var foo = {};');
+          expect(file.content.toString()).to.eql('var foo = {};');
           done();
         });
       });
       it('should not inline an empty object when dependency is a native module for server builds', (done) => {
-        file.content = "var foo = require('path');";
+        file.content = new MagicString("var foo = require('path');");
         file.dependencyReferences = [
           {
             filepath: 'path',
@@ -492,13 +413,105 @@ describe('file', () => {
           }
         ];
         file.inline({ browser: false }, (err) => {
-          expect(file.content).to.eql("var foo = require('path');");
+          expect(file.content.toString()).to.eql("var foo = require('path');");
+          done();
+        });
+      });
+    });
+
+    describe('replaceReferences()', () => {
+      it('should replace relative ids with absolute ones', (done) => {
+        file.content = new MagicString("var foo = require('./foo');");
+        file.dependencyReferences = [
+          {
+            id: './foo',
+            context: "require('./foo')",
+            file: { dependencyReferences: [], id: 'foo.js' },
+            isIgnored: true
+          }
+        ];
+        file.replaceReferences({}, (err) => {
+          expect(file.content.toString()).to.eql("var foo = require('foo.js');");
+          done();
+        });
+      });
+      it('should replace "require(*)" with resolved lookup', (done) => {
+        file.content = new MagicString("var foo = require('./foo');");
+        file.dependencyReferences = [
+          {
+            id: './foo',
+            context: "require('./foo')",
+            file: { content: '', dependencyReferences: [], id: 'foo.js' }
+          }
+        ];
+        file.replaceReferences({}, (err) => {
+          expect(file.content.toString()).to.eql("var foo = $m['foo.js'].exports;");
+          done();
+        });
+      });
+      it('should replace package ids with versioned ones', (done) => {
+        file.content = new MagicString("var bar = require('bar');\nvar baz = require('view/baz');");
+        file.dependencyReferences = [
+          {
+            id: 'bar',
+            context: "require('bar')",
+            file: { content: '', dependencyReferences: [], id: 'bar@0.js' }
+          },
+          {
+            id: 'view/baz',
+            context: "require('view/baz')",
+            file: { content: '', dependencyReferences: [], id: 'view/baz.js' }
+          }
+        ];
+        file.replaceReferences({}, (err) => {
+          expect(file.content.toString()).to.eql("var bar = $m['bar@0.js'].exports;\nvar baz = $m['view/baz.js'].exports;");
+          done();
+        });
+      });
+    });
+
+    describe('replaceDynamicReferences()', () => {
+      it('should replace relative id with url+id', (done) => {
+        file.content = new MagicString("buddyImport('./a.js')");
+        file.writepath = path.resolve('www/assets/js', 'foo.js');
+        file.dynamicDependencyReferences = [
+          {
+            id: './a.js',
+            context: "buddyImport('./a.js')",
+            file: { content: '', filepath: path.resolve('src/a.js'), id: 'a', writeUrl: '/assets/js/a.js' }
+          }
+        ];
+        file.replaceDynamicReferences({ browser: true }, (err) => {
+          expect(file.content.toString()).to.equal("buddyImport('/assets/js/a.js', 'a')");
+          done();
+        });
+      });
+      it('should replace relative id with url+id with correct quote style', (done) => {
+        file.content = new MagicString('buddyImport("./a.js")');
+        file.writepath = path.resolve('www/assets/js', 'foo.js');
+        file.dynamicDependencyReferences = [
+          {
+            id: './a.js',
+            context: 'buddyImport("./a.js")',
+            file: { content: '', filepath: path.resolve('src/a.js'), id: 'a', writeUrl: '/assets/js/a.js' }
+          }
+        ];
+        file.replaceDynamicReferences({ browser: true }, (err) => {
+          expect(file.content.toString()).to.equal('buddyImport("/assets/js/a.js", "a")');
           done();
         });
       });
     });
 
     describe('transpile()', () => {
+      it('should generate a source map', (done) => {
+        file = create('src/bar.js');
+        file.transpile({ bundle: true }, (err) => {
+          expect(file.map.toString()).to.equal(file.content);
+          done();
+        });
+      });
+
       describe('namespace root declarations', () => {
         it('should namespace variable declarations', (done) => {
           file.content = 'const foo = "foo";';

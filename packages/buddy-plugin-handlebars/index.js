@@ -119,6 +119,7 @@ function define (File, utils) {
      *  - {Boolean} helpers
      *  - {Boolean} watchOnly
      * @param {Function} fn(err)
+     * @returns {null}
      */
     compile (buildOptions, fn) {
       try {
