@@ -125,7 +125,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.only('should build a js file with 1 dependency and an inlined source map', (done) => {
+      it.skip('should build a js file with 1 dependency and an inlined source map', (done) => {
         buddy = buddyFactory({
           input: 'bar.js',
           output: 'output'

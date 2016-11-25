@@ -41,6 +41,7 @@
     "babel-plugin-transform-es5-property-mutators": "^6.8.0",
     "babel-preset-env": "0.0.8",
     "expect.js": "*",
+    "magic-string": "0.17.0",
     "mocha": "*",
     "rimraf": "*"
   },
