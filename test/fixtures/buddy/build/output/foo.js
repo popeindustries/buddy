@@ -32,12 +32,4 @@ if ('browser' != 'browser') {
 $m['foo'] = { exports: {} };
 $m['foo'].exports = 'foo';
 /*≠≠ foo.js ≠≠*/
-
-
-/*== bar.js ==*/
-$m['bar'] = { exports: {} };
-var bar__foo = $m['foo'].exports;
-
-$m['bar'].exports = bar__foo;
-/*≠≠ bar.js ≠≠*/
 })()

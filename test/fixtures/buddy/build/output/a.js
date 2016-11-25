@@ -28,16 +28,10 @@ if ('browser' != 'browser') {
 
 
 (function () {
-/*== foo.js ==*/
-$m['foo'] = { exports: {} };
-$m['foo'].exports = 'foo';
-/*≠≠ foo.js ≠≠*/
+/*== a.coffee ==*/
+$m['a'] = { exports: {} };
+var a__foo;
 
-
-/*== bar.js ==*/
-$m['bar'] = { exports: {} };
-var bar__foo = $m['foo'].exports;
-
-$m['bar'].exports = bar__foo;
-/*≠≠ bar.js ≠≠*/
+a__foo = 'foo';
+/*≠≠ a.coffee ≠≠*/
 })()
