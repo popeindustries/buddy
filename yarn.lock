@@ -264,6 +264,10 @@ babel-helper-remap-async-to-generator@^6.16.0:
     babel-traverse "^6.18.0"
     babel-types "^6.18.0"
 
+babel-helper-remove-or-void@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/babel-helper-remove-or-void/-/babel-helper-remove-or-void-0.0.1.tgz#f602790e465acf2dfbe84fb3dd210c43a2dd7262"
+
 babel-helper-replace-supers@^6.18.0, babel-helper-replace-supers@^6.8.0:
   version "6.18.0"
   resolved "https://registry.yarnpkg.com/babel-helper-replace-supers/-/babel-helper-replace-supers-6.18.0.tgz#28ec69877be4144dbd64f4cc3a337e89f29a924e"
@@ -299,6 +303,13 @@ babel-plugin-external-helpers@6.18.0:
   resolved "https://registry.yarnpkg.com/babel-plugin-external-helpers/-/babel-plugin-external-helpers-6.18.0.tgz#c6bbf87a4448eb49616f24a8b8088503863488da"
   dependencies:
     babel-runtime "^6.0.0"
+
+babel-plugin-minify-dead-code-elimination@0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/babel-plugin-minify-dead-code-elimination/-/babel-plugin-minify-dead-code-elimination-0.1.1.tgz#1a0133fcd06c7fa477b01c193ba3213c8944ff01"
+  dependencies:
+    babel-helper-remove-or-void "^0.0.1"
+    lodash.some "^4.6.0"
 
 babel-plugin-syntax-async-functions@^6.8.0:
   version "6.13.0"
@@ -1532,6 +1543,10 @@ lodash.keys@^3.0.0:
     lodash._getnative "^3.0.0"
     lodash.isarguments "^3.0.0"
     lodash.isarray "^3.0.0"
+
+lodash.some@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/lodash.some/-/lodash.some-4.6.0.tgz#1bb9f314ef6b8baded13b549169b2a945eb68e4d"
 
 lodash@4.17.2, lodash@^4.14.0, lodash@^4.2.0:
   version "4.17.2"

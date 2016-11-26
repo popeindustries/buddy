@@ -361,19 +361,18 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should remove dead code when referencing "process.env.RUNTIME" and compressing', (done) => {
+      it('should remove dead code when referencing "process.env.RUNTIME" and compressing', (done) => {
         buddy = buddyFactory({
           input: 'zee.js',
           output: 'output'
-        });
+        }, { compress: true });
         buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          // expect(content).to.not.contain('_m_["foo.js"]=function');
-          // expect(content).to.contain('_m_["boop.js"]=function');
-          // expect(content).to.contain('var s=!1;return console.log("is dev: ",s)');
+          expect(content).to.contain('$m.foo={exports:{}},$m.foo.exports="foo"');
+          expect(content).to.not.contain('$m.c');
           done();
         });
       });
