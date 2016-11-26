@@ -35,7 +35,7 @@ describe('buddy-plugin-dust', () => {
     file = config.fileFactory(path.resolve('a.dust'), fileFactoryOptions);
     file.parse({}, (err) => {
       file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
+        expect(file.string.toString()).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
         done();
       });
     });
@@ -45,7 +45,7 @@ describe('buddy-plugin-dust', () => {
     file.parse({}, (err) => {
       file.inline({}, (err) => {
         file.compile({}, (err) => {
-          expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a-include.html'), 'utf8'));
+          expect(file.string.toString()).to.eql(fs.readFileSync(path.resolve('compiled/a-include.html'), 'utf8'));
           done();
         });
       });
