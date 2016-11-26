@@ -1,1 +1,3 @@
-var bar = "bar";
+var foo = require('./foo')
+
+module.exports = foo;

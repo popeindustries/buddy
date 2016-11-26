@@ -283,6 +283,7 @@ describe('file', () => {
     describe('parse()', () => {
       it('should store an array of require dependencies', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./b');";
+        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(2);
           done();
@@ -290,6 +291,7 @@ describe('file', () => {
       });
       it('should store an array of import dependencies', (done) => {
         file.content = "import barDefault from './a';";
+        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(1);
           done();
@@ -297,6 +299,7 @@ describe('file', () => {
       });
       it('should store an array of dynamic import dependencies', (done) => {
         file.content = "buddyImport('./a').then((module) => {})";
+        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dynamicDependencyReferences).to.have.length(1);
           done();
@@ -304,6 +307,7 @@ describe('file', () => {
       });
       it('should only store 1 dependency object when there are duplicates', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./a');";
+        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(1);
           done();
@@ -311,6 +315,7 @@ describe('file', () => {
       });
       it('should store 2 dependency objects when there are case sensitive package references', (done) => {
         file.content = "var a = require('./a');\nvar boo = require('Boo');";
+        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(2);
           done();
