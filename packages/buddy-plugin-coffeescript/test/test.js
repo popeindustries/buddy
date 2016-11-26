@@ -35,7 +35,7 @@ describe('buddy-plugin-coffeescript', () => {
     it('should convert file content to JS', (done) => {
       file = config.fileFactory(path.resolve('a.coffee'), fileFactoryOptions);
       file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.js'), 'utf8'));
+        expect(file.string.toString()).to.eql(fs.readFileSync(path.resolve('compiled/a.js'), 'utf8'));
         done();
       });
     });

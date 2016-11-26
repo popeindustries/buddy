@@ -1,5 +1,6 @@
 'use strict';
 
+const MagicString = require('magic-string');
 const ts = require('typescript');
 
 const DEFAULT_OPTIONS = {
@@ -71,9 +72,9 @@ function define (File, utils) {
 
       try {
         const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.typescript);
-        const result = ts.transpileModule(this.content, options);
+        const result = ts.transpileModule(this.string.toString(), options);
 
-        this.content = result.outputText;
+        this.string = new MagicString(result.outputText);
         this.compiled = true;
         debug(`compile: ${strong(this.relpath)}`, 4);
       } catch (err) {

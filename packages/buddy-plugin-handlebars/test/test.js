@@ -35,7 +35,7 @@ describe('buddy-plugin-handlebars', () => {
     file = config.fileFactory(path.resolve('a.handlebars'), fileFactoryOptions);
     file.parse({}, (err) => {
       file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
+        expect(file.string.toString()).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
         done();
       });
     });

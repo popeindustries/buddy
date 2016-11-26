@@ -35,7 +35,7 @@ describe('buddy-plugin-nunjucks', () => {
     file = config.fileFactory(path.resolve('a.nunjs'), fileFactoryOptions);
     file.parse({}, (err) => {
       file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
+        expect(file.string.toString()).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
         done();
       });
     });
@@ -45,7 +45,7 @@ describe('buddy-plugin-nunjucks', () => {
     file.parse({}, (err) => {
       file.inline({}, (err) => {
         file.compile({}, (err) => {
-          expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a-include.html'), 'utf8'));
+          expect(file.string.toString()).to.eql(fs.readFileSync(path.resolve('compiled/a-include.html'), 'utf8'));
           done();
         });
       });

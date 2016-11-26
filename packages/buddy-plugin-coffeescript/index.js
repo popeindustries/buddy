@@ -1,6 +1,7 @@
 'use strict';
 
 const coffee = require('coffee-script');
+const MagicString = require('magic-string');
 
 const DEFAULT_OPTIONS = {
   // Compile without function wrapper
@@ -72,7 +73,7 @@ function define (File, utils) {
         const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.coffeescript);
         const content = coffee.compile(this.content, options);
 
-        this.content = content;
+        this.string = new MagicString(content);
         this.compiled = true;
         debug(`compile: ${strong(this.relpath)}`, 4);
       } catch (err) {

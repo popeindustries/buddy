@@ -1,6 +1,7 @@
 'use strict';
 
 const nunjucks = require('nunjucks');
+const MagicString = require('magic-string');
 
 const DEFAULT_OPTIONS = {
   noCache: true
@@ -75,7 +76,7 @@ function define (File, utils) {
       // Add sidecar json file
       const sidecarData = super.parseSidecarDependency();
       // Parse includes
-      let matches = uniqueMatch(this.content, RE_INCLUDE)
+      let matches = uniqueMatch(this.string.original, RE_INCLUDE)
         .map((match) => {
           match.id = match.match;
           return match;
@@ -124,12 +125,12 @@ function define (File, utils) {
       const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.nunjucks);
 
       nunjucks.configure(null, options);
-      nunjucks.renderString(this.content, this.findSidecarDependency(), (err, content) => {
+      nunjucks.renderString(this.string.toString(), this.findSidecarDependency(), (err, content) => {
         if (err) {
           if (!this.options.runtimeOptions.watch) return fn(err);
           error(err, 4, false);
         }
-        this.content = content;
+        this.string = new MagicString(content);
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       });

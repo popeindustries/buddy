@@ -1,6 +1,6 @@
 module.exports = b;
 
-var a = require('./a.js');
+var a = require('./a');
 
 function b () {
   console.log('b');

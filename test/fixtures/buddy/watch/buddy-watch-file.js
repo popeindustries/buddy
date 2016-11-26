@@ -1,4 +1,4 @@
 exports.build = [{
-  input: 'foo.js',
+  input: 'bar.js',
   output: 'output'
 }];
