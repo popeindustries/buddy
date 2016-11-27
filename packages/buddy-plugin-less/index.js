@@ -1,7 +1,6 @@
 'use strict';
 
 const less = require('less');
-const MagicString = require('magic-string');
 
 const FILE_EXTENSIONS = ['less'];
 const WORKFLOW_WRITEABLE = [
@@ -69,12 +68,12 @@ function define (File, utils) {
     compile (buildOptions, fn) {
       const options = this.options.pluginOptions.less || {};
 
-      less.render(this.string.toString(), options, (err, content) => {
+      less.render(this.content, options, (err, content) => {
         if (err) {
           if (!this.options.runtimeOptions.watch) return fn(err);
           error(err, 4, false);
         }
-        this.string = new MagicString(content.css);
+        this.content = content.css;
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       });

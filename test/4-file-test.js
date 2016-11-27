@@ -709,7 +709,7 @@ describe('file', () => {
         file.content = '<script inline src="foo.js"></script>';
         file.parse({}, (err) => {
           file.inline({}, (err) => {
-            expect(file.content).to.equal('<script>module.exports = \'foo\';</script>');
+            expect(file.content).to.equal('<script>module.exports="foo";</script>');
             done();
           });
         });
@@ -718,7 +718,7 @@ describe('file', () => {
         file.content = '<script inline src="bat.js"></script>';
         file.parse({}, (err) => {
           file.inline({}, (err) => {
-            expect(file.content).to.equal('<script>var runtime = \'browser\';</script>');
+            expect(file.content).to.equal('<script>var runtime="browser";</script>');
             done();
           });
         });

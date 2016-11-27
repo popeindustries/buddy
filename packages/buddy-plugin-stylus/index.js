@@ -1,6 +1,5 @@
 'use strict';
 
-const MagicString = require('magic-string');
 const stylus = require('stylus');
 
 const FILE_EXTENSIONS = ['styl'];
@@ -72,12 +71,12 @@ function define (File, utils) {
         paths: this.options.fileCache.getDirs()
       });
 
-      stylus.render(this.string.toString(), options, (err, content) => {
+      stylus.render(this.content, options, (err, content) => {
         if (err) {
           if (!this.options.runtimeOptions.watch) return fn(err);
           error(err, 4, false);
         }
-        this.string = new MagicString(content);
+        this.content = content;
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       });

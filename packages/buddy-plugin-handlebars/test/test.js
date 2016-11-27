@@ -3,9 +3,9 @@
 const cache = require('../../../lib/cache');
 const configFactory = require('../../../lib/config');
 const expect = require('expect.js');
+const fs = require('fs');
 const path = require('path');
 const plugin = require('../index');
-const fs = require('fs');
 let config, file, fileFactoryOptions;
 
 describe('buddy-plugin-handlebars', () => {
@@ -35,7 +35,7 @@ describe('buddy-plugin-handlebars', () => {
     file = config.fileFactory(path.resolve('a.handlebars'), fileFactoryOptions);
     file.parse({}, (err) => {
       file.compile({}, (err) => {
-        expect(file.string.toString()).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
+        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
         done();
       });
     });
