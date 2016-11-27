@@ -6,7 +6,6 @@ const configFactory = require('../lib/config');
 const expect = require('expect.js');
 const File = require('../lib/File');
 const fs = require('fs');
-const MagicString = require('magic-string');
 const path = require('path');
 let config, file;
 
@@ -283,7 +282,6 @@ describe('file', () => {
     describe('parse()', () => {
       it('should store an array of require dependencies', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./b');";
-        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(2);
           done();
@@ -291,7 +289,6 @@ describe('file', () => {
       });
       it('should store an array of import dependencies', (done) => {
         file.content = "import barDefault from './a';";
-        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(1);
           done();
@@ -299,7 +296,6 @@ describe('file', () => {
       });
       it('should store an array of dynamic import dependencies', (done) => {
         file.content = "buddyImport('./a').then((module) => {})";
-        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dynamicDependencyReferences).to.have.length(1);
           done();
@@ -307,7 +303,6 @@ describe('file', () => {
       });
       it('should only store 1 dependency object when there are duplicates', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./a');";
-        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(1);
           done();
@@ -315,7 +310,6 @@ describe('file', () => {
       });
       it('should store 2 dependency objects when there are case sensitive package references', (done) => {
         file.content = "var a = require('./a');\nvar boo = require('Boo');";
-        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(2);
           done();
@@ -326,25 +320,22 @@ describe('file', () => {
     describe('replaceEnvironment()', () => {
       it('should inline calls to process.env', (done) => {
         file.content = "process.env.NODE_ENV process.env['NODE_ENV'] process.env[\"NODE_ENV\"]";
-        file.string = new MagicString(file.content);
         file.replaceEnvironment({}, (err) => {
-          expect(file.string.toString()).to.eql("'test' 'test' 'test'");
+          expect(file.content).to.eql("'test' 'test' 'test'");
           done();
         });
       });
       it('should inline calls to process.env.RUNTIME', (done) => {
         file.content = 'process.env.RUNTIME';
-        file.string = new MagicString(file.content);
         file.replaceEnvironment({}, (err) => {
-          expect(file.string.toString()).to.eql("'browser'");
+          expect(file.content).to.eql("'browser'");
           done();
         });
       });
       it('should handle undefined values when inlining calls to process.env', (done) => {
         file.content = 'process.env.FEATURE_FOO';
-        file.string = new MagicString(file.content);
         file.replaceEnvironment({}, (err) => {
-          expect(file.string.toString()).to.eql('process.env.FEATURE_FOO');
+          expect(file.content).to.eql('process.env.FEATURE_FOO');
           done();
         });
       });
@@ -353,7 +344,6 @@ describe('file', () => {
     describe('inline()', () => {
       it('should inline require(*.json) content', (done) => {
         file.content = "var foo = require('./foo.json');";
-        file.string = new MagicString(file.content);
         file.dependencyReferences = [
           {
             file: {
@@ -370,13 +360,12 @@ describe('file', () => {
           }
         ];
         file.inline({}, (err) => {
-          expect(file.string.toString()).to.eql('var foo = {  "foo": "bar"};');
+          expect(file.content).to.eql('var foo = {  "foo": "bar"};');
           done();
         });
       });
       it('should inline an empty object when unable to locate require(*.json) content', (done) => {
         file.content = "var foo = require('./bar.json');";
-        file.string = new MagicString(file.content);
         file.dependencyReferences = [
           {
             file: {
@@ -393,13 +382,12 @@ describe('file', () => {
           }
         ];
         file.inline({}, (err) => {
-          expect(file.string.toString()).to.eql('var foo = {};');
+          expect(file.content).to.eql('var foo = {};');
           done();
         });
       });
       it('should inline an empty object when dependency is a native module', (done) => {
         file.content = "var foo = require('path');";
-        file.string = new MagicString(file.content);
         file.dependencyReferences = [
           {
             filepath: 'path',
@@ -409,13 +397,12 @@ describe('file', () => {
           }
         ];
         file.inline({ browser: true }, (err) => {
-          expect(file.string.toString()).to.eql('var foo = {};');
+          expect(file.content).to.eql('var foo = {};');
           done();
         });
       });
       it('should not inline an empty object when dependency is a native module for server builds', (done) => {
         file.content = "var foo = require('path');";
-        file.string = new MagicString(file.content);
         file.dependencyReferences = [
           {
             filepath: 'path',
@@ -425,7 +412,7 @@ describe('file', () => {
           }
         ];
         file.inline({ browser: false }, (err) => {
-          expect(file.string.toString()).to.eql("var foo = require('path');");
+          expect(file.content).to.eql("var foo = require('path');");
           done();
         });
       });
@@ -434,7 +421,6 @@ describe('file', () => {
     describe('replaceReferences()', () => {
       it('should replace relative ids with absolute ones', (done) => {
         file.content = "var foo = require('./foo');";
-        file.string = new MagicString(file.content);
         file.dependencyReferences = [
           {
             id: './foo',
@@ -444,13 +430,12 @@ describe('file', () => {
           }
         ];
         file.replaceReferences({}, (err) => {
-          expect(file.string.toString()).to.eql("var foo = require('foo.js');");
+          expect(file.content).to.eql("var foo = require('foo.js');");
           done();
         });
       });
       it('should replace "require(*)" with resolved lookup', (done) => {
         file.content = "var foo = require('./foo');";
-        file.string = new MagicString(file.content);
         file.dependencyReferences = [
           {
             id: './foo',
@@ -459,13 +444,12 @@ describe('file', () => {
           }
         ];
         file.replaceReferences({}, (err) => {
-          expect(file.string.toString()).to.eql("var foo = $m['foo.js'].exports;");
+          expect(file.content).to.eql("var foo = $m['foo.js'].exports;");
           done();
         });
       });
       it('should replace package ids with versioned ones', (done) => {
         file.content = "var bar = require('bar');\nvar baz = require('view/baz');";
-        file.string = new MagicString(file.content);
         file.dependencyReferences = [
           {
             id: 'bar',
@@ -479,7 +463,7 @@ describe('file', () => {
           }
         ];
         file.replaceReferences({}, (err) => {
-          expect(file.string.toString()).to.eql("var bar = $m['bar@0.js'].exports;\nvar baz = $m['view/baz.js'].exports;");
+          expect(file.content).to.eql("var bar = $m['bar@0.js'].exports;\nvar baz = $m['view/baz.js'].exports;");
           done();
         });
       });
@@ -488,7 +472,6 @@ describe('file', () => {
     describe('replaceDynamicReferences()', () => {
       it('should replace relative id with url+id', (done) => {
         file.content = "buddyImport('./a.js')";
-        file.string = new MagicString(file.content);
         file.writepath = path.resolve('www/assets/js', 'foo.js');
         file.dynamicDependencyReferences = [
           {
@@ -498,13 +481,12 @@ describe('file', () => {
           }
         ];
         file.replaceDynamicReferences({ browser: true }, (err) => {
-          expect(file.string.toString()).to.equal("buddyImport('/assets/js/a.js', 'a')");
+          expect(file.content).to.equal("buddyImport('/assets/js/a.js', 'a')");
           done();
         });
       });
       it('should replace relative id with url+id with correct quote style', (done) => {
         file.content = 'buddyImport("./a.js")';
-        file.string = new MagicString(file.content);
         file.writepath = path.resolve('www/assets/js', 'foo.js');
         file.dynamicDependencyReferences = [
           {
@@ -514,7 +496,7 @@ describe('file', () => {
           }
         ];
         file.replaceDynamicReferences({ browser: true }, (err) => {
-          expect(file.string.toString()).to.equal('buddyImport("/assets/js/a.js", "a")');
+          expect(file.content).to.equal('buddyImport("/assets/js/a.js", "a")');
           done();
         });
       });
@@ -524,33 +506,29 @@ describe('file', () => {
       describe('namespace root declarations', () => {
         it('should namespace variable declarations', (done) => {
           file.content = 'const foo = "foo";';
-          file.string = new MagicString(file.content);
           file.transpile({ bundle: true }, (err) => {
-            expect(file.string.toString()).to.equal('const srcfoo__foo = "foo";');
+            expect(file.content).to.equal('const srcfoo__foo = "foo";');
             done();
           });
         });
         it('should namespace function declarations', (done) => {
           file.content = 'function foo () {}';
-          file.string = new MagicString(file.content);
           file.transpile({ bundle: true }, (err) => {
-            expect(file.string.toString()).to.equal('function srcfoo__foo() {}');
+            expect(file.content).to.equal('function srcfoo__foo() {}');
             done();
           });
         });
         it('should namespace class declarations', (done) => {
           file.content = 'class Foo {}';
-          file.string = new MagicString(file.content);
           file.transpile({ bundle: true }, (err) => {
-            expect(file.string.toString()).to.contain('let srcfoo__Foo = function srcfoo__Foo() {');
+            expect(file.content).to.contain('let srcfoo__Foo = function srcfoo__Foo() {');
             done();
           });
         });
         it('should namespace all declarations and their references', (done) => {
           file.content = fs.readFileSync('src/namespace.js', 'utf8');
-          file.string = new MagicString(file.content);
           file.transpile({ bundle: true }, (err) => {
-            expect(file.string.toString()).to.equal('const srcfoo__bar = require(\'bar\');\nconst srcfoo__Bar = require(\'Bar\');\nlet srcfoo__foo = require(\'./foo\');\nvar srcfoo__boo;\n\nconsole.log(srcfoo__foo, srcfoo__bar);\n\nsrcfoo__foo = srcfoo__bar;\nsrcfoo__foo && \'zoo\';\nvar srcfoo__baz = srcfoo__foo.baz;\nvar srcfoo__boo = {};\nsrcfoo__boo[srcfoo__baz] = \'baz\';\n\nlet srcfoo__Foo = function (_srcfoo__Bar) {\n  babelHelpers.inherits(srcfoo__Foo, _srcfoo__Bar);\n\n  function srcfoo__Foo() {\n    babelHelpers.classCallCheck(this, srcfoo__Foo);\n\n    var _this = babelHelpers.possibleConstructorReturn(this, _srcfoo__Bar.call(this));\n\n    _this.foo = srcfoo__foo;\n    console.log(srcfoo__foo);\n    return _this;\n  }\n\n  srcfoo__Foo.prototype.bar = function bar() {\n    srcfoo__foo();\n  };\n\n  return srcfoo__Foo;\n}(srcfoo__Bar);\n\nfunction srcfoo__bat(foo) {\n  let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};\n\n  const f = new srcfoo__Foo();\n\n  console.log(f, foo, srcfoo__bar, \'bat\', options);\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  srcfoo__bat(foo);\n  console.log(srcfoo__bar);\n}\n\nzip = {\n  foo: srcfoo__foo\n};\n\nfunction srcfoo__y() {\n  for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {\n    rest[_key] = arguments[_key];\n  }\n\n  console.log(rest);\n}\n\nvar srcfoo__units = {};\n\nvar srcfoo__z = function srcfoo__z() {\n  var params = {\n    units: function units(v) {\n      if (srcfoo__units[v]) {\n        var t = srcfoo__units[v].t;\n      }\n    }\n  };\n};\n\nvar srcfoo__zing;\n\nif (true) {\n  srcfoo__zing = \'zing\';\n}\n\nvar srcfoo___require = require(\'c\'),\n    srcfoo__a = srcfoo___require.a,\n    srcfoo__b = srcfoo___require.b;\n\nfunction srcfoo__S() {\n  Object.assign(srcfoo__S.prototype, { foo: srcfoo__foo });\n\n  if (true) {\n    srcfoo__S = new Proxy(srcfoo__S, {});\n  }\n}\n\nif (true) {\n  var srcfoo__t = {};\n  let u;\n  srcfoo__t.foo = \'c\';\n}');
+            expect(file.content).to.equal('const srcfoo__bar = require(\'bar\');\nconst srcfoo__Bar = require(\'Bar\');\nlet srcfoo__foo = require(\'./foo\');\nvar srcfoo__boo;\n\nconsole.log(srcfoo__foo, srcfoo__bar);\n\nsrcfoo__foo = srcfoo__bar;\nsrcfoo__foo && \'zoo\';\nvar srcfoo__baz = srcfoo__foo.baz;\nvar srcfoo__boo = {};\nsrcfoo__boo[srcfoo__baz] = \'baz\';\n\nlet srcfoo__Foo = function (_srcfoo__Bar) {\n  babelHelpers.inherits(srcfoo__Foo, _srcfoo__Bar);\n\n  function srcfoo__Foo() {\n    babelHelpers.classCallCheck(this, srcfoo__Foo);\n\n    var _this = babelHelpers.possibleConstructorReturn(this, _srcfoo__Bar.call(this));\n\n    _this.foo = srcfoo__foo;\n    console.log(srcfoo__foo);\n    return _this;\n  }\n\n  srcfoo__Foo.prototype.bar = function bar() {\n    srcfoo__foo();\n  };\n\n  return srcfoo__Foo;\n}(srcfoo__Bar);\n\nfunction srcfoo__bat(foo) {\n  let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};\n\n  const f = new srcfoo__Foo();\n\n  console.log(f, foo, srcfoo__bar, \'bat\', options);\n}\n\nfor (let foo = 0; foo < 3; foo++) {\n  srcfoo__bat(foo);\n  console.log(srcfoo__bar);\n}\n\nzip = {\n  foo: srcfoo__foo\n};\n\nfunction srcfoo__y() {\n  for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {\n    rest[_key] = arguments[_key];\n  }\n\n  console.log(rest);\n}\n\nvar srcfoo__units = {};\n\nvar srcfoo__z = function srcfoo__z() {\n  var params = {\n    units: function units(v) {\n      if (srcfoo__units[v]) {\n        var t = srcfoo__units[v].t;\n      }\n    }\n  };\n};\n\nvar srcfoo__zing;\n\nif (true) {\n  srcfoo__zing = \'zing\';\n}\n\nvar srcfoo___require = require(\'c\'),\n    srcfoo__a = srcfoo___require.a,\n    srcfoo__b = srcfoo___require.b;\n\nfunction srcfoo__S() {\n  Object.assign(srcfoo__S.prototype, { foo: srcfoo__foo });\n\n  if (true) {\n    srcfoo__S = new Proxy(srcfoo__S, {});\n  }\n}\n\nif (true) {\n  var srcfoo__t = {};\n  let u;\n  srcfoo__t.foo = \'c\';\n}');
             done();
           });
         });
@@ -559,57 +537,50 @@ describe('file', () => {
       describe('replace module/exports', () => {
         it('should replace "module.exports"', (done) => {
           file.content = 'module.exports = function foo() {};';
-          file.string = new MagicString(file.content);
           file.transpile({ browser: true, bundle: true }, (err) => {
-            expect(file.string.toString()).to.equal("$m['src/foo'].exports = function foo() {};");
+            expect(file.content).to.equal("$m['src/foo'].exports = function foo() {};");
             done();
           });
         });
         it('should replace "module[\'exports\']"', (done) => {
           file.content = 'module[\'exports\'] = function foo() {};';
-          file.string = new MagicString(file.content);
           file.transpile({ browser: true, bundle: true }, (err) => {
-            expect(file.string.toString()).to.equal("$m['src/foo']['exports'] = function foo() {};");
+            expect(file.content).to.equal("$m['src/foo']['exports'] = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports.*"', (done) => {
           file.content = 'module.exports.foo = function foo() {};';
-          file.string = new MagicString(file.content);
           file.transpile({ browser: true, bundle: true }, (err) => {
-            expect(file.string.toString()).to.equal("$m['src/foo'].exports.foo = function foo() {};");
+            expect(file.content).to.equal("$m['src/foo'].exports.foo = function foo() {};");
             done();
           });
         });
         it('should replace "module.exports[\'*\']"', (done) => {
           file.content = "module.exports['foo'] = function foo() {};";
-          file.string = new MagicString(file.content);
           file.transpile({ browser: true, bundle: true }, (err) => {
-            expect(file.string.toString()).to.equal("$m['src/foo'].exports['foo'] = function foo() {};");
+            expect(file.content).to.equal("$m['src/foo'].exports['foo'] = function foo() {};");
             done();
           });
         });
         it('should replace "exports.*"', (done) => {
           file.content = "exports.foo = 'foo';";
-          file.string = new MagicString(file.content);
           file.transpile({ browser: true, bundle: true }, (err) => {
-            expect(file.string.toString()).to.equal("$m['src/foo'].exports.foo = 'foo';");
+            expect(file.content).to.equal("$m['src/foo'].exports.foo = 'foo';");
             done();
           });
         });
         it('should replace "exports[\'*\']"', (done) => {
           file.content = "exports['foo'] = 'foo';";
-          file.string = new MagicString(file.content);
           file.transpile({ browser: true, bundle: true }, (err) => {
-            expect(file.string.toString()).to.equal("$m['src/foo'].exports['foo'] = 'foo';");
+            expect(file.content).to.equal("$m['src/foo'].exports['foo'] = 'foo';");
             done();
           });
         });
         it('should replace all "module" and "exports"', (done) => {
           file.content = fs.readFileSync('src/module.js', 'utf8');
-          file.string = new MagicString(file.content);
           file.transpile({ browser: true, bundle: true }, (err) => {
-            expect(file.string.toString()).to.equal("$m[\'src/foo\'].exports = {};\n$m[\'src/foo\'][\'exports\'] = {};\n$m[\'src/foo\'][\'ex\' + \'ports\'] = {};\n\n$m[\'src/foo\'].exports.foo = \'foo\';\n$m[\'src/foo\'].exports[\'foo\'] = \'foo\';\n$m[\'src/foo\'].exports.BELL = \'\\x07\';\n\nvar srcfoo__freeExports = typeof $m[\'src/foo\'].exports == \'object\' && $m[\'src/foo\'].exports && !$m[\'src/foo\'].exports.nodeType && $m[\'src/foo\'].exports;\nvar srcfoo__freeModule = srcfoo__freeExports && typeof $m[\'src/foo\'] == \'object\' && $m[\'src/foo\'] && !$m[\'src/foo\'].nodeType && $m[\'src/foo\'];\n\nif (true) {\n  const module = \'foo\';\n  const exports = \'bar\';\n\n  exports.foo = \'foo\';\n}\nfoo[$m[\'src/foo\'].exports.foo] = \'foo\';");
+            expect(file.content).to.equal("$m[\'src/foo\'].exports = {};\n$m[\'src/foo\'][\'exports\'] = {};\n$m[\'src/foo\'][\'ex\' + \'ports\'] = {};\n\n$m[\'src/foo\'].exports.foo = \'foo\';\n$m[\'src/foo\'].exports[\'foo\'] = \'foo\';\n$m[\'src/foo\'].exports.BELL = \'\\x07\';\n\nvar srcfoo__freeExports = typeof $m[\'src/foo\'].exports == \'object\' && $m[\'src/foo\'].exports && !$m[\'src/foo\'].exports.nodeType && $m[\'src/foo\'].exports;\nvar srcfoo__freeModule = srcfoo__freeExports && typeof $m[\'src/foo\'] == \'object\' && $m[\'src/foo\'] && !$m[\'src/foo\'].nodeType && $m[\'src/foo\'];\n\nif (true) {\n  const module = \'foo\';\n  const exports = \'bar\';\n\n  exports.foo = \'foo\';\n}\nfoo[$m[\'src/foo\'].exports.foo] = \'foo\';");
             done();
           });
         });
@@ -645,7 +616,6 @@ describe('file', () => {
     describe('parse()', () => {
       it('should store an array of dependencies', (done) => {
         file.content = "@import 'main';";
-        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(1);
           done();
@@ -653,7 +623,6 @@ describe('file', () => {
       });
       it('should only store 1 dependency object when there are duplicates', (done) => {
         file.content = "@import 'main'; @import 'main';";
-        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(1);
           done();
@@ -664,7 +633,6 @@ describe('file', () => {
     describe('inline()', () => {
       it('should replace @import rules with file contents', (done) => {
         file.content = "@import 'foo';\nbody {\n\tbackground-color: black;\n}";
-        file.string = new MagicString(file.content);
         file.dependencyReferences = [
           {
             file: {
@@ -672,7 +640,6 @@ describe('file', () => {
               extension: 'css',
               type: 'css',
               content: 'div {\n\twidth: 50%;\n}\n',
-              string: new MagicString('div {\n\twidth: 50%;\n}\n'),
               dependencies: [],
               dependencyReferences: []
             },
@@ -682,13 +649,12 @@ describe('file', () => {
           }
         ];
         file.inline({}, (err) => {
-          expect(file.string.toString()).to.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
+          expect(file.content).to.eql('div {\n\twidth: 50%;\n}\n\nbody {\n\tbackground-color: black;\n}');
           done();
         });
       });
       it('should replace @import rules with file contents, allowing duplicates', (done) => {
         file.content = "@import 'foo';\n@import 'foo';";
-        file.string = new MagicString(file.content);
         file.dependencyReferences = [
           {
             file: {
@@ -696,7 +662,6 @@ describe('file', () => {
               extension: 'css',
               type: 'css',
               content: 'div {\n\twidth: 50%;\n}\n',
-              string: new MagicString('div {\n\twidth: 50%;\n}\n'),
               dependencies: [],
               dependencyReferences: []
             },
@@ -706,7 +671,7 @@ describe('file', () => {
           }
         ];
         file.inline({}, (err) => {
-          expect(file.string.toString()).to.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
+          expect(file.content).to.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
           done();
         });
       });
@@ -731,7 +696,6 @@ describe('file', () => {
     describe('parse()', () => {
       it('should store an array of "inline" dependency references', (done) => {
         file.content = '<script inline src="foo.js"></script>';
-        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           expect(file.dependencies).to.have.length(1);
           expect(file.dependencies[0]).to.have.property('isInline', true);
@@ -743,20 +707,18 @@ describe('file', () => {
     describe('inline()', () => {
       it('should replace "inline" source with file contents', (done) => {
         file.content = '<script inline src="foo.js"></script>';
-        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           file.inline({}, (err) => {
-            expect(file.string.toString()).to.equal('<script>module.exports="foo";</script>');
+            expect(file.content).to.equal('<script>module.exports="foo";</script>');
             done();
           });
         });
       });
       it('should replace "inline" source with processed file contents', (done) => {
         file.content = '<script inline src="bat.js"></script>';
-        file.string = new MagicString(file.content);
         file.parse({}, (err) => {
           file.inline({}, (err) => {
-            expect(file.string.toString()).to.equal('<script>var runtime="browser";</script>');
+            expect(file.content).to.equal('<script>var runtime="browser";</script>');
             done();
           });
         });

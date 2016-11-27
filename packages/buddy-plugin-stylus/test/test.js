@@ -3,9 +3,9 @@
 const cache = require('../../../lib/cache');
 const configFactory = require('../../../lib/config');
 const expect = require('expect.js');
+const fs = require('fs');
 const path = require('path');
 const plugin = require('../index');
-const fs = require('fs');
 let config, file, fileFactoryOptions;
 
 describe('buddy-plugin-stylus', () => {
@@ -35,7 +35,7 @@ describe('buddy-plugin-stylus', () => {
     it('should convert file content to CSS', (done) => {
       file = config.fileFactory(path.resolve('foo.styl'), fileFactoryOptions);
       file.compile({}, (err) => {
-        expect(file.string.toString()).to.eql(fs.readFileSync(path.resolve('compiled/foo.css'), 'utf8'));
+        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/foo.css'), 'utf8'));
         done();
       });
     });

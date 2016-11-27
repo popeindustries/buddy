@@ -1,7 +1,6 @@
 'use strict';
 
 const handlebars = require('handlebars');
-const MagicString = require('magic-string');
 
 const DEFAULT_OPTIONS = {
   simple: true
@@ -76,7 +75,7 @@ function define (File, utils) {
       // Add sidecar json file
       const sidecarData = super.parseSidecarDependency();
       // Parse includes
-      let matches = uniqueMatch(this.string.original, RE_INCLUDE)
+      let matches = uniqueMatch(this.content, RE_INCLUDE)
         .map((match) => {
           match.id = match.match;
           return match;
@@ -125,9 +124,9 @@ function define (File, utils) {
     compile (buildOptions, fn) {
       try {
         const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.handlebars);
-        const template = handlebars.compile(this.string.toString(), options);
+        const template = handlebars.compile(this.content, options);
 
-        this.string = new MagicString(template(this.findSidecarDependency()));
+        this.content = template(this.findSidecarDependency());
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       } catch (err) {

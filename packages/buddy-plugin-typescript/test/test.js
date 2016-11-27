@@ -35,7 +35,7 @@ describe('buddy-plugin-typescript', () => {
     it('should convert file content to JS', (done) => {
       file = config.fileFactory(path.resolve('a.ts'), fileFactoryOptions);
       file.compile({}, (err) => {
-        expect(file.string.toString()).to.eql(fs.readFileSync(path.resolve('compiled/a.js'), 'utf8'));
+        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.js'), 'utf8'));
         done();
       });
     });
