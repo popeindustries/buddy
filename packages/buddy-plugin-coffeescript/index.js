@@ -1,10 +1,12 @@
 'use strict';
 
+const { SourceMapConsumer, SourceMapGenerator } = require('source-map');
 const coffee = require('coffee-script');
 
 const DEFAULT_OPTIONS = {
   // Compile without function wrapper
-  bare: true
+  bare: true,
+  sourceMap: true
 };
 const FILE_EXTENSIONS = ['coffee'];
 
@@ -70,9 +72,11 @@ function define (File, utils) {
 
       try {
         const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.coffeescript);
-        const content = coffee.compile(this.content, options);
+        const { js: content, v3SourceMap: map } = coffee.compile(this.content, options);
 
         this.content = content;
+        this.map = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(map));
+        this.map.setSourceContent(this.relpath, this.fileContent);
         this.compiled = true;
         debug(`compile: ${strong(this.relpath)}`, 4);
       } catch (err) {

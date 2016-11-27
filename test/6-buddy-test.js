@@ -107,7 +107,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('\'use strict\';\n\n/** BUDDY BUILT **/\n\nif (\'undefined\' === typeof self) var self = this;\nif (\'undefined\' === typeof global) var global = self;\nif (\'undefined\' === typeof process) var process = { env: {} };\nvar $m = self.$m = self.$m || {};\nif (\'browser\' != \'browser\') {\n  var $req = require;\n  require = function buddyRequire (id) {\n    if (!$m[id]) return $req(id);\n    if (\'function\' == typeof $m[id]) $m[id]();\n    return $m[id].exports;\n  };\n} else {\n  self.require = self.require || function buddyRequire (id) {\n    if ($m[id]) {\n      if (\'function\' == typeof $m[id]) $m[id]();\n      return $m[id].exports;\n    }\n\n    if (\'test\' == \'development\') {\n      console.warn(\'module \' + id + \' not found\');\n    }\n  };\n}\n\n\n(function () {\n/*== a.coffee ==*/\n$m[\'a\'] = { exports: {} };\nvar a__foo;\n\na__foo = \'foo\';\n/*≠≠ a.coffee ≠≠*/\n})()');
+          expect(content).to.contain('(function () {\n/*== a.coffee ==*/\n$m[\'a\'] = { exports: {} };\nvar a__foo;\n\na__foo = \'foo\';\n/*≠≠ a.coffee ≠≠*/\n})()');
           done();
         });
       });
