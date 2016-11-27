@@ -34,25 +34,6 @@ function define (File, utils) {
 
   return class COFFEESCRIPTFile extends File {
     /**
-     * Constructor
-     * @param {String} id
-     * @param {String} filepath
-     * @param {Object} options
-     *  - {Object} caches
-     *  - {Object} fileExtensions
-     *  - {Function} fileFactory
-     *  - {Object} globalAliases
-     *  - {Array} npmModulepaths
-     *  - {Object} pluginOptions
-     *  - {Object} runtimeOptions
-     */
-    constructor (id, filepath, options) {
-      super(id, filepath, options);
-
-      this.compiled = false;
-    }
-
-    /**
      * Compile file contents
      * @param {Object} buildOptions
      *  - {Boolean} batch
@@ -68,8 +49,6 @@ function define (File, utils) {
      * @returns {null}
      */
     compile (buildOptions, fn) {
-      if (this.compiled) return fn();
-
       try {
         const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.coffeescript);
         const { js: content, v3SourceMap: map } = coffee.compile(this.content, options);
@@ -77,22 +56,12 @@ function define (File, utils) {
         this.content = content;
         this.map = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(map));
         this.map.setSourceContent(this.relpath, this.fileContent);
-        this.compiled = true;
         debug(`compile: ${strong(this.relpath)}`, 4);
       } catch (err) {
         if (!this.options.runtimeOptions.watch) return fn(err);
         error(err, 4, false);
       }
       fn();
-    }
-
-    /**
-     * Reset content
-     * @param {Boolean} hard
-     */
-    reset (hard) {
-      if (hard) this.compiled = false;
-      super.reset(hard);
     }
   };
 }

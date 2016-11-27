@@ -1,5 +1,6 @@
 'use strict';
 
+const { SourceMapConsumer, SourceMapGenerator } = require('source-map');
 const stylus = require('stylus');
 
 const FILE_EXTENSIONS = ['styl'];
@@ -66,17 +67,27 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     compile (buildOptions, fn) {
-      const options = Object.assign({}, this.options.pluginOptions.stylus, {
+      const style = stylus(this.content)
+        .set('filename', this.relpath)
+        .set('sourcemap', { comment: false })
         // Gather all source directories
-        paths: this.options.fileCache.getDirs()
-      });
+        .set('paths', this.options.fileCache.getDirs());
 
-      stylus.render(this.content, options, (err, content) => {
+      if (this.options.pluginOptions.stylus) {
+        for (const option in this.options.pluginOptions.stylus) {
+          style.set(option, this.options.pluginOptions.stylus[option]);
+        }
+      }
+
+      style.render((err, css) => {
         if (err) {
           if (!this.options.runtimeOptions.watch) return fn(err);
           error(err, 4, false);
         }
-        this.content = content;
+
+        this.map = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(style.sourcemap));
+        this.map.setSourceContent(this.relpath, this.content);
+        this.content = css;
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       });

@@ -658,7 +658,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a minified styl file if "compress" is true', (done) => {
+      it('should build a minified stylus file if "compress" is true', (done) => {
         buddy = buddyFactory({
           input: 'a.styl',
           output: 'output'

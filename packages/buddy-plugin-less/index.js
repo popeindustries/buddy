@@ -1,7 +1,11 @@
 'use strict';
 
+const { SourceMapConsumer, SourceMapGenerator } = require('source-map');
 const less = require('less');
 
+const DEFAULT_OPTIONS = {
+  sourceMap: {}
+};
 const FILE_EXTENSIONS = ['less'];
 const WORKFLOW_WRITEABLE = [
   'inline',
@@ -66,14 +70,16 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     compile (buildOptions, fn) {
-      const options = this.options.pluginOptions.less || {};
+      const options = Object.assign({}, this.options.pluginOptions.less || {}, DEFAULT_OPTIONS);
 
-      less.render(this.content, options, (err, content) => {
+      less.render(this.content, options, (err, result) => {
         if (err) {
           if (!this.options.runtimeOptions.watch) return fn(err);
           error(err, 4, false);
         }
-        this.content = content.css;
+        this.map = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(result.map));
+        this.map.setSourceContent(this.relpath, this.content);
+        this.content = result.css;
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       });
