@@ -23,7 +23,7 @@ describe('Buddy', () => {
   });
   afterEach(() => {
     if (buddy) buddy.destroy();
-    // rimraf.sync(path.resolve('output'));
+    rimraf.sync(path.resolve('output'));
   });
 
   describe('factory', () => {
@@ -87,7 +87,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.only('should build a js file when passed a json config object', (done) => {
+      it('should build a js file when passed a json config object', (done) => {
         buddy = buddyFactory({
           input: 'foo.js',
           output: 'output'
