@@ -68,12 +68,13 @@ describe('Buddy', () => {
       });
     });
 
-    describe('js', () => {
+    describe.only('js', () => {
       it('should build a js file when passed a json config path', (done) => {
         buddy = buddyFactory('buddy-single-file.json');
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
+
           expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
           done();
         });
@@ -110,7 +111,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with 1 dependency', (done) => {
+      it.only('should build a js file with 1 dependency', (done) => {
         buddy = buddyFactory({
           input: 'bar.js',
           output: 'output'
@@ -126,7 +127,7 @@ describe('Buddy', () => {
       });
       it.skip('should build a js file with 1 dependency and an inlined source map', (done) => {
         buddy = buddyFactory({
-          input: 'bar.js',
+          input: 'foo.js',
           output: 'output'
         });
         buddy.build((err, filepaths) => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { indexToLineColumn, regexpEscape, truncate, uniqueMatch } = require('../lib/utils/string');
+const { regexpEscape, replace, truncate, uniqueMatch } = require('../lib/utils/string');
 const callable = require('../lib/utils/callable');
 const expect = require('expect.js');
 const filepath = require('../lib/utils/filepath');
@@ -48,6 +48,28 @@ describe('utils', () => {
   });
 
   describe('string', () => {
+    describe.skip('replace()', () => {
+      it('should return the original string if no replacements', () => {
+        expect(replace('foo bar boo', 'zing', 'zoop')).to.equal('foo bar boo');
+      });
+      it('should return a new string with replacements', () => {
+        expect(replace('foo bar boo', 'foo', 'zoop')).to.equal('zoop bar boo');
+        expect(replace('foo bar boo', 'bar', 'zoop')).to.equal('foo zoop boo');
+        expect(replace('foo bar boo', 'boo', 'zoop')).to.equal('foo bar zoop');
+      });
+      it('should return a new string with multiple replacements', () => {
+        expect(replace('foo bar foo', 'foo', 'zoop')).to.equal('zoop bar zoop');
+      });
+      it('should return a new multiline string with replacements', () => {
+        expect(replace('foo\nbar\nboo', 'foo', 'zoop')).to.equal('zoop\nbar\nboo');
+        expect(replace('foo\nbar\nboo', 'bar', 'zoop')).to.equal('foo\nzoop\nboo');
+        expect(replace('foo\nbar\nboo', 'boo', 'zoop')).to.equal('foo\nbar\nzoop');
+      });
+      it('should return a new multiline string with multiple replacements', () => {
+        expect(replace('foo\nbar\nfoo', 'foo', 'zoop')).to.equal('zoop\nbar\nzoop');
+      });
+    });
+
     describe('regexpEscape()', () => {
       it('should ignore valid characters', () => {
         expect(regexpEscape('foo')).to.equal('foo');
