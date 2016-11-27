@@ -70,7 +70,7 @@ describe('build', () => {
       build = buildFactory(config.builds[0]);
       build.init((err, files) => {
         expect(files).to.have.length(1);
-        expect(files[0]).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
+        expect(files[0]).to.have.property('hash', '80f0a76176369c88dba5313c04a40ad9');
         done();
       });
     });

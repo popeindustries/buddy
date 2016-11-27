@@ -388,7 +388,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("var env2__hash = 'd41d8cd98f00b204e9800998ecf8427e';");
+          expect(content).to.contain("var env2__hash = '696768116e504ebcba3b436af9e645c9';");
           done();
         });
       });

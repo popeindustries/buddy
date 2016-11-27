@@ -27,7 +27,7 @@ describe('file', () => {
       expect(file).to.have.property('name', 'foo.js');
     });
     it('should load file content', () => {
-      expect(file).to.have.property('hash', 'd41d8cd98f00b204e9800998ecf8427e');
+      expect(file).to.have.property('hash', 'af1c6f25496712c4303dc6a37b809bdf');
     });
   });
 
