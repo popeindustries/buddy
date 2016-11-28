@@ -1,13 +1,19 @@
 'use strict';
 
-const { regexpEscape, replace, truncate, uniqueMatch } = require('../lib/utils/string');
+const { regexpEscape, truncate, uniqueMatch } = require('../lib/utils/string');
 const callable = require('../lib/utils/callable');
 const expect = require('expect.js');
 const filepath = require('../lib/utils/filepath');
+const fs = require('fs');
 const path = require('path');
+const sourceMap = require('../lib/utils/sourceMap');
 const stopwatch = require('../lib/utils/stopwatch');
 
 describe('utils', () => {
+  before(() => {
+    process.chdir(path.resolve(__dirname, 'fixtures/utils'));
+  });
+
   describe('callable', () => {
     it('should return a function bound to passed context', () => {
       const obj = {
@@ -48,28 +54,6 @@ describe('utils', () => {
   });
 
   describe('string', () => {
-    describe.skip('replace()', () => {
-      it('should return the original string if no replacements', () => {
-        expect(replace('foo bar boo', 'zing', 'zoop')).to.equal('foo bar boo');
-      });
-      it('should return a new string with replacements', () => {
-        expect(replace('foo bar boo', 'foo', 'zoop')).to.equal('zoop bar boo');
-        expect(replace('foo bar boo', 'bar', 'zoop')).to.equal('foo zoop boo');
-        expect(replace('foo bar boo', 'boo', 'zoop')).to.equal('foo bar zoop');
-      });
-      it('should return a new string with multiple replacements', () => {
-        expect(replace('foo bar foo', 'foo', 'zoop')).to.equal('zoop bar zoop');
-      });
-      it('should return a new multiline string with replacements', () => {
-        expect(replace('foo\nbar\nboo', 'foo', 'zoop')).to.equal('zoop\nbar\nboo');
-        expect(replace('foo\nbar\nboo', 'bar', 'zoop')).to.equal('foo\nzoop\nboo');
-        expect(replace('foo\nbar\nboo', 'boo', 'zoop')).to.equal('foo\nbar\nzoop');
-      });
-      it('should return a new multiline string with multiple replacements', () => {
-        expect(replace('foo\nbar\nfoo', 'foo', 'zoop')).to.equal('zoop\nbar\nzoop');
-      });
-    });
-
     describe('regexpEscape()', () => {
       it('should ignore valid characters', () => {
         expect(regexpEscape('foo')).to.equal('foo');
@@ -105,6 +89,9 @@ describe('utils', () => {
   describe('filepath', () => {
     before(() => {
       process.chdir(path.resolve(__dirname, 'fixtures/utils/unique'));
+    });
+    after(() => {
+      process.chdir(path.resolve(__dirname, 'fixtures/utils'));
     });
 
     describe('filepathType()', () => {
@@ -199,6 +186,25 @@ describe('utils', () => {
         expect(elapsed).to.match(/^1\.[0-9]{1,2}s$/);
         done();
       }, 1100);
+    });
+  });
+
+  describe.only('sourceMap', () => {
+    describe('create()', () => {
+      it('should create a source map from file content and url', () => {
+        const map = sourceMap.create(fs.readFileSync(path.resolve('foo.js'), 'utf8'), 'foo.js');
+
+        expect(map.toString()).to.equal('{"version":3,"sources":["foo.js"],"names":[],"mappings":"AAAA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA","file":"foo.js","sourcesContent":["\'use strict\';\\n\\nconst foo = require(\'foo\');\\nconst bar = require(\'bar\');\\n\\nconst FOO = \'FOO\';\\n\\nmodule.exports = function foo () {\\n  console.log(foo || FOO);\\n};"]}');
+      });
+      it('should create a source map from file content with default url', () => {
+        const map = sourceMap.create(fs.readFileSync(path.resolve('foo.js'), 'utf8'));
+
+        expect(JSON.parse(map.toString())).to.have.property('file', '<source>');
+      });
+    });
+
+    describe('append()', () => {
+
     });
   });
 });
