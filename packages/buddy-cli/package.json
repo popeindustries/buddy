@@ -1,6 +1,6 @@
 {
   "name": "buddy-cli",
-  "version": "6.0.4",
+  "version": "6.0.5",
   "description": "The command-line bootstrapper for Buddy",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
@@ -11,7 +11,8 @@
   ],
   "dependencies": {
     "commander": "2.9.0",
-    "recur-fs": "2.2.x"
+    "recur-fs": "2.2.x",
+    "signal-exit": "3.0.1"
   },
   "devDependencies": {},
   "main": "index.js",

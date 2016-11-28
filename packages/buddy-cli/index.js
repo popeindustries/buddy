@@ -2,19 +2,26 @@
 
 const find = require('./lib/find');
 const program = require('commander');
+const signalExit = require('signal-exit');
 
 const useCli = ~require.main.filename.indexOf('buddy-cli');
 let buddy;
 
-// Register for uncaught errors and clean up
-process.on('uncaughtException', (err) => {
+function exit () {
+  if (buddy) buddy.destroy();
+  process.exit();
+}
+
+function error (err) {
   console.log(err.stack ? err.stack : err);
   // Ding!
   console.log('\x07');
-});
-process.on('exit', (code) => {
-  if (buddy) buddy.exceptionalCleanup();
-});
+  exit();
+}
+
+// Register for uncaught errors and clean up
+process.once('uncaughtException', error);
+signalExit(exit);
 
 find(useCli, (err, buddyFactory, version) => {
   if (err) throw err;

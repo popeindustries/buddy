@@ -1342,10 +1342,8 @@ describe('Buddy', () => {
     });
 
     if (process.platform != 'win32') {
-      it('should rebuild a watched file on change', (done) => {
-        const child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, (err, stdout, stderr) => {
-          done(err);
-        });
+      it.skip('should rebuild a watched file on change', (done) => {
+        const child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, done);
         const foo = fs.readFileSync(path.resolve('foo.js'), 'utf8');
 
         setTimeout(() => {
@@ -1358,8 +1356,8 @@ describe('Buddy', () => {
 
             expect(content).to.contain('$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'bar\';\n');
             fs.writeFileSync(path.resolve('foo.js'), foo);
+            child.kill();
             setTimeout(() => {
-              child.kill();
               done();
             }, 100);
           }, 100);
