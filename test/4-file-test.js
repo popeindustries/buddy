@@ -31,6 +31,64 @@ describe('file', () => {
     });
   });
 
+  describe('appendContent()', () => {
+    it('should append a text chunk', () => {
+      file.appendContent('var bar = "bar";');
+      expect(file.content).to.equal('module.exports = \'foo\';\nvar bar = "bar";');
+      expect(file.totalLines).to.equal(2);
+    });
+    it('should append a multiline text chunk', () => {
+      file.appendContent('var bar = "bar";\nvar foo = "foo";');
+      expect(file.content).to.equal('module.exports = \'foo\';\nvar bar = "bar";\nvar foo = "foo";');
+      expect(file.totalLines).to.equal(3);
+    });
+    it('should append a file chunk', () => {
+      const file2 = new File('bat', path.resolve('src/bat.js'), 'js', {});
+
+      file.appendContent(file2);
+      expect(file.content).to.equal('module.exports = \'foo\';\nvar runtime = process.env.RUNTIME;');
+      expect(file.totalLines).to.equal(2);
+      expect(file.map.toJSON()).to.have.property('mappings', 'AAAA;ACAA');
+    });
+    it('should append a multiline file chunk', () => {
+      const file2 = new File('bar', path.resolve('src/bar.js'), 'js', {});
+
+      file.appendContent(file2);
+      expect(file.content).to.equal('module.exports = \'foo\';\nvar foo = require(\'./foo\');\n\nmodule.exports = \'bar\';');
+      expect(file.totalLines).to.equal(4);
+      expect(file.map.toJSON()).to.have.property('mappings', 'AAAA;ACAA;;AAEA');
+    });
+  });
+
+  describe('prependContent()', () => {
+    it('should prepend a text chunk', () => {
+      file.prependContent('var bar = "bar";');
+      expect(file.content).to.equal('var bar = "bar";\nmodule.exports = \'foo\';');
+      expect(file.totalLines).to.equal(2);
+    });
+    it('should prepend a multiline text chunk', () => {
+      file.prependContent('var bar = "bar";\nvar foo = "foo";');
+      expect(file.content).to.equal('var bar = "bar";\nvar foo = "foo";\nmodule.exports = \'foo\';');
+      expect(file.totalLines).to.equal(3);
+    });
+    it('should prepend a file chunk', () => {
+      const file2 = new File('bat', path.resolve('src/bat.js'), 'js', {});
+
+      file.prependContent(file2);
+      expect(file.content).to.equal('var runtime = process.env.RUNTIME;\nmodule.exports = \'foo\';');
+      expect(file.totalLines).to.equal(2);
+      expect(file.map.toJSON()).to.have.property('mappings', 'ACAA;ADAA');
+    });
+    it('should prepend a multiline file chunk', () => {
+      const file2 = new File('bar', path.resolve('src/bar.js'), 'js', {});
+
+      file.prependContent(file2);
+      expect(file.content).to.equal('var foo = require(\'./foo\');\n\nmodule.exports = \'bar\';\nmodule.exports = \'foo\';');
+      expect(file.totalLines).to.equal(4);
+      expect(file.map.toJSON()).to.have.property('mappings', 'ACAA;;AAEA;ADFA');
+    });
+  });
+
   describe('addDependencies()', () => {
     it('should ignore invalid dependency id', () => {
       file.addDependencies([{ id: './zoop' }], {});
