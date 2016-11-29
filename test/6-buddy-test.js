@@ -23,7 +23,7 @@ describe('Buddy', () => {
   });
   afterEach(() => {
     if (buddy) buddy.destroy();
-    rimraf.sync(path.resolve('output'));
+    // rimraf.sync(path.resolve('output'));
   });
 
   describe('factory', () => {
@@ -94,7 +94,9 @@ describe('Buddy', () => {
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(fs.readFileSync(filepaths[0], 'utf8')).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
           done();
         });
       });
@@ -111,7 +113,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a js file with 1 dependency', (done) => {
+      it.only('should build a js file with 1 dependency', (done) => {
         buddy = buddyFactory({
           input: 'bar.js',
           output: 'output'
@@ -119,7 +121,7 @@ describe('Buddy', () => {
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-
+          console.log(content)
           expect(content).to.contain("/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/");
           expect(content).to.contain("var bar__foo = $m[\'foo\'].exports;");
           done();

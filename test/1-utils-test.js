@@ -199,16 +199,8 @@ describe('utils', () => {
       it('should create a source map from file content with default url', () => {
         const map = sourceMap.create(fs.readFileSync(path.resolve('foo.js'), 'utf8'));
 
-        expect(JSON.parse(map.toString())).to.have.property('file', '<source>');
+        expect(map.toJSON()).to.have.property('file', '<source>');
       });
-    });
-
-    describe('append()', () => {
-
-    });
-
-    describe('prepend()', () => {
-
     });
   });
 });
