@@ -689,9 +689,9 @@ bubleify@^0.5.1:
     buble "^0.12.0"
     object-assign "^4.0.1"
 
-buddy-cli@6.0.5:
-  version "6.0.5"
-  resolved "https://registry.yarnpkg.com/buddy-cli/-/buddy-cli-6.0.5.tgz#49fd19992be903259699fff231fc0c3b6e73cf48"
+buddy-cli@6.0.6:
+  version "6.0.6"
+  resolved "https://registry.yarnpkg.com/buddy-cli/-/buddy-cli-6.0.6.tgz#dc3375d1d4dee8480ea3c9d0f06521dd757dec38"
   dependencies:
     commander "2.9.0"
     recur-fs "2.2.x"
@@ -706,8 +706,8 @@ camelcase@^1.0.2:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-1.2.1.tgz#9bb5304d2e0b56698b2c758b08a3eaa9daa58a39"
 
 caniuse-db@^1.0.30000539, caniuse-db@^1.0.30000578:
-  version "1.0.30000588"
-  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000588.tgz#20baa051c5bd7e33ae32c7781b5379289c3d39d2"
+  version "1.0.30000590"
+  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000590.tgz#306e2b133ce467e8341b2accd223256b4040b2be"
 
 caseless@~0.11.0:
   version "0.11.0"
@@ -1660,14 +1660,14 @@ nan@^2.3.0:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.4.0.tgz#fb3c59d45fe4effe215f0b890f8adf6eb32d2232"
 
 node-pre-gyp@^0.6.29:
-  version "0.6.31"
-  resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.6.31.tgz#d8a00ddaa301a940615dbcc8caad4024d58f6017"
+  version "0.6.32"
+  resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.6.32.tgz#fc452b376e7319b3d255f5f34853ef6fd8fe1fd5"
   dependencies:
     mkdirp "~0.5.1"
     nopt "~3.0.6"
-    npmlog "^4.0.0"
+    npmlog "^4.0.1"
     rc "~1.1.6"
-    request "^2.75.0"
+    request "^2.79.0"
     rimraf "~2.5.4"
     semver "~5.3.0"
     tar "~2.2.1"
@@ -1696,7 +1696,7 @@ normalize-url@^1.4.0:
     query-string "^4.1.0"
     sort-keys "^1.0.0"
 
-npmlog@^4.0.0:
+npmlog@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/npmlog/-/npmlog-4.0.1.tgz#d14f503b4cd79710375553004ba96e6662fbc0b8"
   dependencies:
@@ -2143,7 +2143,7 @@ repeating@^2.0.0:
   dependencies:
     is-finite "^1.0.0"
 
-request@^2.75.0:
+request@^2.79.0:
   version "2.79.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.79.0.tgz#4dfe5bf6be8b8cdc37fcf93e04b65577722710de"
   dependencies:
@@ -2372,8 +2372,8 @@ util-deprecate@~1.0.1:
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
 
 uuid@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.0.0.tgz#6728fc0459c450d796a99c31837569bdf672d728"
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.0.1.tgz#6544bba2dfda8c1cf17e629a3a305e2bb1fee6c1"
 
 vendors@^1.0.0:
   version "1.0.1"

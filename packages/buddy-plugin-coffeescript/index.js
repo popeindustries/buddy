@@ -1,6 +1,5 @@
 'use strict';
 
-const { SourceMapConsumer, SourceMapGenerator } = require('source-map');
 const coffee = require('coffee-script');
 
 const DEFAULT_OPTIONS = {
@@ -53,9 +52,8 @@ function define (File, utils) {
         const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.coffeescript);
         const { js: content, v3SourceMap: map } = coffee.compile(this.content, options);
 
-        this.content = content;
-        this.map = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(map));
-        this.map.setSourceContent(this.relpath, this.fileContent);
+        this.setContent(content);
+        this.setMap(map);
         debug(`compile: ${strong(this.relpath)}`, 4);
       } catch (err) {
         if (!this.options.runtimeOptions.watch) return fn(err);

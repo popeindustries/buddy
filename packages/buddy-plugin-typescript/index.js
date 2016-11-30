@@ -58,9 +58,8 @@ function define (File, utils) {
         };
         const result = ts.transpileModule(this.content, options);
 
-        this.map = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(result.sourceMapText));
-        this.map.setSourceContent(this.relpath, this.content);
-        this.content = result.outputText.replace(RE_SOURCE_MAPPING_URL, '');
+        this.setContent(result.outputText.replace(RE_SOURCE_MAPPING_URL, ''));
+        this.setMap(result.sourceMapText);
         debug(`compile: ${strong(this.relpath)}`, 4);
       } catch (err) {
         if (!this.options.runtimeOptions.watch) return fn(err);
