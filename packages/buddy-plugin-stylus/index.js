@@ -85,9 +85,8 @@ function define (File, utils) {
           error(err, 4, false);
         }
 
-        this.map = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(style.sourcemap));
-        this.map.setSourceContent(this.relpath, this.content);
-        this.content = css;
+        this.setContent(css);
+        this.setMap(style.sourcemap);
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       });

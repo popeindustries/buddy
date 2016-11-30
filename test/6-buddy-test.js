@@ -100,7 +100,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a coffeescript file', (done) => {
+      it('should build a coffeescript file and source map', (done) => {
         buddy = buddyFactory({
           input: 'a.coffee',
           output: 'output'
@@ -108,12 +108,14 @@ describe('Buddy', () => {
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
+          const map = JSON.parse(fs.readFileSync(`${filepaths[0]}.map`, 'utf8'));
 
           expect(content).to.contain('(function () {\n/*== a.coffee ==*/\n$m[\'a\'] = { exports: {} };\nvar a__foo;\n\na__foo = \'foo\';\n/*≠≠ a.coffee ≠≠*/\n})()');
+          expect(map).to.have.property('mappings', ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,IAAA;;AAAA,SAAM');
           done();
         });
       });
-      it.only('should build a js file with 1 dependency', (done) => {
+      it('should build a js file with 1 dependency and source map', (done) => {
         buddy = buddyFactory({
           input: 'bar.js',
           output: 'output'
@@ -121,9 +123,11 @@ describe('Buddy', () => {
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-          console.log(content)
+          const map = JSON.parse(fs.readFileSync(`${filepaths[0]}.map`, 'utf8'));
+
           expect(content).to.contain("/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/");
           expect(content).to.contain("var bar__foo = $m[\'foo\'].exports;");
+          expect(map).to.have.property('mappings', ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;;;;ACAA;;AAEA');
           done();
         });
       });
@@ -167,7 +171,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("/*== b.js ==*/\n$m[\'b\'] = function () {\n$m[\'b\'] = { exports: {} };\n$m[\'b\'].exports = b__b;\n\nvar b__a = require(\'a\');\n\nfunction b__b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n/*== a.js ==*/\n$m[\'a\'] = function () {\n$m[\'a\'] = { exports: {} };\n$m[\'a\'].exports = a__a;\n\nvar a__b = require(\'b\');\n\nfunction a__a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n/*== circular.js ==*/\n$m[\'circular\'] = { exports: {} };\nvar circular__a = require(\'a\');\n/*≠≠ circular.js ≠≠*/");
+          expect(content).to.contain("/*== b.js ==*/\n$m[\'b\'] = function () {\n$m[\'b\'] = { exports: {} };\n$m[\'b\'].exports = b__b;\n\nvar b__a = require(\'a\');\n\nfunction b__b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n\n/*== a.js ==*/\n$m[\'a\'] = function () {\n$m[\'a\'] = { exports: {} };\n$m[\'a\'].exports = a__a;\n\nvar a__b = require(\'b\');\n\nfunction a__a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n\n/*== circular.js ==*/\n$m[\'circular\'] = { exports: {} };\nvar circular__a = require(\'a\');\n/*≠≠ circular.js ≠≠*/");
           expect(eval(content)).to.be.ok();
           done();
         });
@@ -182,7 +186,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("/*== k.js ==*/\n$m[\'k\'] = function () {\n$m[\'k\'] = { exports: {} };\nvar k__i = require(\'i\');\n};\n/*≠≠ k.js ≠≠*/\n\n/*== j.js ==*/\n$m[\'j\'] = function () {\n$m[\'j\'] = { exports: {} };\nvar j__k = require(\'k\');\n};\n/*≠≠ j.js ≠≠*/\n\n/*== i.js ==*/\n$m[\'i\'] = function () {\n$m[\'i\'] = { exports: {} };\nvar i__j = require(\'j\');\n};\n/*≠≠ i.js ≠≠*/\n\n/*== circular-complex.js ==*/\n$m[\'circular-complex\'] = { exports: {} };\nvar circularcomplex__i = require(\'i\');\n/*≠≠ circular-complex.js ≠≠*/");
+          expect(content).to.contain("/*== k.js ==*/\n$m[\'k\'] = function () {\n$m[\'k\'] = { exports: {} };\nvar k__i = require(\'i\');\n};\n/*≠≠ k.js ≠≠*/\n\n\n/*== j.js ==*/\n$m[\'j\'] = function () {\n$m[\'j\'] = { exports: {} };\nvar j__k = require(\'k\');\n};\n/*≠≠ j.js ≠≠*/\n\n\n/*== i.js ==*/\n$m[\'i\'] = function () {\n$m[\'i\'] = { exports: {} };\nvar i__j = require(\'j\');\n};\n/*≠≠ i.js ≠≠*/\n\n\n/*== circular-complex.js ==*/\n$m[\'circular-complex\'] = { exports: {} };\nvar circularcomplex__i = require(\'i\');\n/*≠≠ circular-complex.js ≠≠*/");
           expect(eval(content)).to.be.ok();
           done();
         });
@@ -196,7 +200,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n\n/*== e.js ==*/\n$m[\'e\'] = { exports: {} };\nvar e__foo = $m[\'foo\'].exports;\n/*≠≠ e.js ≠≠*/\n\n/*== d.js ==*/\n$m[\'d\'] = { exports: {} };\nvar d__e = $m[\'e\'].exports;\n/*≠≠ d.js ≠≠*/\n})()");
+          expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n\n\n/*== e.js ==*/\n$m[\'e\'] = { exports: {} };\nvar e__foo = $m[\'foo\'].exports;\n/*≠≠ e.js ≠≠*/\n\n\n/*== d.js ==*/\n$m[\'d\'] = { exports: {} };\nvar d__e = $m[\'e\'].exports;\n/*≠≠ d.js ≠≠*/\n})()");
           done();
         });
       });
@@ -267,7 +271,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('(function () {\n(function () {\n/*== b.js ==*/\n$m[\'b\'] = function () {\n$m[\'b\'] = { exports: {} };\n$m[\'b\'].exports = b__b;\n\nvar b__a = require(\'a\');\n\nfunction b__b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n\n/*== a.js ==*/\n$m[\'a\'] = function () {\n$m[\'a\'] = { exports: {} };\n$m[\'a\'].exports = a__a;\n\nvar a__b = require(\'b\');\n\nfunction a__a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n\n/*== circular.js ==*/\n$m[\'built\'] = $m[\'circular\'] = { exports: {} };\nvar circular__a = require(\'a\');\n/*≠≠ circular.js ≠≠*/\n})()\n\n/*== h.js ==*/\n$m[\'h\'] = { exports: {} };\nconst h__foo = $m[\'built\'].exports;\n\n$m[\'h\'].exports = \'h\';\n/*≠≠ h.js ≠≠*/\n})()');
+          expect(content).to.contain('(function () {\n(function () {\n/*== b.js ==*/\n$m[\'b\'] = function () {\n$m[\'b\'] = { exports: {} };\n$m[\'b\'].exports = b__b;\n\nvar b__a = require(\'a\');\n\nfunction b__b() {\n  console.log(\'b\');\n}\n};\n/*≠≠ b.js ≠≠*/\n\n\n/*== a.js ==*/\n$m[\'a\'] = function () {\n$m[\'a\'] = { exports: {} };\n$m[\'a\'].exports = a__a;\n\nvar a__b = require(\'b\');\n\nfunction a__a() {\n  console.log(\'a\');\n}\n};\n/*≠≠ a.js ≠≠*/\n\n\n/*== circular.js ==*/\n$m[\'built\'] = $m[\'circular\'] = { exports: {} };\nvar circular__a = require(\'a\');\n/*≠≠ circular.js ≠≠*/\n})()\n\n\n/*== h.js ==*/\n$m[\'h\'] = { exports: {} };\nconst h__foo = $m[\'built\'].exports;\n\n$m[\'h\'].exports = \'h\';\n/*≠≠ h.js ≠≠*/\n})()');
           done();
         });
       });
@@ -331,7 +335,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('"use strict";if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;if("undefined"==typeof process)var process={env:{}};var $m=self.$m=self.$m||{},$req;self.require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports},function(){$m.foo={exports:{}},$m.foo.exports="foo",$m.bar={exports:{}};var e=$m.foo.exports;$m.bar.exports=e}();');
+          expect(content).to.equal('"use strict";if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;if("undefined"==typeof process)var process={env:{}};var $m=self.$m=self.$m||{},$req;self.require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports},function(){$m.foo={exports:{}},$m.foo.exports="foo",$m.bar={exports:{}};var e=$m.foo.exports;$m.bar.exports=e}();//# sourceMappingURL=bar.js.map');
           done();
         });
       });
@@ -593,7 +597,7 @@ describe('Buddy', () => {
       });
     });
 
-    describe('css', () => {
+    describe.only('css', () => {
       it('should build a css file', (done) => {
         buddy = buddyFactory({
           input: 'a.css',
@@ -603,7 +607,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n');
+          expect(content).to.contain('body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n');
           done();
         });
       });
@@ -616,7 +620,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n\n\ndiv {\n  color: red;\n}');
+          expect(content).to.contain('body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n\n\ndiv {\n  color: red;\n}');
           done();
         });
       });
@@ -629,7 +633,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('body {\n  color: #fff;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n');
+          expect(content).to.contain('body {\n  color: #fff;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n');
           done();
         });
       });
@@ -642,7 +646,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('#header {\n  color: #333333;\n  border-left: 1px;\n  border-right: 2px;\n}\n#footer {\n  color: #114411;\n  border-color: #7d2717;\n}\n');
+          expect(content).to.contain('#header {\n  color: #333333;\n  border-left: 1px;\n  border-right: 2px;\n}\n#footer {\n  color: #114411;\n  border-color: #7d2717;\n}\n');
           done();
         });
       });
@@ -656,7 +660,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('body{color:#fff;font-size:12px}body p{font-size:10px}');
+          expect(content).to.contain('body{color:#fff;font-size:12px}body p{font-size:10px}');
           done();
         });
       });
@@ -670,7 +674,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('body{color:#fff;font-size:12px}body p{font-size:10px}');
+          expect(content).to.contain('body{color:#fff;font-size:12px}body p{font-size:10px}');
           done();
         });
       });
@@ -685,7 +689,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal(':-webkit-full-screen a {\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}');
+          expect(content).to.contain(':-webkit-full-screen a {\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}');
           done();
         });
       });
@@ -700,7 +704,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal(':-webkit-full-screen a {\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}');
+          expect(content).to.contain(':-webkit-full-screen a {\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}');
           done();
         });
       });

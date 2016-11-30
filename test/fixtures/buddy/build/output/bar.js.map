@@ -1,1 +1,0 @@
-{"version":3,"sources":["foo.js","bar.js"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;;;;ACAA;;AAEA","file":"bar.js","sourcesContent":["module.exports = 'foo';","var foo = require('./foo')\n\nmodule.exports = foo;"]}

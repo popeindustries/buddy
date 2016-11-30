@@ -77,9 +77,8 @@ function define (File, utils) {
           if (!this.options.runtimeOptions.watch) return fn(err);
           error(err, 4, false);
         }
-        this.map = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(result.map));
-        this.map.setSourceContent(this.relpath, this.content);
-        this.content = result.css;
+        this.setContent(result.css);
+        this.setMap(result.map);
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       });
