@@ -597,7 +597,7 @@ describe('Buddy', () => {
       });
     });
 
-    describe.only('css', () => {
+    describe('css', () => {
       it('should build a css file', (done) => {
         buddy = buddyFactory({
           input: 'a.css',
@@ -611,7 +611,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.only('should build a css file with inlined dependencies', (done) => {
+      it('should build a css file with inlined dependencies', (done) => {
         buddy = buddyFactory({
           input: 'b.css',
           output: 'output'
@@ -619,8 +619,8 @@ describe('Buddy', () => {
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-          console.log(content)
-          // expect(content).to.contain('body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n\n\ndiv {\n  color: red;\n}');
+
+          expect(content).to.contain('body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n\n\ndiv {\n  color: red;\n}');
           done();
         });
       });
