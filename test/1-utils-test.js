@@ -1,6 +1,6 @@
 'use strict';
 
-const { regexpEscape, truncate, uniqueMatch } = require('../lib/utils/string');
+const { getLocationFromIndex, regexpEscape, truncate, uniqueMatch } = require('../lib/utils/string');
 const callable = require('../lib/utils/callable');
 const expect = require('expect.js');
 const filepath = require('../lib/utils/filepath');
@@ -82,6 +82,24 @@ describe('utils', () => {
       });
       it('should uniquely match multiple instances', () => {
         expect(uniqueMatch('foo bar foo', /fo(o)/g)).to.eql([{ context: 'foo', match: 'o' }]);
+      });
+    });
+
+    describe('getLocationFromIndex()', () => {
+      it('should return location in single line text', () => {
+        expect(getLocationFromIndex('foo bar boo', 4)).to.eql({ line: 1, column: 4});
+      });
+      it('should return location in multiple line text', () => {
+        expect(getLocationFromIndex('foo\nbar\nboo', 4)).to.eql({ line: 2, column: 0});
+      });
+      it('should return identity location for invalid index', () => {
+        expect(getLocationFromIndex('foo\nbar\nboo', 40000)).to.eql({ line: 0, column: 0});
+      });
+      it('should return multiple locations in single line text', () => {
+        expect(getLocationFromIndex('foo bar boo', [4, 6])).to.eql([{ line: 1, column: 4}, { line: 1, column: 6}]);
+      });
+      it('should return multiple locations in multiple line text', () => {
+        expect(getLocationFromIndex('foo\nbar\nboo', [4, 8])).to.eql([{ line: 2, column: 0}, { line: 3, column: 0}]);
       });
     });
   });

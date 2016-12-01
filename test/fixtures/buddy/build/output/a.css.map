@@ -1,0 +1,1 @@
+{"version":3,"sources":["a.css"],"names":[],"mappings":"AAAA;AACA;AACA;AACA;AACA;AACA;AACA","file":"a.css","sourcesContent":["body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n"]}

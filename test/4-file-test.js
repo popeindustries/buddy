@@ -89,6 +89,29 @@ describe('file', () => {
     });
   });
 
+  describe('replaceContent()', () => {
+    it('should replace a text string with content', () => {
+      file.replaceContent('foo', 18, 'bar');
+      expect(file.content).to.equal('module.exports = \'bar\';');
+    });
+    it('should replace a text string with multiline content', () => {
+      file.replaceContent('foo', 18, 'bar\nfoo');
+      expect(file.content).to.equal('module.exports = \'bar\nfoo\';');
+    });
+    it('should replace a text string with file content', () => {
+      const file2 = new File('bat', path.resolve('src/bat.js'), 'js', {});
+
+      file.replaceContent("'foo'", 17, file2);
+      expect(file.content).to.equal('module.exports = var runtime = process.env.RUNTIME;;');
+    });
+    it('should replace a text string with file content', () => {
+      const file2 = new File('bat', path.resolve('src/bar.js'), 'js', {});
+
+      file.replaceContent("'foo'", 17, file2);
+      expect(file.content).to.equal('module.exports = var foo = require(\'./foo\');\n\nmodule.exports = \'bar\';;');
+    });
+  });
+
   describe('addDependencies()', () => {
     it('should ignore invalid dependency id', () => {
       file.addDependencies([{ id: './zoop' }], {});
@@ -691,6 +714,7 @@ describe('file', () => {
     describe('inline()', () => {
       it('should replace @import rules with file contents', (done) => {
         file.content = "@import 'foo';\nbody {\n\tbackground-color: black;\n}";
+        file.totalLines = 4;
         file.dependencyReferences = [
           {
             file: {
@@ -699,7 +723,8 @@ describe('file', () => {
               type: 'css',
               content: 'div {\n\twidth: 50%;\n}\n',
               dependencies: [],
-              dependencyReferences: []
+              dependencyReferences: [],
+              totalLines: 3
             },
             filepath: './foo.css',
             context: "@import 'foo';",
@@ -711,8 +736,9 @@ describe('file', () => {
           done();
         });
       });
-      it('should replace @import rules with file contents, allowing duplicates', (done) => {
+      it.only('should replace @import rules with file contents, allowing duplicates', (done) => {
         file.content = "@import 'foo';\n@import 'foo';";
+        file.totalLines = 2;
         file.dependencyReferences = [
           {
             file: {
@@ -721,7 +747,8 @@ describe('file', () => {
               type: 'css',
               content: 'div {\n\twidth: 50%;\n}\n',
               dependencies: [],
-              dependencyReferences: []
+              dependencyReferences: [],
+              totalLines: 3
             },
             filepath: './foo.css',
             context: "@import 'foo';",

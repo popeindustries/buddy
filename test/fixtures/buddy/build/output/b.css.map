@@ -1,1 +1,1 @@
-{"version":3,"sources":["b.css"],"names":[],"mappings":"AAAA;;AAEA;AACA;AACA","file":"b.css","sourcesContent":["@import 'a.css';\n\ndiv {\n  color: red;\n}"]}
+{"version":3,"sources":["b.css","a.css"],"names":[],"mappings":"ACAA,ADAA;ACCA;AACA;AACA;AACA;AACA;AACA;;;ADJA;AACA;AACA","file":"b.css","sourcesContent":["@import 'a.css';\n\ndiv {\n  color: red;\n}","body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n"]}
