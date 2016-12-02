@@ -20,6 +20,7 @@ describe('Buddy', () => {
   });
   beforeEach(() => {
     buddy = null;
+    process.env.NODE_ENV = 'test';
   });
   afterEach(() => {
     if (buddy) buddy.destroy();
