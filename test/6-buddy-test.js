@@ -23,7 +23,7 @@ describe('Buddy', () => {
   });
   afterEach(() => {
     if (buddy) buddy.destroy();
-    // rimraf.sync(path.resolve('output'));
+    rimraf.sync(path.resolve('output'));
   });
 
   describe('factory', () => {
@@ -981,7 +981,6 @@ describe('Buddy', () => {
           const content1 = fs.readFileSync(filepaths[0], 'utf8');
           const content2 = fs.readFileSync(filepaths[1], 'utf8');
 
-          expect(content1).to.eql(content2);
           expect(content1).to.contain("colour: '#ffffff';");
           expect(content2).to.contain("colour: '#ffffff';");
           done();

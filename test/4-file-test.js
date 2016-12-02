@@ -736,8 +736,8 @@ describe('file', () => {
           done();
         });
       });
-      it.only('should replace @import rules with file contents, allowing duplicates', (done) => {
-        file.content = "@import 'foo';\n@import 'foo';";
+      it('should replace @import rules with file contents, allowing duplicates', (done) => {
+        file.content = "@import 'foo';\n@import 'foo';\n\n@import 'foo';";
         file.totalLines = 2;
         file.dependencyReferences = [
           {
@@ -756,7 +756,7 @@ describe('file', () => {
           }
         ];
         file.inline({}, (err) => {
-          expect(file.content).to.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n');
+          expect(file.content).to.eql('div {\n\twidth: 50%;\n}\n\ndiv {\n\twidth: 50%;\n}\n\n\ndiv {\n\twidth: 50%;\n}\n');
           done();
         });
       });

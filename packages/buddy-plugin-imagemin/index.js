@@ -60,7 +60,7 @@ function extend (prototype, utils) {
       .then((content) => {
         debug(`compress: ${strong(this.relpath)}`, 4);
         if (asString) content = content.toString();
-        this.content = content;
+        this.setContent(content);
         fn();
       })
       .catch(fn);
