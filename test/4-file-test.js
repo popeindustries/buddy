@@ -14,9 +14,16 @@ describe('file', () => {
     process.chdir(path.resolve(__dirname, 'fixtures/file'));
   });
   beforeEach(() => {
-    file = new File('foo', path.resolve('src/foo.js'), 'js', { runtimeOptions: { maps: true } });
+    file = new File('foo', path.resolve('src/foo.js'), 'js', {
+      browser: true,
+      fileFactory: () => {
+        return { isLocked: false };
+      },
+      runtimeOptions: { maps: true }
+    });
   });
   afterEach(() => {
+    cache.clear();
     if (config) config.destroy();
   });
 
@@ -128,7 +135,7 @@ describe('file', () => {
     it('should disable dependency reference when disabled via package.json', () => {
       const dependency = { id: 'bat/boop' };
 
-      file.addDependencies([dependency], {});
+      file.addDependencies([dependency], { });
       expect(file.dependencyReferences).to.have.length(1);
       expect(dependency).to.have.property('isDisabled', true);
       expect(file.dependencies).to.have.length(0);
@@ -141,7 +148,7 @@ describe('file', () => {
         index.isLocked = true;
         return index;
       };
-      file.addDependencies([dependency], {});
+      file.addDependencies([dependency], { });
       expect(file.dependencyReferences).to.have.length(1);
       expect(file.dependencies).to.have.length(0);
     });
