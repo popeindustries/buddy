@@ -1,5 +1,6 @@
 [![NPM Version](https://img.shields.io/npm/v/buddy.svg?style=flat)](https://npmjs.org/package/buddy)
 [![Build Status](https://img.shields.io/travis/popeindustries/buddy.svg?style=flat)](https://travis-ci.org/popeindustries/buddy)
+[![Downloads](https://img.shields.io/npm/dt/buddy.svg?style=flat)](https://npmjs.org/package/buddy)
 
 # buddy
 
