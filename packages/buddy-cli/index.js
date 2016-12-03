@@ -38,6 +38,7 @@ find(useCli, (err, buddyFactory, version) => {
     .option('-r, --reload', 'reload all connected live-reload clients on file change during watch')
     .option('-s, --serve', 'create (or launch) a webserver to serve files during watch')
     .option('-S, --script', 'run script on build completion')
+    .option('-m, --maps', 'generate js/css source maps')
     .option('--debug', 'print all messages for debugging');
 
   program
@@ -98,15 +99,15 @@ function parseConfig (configpath) {
  */
 function getOptions () {
   return {
-    compress: program.compress,
-    debug: program.debug,
+    compress: ('compress' in program) ? program.compress : false,
+    debug: ('debug' in program) ? program.debug : false,
     deploy: false,
-    grep: program.grep,
-    invert: program.invert,
-    reload: program.reload,
-    // Backwards compat
-    script: program.script || program.test,
-    serve: program.serve,
+    grep: ('grep' in program) ? program.grep : false,
+    invert: ('invert' in program) ? program.invert : false,
+    maps: ('maps' in program) ? program.maps : false,
+    reload: ('reload' in program) ? program.reload : false,
+    script: ('script' in program) ? program.script : false,
+    serve: ('serve' in program) ? program.serve : false,
     watch: false
   };
 }
