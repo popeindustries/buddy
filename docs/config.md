@@ -107,6 +107,10 @@ exports.server = {
   env: {
     NODE_ENV: 'development',
     DEBUG: 'app*'
-  }
+  },
+  // Directory to use as web root when dynamically loading bundles with buddyImport()
+  webroot: 'a/project/directory',
+  // A root url from which to serve source maps. Default behaviour is to load source maps from same directory as output files
+  sourceroot: 'a/url/root'
 };
 ```

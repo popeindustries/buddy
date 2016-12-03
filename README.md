@@ -5,7 +5,7 @@
 
 <h4 align="center"><em>Helping you get sh*t done since 2010</em></h4>
 
-**buddy** is a fast and simple build tool for web projects. It can compile source code from higher order *JS/CSS/HTML* languages, resolves dependencies, and bundle (and optionally compress) all sources for more efficient delivery to the browser.
+**buddy** is a fast and simple build tool for the web. It compiles source code from higher order *JS/CSS/HTML* languages, resolves dependencies, and bundles all sources for more efficient delivery to the browser.
 
 ### Features
 
@@ -54,6 +54,7 @@ $ npm install --save-dev buddy
     -r, --reload          reload all connected live-reload clients on file change during watch
     -s, --serve           create (or launch) a webserver to serve files during watch
     -S, --script          run script on build completion
+    -m, --maps            generate js/css source maps
     -v, --verbose         print all messages for debugging
 ```
 
@@ -72,12 +73,12 @@ Please refer to the annotated [configuration guide](https://github.com/popeindus
 One of the most common use cases for extending **buddy** is to enable working with higher-order *JS/CSS/HTML* languages. The following plugins can be installed (`$ npm install --save-dev {plugin}`) if you prefer not to write vanilla *JS/CSS/HTML*:
 
 - **[buddy-plugin-coffeescript](https://www.npmjs.com/package/buddy-plugin-coffeescript)**: transform `.coffee` source files to `.js`
+- **[buddy-plugin-typescript](https://www.npmjs.com/package/buddy-plugin-typescript)**: transform `.ts` and `.tsx` source files to `.js`
 - **[buddy-plugin-dust](https://www.npmjs.com/package/buddy-plugin-dust)**: transform `.dust` html template source files to `.html`
 - **[buddy-plugin-handlebars](https://www.npmjs.com/package/buddy-plugin-handlebars)**: transform `.handlebars` html template source files to `.html`
 - **[buddy-plugin-nunjucks](https://www.npmjs.com/package/buddy-plugin-nunjucks)**: transform `.nunjucks` html template source files to `.html`
 - **[buddy-plugin-less](https://www.npmjs.com/package/buddy-plugin-less)**: transform `.less` source files to `.css`
 - **[buddy-plugin-stylus](https://www.npmjs.com/package/buddy-plugin-stylus)**: transform `.styl` source files to `.css`
-- **[buddy-plugin-typescript](https://www.npmjs.com/package/buddy-plugin-typescript)**: transform `.ts` and `.tsx` source files to `.js`
 
 Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/docs/plugins.md) to learn about writing your own.
 
@@ -89,6 +90,7 @@ Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/d
 - [Specify target *JS* versions?](#specify-target-js-versions)
 - [Specify target *CSS* versions?](#specify-target-css-versions)
 - [Break-up *JS* bundles into smaller files?](#break-up-js-bundles-into-smaller-files)
+- [Use source maps?](#use-source-maps)
 - [Lazily evaluate a JS bundle?](#lazily-evaluate-a-js-bundle)
 - [Inline environment variables?](#inline-environment-variables)
 - [Avoid writing relative dependency paths?](#avoid-writing-relative-dependency-paths)
@@ -414,6 +416,10 @@ buddyImport('/assets/index-b621480767a88ba492db23fdc85df175.js', 'src/index')
 
 
 Child builds will be automatically generated and loaded asynchronously at runtime. **Note that some environments may require a `Promise` polyfill**, and that the id's passed to `buddyImport` must be statically resolvable strings. It may also be necessary to configure the child bundle url by declaring a `webroot` property in `buddy.server` config.
+
+#### Use source maps?
+
+Source maps for *JS* and *CSS* sources are automatically generated when bundling with the `--maps` command flag. Source map files are generated alongside output files with an appended `*.map` extension (ex: `www/foo.js.map`). You may configure a `server.sourceroot` base url to load source map files from, but the source map files must then be manually uploaded/moved.
 
 #### Lazily evaluate a *JS* bundle?
 
