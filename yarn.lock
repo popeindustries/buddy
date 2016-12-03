@@ -689,9 +689,9 @@ bubleify@^0.5.1:
     buble "^0.12.0"
     object-assign "^4.0.1"
 
-buddy-cli@6.0.6:
-  version "6.0.6"
-  resolved "https://registry.yarnpkg.com/buddy-cli/-/buddy-cli-6.0.6.tgz#dc3375d1d4dee8480ea3c9d0f06521dd757dec38"
+buddy-cli@6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/buddy-cli/-/buddy-cli-6.1.0.tgz#5d96e961978f992cd88e3b81df5d11733f3e88a3"
   dependencies:
     commander "2.9.0"
     recur-fs "2.2.x"
@@ -750,8 +750,8 @@ chokidar@1.6.1:
     fsevents "^1.0.0"
 
 clap@^1.0.9:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/clap/-/clap-1.1.1.tgz#a8a93e0bfb7581ac199c4f001a5525a724ce696d"
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/clap/-/clap-1.1.2.tgz#316545bf22229225a2cecaa6824cd2f56a9709ed"
   dependencies:
     chalk "^1.1.3"
 

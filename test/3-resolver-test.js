@@ -1,16 +1,19 @@
 'use strict';
 
-const { resolverCache: cache } = require('../lib/cache');
 const alias = require('../lib/resolver/alias');
 const config = require('../lib/resolver/config');
+const createCaches = require('../lib/cache').createCaches;
 const expect = require('expect.js');
 const identify = require('../lib/resolver/identify');
 const pkg = require('../lib/resolver/package');
 const path = require('path');
 const resolve = require('../lib/resolver/resolve');
 
+let cache;
+
 describe('resolver', () => {
   before(() => {
+    cache = createCaches().resolverCache;
     process.chdir(path.resolve(__dirname, 'fixtures/resolver'));
   });
   afterEach(() => {
@@ -115,7 +118,7 @@ describe('resolver', () => {
 
     describe('retrieving details', () => {
       it('should return details for the project root package if not found', () => {
-        const details = pkg.getDetails(path.resolve('node_modules/zing'));
+        const details = pkg.getDetails(path.resolve('node_modules/zing'), { cache });
 
         expect(details).to.have.property('name', 'project');
       });
@@ -165,7 +168,9 @@ describe('resolver', () => {
         expect(details).to.have.property('main', path.resolve('node_modules/@popeindustries/test/test.js'));
       });
       it('should cache details', () => {
-        expect(pkg.getDetails(path.resolve('src/index.js'), config())).to.equal(pkg.getDetails(process.cwd()));
+        const c = config();
+
+        expect(pkg.getDetails(path.resolve('src/index.js'), c)).to.equal(pkg.getDetails(process.cwd(), c));
       });
     });
   });
@@ -308,8 +313,10 @@ describe('resolver', () => {
       expect(identify(path.resolve('index.js'))).to.equal('project');
     });
     it('should resolve separate IDs for different versions of the same package', () => {
-      expect(identify(path.resolve('node_modules/baz/node_modules/foo/lib/bat.js'))).to.equal('foo');
-      expect(identify(path.resolve('node_modules/foo/lib/bat.js'))).to.equal('foo#1.0.0');
+      const c = config();
+
+      expect(identify(path.resolve('node_modules/baz/node_modules/foo/lib/bat.js'), c)).to.equal('foo');
+      expect(identify(path.resolve('node_modules/foo/lib/bat.js'), c)).to.equal('foo#1.0.0');
     });
     it('should resolve an ID for a scoped package module', () => {
       expect(identify(path.resolve('node_modules/@popeindustries/test/test.js'))).to.equal('@popeindustries/test');

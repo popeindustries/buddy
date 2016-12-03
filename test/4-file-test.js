@@ -311,8 +311,10 @@ describe('file', () => {
 
   describe('JSFile', () => {
     function create (filepath) {
+      const caches = cache.createCaches();
+
       return config.fileFactory(path.resolve(filepath), {
-        fileCache: cache.createFileCache(),
+        fileCache: caches.fileCache,
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: {
@@ -326,6 +328,7 @@ describe('file', () => {
             ]
           }
         },
+        resolverCache: caches.resolverCache,
         runtimeOptions: config.runtimeOptions,
         webroot: path.resolve('www')
       });
@@ -343,16 +346,20 @@ describe('file', () => {
       it('should flag npm module files', () => {
         process.chdir(path.resolve(__dirname, '..'));
         config.destroy();
+
+        const caches = cache.createCaches();
+
         config = configFactory({
           input: 'foo.js',
           output: 'js'
         }, {});
         file = config.fileFactory(path.resolve('node_modules/async/series.js'), {
-          fileCache: cache.createFileCache(),
+          fileCache: caches.fileCache,
           fileExtensions: config.fileExtensions,
           fileFactory: config.fileFactory,
           npmModulepaths: config.npmModulepaths,
           pluginOptions: { babel: { plugins: [] } },
+          resolverCache: caches.resolverCache,
           runtimeOptions: config.runtimeOptions
         });
         expect(file.isNpmModule).to.equal(true);
@@ -681,15 +688,18 @@ describe('file', () => {
 
   describe('CSSFile', () => {
     beforeEach(() => {
+      const caches = cache.createCaches();
+
       config = configFactory({
         input: 'src/js/main.css',
         output: 'css'
       }, {});
       file = config.fileFactory(path.resolve('src/main.css'), {
-        fileCache: cache.createFileCache(),
+        fileCache: caches.fileCache,
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: { babel: { plugins: [] } },
+        resolverCache: caches.resolverCache,
         runtimeOptions: config.runtimeOptions
       });
     });
@@ -765,15 +775,18 @@ describe('file', () => {
 
   describe('HTMLFile', () => {
     beforeEach(() => {
+      const caches = cache.createCaches();
+
       config = configFactory({
         input: 'src/js/main.html',
         output: 'html'
       }, {});
       file = config.fileFactory(path.resolve('src/main.html'), {
-        fileCache: cache.createFileCache(),
+        fileCache: caches.fileCache,
         fileExtensions: config.fileExtensions,
         fileFactory: config.fileFactory,
         pluginOptions: { babel: { plugins: [] } },
+        resolverCache: caches.resolverCache,
         runtimeOptions: config.runtimeOptions
       });
     });

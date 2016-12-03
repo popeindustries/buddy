@@ -13,18 +13,20 @@ describe('buddy-plugin-coffeescript', () => {
     process.chdir(path.resolve(__dirname, 'fixtures'));
   });
   beforeEach(() => {
+    const caches = cache.createCaches();
+
     config = configFactory({
       input: '.',
       output: 'js'
     }, {});
     plugin.register(config);
     fileFactoryOptions = {
-      fileCache: cache.createFileCache(),
+      fileCache: caches.fileCache,
       fileExtensions: config.fileExtensions,
       fileFactory: config.fileFactory,
       pluginOptions: { babel: { plugins: [] } },
-      runtimeOptions: config.runtimeOptions,
-      sources: [path.resolve('.')]
+      resolverCache: caches.resolverCache,
+      runtimeOptions: config.runtimeOptions
     };
   });
   afterEach(() => {

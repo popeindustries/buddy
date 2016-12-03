@@ -528,11 +528,14 @@ describe('config', () => {
       let options;
 
       beforeEach(() => {
+        const { fileCache, resolverCache } = cache.createCaches();
+
         config = configFactory({ build: {} });
         options = {
-          fileCache: cache.createFileCache(),
+          fileCache,
           fileExtensions: config.fileExtensions,
           fileFactory () {},
+          resolverCache,
           runtimeOptions: config.runtimeOptions
         };
       });
