@@ -29,15 +29,15 @@ module.exports = {
 
 /**
  * Extend 'File' with new behaviour
- * @param {Class} File
+ * @param {Class} HTMLFile
  * @param {Object} utils
  * @returns {Class}
  */
-function define (File, utils) {
+function define (HTMLFile, utils) {
   const { debug, error, strong } = utils.cnsl;
   const { uniqueMatch } = utils.string;
 
-  return class HANDLEBARSFile extends File {
+  return class HANDLEBARSFile extends HTMLFile {
     /**
      * Constructor
      * @param {String} id
@@ -126,7 +126,7 @@ function define (File, utils) {
         const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.handlebars);
         const template = handlebars.compile(this.content, options);
 
-        this.content = template(this.findSidecarDependency());
+        this.setContent(template(this.findSidecarDependency()));
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       } catch (err) {

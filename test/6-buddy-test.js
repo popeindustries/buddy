@@ -128,19 +128,30 @@ describe('Buddy', () => {
 
           expect(content).to.contain("/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/");
           expect(content).to.contain("var bar__foo = $m[\'foo\'].exports;");
+          expect(content).to.contain("//# sourceMappingURL=bar.js.map");
           expect(map).to.have.property('mappings', ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;;;;ACAA;;AAEA');
           done();
         });
       });
-      it.skip('should build a js file with 1 dependency and an inlined source map', (done) => {
+      it('should build a js file with 1 dependency and source map hosted at "sourceroot"', (done) => {
         buddy = buddyFactory({
-          input: 'foo.js',
-          output: 'output'
+          build: [{
+            input: 'bar.js',
+            output: 'output'
+          }],
+          server: {
+            sourceroot: 'http://www.bar.com'
+          }
         });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
-          console.log(content)
+          const map = JSON.parse(fs.readFileSync(`${filepaths[0]}.map`, 'utf8'));
+
+          expect(content).to.contain("/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/");
+          expect(content).to.contain("var bar__foo = $m[\'foo\'].exports;");
+          expect(content).to.contain("//# sourceMappingURL=http://www.bar.com/bar.js.map");
+          expect(map).to.have.property('mappings', ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;;;;ACAA;;AAEA');
           done();
         });
       });
@@ -340,7 +351,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build a minified js file if "compress" is true, preserving special comments', (done) => {
+      it('should build a minified js file if "compress" is true, preserving special comments', (done) => {
         buddy = buddyFactory({
           input: 'comment.js',
           output: 'output'
@@ -350,7 +361,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('');
+          expect(content).to.contain('/**\n * foo\n * https://github.com/foo\n * @copyright foo\n * @license MIT\n */');
           done();
         });
       });
@@ -369,7 +380,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should remove dead code when referencing "process.env.RUNTIME" and compressing', (done) => {
+      it('should remove dead code when referencing "process.env.RUNTIME" and minifying', (done) => {
         buddy = buddyFactory({
           input: 'zee.js',
           output: 'output'
@@ -414,6 +425,25 @@ describe('Buddy', () => {
           expect(content).to.contain("var node__http = $m['native'].exports;");
           expect(content).to.contain("var node__runtime = 'server';");
           expect(content).to.contain('module.exports = function () {};');
+          done();
+        });
+      });
+      it('should build a node bundle with inlined env var when minifying', (done) => {
+        buddy = buddyFactory({
+          input: 'node.js',
+          output: 'output',
+          version: 'node'
+        }, { compress: true });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain('var native__http=require("http")');
+          expect(content).to.contain('var node__http=$m.native.exports');
+          expect(content).to.contain('node__runtime="browser"');
+          expect(content).to.contain('node__prod="production"');
+          expect(content).to.contain('module.exports=function(){};');
           done();
         });
       });

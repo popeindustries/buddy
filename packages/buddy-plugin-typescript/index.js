@@ -1,15 +1,11 @@
 'use strict';
 
-const { SourceMapConsumer, SourceMapGenerator } = require('source-map');
 const ts = require('typescript');
 
 const DEFAULT_COMPILER_OPTIONS = {
-  module: ts.ModuleKind.CommonJS,
-  sourceMap: true,
-  inlineSourceMap: false
+  module: ts.ModuleKind.CommonJS
 };
 const FILE_EXTENSIONS = ['ts', 'tsx'];
-const RE_SOURCE_MAPPING_URL = /\/\/# sourceMappingURL=[^\s]+/;
 
 module.exports = {
   name: 'typescript',
@@ -32,6 +28,7 @@ module.exports = {
  */
 function define (File, utils) {
   const { debug, error, strong } = utils.cnsl;
+  const { sourceMapCommentStrip } = utils.string;
 
   return class TYPESCRIPTFile extends File {
     /**
@@ -51,15 +48,19 @@ function define (File, utils) {
      */
     compile (buildOptions, fn) {
       try {
-        const compilerOptions = Object.assign({}, DEFAULT_COMPILER_OPTIONS, (this.options.pluginOptions.typescript && this.options.pluginOptions.typescript.compilerOptions) || {});
+        const compilerOptions = Object.assign(
+          this.hasMaps ? { sourceMap: true, inlineSourceMap: false } : {},
+          DEFAULT_COMPILER_OPTIONS,
+          (this.options.pluginOptions.typescript && this.options.pluginOptions.typescript.compilerOptions) || {}
+        );
         const options = {
           fileName: this.relpath,
           compilerOptions
         };
         const result = ts.transpileModule(this.content, options);
 
-        this.setContent(result.outputText.replace(RE_SOURCE_MAPPING_URL, ''));
-        this.setMap(result.sourceMapText);
+        this.setContent(sourceMapCommentStrip(result.outputText));
+        if (result.sourceMapText) this.setMap(result.sourceMapText);
         debug(`compile: ${strong(this.relpath)}`, 4);
       } catch (err) {
         if (!this.options.runtimeOptions.watch) return fn(err);

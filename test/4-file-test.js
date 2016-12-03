@@ -14,7 +14,7 @@ describe('file', () => {
     process.chdir(path.resolve(__dirname, 'fixtures/file'));
   });
   beforeEach(() => {
-    file = new File('foo', path.resolve('src/foo.js'), 'js', {});
+    file = new File('foo', path.resolve('src/foo.js'), 'js', { runtimeOptions: { maps: true } });
   });
   afterEach(() => {
     if (config) config.destroy();
@@ -43,7 +43,7 @@ describe('file', () => {
       expect(file.totalLines).to.equal(3);
     });
     it('should append a file chunk', () => {
-      const file2 = new File('bat', path.resolve('src/bat.js'), 'js', {});
+      const file2 = new File('bat', path.resolve('src/bat.js'), 'js', { runtimeOptions: { maps: true } });
 
       file.appendContent(file2);
       expect(file.content).to.equal('module.exports = \'foo\';\nvar runtime = process.env.RUNTIME;');
@@ -51,7 +51,7 @@ describe('file', () => {
       expect(file.map.toJSON()).to.have.property('mappings', 'AAAA;ACAA');
     });
     it('should append a multiline file chunk', () => {
-      const file2 = new File('bar', path.resolve('src/bar.js'), 'js', {});
+      const file2 = new File('bar', path.resolve('src/bar.js'), 'js', { runtimeOptions: { maps: true } });
 
       file.appendContent(file2);
       expect(file.content).to.equal('module.exports = \'foo\';\nvar foo = require(\'./foo\');\n\nmodule.exports = \'bar\';');
@@ -72,7 +72,7 @@ describe('file', () => {
       expect(file.totalLines).to.equal(3);
     });
     it('should prepend a file chunk', () => {
-      const file2 = new File('bat', path.resolve('src/bat.js'), 'js', {});
+      const file2 = new File('bat', path.resolve('src/bat.js'), 'js', { runtimeOptions: { maps: true } });
 
       file.prependContent(file2);
       expect(file.content).to.equal('var runtime = process.env.RUNTIME;\nmodule.exports = \'foo\';');
@@ -80,7 +80,7 @@ describe('file', () => {
       expect(file.map.toJSON()).to.have.property('mappings', 'ACAA;ADAA');
     });
     it('should prepend a multiline file chunk', () => {
-      const file2 = new File('bar', path.resolve('src/bar.js'), 'js', {});
+      const file2 = new File('bar', path.resolve('src/bar.js'), 'js', { runtimeOptions: { maps: true } });
 
       file.prependContent(file2);
       expect(file.content).to.equal('var foo = require(\'./foo\');\n\nmodule.exports = \'bar\';\nmodule.exports = \'foo\';');
@@ -99,13 +99,13 @@ describe('file', () => {
       expect(file.content).to.equal('module.exports = \'bar\nfoo\';');
     });
     it('should replace a text string with file content', () => {
-      const file2 = new File('bat', path.resolve('src/bat.js'), 'js', {});
+      const file2 = new File('bat', path.resolve('src/bat.js'), 'js', { runtimeOptions: { maps: true } });
 
       file.replaceContent("'foo'", 17, file2);
       expect(file.content).to.equal('module.exports = var runtime = process.env.RUNTIME;;');
     });
     it('should replace a text string with file content', () => {
-      const file2 = new File('bat', path.resolve('src/bar.js'), 'js', {});
+      const file2 = new File('bat', path.resolve('src/bar.js'), 'js', { runtimeOptions: { maps: true } });
 
       file.replaceContent("'foo'", 17, file2);
       expect(file.content).to.equal('module.exports = var foo = require(\'./foo\');\n\nmodule.exports = \'bar\';;');
@@ -134,7 +134,7 @@ describe('file', () => {
       expect(file.dependencies).to.have.length(0);
     });
     it('should ignore dependency reference when it is a parent file', () => {
-      const index = new File('index', path.resolve('src/index.js'), 'js', {});
+      const index = new File('index', path.resolve('src/index.js'), 'js', { runtimeOptions: { maps: true } });
       const dependency = { id: './index' };
 
       file.options.fileFactory = function () {
@@ -146,7 +146,7 @@ describe('file', () => {
       expect(file.dependencies).to.have.length(0);
     });
     it('should ignore dependency reference when it is a child file', () => {
-      const index = new File('index', path.resolve('src/index.js'), 'js', {});
+      const index = new File('index', path.resolve('src/index.js'), 'js', { runtimeOptions: { maps: true } });
       const dependency = { id: './index' };
 
       file.options.fileFactory = function () {
@@ -157,7 +157,7 @@ describe('file', () => {
       expect(file.dependencies).to.have.length(0);
     });
     it('should store dependant file instance', () => {
-      const index = new File('index', path.resolve('src/index.js'), 'js', {});
+      const index = new File('index', path.resolve('src/index.js'), 'js', { runtimeOptions: { maps: true } });
       const dependency = { id: './index' };
 
       file.options.fileFactory = function () {
@@ -168,7 +168,7 @@ describe('file', () => {
       expect(file.dependencies.includes(index)).to.eql(true);
     });
     it('should flag dependant file instance as inline if parsed as inline source', () => {
-      const index = new File('index', path.resolve('src/index.js'), 'js', {});
+      const index = new File('index', path.resolve('src/index.js'), 'js', { runtimeOptions: { maps: true } });
       const dependency = { id: './index', stack: true };
 
       file.options.fileFactory = function () {
@@ -209,7 +209,7 @@ describe('file', () => {
       });
     });
     it('should run a standard workflow, including for new dependencies', (done) => {
-      const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
+      const bar = new File('bar', path.resolve('src/bar.js'), 'js', { runtimeOptions: {} });
 
       bar.parse = function (buildOptions, fn) {
         expect(file).to.have.property('foo', true);
@@ -227,7 +227,7 @@ describe('file', () => {
       });
     });
     it('should run a standard workflow, including for existing dependencies', (done) => {
-      const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
+      const bar = new File('bar', path.resolve('src/bar.js'), 'js', { runtimeOptions: {} });
 
       file.dependencies.push(bar);
       file.workflows.standard[1] = bar.workflows.standard[1] = ['runWorkflowForDependencies', 'load', 'parse'];
@@ -259,7 +259,7 @@ describe('file', () => {
       });
     });
     it('should run a standard set of workflows, including for dependencies', (done) => {
-      const bar = new File('bar', path.resolve('src/foo.js'), 'js', {});
+      const bar = new File('bar', path.resolve('src/foo.js'), 'js', { runtimeOptions: {} });
 
       bar.parse = function (buildOptions, fn) {
         expect(file).to.have.property('foo', true);
@@ -288,7 +288,7 @@ describe('file', () => {
       });
     });
     it('should run an extended standard set of workflows, including for dependencies', (done) => {
-      const bar = new File('bar', path.resolve('src/bar.js'), 'js', {});
+      const bar = new File('bar', path.resolve('src/bar.js'), 'js', { runtimeOptions: {} });
 
       file.workflows.standard[1] = ['runWorkflowForDependencies'];
       bar.workflows.standard[1] = ['bar'];
@@ -521,7 +521,7 @@ describe('file', () => {
           {
             id: './foo',
             context: "require('./foo')",
-            file: { content: '', dependencyReferences: [], id: 'foo.js' }
+            file: { content: '', dependencyReferences: [], id: 'foo.js', setContent: (content) => {} }
           }
         ];
         file.replaceReferences({}, (err) => {
@@ -535,12 +535,12 @@ describe('file', () => {
           {
             id: 'bar',
             context: "require('bar')",
-            file: { content: '', dependencyReferences: [], id: 'bar@0.js' }
+            file: { content: '', dependencyReferences: [], id: 'bar@0.js', setContent: (content) => {} }
           },
           {
             id: 'view/baz',
             context: "require('view/baz')",
-            file: { content: '', dependencyReferences: [], id: 'view/baz.js' }
+            file: { content: '', dependencyReferences: [], id: 'view/baz.js', setContent: (content) => {} }
           }
         ];
         file.replaceReferences({}, (err) => {

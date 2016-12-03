@@ -1,6 +1,5 @@
 'use strict';
 
-const { SourceMapConsumer, SourceMapGenerator } = require('source-map');
 const stylus = require('stylus');
 
 const FILE_EXTENSIONS = ['styl'];
@@ -69,10 +68,10 @@ function define (File, utils) {
     compile (buildOptions, fn) {
       const style = stylus(this.content)
         .set('filename', this.relpath)
-        .set('sourcemap', { comment: false })
         // Gather all source directories
         .set('paths', this.options.fileCache.getDirs());
 
+      if (this.hasMaps) style.set('sourcemap', { comment: false });
       if (this.options.pluginOptions.stylus) {
         for (const option in this.options.pluginOptions.stylus) {
           style.set(option, this.options.pluginOptions.stylus[option]);
@@ -86,7 +85,7 @@ function define (File, utils) {
         }
 
         this.setContent(css);
-        this.setMap(style.sourcemap);
+        if (style.sourcemap) this.setMap(style.sourcemap);
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       });

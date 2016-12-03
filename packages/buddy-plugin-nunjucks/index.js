@@ -129,7 +129,7 @@ function define (File, utils) {
           if (!this.options.runtimeOptions.watch) return fn(err);
           error(err, 4, false);
         }
-        this.content = content;
+        this.setContent(content);
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       });

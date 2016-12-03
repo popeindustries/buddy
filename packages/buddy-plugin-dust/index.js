@@ -29,15 +29,15 @@ module.exports = {
 
 /**
  * Extend 'File' with new behaviour
- * @param {Class} File
+ * @param {Class} HTMLFile
  * @param {Object} utils
  * @returns {Class}
  */
-function define (File, utils) {
+function define (HTMLFile, utils) {
   const { debug, error, strong } = utils.cnsl;
   const { uniqueMatch } = utils.string;
 
-  return class DUSTFile extends File {
+  return class DUSTFile extends HTMLFile {
     /**
      * Constructor
      * @param {String} id
@@ -132,7 +132,7 @@ function define (File, utils) {
           if (!this.options.runtimeOptions.watch) return fn(err);
           error(err, 4, false);
         }
-        this.content = content;
+        this.setContent(content);
         debug(`compile: ${strong(this.relpath)}`, 4);
         fn();
       });

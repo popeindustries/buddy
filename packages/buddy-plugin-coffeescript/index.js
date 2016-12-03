@@ -4,8 +4,7 @@ const coffee = require('coffee-script');
 
 const DEFAULT_OPTIONS = {
   // Compile without function wrapper
-  bare: true,
-  sourceMap: true
+  bare: true
 };
 const FILE_EXTENSIONS = ['coffee'];
 
@@ -49,11 +48,11 @@ function define (File, utils) {
      */
     compile (buildOptions, fn) {
       try {
-        const options = Object.assign({}, DEFAULT_OPTIONS, this.options.pluginOptions.coffeescript);
+        const options = Object.assign({ sourceMap: this.hasMaps }, DEFAULT_OPTIONS, this.options.pluginOptions.coffeescript || {});
         const { js: content, v3SourceMap: map } = coffee.compile(this.content, options);
 
         this.setContent(content);
-        this.setMap(map);
+        if (map) this.setMap(map);
         debug(`compile: ${strong(this.relpath)}`, 4);
       } catch (err) {
         if (!this.options.runtimeOptions.watch) return fn(err);
