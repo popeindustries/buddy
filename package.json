@@ -36,7 +36,7 @@
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "source-map": "0.5.6",
-    "uglify-js": "2.7.4"
+    "uglify-js": "2.7.5"
   },
   "devDependencies": {
     "babel-plugin-transform-es5-property-mutators": "^6.8.0",
