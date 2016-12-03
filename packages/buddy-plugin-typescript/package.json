@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-typescript",
   "description": "Buddy plugin for typescript source transforms (via TypeScript)",
-  "version": "2.0.10",
+  "version": "2.0.10-1",
   "author": "mariuslundgard <studio@mariuslundgard.com>",
   "contributors": [
     "popeindustries <alex@pope-industries.com>"
@@ -16,14 +16,14 @@
     "typescript": "2.0.10"
   },
   "peerDependencies": {
-    "buddy": "^6.0.0"
+    "buddy": "~6.6.0"
   },
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec -t 10000"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=6"
   },
   "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-typescript",
   "readmeFilename": "README.md",
