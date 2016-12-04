@@ -714,14 +714,14 @@ describe('file', () => {
     describe('parse()', () => {
       it('should store an array of dependencies', (done) => {
         file.content = "@import 'main';";
-        file.parse({}, (err) => {
+        file.parse({ bundle: true }, (err) => {
           expect(file.dependencies).to.have.length(1);
           done();
         });
       });
       it('should only store 1 dependency object when there are duplicates', (done) => {
         file.content = "@import 'main'; @import 'main';";
-        file.parse({}, (err) => {
+        file.parse({ bundle: true }, (err) => {
           expect(file.dependencies).to.have.length(1);
           done();
         });
