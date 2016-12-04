@@ -49,7 +49,15 @@ function define (File, utils) {
     compile (buildOptions, fn) {
       try {
         const options = Object.assign({ sourceMap: this.hasMaps }, DEFAULT_OPTIONS, this.options.pluginOptions.coffeescript || {});
-        const { js: content, v3SourceMap: map } = coffee.compile(this.content, options);
+        const results = coffee.compile(this.content, options);
+        let content, map;
+
+        if ('string' != typeof results) {
+          content = results.js;
+          map = results.v3SourceMap;
+        } else {
+          content = results;
+        }
 
         this.setContent(content);
         if (map) this.setMap(map);
