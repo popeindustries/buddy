@@ -105,7 +105,7 @@ describe('Buddy', () => {
         buddy = buddyFactory({
           input: 'a.coffee',
           output: 'output'
-        }, { plugins: [coffeescriptPlugin] });
+        }, { maps: true, plugins: [coffeescriptPlugin] });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
@@ -120,7 +120,7 @@ describe('Buddy', () => {
         buddy = buddyFactory({
           input: 'bar.js',
           output: 'output'
-        });
+        }, { maps: true });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
@@ -142,7 +142,7 @@ describe('Buddy', () => {
           server: {
             sourceroot: 'http://www.bar.com'
           }
-        });
+        }, { maps: true });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
@@ -227,6 +227,21 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain('var bing__json = { "content": "foo" }');
+          done();
+        });
+      });
+      it('should build a js file with json dependency when bundle=false', (done) => {
+        buddy = buddyFactory({
+          input: 'bing.js',
+          output: 'output',
+          bundle: false
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain('var json = { "content": "foo" }');
           done();
         });
       });
@@ -341,7 +356,7 @@ describe('Buddy', () => {
         buddy = buddyFactory({
           input: 'bar.js',
           output: 'output'
-        }, { compress: true });
+        }, { compress: true, maps: true });
         buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);

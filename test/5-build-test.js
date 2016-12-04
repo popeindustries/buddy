@@ -91,7 +91,7 @@ describe('build', () => {
         done();
       });
     });
-    it.skip('should return all referenced files, including dependencies', (done) => {
+    it('should return all referenced files, including dependencies', (done) => {
       config = configFactory({
         input: 'src/js/bar.js',
         output: 'js'
