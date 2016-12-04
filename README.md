@@ -105,6 +105,7 @@ Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/d
 - [Skip a build?](#skip-a-build)
 - [Serve files while developing?](#serve-files-while-developing)
 - [Reload files while developing?](#reload-files-while-developing)
+- [Display output file size?](#display-output-file-size)
 
 #### Manage *JS* dependencies?
 
@@ -798,3 +799,17 @@ When working with a custom server, you can pass along application environment va
 #### Reload files while developing?
 
 When executing the `watch` command with the `--serve` and `--reload` flags, **buddy** will rely on the [buddy-server](https://www.npmjs.com/package/buddy-server) plugin to launch a local development server, reloading any connected clients after re-builds. If the plugin is not already installed, **buddy** will automatically install it to your `dev-dependencies`. 
+
+#### Display output file size?
+
+When running the `deploy` command, the minified and gzipped file sizes will be automatically output to the terminal. If the minified size exceeds 250 kB, a warning will also be output:
+
+```text
+ building lib/react-browser.js to lib/react.js
+  [processed 169 files in 2.52s]
+  built and compressed src/lib/react.js
+   compressed size: 332 kB
+   gzipped size: 60.5 kB
+   warning the output file exceeds the recommended 250 kB size
+   Consider splitting into smaller bundles to help improve browser startup execution time
+```
