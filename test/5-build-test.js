@@ -91,11 +91,11 @@ describe('build', () => {
         done();
       });
     });
-    it('should return all referenced files, including dependencies', (done) => {
+    it.skip('should return all referenced files, including dependencies', (done) => {
       config = configFactory({
         input: 'src/js/bar.js',
         output: 'js'
-      }, {});
+      });
       build = buildFactory(config.builds[0]);
       const files = [build.fileFactory(build.inputpaths[0], build.fileFactoryOptions)];
 

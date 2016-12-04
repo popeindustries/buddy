@@ -377,35 +377,35 @@ describe('file', () => {
     describe('parse()', () => {
       it('should store an array of require dependencies', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./b');";
-        file.parse({}, (err) => {
+        file.parse({ bundle: true }, (err) => {
           expect(file.dependencies).to.have.length(2);
           done();
         });
       });
       it('should store an array of import dependencies', (done) => {
         file.content = "import barDefault from './a';";
-        file.parse({}, (err) => {
+        file.parse({ bundle: true }, (err) => {
           expect(file.dependencies).to.have.length(1);
           done();
         });
       });
       it('should store an array of dynamic import dependencies', (done) => {
         file.content = "buddyImport('./a').then((module) => {})";
-        file.parse({}, (err) => {
+        file.parse({ bundle: true }, (err) => {
           expect(file.dynamicDependencyReferences).to.have.length(1);
           done();
         });
       });
       it('should only store 1 dependency object when there are duplicates', (done) => {
         file.content = "var a = require('./a');\nvar b = require('./a');";
-        file.parse({}, (err) => {
+        file.parse({ bundle: true }, (err) => {
           expect(file.dependencies).to.have.length(1);
           done();
         });
       });
       it('should store 2 dependency objects when there are case sensitive package references', (done) => {
         file.content = "var a = require('./a');\nvar boo = require('Boo');";
-        file.parse({}, (err) => {
+        file.parse({ bundle: true }, (err) => {
           expect(file.dependencies).to.have.length(2);
           done();
         });
