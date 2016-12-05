@@ -10,9 +10,9 @@
     "buddy"
   ],
   "dependencies": {
-    "commander": "2.9.0",
+    "commander": "2.9.x",
     "recur-fs": "2.2.x",
-    "signal-exit": "3.0.1"
+    "signal-exit": "3.0.x"
   },
   "devDependencies": {},
   "main": "index.js",
