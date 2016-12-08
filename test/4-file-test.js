@@ -564,6 +564,25 @@ describe('file', () => {
       });
     });
 
+    describe('rewriteDirnameFilename()', () => {
+      it('should rewrite "__dirname"', (done) => {
+        file.content = "path.join(__dirname, 'foo.js')";
+        file.writepath = path.resolve('output/foo.js');
+        file.rewriteDirnameFilename({}, (err) => {
+          expect(file.content).to.equal("path.join(require('path').resolve('../src'), 'foo.js')");
+          done();
+        });
+      });
+      it('should rewrite "__filname"', (done) => {
+        file.content = "console.log(__filename)";
+        file.writepath = path.resolve('output/foo.js');
+        file.rewriteDirnameFilename({}, (err) => {
+          expect(file.content).to.equal("console.log(require('path').resolve('../src/foo.js'))");
+          done();
+        });
+      });
+    });
+
     describe('replaceDynamicReferences()', () => {
       it('should replace relative id with url+id', (done) => {
         file.content = "buddyImport('./a.js')";
