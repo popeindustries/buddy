@@ -410,6 +410,13 @@ describe('file', () => {
           done();
         });
       });
+      it('should flag file if unresolvable dependencies', (done) => {
+        file.content = "var a = require('a' + '.js');";
+        file.parse({ bundle: true }, (err) => {
+          expect(file.hasUnresolvedDependencies).to.equal(true);
+          done();
+        });
+      });
     });
 
     describe('replaceEnvironment()', () => {
