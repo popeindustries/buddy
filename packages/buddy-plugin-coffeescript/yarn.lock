@@ -2,6 +2,6 @@
 # yarn lockfile v1
 
 
-coffee-script@1.12.0:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/coffee-script/-/coffee-script-1.12.0.tgz#8ae1181fb37ee9312c09cf2bf0b754dfa1525fba"
+coffee-script@1.12.1:
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/coffee-script/-/coffee-script-1.12.1.tgz#67b8dfec64f0620f82f39583f04fbdd9f01e9cfd"
