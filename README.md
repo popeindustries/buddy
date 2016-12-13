@@ -679,6 +679,15 @@ Plugins are configured via the `options.{plugin}` build configuration parameter:
             }
           }
         }
+      },
+      {
+        "input": "src/index.css",
+        "output": "www",
+        "options": {
+          "cssnano": {
+            "normalizeUrl": false
+          }
+        }
       }
     ]
   }

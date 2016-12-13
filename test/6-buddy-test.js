@@ -710,6 +710,25 @@ describe('Buddy', () => {
           done();
         });
       });
+      it('should build a minified css file with options', (done) => {
+        buddy = buddyFactory({
+          input: 'd.css',
+          output: 'output',
+          options: {
+            cssnano: {
+              normalizeUrl: false
+            }
+          }
+        }, { compress: true });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain('.box{background:url("./css/../img/cat.jpg")}');
+          done();
+        });
+      });
       it('should build a minified stylus file if "compress" is true', (done) => {
         buddy = buddyFactory({
           input: 'a.styl',
