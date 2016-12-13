@@ -443,7 +443,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a node bundle with inlined __dirname', (done) => {
+      it.skip('should build a node bundle with inlined __dirname', (done) => {
         buddy = buddyFactory({
           input: 'node2.js',
           output: 'output',
