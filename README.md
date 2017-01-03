@@ -383,7 +383,7 @@ const react = require('react');
 const lodash = require('lodash');
 ```
 
-The same result may also be achieved with dynamic child builds using `buddyImport()`:
+The same result may also be achieved with dynamic child builds using `import()`:
 
 ```json
 {
@@ -402,7 +402,7 @@ The same result may also be achieved with dynamic child builds using `buddyImpor
 ```
 ```js
 // src/libs.js
-buddyImport('./index.js')
+import('./index.js')
   .then((index) => {
     console.log('index module loaded');
   });
@@ -410,14 +410,13 @@ buddyImport('./index.js')
 ...compiles to:
 ```js
 // www/assets/libs.js
-buddyImport('/assets/index-b621480767a88ba492db23fdc85df175.js', 'src/index')
+import('/assets/index-b621480767a88ba492db23fdc85df175.js', 'src/index')
   .then((index) => {
     console.log('index module loaded');
   });
 ```
 
-
-Child builds will be automatically generated and loaded asynchronously at runtime. **Note that some environments may require a `Promise` polyfill**, and that the id's passed to `buddyImport` must be statically resolvable strings. It may also be necessary to configure the child bundle url by declaring a `webroot` property in `buddy.server` config.
+Child builds will be automatically generated and loaded asynchronously at runtime. **Note that some environments may require a `Promise` polyfill**, and that the id's passed to `import()` must be statically resolvable strings. It may also be necessary to configure the child bundle url by declaring a `webroot` property in `buddy.server` config.
 
 #### Use source maps?
 
