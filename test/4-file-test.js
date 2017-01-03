@@ -606,6 +606,21 @@ describe('file', () => {
           done();
         });
       });
+      it('should rename "import()" to "buddyImport()"', (done) => {
+        file.content = "import('./a.js')";
+        file.writepath = path.resolve('www/assets/js', 'foo.js');
+        file.dynamicDependencyReferences = [
+          {
+            id: './a.js',
+            context: "import('./a.js')",
+            file: { content: '', filepath: path.resolve('src/a.js'), id: 'a', writeUrl: '/assets/js/a.js' }
+          }
+        ];
+        file.replaceDynamicReferences({ browser: true }, (err) => {
+          expect(file.content).to.equal("buddyImport('/assets/js/a.js', 'a')");
+          done();
+        });
+      });
       it('should replace relative id with url+id with correct quote style', (done) => {
         file.content = 'buddyImport("./a.js")';
         file.writepath = path.resolve('www/assets/js', 'foo.js');
