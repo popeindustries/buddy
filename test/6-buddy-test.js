@@ -1317,6 +1317,40 @@ describe('Buddy', () => {
           done();
         });
       });
+      it.only('should build a common parent build based on children', (done) => {
+        buddy = buddyFactory({
+          build: [
+            {
+              input: 'common',
+              output: 'output/common.js',
+              build: [
+                {
+                  input: 'l.js',
+                  output: 'output'
+                },
+                {
+                  input: 'm.js',
+                  output: 'output'
+                }
+              ]
+            }
+          ]
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(3);
+          filepaths.forEach((filepath) => {
+            expect(fs.existsSync(filepath)).to.be(true);
+            const name = path.basename(filepath, '.js');
+            const content = fs.readFileSync(filepath, 'utf8');
+
+            if (name == 'common') {
+            } else if (name == 'l') {
+            } else {
+            }
+          });
+          done();
+        });
+      });
     });
   });
 
