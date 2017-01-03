@@ -189,6 +189,26 @@ describe('config', () => {
       expect(dummyConfig.builds[0].builds[0].index).to.equal(2);
       expect(dummyConfig.builds[0].options).to.equal(dummyConfig.builds[0].builds[0].options);
     });
+    it('should parse common build target based on nested builds', () => {
+      dummyConfig.builds = [{
+        input: 'common',
+        output: 'js/common.js',
+        build: [
+          {
+            input: 'src/main.js',
+            output: 'js'
+          },
+          {
+            input: 'src/module.js',
+            output: 'js'
+          }
+        ]
+      }];
+      buildParser(dummyConfig);
+
+      expect(dummyConfig.builds[0].inputpaths).to.eql(['dummy.js']);
+      expect(dummyConfig.builds[0].isIntersectionBuild).to.equal(true);
+    });
     it('should parse build target with nested builds and different "version"', () => {
       dummyConfig.builds = [{
         input: 'src-nested/main.js',
@@ -211,7 +231,7 @@ describe('config', () => {
       const childFile = childFileFactory(dummyConfig.builds[0].builds[0].inputpaths[0]);
 
       expect(parentFileFactory).to.not.equal(childFileFactory);
-      expect(parentFile.options.pluginOptions.babelFingerprint).to.not.equal(childFile.options.pluginOptions.babelFingerprint)
+      expect(parentFile.options.pluginOptions.babelFingerprint).to.not.equal(childFile.options.pluginOptions.babelFingerprint);
     });
     it('should parse build target glob pattern "input"', () => {
       dummyConfig.builds = [{
