@@ -500,7 +500,7 @@ babel-plugin-transform-es2015-unicode-regex@^6.3.13:
     babel-runtime "^6.0.0"
     regexpu-core "^2.0.0"
 
-babel-plugin-transform-es5-property-mutators@^6.8.0:
+babel-plugin-transform-es5-property-mutators@*:
   version "6.8.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-transform-es5-property-mutators/-/babel-plugin-transform-es5-property-mutators-6.8.0.tgz#b2288f96dc5ea2f8c466a6f60c566d3f77c42b84"
   dependencies:

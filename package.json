@@ -1,7 +1,7 @@
 {
   "name": "buddy",
   "description": "A fast, simple build tool for web projects.",
-  "version": "6.6.4",
+  "version": "6.7.0",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "build",
@@ -39,7 +39,7 @@
     "uglify-js": "2.7.5"
   },
   "devDependencies": {
-    "babel-plugin-transform-es5-property-mutators": "^6.8.0",
+    "babel-plugin-transform-es5-property-mutators": "*",
     "babel-preset-env": "1.1.4",
     "expect.js": "*",
     "mocha": "*",
