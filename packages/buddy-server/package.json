@@ -1,7 +1,7 @@
 {
   "name": "buddy-server",
   "description": "A simple asset server and livereload server for Buddy projects.",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "server",
@@ -12,7 +12,7 @@
     "filed": "0.1.0",
     "livereload-protocol": "0.2.2",
     "node-static": "0.7.9",
-    "websocket": "1.0.23"
+    "websocket": "1.0.24"
   },
   "devDependencies": {
     "request": "*"
