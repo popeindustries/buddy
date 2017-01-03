@@ -226,7 +226,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('var bing__json = { "content": "foo" }');
+          expect(content).to.contain('var bing__json = {  "content": "foo"}');
           done();
         });
       });
@@ -241,7 +241,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain('var json = { "content": "foo" }');
+          expect(content).to.contain('var json = {  "content": "foo"}');
           done();
         });
       });
@@ -600,7 +600,7 @@ describe('Buddy', () => {
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
             expect(content).to.contain("var zing__boo = $m['boo'].exports;");
-            expect(content).to.contain('var boo__json = { "boo": "boo" }');
+            expect(content).to.contain('var boo__json = {  "boo": "boo"}');
             done();
           });
         });
