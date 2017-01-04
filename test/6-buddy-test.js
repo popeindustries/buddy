@@ -1318,13 +1318,13 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a common parent build based on children', (done) => {
+      it('should build a shared parent build based on children', (done) => {
         buddy = buddyFactory({
           build: [
             {
-              input: 'common',
-              output: 'output/common.js',
-              build: [
+              input: 'children:shared',
+              output: 'output/shared.js',
+              children: [
                 {
                   input: 'l.js',
                   output: 'output'
@@ -1344,7 +1344,7 @@ describe('Buddy', () => {
             const name = path.basename(filepath, '.js');
             const content = fs.readFileSync(filepath, 'utf8');
 
-            if (name == 'common') {
+            if (name == 'shared') {
               expect(content).to.contain('/*== foo.js ==*/');
               expect(content).to.not.contain('/*== __DUMMY.js__ ==*/');
             } else {
@@ -1355,13 +1355,55 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a common parent build based on batched children', (done) => {
+      it('should build a shared parent build based on deeply nested children', (done) => {
         buddy = buddyFactory({
           build: [
             {
-              input: 'common',
-              output: 'output/common.js',
-              build: [
+              input: 'children:shared',
+              output: 'output/shared.js',
+              children: [
+                {
+                  input: 'f.js',
+                  output: 'output',
+                  children: [
+                    {
+                      input: 'l.js',
+                      output: 'output'
+                    }
+                  ]
+                },
+                {
+                  input: 'm.js',
+                  output: 'output'
+                }
+              ]
+            }
+          ]
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(4);
+          filepaths.forEach((filepath) => {
+            expect(fs.existsSync(filepath)).to.be(true);
+            const name = path.basename(filepath, '.js');
+            const content = fs.readFileSync(filepath, 'utf8');
+
+            if (name == 'shared') {
+              expect(content).to.contain('/*== foo.js ==*/');
+              expect(content).to.not.contain('/*== __DUMMY.js__ ==*/');
+            } else {
+              expect(content).to.not.contain('/*== foo.js ==*/');
+            }
+          });
+          done();
+        });
+      });
+      it('should build a shared parent build based on batched children', (done) => {
+        buddy = buddyFactory({
+          build: [
+            {
+              input: 'children:shared',
+              output: 'output/shared.js',
+              children: [
                 {
                   input: ['l.js', 'm.js'],
                   output: 'output'
@@ -1377,7 +1419,7 @@ describe('Buddy', () => {
             const name = path.basename(filepath, '.js');
             const content = fs.readFileSync(filepath, 'utf8');
 
-            if (name == 'common') {
+            if (name == 'shared') {
               expect(content).to.contain('/*== foo.js ==*/');
               expect(content).to.not.contain('/*== __DUMMY.js__ ==*/');
             } else {

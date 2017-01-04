@@ -189,10 +189,10 @@ describe('config', () => {
       expect(dummyConfig.builds[0].builds[0].index).to.equal(2);
       expect(dummyConfig.builds[0].options).to.equal(dummyConfig.builds[0].builds[0].options);
     });
-    it('should parse common build target based on nested builds', () => {
+    it('should parse generated build target based on child builds', () => {
       dummyConfig.builds = [{
-        input: 'common',
-        output: 'js/common.js',
+        input: 'children:shared',
+        output: 'js/shared.js',
         build: [
           {
             input: 'src/main.js',
@@ -207,7 +207,7 @@ describe('config', () => {
       buildParser(dummyConfig);
 
       expect(dummyConfig.builds[0].inputpaths).to.eql(['__DUMMY__.js']);
-      expect(dummyConfig.builds[0].isIntersectionBuild).to.equal(true);
+      expect(dummyConfig.builds[0].isGeneratedBuild).to.equal(true);
     });
     it('should parse build target with nested builds and different "version"', () => {
       dummyConfig.builds = [{
