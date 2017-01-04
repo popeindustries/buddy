@@ -1318,7 +1318,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.skip('should build a common parent build based on children', (done) => {
+      it('should build a common parent build based on children', (done) => {
         buddy = buddyFactory({
           build: [
             {
@@ -1343,10 +1343,13 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepath)).to.be(true);
             const name = path.basename(filepath, '.js');
             const content = fs.readFileSync(filepath, 'utf8');
-            // console.log(name, content)
+
             if (name == 'common') {
-            } else if (name == 'l') {
+              expect(content).to.contain('/*== foo.js ==*/');
+              expect(content).to.not.contain('/*== __DUMMY.js__ ==*/');
             } else {
+              expect(content).to.contain("require('foo')");
+              expect(content).to.not.contain('/*== foo.js ==*/');
             }
           });
           done();

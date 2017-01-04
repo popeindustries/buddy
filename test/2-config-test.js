@@ -206,7 +206,7 @@ describe('config', () => {
       }];
       buildParser(dummyConfig);
 
-      expect(dummyConfig.builds[0].inputpaths).to.eql(['dummy.js']);
+      expect(dummyConfig.builds[0].inputpaths).to.eql(['__DUMMY__.js']);
       expect(dummyConfig.builds[0].isIntersectionBuild).to.equal(true);
     });
     it('should parse build target with nested builds and different "version"', () => {
