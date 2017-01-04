@@ -1179,6 +1179,7 @@ describe('Buddy', () => {
 
             expect(content).to.contain("$m['foo'].exports = 'foo';");
             expect(content).to.contain("_foo = $m['foo'].exports;");
+            expect(content).to.not.contain('/*≠≠ foo.js ≠≠*/\n/*≠≠ foo.js ≠≠*/');
           });
           done();
         });
@@ -1317,7 +1318,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it.only('should build a common parent build based on children', (done) => {
+      it.skip('should build a common parent build based on children', (done) => {
         buddy = buddyFactory({
           build: [
             {
@@ -1342,7 +1343,7 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepath)).to.be(true);
             const name = path.basename(filepath, '.js');
             const content = fs.readFileSync(filepath, 'utf8');
-
+            // console.log(name, content)
             if (name == 'common') {
             } else if (name == 'l') {
             } else {
