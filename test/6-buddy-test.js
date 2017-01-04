@@ -1355,6 +1355,39 @@ describe('Buddy', () => {
           done();
         });
       });
+      it('should build a common parent build based on batched children', (done) => {
+        buddy = buddyFactory({
+          build: [
+            {
+              input: 'common',
+              output: 'output/common.js',
+              build: [
+                {
+                  input: ['l.js', 'm.js'],
+                  output: 'output'
+                }
+              ]
+            }
+          ]
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(3);
+          filepaths.forEach((filepath) => {
+            expect(fs.existsSync(filepath)).to.be(true);
+            const name = path.basename(filepath, '.js');
+            const content = fs.readFileSync(filepath, 'utf8');
+
+            if (name == 'common') {
+              expect(content).to.contain('/*== foo.js ==*/');
+              expect(content).to.not.contain('/*== __DUMMY.js__ ==*/');
+            } else {
+              expect(content).to.contain("require('foo')");
+              expect(content).to.not.contain('/*== foo.js ==*/');
+            }
+          });
+          done();
+        });
+      });
     });
   });
 
