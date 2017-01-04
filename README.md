@@ -91,6 +91,7 @@ Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/d
 - [Specify target *JS* versions?](#specify-target-js-versions)
 - [Specify target *CSS* versions?](#specify-target-css-versions)
 - [Break-up *JS* bundles into smaller files?](#break-up-js-bundles-into-smaller-files)
+- [Generate a *JS* bundle from the common dependencies of child bundles?](#generate-a-js-bundle-from-the-common-dependencies-of-child-bundles)
 - [Use source maps?](#use-source-maps)
 - [Lazily evaluate a JS bundle?](#lazily-evaluate-a-js-bundle)
 - [Inline environment variables?](#inline-environment-variables)
@@ -417,6 +418,45 @@ import('/assets/index-b621480767a88ba492db23fdc85df175.js', 'src/index')
 ```
 
 Child builds will be automatically generated and loaded asynchronously at runtime. **Note that some environments may require a `Promise` polyfill**, and that the id's passed to `import()` must be statically resolvable strings. It may also be necessary to configure the child bundle url by declaring a `webroot` property in `buddy.server` config.
+
+#### Generate a *JS* bundle from the common dependencies of child bundles?
+
+To automatically generate a bundle of common dependencies, specify a parent build with an  `input` of `'common'` or `'shared'`. All dependencies shared between child builds will be moved to the parent bundle:
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "common",
+        "output": "www/common.js",
+        "build": [
+          {
+            "input": "src/index.js",
+            "output": "www"
+          },
+          {
+            "input": "src/extras.js",
+            "output": "www"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+```js
+// src/index.js
+// The 'lodash' module will be moved to common.js because it is also used in extras.js
+const lodash = require('lodash');
+```
+```js
+// src/extras.js
+// The 'react' module will not be moved to common.js
+const react = require('react');
+// The 'lodash' module will be moved to common.js because it is also used in index.js
+const lodash = require('lodash');
+```
 
 #### Use source maps?
 
