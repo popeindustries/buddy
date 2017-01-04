@@ -31,7 +31,7 @@ exports.build = [
     },
     // Builds can have children.
     // Any sources included in the parent target will NOT be included in the child.
-    build: [
+    children: [
       {
         input: 'a/js/file',
         output: 'a/js/file/or/directory'
