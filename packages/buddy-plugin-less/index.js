@@ -48,7 +48,7 @@ function define (File, utils) {
     constructor (id, filepath, options) {
       super(id, filepath, options);
 
-      this.workflows.writeable = [WORKFLOW_WRITEABLE];
+      this.workflows.writeable = WORKFLOW_WRITEABLE;
     }
 
     /**
