@@ -292,10 +292,11 @@ Since **buddy** uses [Babel](https://babeljs.io) to transform *JS* sources, it i
 }
 ```
 
-The following *JS* version targets are valid:
+The following *JS* version targets are supported:
 - **es5**
 - **es2015** (alias **es6**)
 - **es2016** (alias **es7**)
+- **es2017**
 - **node4**
 - **node6**
 
@@ -411,7 +412,7 @@ import('./index.js')
 ...compiles to:
 ```js
 // www/assets/libs.js
-import('/assets/index-b621480767a88ba492db23fdc85df175.js', 'src/index')
+buddyImport('/assets/index-b621480767a88ba492db23fdc85df175.js', 'src/index')
   .then((index) => {
     console.log('index module loaded');
   });
