@@ -150,7 +150,7 @@ describe('config', () => {
     });
     it('should parse batch build', () => {
       dummyConfig.builds = [{
-        input: 'src',
+        input: 'src/',
         output: 'js'
       }];
       buildParser(dummyConfig);
@@ -161,13 +161,35 @@ describe('config', () => {
     });
     it('should parse batch build target with nested resources', () => {
       dummyConfig.builds = [{
-        input: 'src-nested',
+        input: 'src-nested/',
         output: 'js'
       }];
       buildParser(dummyConfig);
 
       expect(dummyConfig.builds[0].inputpaths).to.eql([path.resolve('src-nested/main.js'), path.resolve('src-nested/module.js'), path.resolve('src-nested/nested/sub.js'), path.resolve('src-nested/nested/sub2.js')]);
       expect(dummyConfig.builds[0].outputpaths).to.eql([path.resolve('js/main.js'), path.resolve('js/module.js'), path.resolve('js/nested/sub.js'), path.resolve('js/nested/sub2.js')]);
+      expect(dummyConfig.builds[0].batch).to.be(true);
+    });
+    it('should parse batch build target with directory input', () => {
+      dummyConfig.builds = [{
+        input: 'src-nested/nested',
+        output: 'js'
+      }];
+      buildParser(dummyConfig);
+
+      expect(dummyConfig.builds[0].inputpaths).to.eql([path.resolve('src-nested/nested/sub.js'), path.resolve('src-nested/nested/sub2.js')]);
+      expect(dummyConfig.builds[0].outputpaths).to.eql([path.resolve('js/nested/sub.js'), path.resolve('js/nested/sub2.js')]);
+      expect(dummyConfig.builds[0].batch).to.be(true);
+    });
+    it('should parse batch build target with directory content input', () => {
+      dummyConfig.builds = [{
+        input: 'src-nested/nested/',
+        output: 'js'
+      }];
+      buildParser(dummyConfig);
+
+      expect(dummyConfig.builds[0].inputpaths).to.eql([path.resolve('src-nested/nested/sub.js'), path.resolve('src-nested/nested/sub2.js')]);
+      expect(dummyConfig.builds[0].outputpaths).to.eql([path.resolve('js/sub.js'), path.resolve('js/sub2.js')]);
       expect(dummyConfig.builds[0].batch).to.be(true);
     });
     it('should parse build target with nested builds', () => {
@@ -275,7 +297,7 @@ describe('config', () => {
     });
     it('should parse array of directory "output"', () => {
       dummyConfig.builds = [{
-        input: ['src', 'src-nested/nested'],
+        input: ['src/', 'src-nested/nested/'],
         output: 'js'
       }];
       buildParser(dummyConfig);
