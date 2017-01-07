@@ -13,10 +13,11 @@ const PORT = 8080;
  * Server factory
  * @param {String} [directory]
  * @param {Number} [port]
+ * @param {Object} [headers]
  * @returns {Server}
  */
-module.exports = function ServerFactory (directory, port) {
-  return new Server(directory, port);
+module.exports = function ServerFactory (directory, port, headers) {
+  return new Server(directory, port, headers);
 };
 
 class Server extends Event {
@@ -24,10 +25,15 @@ class Server extends Event {
    * Constructor
    * @param {String} [directory]
    * @param {Number} [port]
+   * @param {Object} [headers]
    */
-  constructor (directory, port) {
+  constructor (directory, port, headers = {}) {
     super();
 
+    this.config = {
+      cache: 0,
+      headers
+    };
     this.directory = path.resolve(directory) || process.cwd();
     this.port = port || PORT;
     this.server = null;
@@ -38,7 +44,7 @@ class Server extends Event {
    * @param {Function} fn(err)
    */
   start (fn) {
-    const fileServer = new StaticServer(this.directory, { cache: 0 });
+    const fileServer = new StaticServer(this.directory, this.config);
     const hasIndex = fs.existsSync(path.resolve(this.directory, 'index.html'));
 
     this.server = http.createServer((req, res) => {

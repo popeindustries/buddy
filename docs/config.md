@@ -95,7 +95,7 @@ exports.script = 'command --flags';
 
 // Configure development webserver.
 exports.server = {
-  // Directory containing static files to serve (defaults to project root; exposed as process.env.ROOT).
+  // Directory containing static files to serve (defaults to project root).
   directory: 'a/project/directory',
   // Alternatively, pass a file reference to start a custom application server
   file: 'a/file',
@@ -108,7 +108,11 @@ exports.server = {
     NODE_ENV: 'development',
     DEBUG: 'app*'
   },
-  // Directory to use as web root when dynamically loading bundles with buddyImport()
+  // Headres to pass to default static file server
+  headers: {
+    'x-foo': 'foo'
+  },
+  // Directory to use as web root when dynamically loading bundles with import()
   webroot: 'a/project/directory',
   // A root url from which to serve source maps. Default behaviour is to load source maps from same directory as output files
   sourceroot: 'a/url/root'

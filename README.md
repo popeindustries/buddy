@@ -845,6 +845,19 @@ When working with a custom server, you can pass along application environment va
 }
 ```
 
+When working with the default static file server, you can pass along custom headers:
+```json
+"buddy": {
+  "server": {
+    "port": 8000,
+    "directory": "www",
+    "headers": {
+      "x-foo": "foo"
+    }
+  }
+}
+```
+
 #### Reload files while developing?
 
 When executing the `watch` command with the `--serve` and `--reload` flags, **buddy** will rely on the [buddy-server](https://www.npmjs.com/package/buddy-server) plugin to launch a local development server, reloading any connected clients after re-builds. If the plugin is not already installed, **buddy** will automatically install it to your `dev-dependencies`. 
