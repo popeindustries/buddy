@@ -464,7 +464,7 @@ describe('Buddy', () => {
           input: 'node.js',
           output: 'output',
           version: 'node'
-        }, { compress: true });
+        }, { compress: true, deploy: true });
         buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(1);
           expect(fs.existsSync(filepaths[0])).to.be(true);

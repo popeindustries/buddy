@@ -474,6 +474,20 @@ describe('config', () => {
       it('should return validated file data', () => {
         expect(configFactory('buddy.js').builds).to.be.ok();
       });
+      it('should return validated file data for named confg set', () => {
+        process.chdir(path.join(__dirname, 'fixtures/config/named'));
+        const config = configFactory('foo');
+
+        expect(config.builds).to.be.ok();
+        expect(config.builds[0].input).to.equal('foo.js');
+      });
+      it('should return validated file data for named env confg set', () => {
+        process.chdir(path.join(__dirname, 'fixtures/config/named-env'));
+        const config = configFactory();
+
+        expect(config.builds).to.be.ok();
+        expect(config.builds[0].input).to.equal('test.js');
+      });
       it('should return validated file data for a package.json config file', () => {
         expect(configFactory('pkgjson/package.json').builds).to.be.ok();
       });
