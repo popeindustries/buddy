@@ -104,6 +104,7 @@ Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/d
 - [Configure a plugin?](#configure-a-plugin)
 - [Generate unique filenames?](#generate-unique-filenames)
 - [Skip a build?](#skip-a-build)
+- [Specify different config for different environments?](specify-different-config-for-different-environments)
 - [Serve files while developing?](#serve-files-while-developing)
 - [Reload files while developing?](#reload-files-while-developing)
 - [Display output file size?](#display-output-file-size)
@@ -498,7 +499,6 @@ By default, js modules in a bundle are evaluated in reverse dependency order as 
 // ...guarantee that index.js is evaluated before extras.js
 require('src/index');
 require('src/extras');
-
 ```
 
 #### Inline environment variables?
@@ -804,6 +804,45 @@ Individual builds can be skipped by using the `--grep` and `--invert` command fl
 ```bash
 # Build everything except 'images'
 $ buddy build --invert --grep images
+```
+
+#### Specify different config for different environments?
+
+**Buddy** accepts config files that contain named nested sets, and if one of those sets match the value of `process.env.NODE_ENV`, the configuration data used in that set will then be used:
+
+```json
+{
+  "buddy": {
+    "development": {
+      "build": {
+        "input": "src/dev.js",
+        "output": "www"
+      }
+    },
+    "production": {
+      "build": {
+        "input": "src/prod.js",
+        "output": "www"
+      }
+    },
+    "foo": {
+      "build": {
+        "input": "src/foo.js",
+        "output": "www"
+      }
+    }
+  }
+}
+```
+```bash
+# Build 'development' set
+$ NODE_ENV=development & buddy build
+```
+
+Custom names may also be used and passed when executing:
+
+```bash
+$ buddy build foo
 ```
 
 #### Serve files while developing?
