@@ -361,6 +361,13 @@ describe('file', () => {
           done();
         });
       });
+      it('should inline calls to process.browser', (done) => {
+        file.content = 'process.browser;\nvar foo = process.browser;\n';
+        file.replaceEnvironment({}, (err) => {
+          expect(file.content).to.eql('true;\nvar foo = true;\n');
+          done();
+        });
+      });
     });
 
     describe('inline()', () => {
