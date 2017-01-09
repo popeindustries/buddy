@@ -1,54 +1,36 @@
 'use strict';
 
-const cache = require('../../../lib/cache');
-const configFactory = require('../../../lib/config');
+const buddyFactory = require('../../../lib/buddy');
 const expect = require('expect.js');
 const fs = require('fs');
 const path = require('path');
 const plugin = require('../index');
-let config, file, fileFactoryOptions;
+const rimraf = require('rimraf');
+let buddy;
 
 describe('buddy-plugin-handlebars', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures'));
   });
   beforeEach(() => {
-    const caches = cache.createCaches();
-
-    config = configFactory({
-      input: '.',
-      output: 'html'
-    }, {});
-    plugin.register(config);
-    fileFactoryOptions = {
-      fileCache: caches.fileCache,
-      fileExtensions: config.fileExtensions,
-      fileFactory: config.fileFactory,
-      pluginOptions: { babel: { plugins: [] } },
-      resolverCache: caches.resolverCache,
-      runtimeOptions: config.runtimeOptions
-    };
+    buddy = null;
   });
   afterEach(() => {
-    config.destroy();
+    if (buddy) buddy.destroy();
+    rimraf.sync(path.resolve('output'));
   });
 
-  it('should convert file content to HTML', (done) => {
-    file = config.fileFactory(path.resolve('a.handlebars'), fileFactoryOptions);
-    file.parse({}, (err) => {
-      file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
-        done();
-      });
-    });
-  });
-  it('should return an error when compiling a malformed file', (done) => {
-    file = config.fileFactory(path.resolve('bad.handlebars'), fileFactoryOptions);
-    file.parse({}, (err) => {
-      file.compile({}, (err) => {
-        expect(err).to.be.an(Error);
-        done();
-      });
+  it('should build a simple template file', (done) => {
+    buddy = buddyFactory({
+      input: 'foo.handlebars',
+      output: 'output'
+    }, { plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.equal('<!DOCTYPE html>\n<html>\n  <body>\n    <h1>Title</h1>\n    <p>Test paragraph</p>\n  </body>\n</html>');
+      done();
     });
   });
 });

@@ -185,7 +185,7 @@ function define (File, utils) {
           let content = file.content;
 
           file.dependencyReferences.forEach((reference) => {
-            if (reference.file && reference.isInclude) {
+            if (reference.file && reference.context && reference.isInclude) {
               content = content.replace(new RegExp(regexpEscape(reference.context), 'g'), reference.file.content);
             }
           });

@@ -4,14 +4,16 @@
 require('dustjs-helpers');
 
 const dust = require('dustjs-linkedin/lib/dust');
+const parallel = require('async/parallel');
 
 const FILE_EXTENSIONS = ['dust'];
 const RE_INCLUDE = /{>\s?['"]?([^'"\s]+)['"]?\s?\/}/g;
 const WORKFLOW_WRITEABLE = [
-  'inline',
+  'inlineInlineable',
+  'inlineIncludes',
   'compile',
-  'parseInline',
-  'inlineInline'
+  'reparse',
+  'inline'
 ];
 
 module.exports = {
@@ -34,8 +36,9 @@ module.exports = {
  * @returns {Class}
  */
 function define (HTMLFile, utils) {
+  const { callable } = utils;
   const { debug, error, strong } = utils.cnsl;
-  const { uniqueMatch } = utils.string;
+  const { regexpEscape, uniqueMatch } = utils.string;
 
   return class DUSTFile extends HTMLFile {
     /**
@@ -72,22 +75,25 @@ function define (HTMLFile, utils) {
      * @param {Function} fn(err)
      */
     parse (buildOptions, fn) {
-      // Add sidecar json file
-      const sidecarData = super.parseSidecarDependency();
-      // Parse includes
-      let matches = uniqueMatch(this.content, RE_INCLUDE)
-        .map((match) => {
-          match.id = match.match;
-          return match;
-        });
+      super.parse(buildOptions, (err) => {
+        if (err) return fn(err);
+        // Add sidecar json file
+        const sidecarData = super.parseSidecarDependency();
+        // Parse includes
+        let matches = uniqueMatch(this.content, RE_INCLUDE)
+          .map((match) => {
+            match.id = match.match;
+            return match;
+          });
 
-      if (sidecarData) matches.push(sidecarData);
-      super.addDependencies(matches, buildOptions);
-      fn();
+        if (sidecarData) matches.push(sidecarData);
+        super.addDependencies(matches, buildOptions);
+        fn();
+      });
     }
 
     /**
-     * Inline 'include' dependency content
+     * Inline css/img/js dependency content
      * @param {Object} buildOptions
      *  - {Boolean} batch
      *  - {Boolean} bootstrap
@@ -95,14 +101,51 @@ function define (HTMLFile, utils) {
      *  - {Boolean} browser
      *  - {Boolean} bundle
      *  - {Boolean} compress
-     *  - {Array} ignoredFiles
      *  - {Boolean} helpers
+     *  - {Array} ignoredFiles
+     *  - {Boolean} import
      *  - {Boolean} watchOnly
      * @param {Function} fn(err)
      */
-    inline (buildOptions, fn) {
-      super.inlineDependencyReferences();
-      debug(`inline: ${strong(this.relpath)}`, 4);
+    inlineInlineable (buildOptions, fn) {
+      // Only dependencies
+      parallel([...this.getAllDependencies()].reduce((inlineable, file) => {
+        if (file instanceof DUSTFile && this.dependencyReferences.length) {
+          inlineable.push(callable(file, 'inline', buildOptions));
+        }
+        return inlineable;
+      }, []), fn);
+    }
+
+    /**
+     * Inline partials content
+     * @param {Object} buildOptions
+     *  - {Boolean} batch
+     *  - {Boolean} bootstrap
+     *  - {Boolean} boilerplate
+     *  - {Boolean} browser
+     *  - {Boolean} bundle
+     *  - {Boolean} compress
+     *  - {Boolean} helpers
+     *  - {Array} ignoredFiles
+     *  - {Boolean} import
+     *  - {Boolean} watchOnly
+     * @param {Function} fn(err)
+     */
+    inlineIncludes (buildOptions, fn) {
+      [...this.getAllDependencies(), this].forEach((file) => {
+        if (file instanceof DUSTFile && file.dependencyReferences.length) {
+          let content = file.content;
+
+          file.dependencyReferences.forEach((reference) => {
+            if (reference.file && reference.context) {
+              content = content.replace(new RegExp(regexpEscape(reference.context), 'g'), reference.file.content);
+            }
+          });
+
+          file.setContent(content);
+        }
+      });
       fn();
     }
 
@@ -139,7 +182,7 @@ function define (HTMLFile, utils) {
     }
 
     /**
-     * Parse file contents for inline dependency references
+     * Reparse file contents for dependency references
      * @param {Object} buildOptions
      *  - {Boolean} batch
      *  - {Boolean} bootstrap
@@ -152,26 +195,13 @@ function define (HTMLFile, utils) {
      *  - {Boolean} watchOnly
      * @param {Function} fn(err)
      */
-    parseInline (buildOptions, fn) {
-      super.parse(buildOptions, fn);
-    }
+    reparse (buildOptions, fn) {
+      this.allDependencies = null;
+      this.allDependencyReferences = null;
+      this.dependencies = [];
+      this.dependencyReferences = [];
 
-    /**
-     * Inline css/img/js dependency content
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Array} ignoredFiles
-     *  - {Boolean} helpers
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
-     */
-    inlineInline (buildOptions, fn) {
-      super.inline(buildOptions, fn);
+      super.parse(buildOptions, fn);
     }
   };
 }
