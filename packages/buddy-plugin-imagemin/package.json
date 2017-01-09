@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-imagemin",
   "description": "Buddy plugin for image minification (via imagemin)",
-  "version": "5.2.2-4",
+  "version": "5.2.2-5",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -22,7 +22,7 @@
     "imagemin-svgo": "5.x.x"
   },
   "peerDependencies": {
-    "buddy": "~6.6.0"
+    "buddy": ">= 6.6.x"
   },
   "main": "index.js",
   "scripts": {

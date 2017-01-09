@@ -18,7 +18,7 @@
     "request": "*"
   },
   "peerDependencies": {
-    "buddy": "^6.0.0"
+    "buddy": "6.x"
   },
   "main": "index.js",
   "scripts": {

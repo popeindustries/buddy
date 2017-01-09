@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-less",
   "description": "Buddy plugin for less source transforms (via Less)",
-  "version": "2.7.2",
+  "version": "2.7.2-1",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -12,7 +12,7 @@
     "less": "2.7.2"
   },
   "peerDependencies": {
-    "buddy": "~6.6.0"
+    "buddy": ">= 6.6.x"
   },
   "main": "index.js",
   "scripts": {
