@@ -2,13 +2,9 @@
 
 const { exec } = require('child_process');
 const buddyFactory = require('../lib/buddy');
-const coffeescriptPlugin = require('../packages/buddy-plugin-coffeescript');
 const dependencyResolverConfig = require('../lib/resolver/config');
 const expect = require('expect.js');
 const fs = require('fs');
-const imageminPlugin = require('../packages/buddy-plugin-imagemin');
-const lessPlugin = require('../packages/buddy-plugin-less');
-const nunjucksPlugin = require('../packages/buddy-plugin-nunjucks');
 const path = require('path');
 const rimraf = require('rimraf');
 const stylusPlugin = require('../packages/buddy-plugin-stylus');
@@ -98,21 +94,6 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain("(function () {\n/*== foo.js ==*/\n$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n/*≠≠ foo.js ≠≠*/\n})()");
-          done();
-        });
-      });
-      it('should build a coffeescript file and source map', (done) => {
-        buddy = buddyFactory({
-          input: 'a.coffee',
-          output: 'output'
-        }, { maps: true, plugins: [coffeescriptPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-          const map = JSON.parse(fs.readFileSync(`${filepaths[0]}.map`, 'utf8'));
-
-          expect(content).to.contain('(function () {\n/*== a.coffee ==*/\n$m[\'a\'] = { exports: {} };\nvar a__foo;\n\na__foo = \'foo\';\n/*≠≠ a.coffee ≠≠*/\n})()');
-          expect(map).to.have.property('mappings', ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,IAAA;;AAAA,SAAM');
           done();
         });
       });
@@ -686,32 +667,6 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a stylus file', (done) => {
-        buddy = buddyFactory({
-          input: 'a.styl',
-          output: 'output'
-        }, { plugins: [stylusPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('body {\n  color: #fff;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n');
-          done();
-        });
-      });
-      it('should build a less file', (done) => {
-        buddy = buddyFactory({
-          input: 'a.less',
-          output: 'output'
-        }, { plugins: [lessPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('#header {\n  color: #333333;\n  border-left: 1px;\n  border-right: 2px;\n}\n#footer {\n  color: #114411;\n  border-color: #7d2717;\n}\n');
-          done();
-        });
-      });
       it('should build a minified css file if "compress" is true', (done) => {
         buddy = buddyFactory({
           input: 'a.css',
@@ -742,20 +697,6 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain('.box{background:url("./css/../img/cat.jpg")}');
-          done();
-        });
-      });
-      it('should build a minified stylus file if "compress" is true', (done) => {
-        buddy = buddyFactory({
-          input: 'a.styl',
-          output: 'output'
-        }, { compress: true, plugins: [stylusPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('body{color:#fff;font-size:12px}body p{font-size:10px}');
           done();
         });
       });
@@ -803,18 +744,6 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should compress and copy an image directory', (done) => {
-        buddy = buddyFactory({
-          input: 'image-directory',
-          output: 'output'
-        }, { compress: true, plugins: [imageminPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(2);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          expect(fs.readFileSync(filepaths[0], 'utf8')).to.eql('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="25"/></svg>');
-          done();
-        });
-      });
     });
 
     describe('html', () => {
@@ -854,100 +783,6 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <script>var boop = this\n  , isDev = \'test\' == \'development\';\n\nconsole.log(\'is dev: \', isDev);</script>\n</head>\n<body>\n\n</body>\n</html>');
-          done();
-        });
-      });
-      it('should build a nunjucks template file with sidecar data file', (done) => {
-        buddy = buddyFactory({
-          input: 'a.nunjs',
-          output: 'output'
-        }, { plugins: [nunjucksPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title>a</title>\n</head>\n<body>\n\n</body>\n</html>');
-          done();
-        });
-      });
-      it('should build a nunjucks template file with sidecar data file and includes', (done) => {
-        buddy = buddyFactory({
-          input: 'b.nunjs',
-          output: 'output'
-        }, { plugins: [nunjucksPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n<head>\n  <title>b</title>\n  <style>body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n</style>\n</head>\n</head>\n<body>\n\n</body>\n</html>');
-          done();
-        });
-      });
-      it('should build a nunjucks template file with inline js dependency', (done) => {
-        buddy = buddyFactory({
-          input: 'c.nunjs',
-          output: 'output'
-        }, { plugins: [nunjucksPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <script>var f = \'f\';</script>\n</head>\n<body>\n\n</body>\n</html>');
-          done();
-        });
-      });
-      it('should build a nunjucks template file with inline js dependency needing env substitution', (done) => {
-        buddy = buddyFactory({
-          input: 'd.nunjs',
-          output: 'output'
-        }, { plugins: [nunjucksPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <script>var boop = this\n  , isDev = \'test\' == \'development\';\n\nconsole.log(\'is dev: \', isDev);</script>\n</head>\n<body>\n\n</body>\n</html>');
-          done();
-        });
-      });
-      it('should build an html template file with include and inline css dependency', (done) => {
-        buddy = buddyFactory({
-          input: 'e.nunjs',
-          output: 'output'
-        }, { plugins: [nunjucksPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <style>body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}\n</style>\n</head>\n<body>\n\n</body>\n</html>');
-          done();
-        });
-      });
-      it('should build an html template file with compressed inline js dependency when "compress" is true', (done) => {
-        buddy = buddyFactory({
-          input: 'f.nunjs',
-          output: 'output'
-        }, { compress: true, plugins: [nunjucksPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('<script>var f="f";</script>');
-          done();
-        });
-      });
-      it('should build an html template file with dynamically generated inline svg dependencies', (done) => {
-        buddy = buddyFactory({
-          input: 'g.nunjs',
-          output: 'output'
-        }, { plugins: [nunjucksPlugin] });
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain('<svg id="Layer_1" x="0px" y="0px" enable-background="new 0 0 100 100" xml:space="preserve" viewBox="0 0 100 100">\n<circle cx="50" cy="50" r="25"/>\n</svg>\n  \n   <svg id="Layer_1" x="0px" y="0px" enable-background="new 0 0 100 100" xml:space="preserve" viewBox="0 0 100 100">\n<circle cx="50" cy="50" r="25"/>\n</svg>');
           done();
         });
       });

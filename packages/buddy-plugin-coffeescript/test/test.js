@@ -1,49 +1,60 @@
 'use strict';
 
-const cache = require('../../../lib/cache');
-const configFactory = require('../../../lib/config');
+const buddyFactory = require('../../../lib/buddy');
 const expect = require('expect.js');
 const fs = require('fs');
 const path = require('path');
 const plugin = require('../index');
-let config, file, fileFactoryOptions;
+const rimraf = require('rimraf');
+let buddy;
 
 describe('buddy-plugin-coffeescript', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures'));
   });
   beforeEach(() => {
-    const caches = cache.createCaches();
-
-    config = configFactory({
-      input: '.',
-      output: 'js'
-    }, {});
-    plugin.register(config);
-    fileFactoryOptions = {
-      fileCache: caches.fileCache,
-      fileExtensions: config.fileExtensions,
-      fileFactory: config.fileFactory,
-      pluginOptions: { babel: { plugins: [] } },
-      resolverCache: caches.resolverCache,
-      runtimeOptions: config.runtimeOptions
-    };
+    buddy = null;
   });
   afterEach(() => {
-    config.destroy();
+    if (buddy) buddy.destroy();
+    rimraf.sync(path.resolve('output'));
   });
 
   describe('compile()', () => {
-    it('should convert file content to JS', (done) => {
-      file = config.fileFactory(path.resolve('a.coffee'), fileFactoryOptions);
-      file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.js'), 'utf8'));
+    it('should build a file', (done) => {
+      buddy = buddyFactory({
+        input: 'foo.coffee',
+        output: 'output'
+      }, { plugins: [plugin] });
+      buddy.build((err, filepaths) => {
+        expect(fs.existsSync(filepaths[0])).to.be(true);
+        const content = fs.readFileSync(filepaths[0], 'utf8');
+
+        expect(content).to.contain('(function () {\n/*== foo.coffee ==*/\n$m[\'foo\'] = { exports: {} };\nvar foo__foo;\n\nfoo__foo = \'foo\';\n/*≠≠ foo.coffee ≠≠*/\n})()');
         done();
       });
     });
-    it('should return an error when compiling a malformed file', (done) => {
-      file = config.fileFactory(path.resolve('a-bad.coffee'), fileFactoryOptions);
-      file.compile({}, (err) => {
+    it('should build a file and source map', (done) => {
+      buddy = buddyFactory({
+        input: 'foo.coffee',
+        output: 'output'
+      }, { maps: true, plugins: [plugin] });
+      buddy.build((err, filepaths) => {
+        expect(fs.existsSync(filepaths[0])).to.be(true);
+        const content = fs.readFileSync(filepaths[0], 'utf8');
+        const map = JSON.parse(fs.readFileSync(`${filepaths[0]}.map`, 'utf8'));
+
+        expect(content).to.contain('(function () {\n/*== foo.coffee ==*/\n$m[\'foo\'] = { exports: {} };\nvar foo__foo;\n\nfoo__foo = \'foo\';\n/*≠≠ foo.coffee ≠≠*/\n})()');
+        expect(map).to.have.property('mappings', ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,IAAA;;AAAA,WAAM');
+        done();
+      });
+    });
+    it('should error when compiling a malformed file', (done) => {
+      buddy = buddyFactory({
+        input: 'foo-bad.coffee',
+        output: 'output'
+      }, { plugins: [plugin] });
+      buddy.build((err, filepaths) => {
         expect(err).to.be.an(Error);
         done();
       });

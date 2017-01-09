@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html>
+{% include "./includes/header-inline.nunjs" %}
+<body>
+</body>
+</html>

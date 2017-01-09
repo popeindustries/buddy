@@ -1,49 +1,45 @@
 'use strict';
 
-const cache = require('../../../lib/cache');
-const configFactory = require('../../../lib/config');
+const buddyFactory = require('../../../lib/buddy');
 const expect = require('expect.js');
 const fs = require('fs');
 const path = require('path');
 const plugin = require('../index');
-let config, file, fileFactoryOptions;
+const rimraf = require('rimraf');
+let buddy;
 
 describe('buddy-plugin-less', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures'));
   });
   beforeEach(() => {
-    const caches = cache.createCaches();
-
-    config = configFactory({
-      input: '.',
-      output: 'css'
-    }, {});
-    plugin.register(config);
-    fileFactoryOptions = {
-      fileCache: caches.fileCache,
-      fileExtensions: config.fileExtensions,
-      fileFactory: config.fileFactory,
-      pluginOptions: { babel: { plugins: [] } },
-      resolverCache: caches.resolverCache,
-      runtimeOptions: config.runtimeOptions
-    };
+    buddy = null;
   });
   afterEach(() => {
-    config.destroy();
+    if (buddy) buddy.destroy();
+    rimraf.sync(path.resolve('output'));
   });
 
   describe('compile()', () => {
-    it('should convert file content to CSS', (done) => {
-      file = config.fileFactory(path.resolve('foo.less'), fileFactoryOptions);
-      file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/foo.css'), 'utf8'));
+    it('should build a file', (done) => {
+      buddy = buddyFactory({
+        input: 'foo.less',
+        output: 'output'
+      }, { plugins: [plugin] });
+      buddy.build((err, filepaths) => {
+        expect(fs.existsSync(filepaths[0])).to.be(true);
+        const content = fs.readFileSync(filepaths[0], 'utf8');
+
+        expect(content).to.contain('#header {\n  color: #333333;\n  border-left: 1px;\n  border-right: 2px;\n}\n#footer {\n  color: #114411;\n  border-color: #7d2717;\n}\n');
         done();
       });
     });
-    it('should return an error when compiling a malformed file', (done) => {
-      file = config.fileFactory(path.resolve('foo-bad.less'), fileFactoryOptions);
-      file.compile({}, (err) => {
+    it('should error when compiling a malformed file', (done) => {
+      buddy = buddyFactory({
+        input: 'foo-bad.less',
+        output: 'output'
+      }, { plugins: [plugin] });
+      buddy.build((err, filepaths) => {
         expect(err).to.be.an(Error);
         done();
       });

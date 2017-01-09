@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-nunjucks",
   "description": "Buddy plugin for nunjucks source transforms (via nunjucks)",
-  "version": "3.0.0-1",
+  "version": "3.0.0-2",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "buddy",
@@ -9,10 +9,11 @@
     "nunjucks"
   ],
   "dependencies": {
+    "async": "2.1.4",
     "nunjucks": "3.0.0"
   },
   "peerDependencies": {
-    "buddy": "~6.6.0"
+    "buddy": "~6.10.0"
   },
   "main": "index.js",
   "scripts": {

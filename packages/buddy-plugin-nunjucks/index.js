@@ -1,17 +1,21 @@
 'use strict';
 
 const nunjucks = require('nunjucks');
+const parallel = require('async/parallel');
 
 const DEFAULT_OPTIONS = {
   noCache: true
 };
 const FILE_EXTENSIONS = ['nunjucks', 'nunjs', 'njk'];
 const RE_INCLUDE = /{%\s(?:extends|include)\s['"]([^'"]+)['"]\s?%}/g;
+const RE_IMPORT = /{%\simport\s['"]([^'"]+)['"]\s?%}/g;
 const WORKFLOW_WRITEABLE = [
-  'inline',
+  'replaceReferences',
+  'inlineInlineable',
+  'inlineIncludes',
   'compile',
-  'parseInline',
-  'inlineInline'
+  'reparse',
+  'inline'
 ];
 
 module.exports = {
@@ -34,8 +38,9 @@ module.exports = {
  * @returns {Class}
  */
 function define (File, utils) {
+  const { callable } = utils;
   const { debug, error, strong } = utils.cnsl;
-  const { uniqueMatch } = utils.string;
+  const { regexpEscape, uniqueMatch } = utils.string;
 
   return class NUNJUCKSFile extends File {
     /**
@@ -72,22 +77,35 @@ function define (File, utils) {
      * @param {Function} fn(err)
      */
     parse (buildOptions, fn) {
-      // Add sidecar json file
-      const sidecarData = super.parseSidecarDependency();
-      // Parse includes
-      let matches = uniqueMatch(this.content, RE_INCLUDE)
-        .map((match) => {
-          match.id = match.match;
-          return match;
-        });
+      super.parse(buildOptions, (err) => {
+        if (err) return fn(err);
 
-      if (sidecarData) matches.push(sidecarData);
-      super.addDependencies(matches, buildOptions);
-      fn();
+        // Find sidecar json file
+        const sidecarData = super.parseSidecarDependency();
+        // Parse includes
+        let matches = uniqueMatch(this.content, RE_INCLUDE)
+          .map((match) => {
+            match.id = match.match;
+            match.isInclude = true;
+            return match;
+          });
+
+        // Parse imports
+        matches.push(...uniqueMatch(this.content, RE_IMPORT)
+          .map((match) => {
+            match.id = match.match;
+            match.isImport = true;
+            return match;
+          }));
+        if (sidecarData) matches.push(sidecarData);
+
+        super.addDependencies(matches, buildOptions);
+        fn();
+      });
     }
 
     /**
-     * Inline include dependency content
+     * Replace relative dependency references with fully resolved
      * @param {Object} buildOptions
      *  - {Boolean} batch
      *  - {Boolean} bootstrap
@@ -95,14 +113,86 @@ function define (File, utils) {
      *  - {Boolean} browser
      *  - {Boolean} bundle
      *  - {Boolean} compress
-     *  - {Array} ignoredFiles
      *  - {Boolean} helpers
+     *  - {Array} ignoredFiles
+     *  - {Boolean} import
      *  - {Boolean} watchOnly
      * @param {Function} fn(err)
      */
-    inline (buildOptions, fn) {
-      super.inlineDependencyReferences();
-      debug(`inline: ${strong(this.relpath)}`, 4);
+    replaceReferences (buildOptions, fn) {
+      [...this.getAllDependencies(), this].forEach((file) => {
+        if (file instanceof NUNJUCKSFile && this.dependencyReferences.length) {
+          let content = file.content;
+
+          file.dependencyReferences.forEach((reference) => {
+            if (reference.file && reference.isImport) {
+              const context = reference.context.replace(reference.id, reference.file.filepath);
+
+              // Create new RegExp so that flags work properly
+              content = content.replace(new RegExp(regexpEscape(reference.context), 'g'), context);
+            }
+          });
+
+          file.setContent(content);
+        }
+      });
+      fn();
+    }
+
+    /**
+     * Inline css/img/js dependency content
+     * @param {Object} buildOptions
+     *  - {Boolean} batch
+     *  - {Boolean} bootstrap
+     *  - {Boolean} boilerplate
+     *  - {Boolean} browser
+     *  - {Boolean} bundle
+     *  - {Boolean} compress
+     *  - {Boolean} helpers
+     *  - {Array} ignoredFiles
+     *  - {Boolean} import
+     *  - {Boolean} watchOnly
+     * @param {Function} fn(err)
+     */
+    inlineInlineable (buildOptions, fn) {
+      // Only dependencies
+      parallel([...this.getAllDependencies()].reduce((inlineable, file) => {
+        if (file instanceof NUNJUCKSFile && this.dependencyReferences.length) {
+          inlineable.push(callable(file, 'inline', buildOptions));
+        }
+        return inlineable;
+      }, []), fn);
+    }
+
+    /**
+     * Inline partials content
+     * @param {Object} buildOptions
+     *  - {Boolean} batch
+     *  - {Boolean} bootstrap
+     *  - {Boolean} boilerplate
+     *  - {Boolean} browser
+     *  - {Boolean} bundle
+     *  - {Boolean} compress
+     *  - {Boolean} helpers
+     *  - {Array} ignoredFiles
+     *  - {Boolean} import
+     *  - {Boolean} watchOnly
+     * @param {Function} fn(err)
+     */
+    inlineIncludes (buildOptions, fn) {
+      [...this.getAllDependencies(), this].forEach((file) => {
+        if (file instanceof NUNJUCKSFile && file.dependencyReferences.length) {
+          let content = file.content;
+
+          file.dependencyReferences.forEach((reference) => {
+            if (reference.file && reference.isInclude) {
+              content = content.replace(new RegExp(regexpEscape(reference.context), 'g'), reference.file.content);
+            }
+          });
+
+          file.setContent(content);
+        }
+      });
       fn();
     }
 
@@ -136,7 +226,7 @@ function define (File, utils) {
     }
 
     /**
-     * Parse file contents for inline dependency references
+     * Reparse file contents for dependency references
      * @param {Object} buildOptions
      *  - {Boolean} batch
      *  - {Boolean} bootstrap
@@ -149,26 +239,13 @@ function define (File, utils) {
      *  - {Boolean} watchOnly
      * @param {Function} fn(err)
      */
-    parseInline (buildOptions, fn) {
-      super.parse(buildOptions, fn);
-    }
+    reparse (buildOptions, fn) {
+      this.allDependencies = null;
+      this.allDependencyReferences = null;
+      this.dependencies = [];
+      this.dependencyReferences = [];
 
-    /**
-     * Inline css/img/js dependency content
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Array} ignoredFiles
-     *  - {Boolean} helpers
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
-     */
-    inlineInline (buildOptions, fn) {
-      super.inline(buildOptions, fn);
+      super.parse(buildOptions, fn);
     }
   };
 }

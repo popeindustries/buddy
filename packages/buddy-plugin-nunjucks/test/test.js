@@ -1,56 +1,143 @@
 'use strict';
 
-const cache = require('../../../lib/cache');
-const configFactory = require('../../../lib/config');
+const buddyFactory = require('../../../lib/buddy');
 const expect = require('expect.js');
 const fs = require('fs');
 const path = require('path');
 const plugin = require('../index');
-let config, file, fileFactoryOptions;
+const rimraf = require('rimraf');
+let buddy;
 
 describe('buddy-plugin-nunjucks', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures'));
   });
   beforeEach(() => {
-    const caches = cache.createCaches();
-
-    config = configFactory({
-      input: '.',
-      output: 'html'
-    }, {});
-    plugin.register(config);
-    fileFactoryOptions = {
-      fileCache: caches.fileCache,
-      fileExtensions: config.fileExtensions,
-      fileFactory: config.fileFactory,
-      pluginOptions: { babel: { plugins: [] } },
-      resolverCache: caches.resolverCache,
-      runtimeOptions: config.runtimeOptions
-    };
+    buddy = null;
   });
   afterEach(() => {
-    config.destroy();
+    if (buddy) buddy.destroy();
+    rimraf.sync(path.resolve('output'));
   });
 
-  it('should convert file content to HTML', (done) => {
-    file = config.fileFactory(path.resolve('a.nunjs'), fileFactoryOptions);
-    file.parse({}, (err) => {
-      file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a.html'), 'utf8'));
-        done();
-      });
+  it('should build a simple template file', (done) => {
+    buddy = buddyFactory({
+      input: 'simple.nunjs',
+      output: 'output'
+    }, { plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.equal('<!DOCTYPE html>\n<html>\n  <body>\n    <h1>Title</h1>\n    <p>Test paragraph</p>\n  </body>\n</html>');
+      done();
     });
   });
-  it('should convert file content with includes to HTML', (done) => {
-    file = config.fileFactory(path.resolve('a-include.nunjs'), fileFactoryOptions);
-    file.parse({}, (err) => {
-      file.inline({}, (err) => {
-        file.compile({}, (err) => {
-          expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/a-include.html'), 'utf8'));
-          done();
-        });
-      });
+  it('should build a template file with sidecar data file', (done) => {
+    buddy = buddyFactory({
+      input: 'sidecar.nunjs',
+      output: 'output'
+    }, { plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title>foo</title>\n</head>\n<body>\n\n</body>\n</html>');
+      done();
+    });
+  });
+  it('should build a nunjucks template file with sidecar data file and includes', (done) => {
+    buddy = buddyFactory({
+      input: 'includes.nunjs',
+      output: 'output'
+    }, { plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n<head>\n  <title>foo</title>\n</head>\n</head>\n<body>\n\n</body>\n</html>');
+      done();
+    });
+  });
+  it('should build a nunjucks template file with inline js dependency', (done) => {
+    buddy = buddyFactory({
+      input: 'inline.nunjs',
+      output: 'output'
+    }, { plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <script>var foo = \'foo\';</script>\n</head>\n<body>\n\n</body>\n</html>');
+      done();
+    });
+  });
+  it('should build a nunjucks template file with inline js dependency needing env substitution', (done) => {
+    buddy = buddyFactory({
+      input: 'inline-env.nunjs',
+      output: 'output'
+    }, { plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title></title>\n  <script>var boop = this\n  , isDev = \'test\' == \'development\';\n\nconsole.log(\'is dev: \', isDev);</script>\n</head>\n<body>\n\n</body>\n</html>');
+      done();
+    });
+  });
+  it('should build an html template file with include and inline css dependency', (done) => {
+    buddy = buddyFactory({
+      input: 'includes-inline.nunjs',
+      output: 'output'
+    }, { plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(filepaths).to.have.length(1);
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title>foo</title>\n  <style>body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}</style>\n</head>\n<body>\n</body>\n</html>');
+      done();
+    });
+  });
+  it('should build an html template file with compressed inline js dependency when "compress" is true', (done) => {
+    buddy = buddyFactory({
+      input: 'inline-compress.nunjs',
+      output: 'output'
+    }, { compress: true, plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(filepaths).to.have.length(1);
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title>boo</title>\n  <script>var foo="foo";</script>\n</head>\n<body>\n\n</body>\n</html>');
+      done();
+    });
+  });
+  it('should build an html template file with dynamically generated inline svg dependencies', (done) => {
+    buddy = buddyFactory({
+      input: 'inline-dynamic.nunjs',
+      output: 'output'
+    }, { plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(filepaths).to.have.length(1);
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.equal('<!DOCTYPE html>\n<html>\n<head>\n  <title>foo</title>\n  \n   <svg id="Layer_1" x="0px" y="0px" enable-background="new 0 0 100 100" xml:space="preserve" viewBox="0 0 100 100">\n<circle cx="50" cy="50" r="25"/>\n</svg>\n  \n   <svg id="Layer_1" x="0px" y="0px" enable-background="new 0 0 100 100" xml:space="preserve" viewBox="0 0 100 100">\n<circle cx="50" cy="50" r="25"/>\n</svg>\n  \n</head>\n<body>\n</body>\n</html>');
+      done();
+    });
+  });
+  it('should build a complex template file', (done) => {
+    buddy = buddyFactory({
+      input: 'complex.nunjs',
+      output: 'output'
+    }, { plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.equal('\n<!DOCTYPE html>\n<html>\n<head>\n<head>\n  <title>foo</title>\n  <style>body {\n  color: white;\n  font-size: 12px;\n}\nbody p {\n  font-size: 10px;\n}</style>\n</head>\n</head>\n<body>\n\n<div>\n  <label>Username</label>\n</div>\n\n</body>\n</html>');
+      done();
     });
   });
 });

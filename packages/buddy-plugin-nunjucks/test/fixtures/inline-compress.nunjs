@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>boo</title>
+  <script inline src="./foo.js"></script>
+</head>
+<body>
+
+</body>
+</html>

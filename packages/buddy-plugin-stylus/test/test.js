@@ -1,52 +1,47 @@
 'use strict';
 
-const cache = require('../../../lib/cache');
-const configFactory = require('../../../lib/config');
+const buddyFactory = require('../../../lib/buddy');
 const expect = require('expect.js');
 const fs = require('fs');
 const path = require('path');
 const plugin = require('../index');
-let config, file, fileFactoryOptions;
+const rimraf = require('rimraf');
+let buddy;
 
 describe('buddy-plugin-stylus', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures'));
   });
   beforeEach(() => {
-    const caches = cache.createCaches();
-
-    config = configFactory({
-      input: '.',
-      output: 'css'
-    }, {});
-    plugin.register(config);
-    fileFactoryOptions = {
-      fileCache: caches.fileCache,
-      fileExtensions: config.fileExtensions,
-      fileFactory: config.fileFactory,
-      pluginOptions: { babel: { plugins: [] } },
-      resolverCache: caches.resolverCache,
-      runtimeOptions: config.runtimeOptions
-    };
+    buddy = null;
   });
   afterEach(() => {
-    config.destroy();
+    if (buddy) buddy.destroy();
+    rimraf.sync(path.resolve('output'));
   });
 
-  describe('compile()', () => {
-    it('should convert file content to CSS', (done) => {
-      file = config.fileFactory(path.resolve('foo.styl'), fileFactoryOptions);
-      file.compile({}, (err) => {
-        expect(file.content).to.eql(fs.readFileSync(path.resolve('compiled/foo.css'), 'utf8'));
-        done();
-      });
+  it('should build a minified stylus file if "compress" is true', (done) => {
+    buddy = buddyFactory({
+      input: 'foo.styl',
+      output: 'output'
+    }, { compress: true, plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(filepaths).to.have.length(1);
+      expect(fs.existsSync(filepaths[0])).to.be(true);
+      const content = fs.readFileSync(filepaths[0], 'utf8');
+
+      expect(content).to.contain('body{color:#fff;font-size:12px}body p{font-size:10px}');
+      done();
     });
-    it('should return an error when compiling a malformed file', (done) => {
-      file = config.fileFactory(path.resolve('foo-bad.styl'), fileFactoryOptions);
-      file.compile({}, (err) => {
-        expect(err).to.be.an(Error);
-        done();
-      });
+  });
+  it('should error when compiling a malformed file', (done) => {
+    buddy = buddyFactory({
+      input: 'foo-bad.styl',
+      output: 'output'
+    }, { plugins: [plugin] });
+    buddy.build((err, filepaths) => {
+      expect(err).to.be.an(Error);
+      done();
     });
   });
 });

@@ -1,0 +1,4 @@
+<head>
+  <title>{{title}}</title>
+  <link rel="stylesheet" inline href="./foo.css">
+</head>

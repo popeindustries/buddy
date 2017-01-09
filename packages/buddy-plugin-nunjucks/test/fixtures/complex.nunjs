@@ -1,0 +1,10 @@
+{% import "./includes/macro.nunjs" as macro %}
+<!DOCTYPE html>
+<html>
+<head>
+{% include "./includes/header-inline.nunjs" %}
+</head>
+<body>
+{{ macro.label('Username') }}
+</body>
+</html>
