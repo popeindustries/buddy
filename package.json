@@ -1,7 +1,7 @@
 {
   "name": "buddy",
   "description": "A fast, simple build tool for web projects.",
-  "version": "6.10.0",
+  "version": "6.9.0",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "build",
@@ -32,7 +32,7 @@
     "md5": "2.2.1",
     "minimatch": "3.0.3",
     "portscanner": "2.1.1",
-    "postcss": "5.2.9",
+    "postcss": "5.2.8",
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "source-map": "0.5.6",
