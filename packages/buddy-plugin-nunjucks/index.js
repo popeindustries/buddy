@@ -8,7 +8,7 @@ const DEFAULT_OPTIONS = {
 };
 const FILE_EXTENSIONS = ['nunjucks', 'nunjs', 'njk'];
 const RE_INCLUDE = /{%\s(?:extends|include)\s['"]([^'"]+)['"]\s?%}/g;
-const RE_IMPORT = /{%\simport\s['"]([^'"]+)['"]\s?%}/g;
+const RE_IMPORT = /{%\simport\s['"]([^'"]+)['"]/g;
 const WORKFLOW_WRITEABLE = [
   'replaceReferences',
   'inlineInlineable',
@@ -165,7 +165,7 @@ function define (File, utils) {
     }
 
     /**
-     * Inline partials content
+     * Inline included content
      * @param {Object} buildOptions
      *  - {Boolean} batch
      *  - {Boolean} bootstrap
