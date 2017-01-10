@@ -362,6 +362,36 @@ describe('config', () => {
       }
       expect(errored).to.equal(true);
     });
+    it('should throw an error when "input" will overwrite "output"', () => {
+      let errored = false;
+
+      dummyConfig.builds = [{
+        input: 'src/main.js',
+        output: 'src/main.js'
+      }];
+      try {
+        buildParser(dummyConfig);
+      } catch (err) {
+        errored = true;
+        expect(err).to.be.an(Error);
+      }
+      expect(errored).to.equal(true);
+    });
+    it('should throw an error when batch "input" will overwrite "output"', () => {
+      let errored = false;
+
+      dummyConfig.builds = [{
+        input: 'src',
+        output: '.'
+      }];
+      try {
+        buildParser(dummyConfig);
+      } catch (err) {
+        errored = true;
+        expect(err).to.be.an(Error);
+      }
+      expect(errored).to.equal(true);
+    });
     it('should return a build target with "isAppServer" set to TRUE when "server.file" is the same as "input"', () => {
       dummyConfig.server = { file: 'src/main.js' };
       dummyConfig.builds = [{
