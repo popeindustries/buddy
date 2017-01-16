@@ -292,6 +292,22 @@ describe('file', () => {
         expect(file.isNpmModule).to.equal(true);
         process.chdir(path.resolve(__dirname, 'fixtures/file'));
       });
+      it('should not fix non-UMD Browserify boilerplate', () => {
+        file = create('src/browserify2.js');
+        expect(file.content).to.equal(fs.readFileSync(path.resolve('src/browserify2.js'), 'utf8'));
+      });
+      it('should fix Browserify boilerplate', () => {
+        file = create('src/browserify1.js');
+        expect(file.content).to.contain("if(typeof $m['src/browserify1'].exports===\"object\"&&typeof $m['src/browserify1']!==\"undefined\"){$m['src/browserify1'].exports=f()");
+      });
+      it('should fix Webpack boilerplate', () => {
+        file = create('src/webpack.js');
+        expect(file.content).to.contain("if(typeof $m['src/webpack'].exports === 'object' && typeof $m['src/webpack'] === 'object')\n    $m['src/webpack'].exports = factory();");
+      });
+      it('should fix Closure boilerplate', () => {
+        file = create('src/closure.js');
+        expect(file.content).to.contain("if (typeof $m['src/closure'].exports === \"object\") {\n    $m['src/closure'].exports = factory.call(root);");
+      });
     });
 
     describe('parse()', () => {
