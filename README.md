@@ -20,6 +20,24 @@
 - For production:
     - Outputs **unique** filenames
     - **Compresses** sources, including images
+    - Outputs minified and gzipped file **sizes**
+
+##### *JS Specific Features*
+
+- **Downloads and configures** Babel plugins by simply declaring target language version (`version: es5`)
+- **Flattens scope** for bundled dependencies to improve browser parse time
+- Manually splits bundles with **nested builds**, removing duplicate dependencies across bundles
+- Automatically splits bundles with dynamic `import('foo')` and **lazy loaded bundles**
+- Inlines **environment variables** with `process.env.FOO`
+
+##### *CSS Specific Features*
+
+- **Downloads and configures** PostCSS plugins by simply declaring target browser versions (`["last 2 versions", "iOS >= 7"]`)
+
+##### *HTML Specific Features*
+
+- **Inlines script/style/image** assets when tags are marked up with an `inline` attribute
+- Inlines **environment variables** with `{FOO}`
 
 ### Installation
 
@@ -91,7 +109,7 @@ Follow the [plugins guide](https://github.com/popeindustries/buddy/blob/master/d
 - [Specify target *JS* versions?](#specify-target-js-versions)
 - [Specify target *CSS* versions?](#specify-target-css-versions)
 - [Break-up *JS* bundles into smaller files?](#break-up-js-bundles-into-smaller-files)
-- [Generate a *JS* bundle from the shared dependencies of child bundles?](#generate-a-js-bundle-from-the-shared-dependencies-of-child-bundles)
+- [Automatically generate a *JS* bundle based on the content of child bundles?](#automatically-generate-a-js-bundle-based-on-the-content-of-child-bundles)
 - [Use source maps?](#use-source-maps)
 - [Lazily evaluate a JS bundle?](#lazily-evaluate-a-js-bundle)
 - [Inline environment variables?](#inline-environment-variables)
@@ -421,9 +439,9 @@ buddyImport('/assets/index-b621480767a88ba492db23fdc85df175.js', 'src/index')
 
 Child builds will be automatically generated and loaded asynchronously at runtime. **Note that some environments may require a `Promise` polyfill**, and that the id's passed to `import()` must be statically resolvable strings. It may also be necessary to configure the child bundle url by declaring a `webroot` property in `buddy.server` config.
 
-#### Generate a *JS* bundle from the shared dependencies of child bundles?
+#### Automatically generate a *JS* bundle based on the content of child bundles?
 
-To automatically generate a bundle of shared dependencies, specify a parent build with an  `input` of `'children:common'` or `'children:shared'`. All dependencies shared between child builds will be moved to the parent bundle:
+A build may be automatically generated based on the content of it's children. For example, to generate a parent bundle based on the of shared dependencies between children, specify a parent build with an  `input` of `'children:common'` or `'children:shared'`. All dependencies shared between child builds will be moved to the parent bundle:
 
 ```json
 {
@@ -449,16 +467,55 @@ To automatically generate a bundle of shared dependencies, specify a parent buil
 ```
 ```js
 // src/index.js
-// The 'lodash' module will be moved to common.js because it is also used in extras.js
+// The 'lodash' module will be moved to shared.js because it is also used in extras.js
 const lodash = require('lodash');
 ```
 ```js
 // src/extras.js
-// The 'react' module will not be moved to common.js
+// The 'react' module will not be moved to shared.js
 const react = require('react');
-// The 'lodash' module will be moved to common.js because it is also used in index.js
+// The 'lodash' module will be moved to shared.js because it is also used in index.js
 const lodash = require('lodash');
 ```
+
+Another possiblility is to gather all used `node_modules` files into a parent bundle:
+
+```json
+{
+  "buddy": {
+    "build": [
+      {
+        "input": "children:**/node_modules/**/*.js",
+        "output": "www/shared.js",
+        "children": [
+          {
+            "input": "src/index.js",
+            "output": "www"
+          },
+          {
+            "input": "src/extras.js",
+            "output": "www"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+```js
+// src/index.js
+// The 'lodash' module will be moved to shared.js because it is in node_modules
+const lodash = require('lodash');
+```
+```js
+// src/extras.js
+// The 'foo' module will not be moved to shared.js
+const foo = require('./foo');
+// The 'lodash' module will be moved to shared.js because it is in node_modules
+const lodash = require('lodash');
+```
+
+Matching patterns follow the rules for [glob](https://github.com/isaacs/minimatch) matching.
 
 #### Use source maps?
 
@@ -503,7 +560,9 @@ require('src/extras');
 
 #### Inline environment variables?
 
-All references to `process.env.*` variables are automatically inlined in *JS* source files. In addition to all the system variables set before build, the following special variables are set *during* build:
+All references to `process.env.FOO` variables are automatically inlined in *JS* source files, and all references to `{FOO}` variables are automatically inlined in *HTML* source files. 
+
+In addition to all the system variables set before build, the following special variables are set *during* build:
 
 - **`RUNTIME`**: current runtime for browser code (value `browser` or `server`)
 - **`BUDDY_{LABEL or INDEX}_INPUT`**: input filepath(s) for target identified with `LABEL` or `INDEX` (value `filepath` or `filepath,filepath,...` if multiple inputs)
