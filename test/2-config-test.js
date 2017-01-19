@@ -211,9 +211,29 @@ describe('config', () => {
       expect(dummyConfig.builds[0].builds[0].index).to.equal(2);
       expect(dummyConfig.builds[0].options).to.equal(dummyConfig.builds[0].builds[0].options);
     });
-    it('should parse generated build target based on child builds', () => {
+    it('should parse generated build target based on shared child builds', () => {
       dummyConfig.builds = [{
         input: 'children:shared',
+        output: 'js/shared.js',
+        build: [
+          {
+            input: 'src/main.js',
+            output: 'js'
+          },
+          {
+            input: 'src/module.js',
+            output: 'js'
+          }
+        ]
+      }];
+      buildParser(dummyConfig);
+
+      expect(dummyConfig.builds[0].inputpaths).to.eql(['__DUMMY__.js']);
+      expect(dummyConfig.builds[0].isGeneratedBuild).to.equal(true);
+    });
+    it('should parse generated build target based on matching child builds', () => {
+      dummyConfig.builds = [{
+        input: 'children:**/node_modules/*',
         output: 'js/shared.js',
         build: [
           {

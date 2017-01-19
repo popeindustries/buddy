@@ -1265,6 +1265,43 @@ describe('Buddy', () => {
           done();
         });
       });
+      it('should build a matching parent build based on children', (done) => {
+        buddy = buddyFactory({
+          build: [
+            {
+              input: 'children:**/node_modules/**/*.js',
+              output: 'output/shared.js',
+              children: [
+                {
+                  input: 'o.js',
+                  output: 'output'
+                },
+                {
+                  input: 'p.js',
+                  output: 'output'
+                }
+              ]
+            }
+          ]
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(3);
+          filepaths.forEach((filepath) => {
+            expect(fs.existsSync(filepath)).to.be(true);
+            const name = path.basename(filepath, '.js');
+            const content = fs.readFileSync(filepath, 'utf8');
+
+            if (name == 'shared') {
+              expect(content).to.contain('node_modules/lodash/camelCase.js ≠≠*/');
+              expect(content).to.not.contain('/*== __DUMMY.js__ ==*/');
+            } else {
+              expect(content).to.contain("require('lodash/camelCase')");
+              expect(content).to.not.contain('node_modules/lodash/camelCase.js ≠≠*/');
+            }
+          });
+          done();
+        });
+      });
     });
   });
 
