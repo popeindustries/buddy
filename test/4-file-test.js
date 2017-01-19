@@ -308,6 +308,10 @@ describe('file', () => {
         file = create('src/closure.js');
         expect(file.content).to.contain("if (typeof $m['src/closure'].exports === \"object\") {\n    $m['src/closure'].exports = factory.call(root);");
       });
+      it('should fix UMD boilerplate', () => {
+        file = create('src/umd.js');
+        expect(file.content).to.contain("typeof $m[\'src/umd\'].exports === \'object\' && typeof $m[\'src/umd\'] !== \'undefined\' ? $m[\'src/umd\'].exports = factory()");
+      });
     });
 
     describe('parse()', () => {
