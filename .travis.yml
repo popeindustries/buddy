@@ -3,8 +3,6 @@ node_js:
   - "6"
   - "7"
 install:
-  - npm install -g yarn
-  - yarn
   - yarn run install:packages
   - yarn run test:all
 cache:
