@@ -4,6 +4,7 @@ node_js:
   - "7"
 install:
   - yarn run install:packages
+script:
   - yarn run test:all
 cache:
   directories:
