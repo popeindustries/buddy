@@ -1,0 +1,14 @@
+{
+  "build": [{
+    "input": "parent.js",
+    "output": "output",
+    "children": [{
+      "input": "child.js",
+      "output": "output"
+    }]
+  }],
+  "server": {
+    "directory": ".",
+    "port": 3000
+  }
+}
