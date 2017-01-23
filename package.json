@@ -27,7 +27,7 @@
     "chokidar": "1.6.1",
     "cssnano": "3.10.0",
     "glob": "7.1.1",
-    "inline-source": "5.1.4",
+    "inline-source": "5.2.0",
     "lodash": "4.17.4",
     "md5": "2.2.1",
     "minimatch": "3.0.3",
