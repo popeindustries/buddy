@@ -3,6 +3,7 @@ node_js:
   - "6"
   - "7"
 install:
+  - npm -g install yarn
   - yarn install
   - yarn run install:packages
 script:
