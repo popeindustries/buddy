@@ -799,9 +799,11 @@ describe('Buddy', () => {
           filepaths.forEach((filepath) => {
             expect(fs.existsSync(filepath)).to.be(true);
             const content = fs.readFileSync(filepath, 'utf8');
+            const name = path.basename(filepath);
 
             expect(content).to.contain('/** BUDDY BUILT **/');
             expect(content).to.contain("$m['js-directory/flat");
+            if (name == 'foo.js') expect(content).to.contain('if (\'test\' == \'production\')');
           });
           done();
         });
@@ -815,8 +817,12 @@ describe('Buddy', () => {
         buddy.build((err, filepaths) => {
           expect(filepaths).to.have.length(3);
           filepaths.forEach((filepath) => {
+            const content = fs.readFileSync(filepath, 'utf8');
+            const name = path.basename(filepath);
+
             expect(fs.existsSync(filepath)).to.be(true);
             expect(fs.readFileSync(filepath, 'utf8')).to.not.contain('$m[');
+            if (name == 'foo.js') expect(content).to.contain('if (process.env.NODE_ENV == \'production\')');
           });
           done();
         });
