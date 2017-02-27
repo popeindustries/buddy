@@ -31,8 +31,33 @@ When working with the LiveReload feature, it is recommended to install the [Live
 $ buddy watch --serve --reload
 ```
 
-To use a custom application server instead of the default, specify a `file` path to your server:
+Configure `headers` to pass to the default static file server:
+```json
+"buddy": {
+  "server": {
+    "port": 8000,
+    "directory": "www",
+    "headers": {
+      "x-foo": "foo"
+    }
+  }
+}
+```
 
+Specify an alternative root url from which to serve source maps:
+```json
+"buddy": {
+  "server": {
+    "port": 8000,
+    "directory": "www",
+    "sourceroot": "https://raw.githubusercontent.com/user/repo/master/"
+  }
+}
+```
+
+### Custom application server
+
+To use a custom application server instead of the default, specify a `file` path to your server:
 ```json
 "buddy": {
   "server": {
@@ -43,7 +68,6 @@ To use a custom application server instead of the default, specify a `file` path
 ```
 
 Configure environment variables with `env`:
-
 ```json
 "buddy": {
   "server": {
@@ -55,3 +79,16 @@ Configure environment variables with `env`:
   }
 }
 ```
+
+Configure `flags` to pass to the Node process running your server:
+```json
+"buddy": {
+  "server": {
+    "port": 8000,
+    "file": "./index.js",
+    "flags": ['--inspect']
+  }
+}
+```
+
+**NOTE** The current port number will be exposed as `process.env.PORT`.

@@ -108,7 +108,7 @@ exports.server = {
     NODE_ENV: 'development',
     DEBUG: 'app*'
   },
-  // Headres to pass to default static file server
+  // Headers to pass to default static file server
   headers: {
     'x-foo': 'foo'
   },
