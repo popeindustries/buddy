@@ -343,7 +343,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.equal('"use strict";if("undefined"==typeof self)var self=this;if("undefined"==typeof global)var global=self;var $m=self.$m=self.$m||{},$req;if("undefined"==typeof process)var process={browser:!0,env:{NODE_ENV:"test"}};self.require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports},function(){$m.foo={exports:{}},$m.foo.exports="foo",$m.bar={exports:{}};var e=$m.foo.exports;$m.bar.exports=e}();//# sourceMappingURL=bar.js.map');
+          expect(content).to.equal('"use strict";if(void 0===self)var self=this;if(void 0===global)var global=self;var $m=self.$m=self.$m||{},$req;if(void 0===process)var process={browser:!0,env:{NODE_ENV:"test"}};self.require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports},function(){$m.foo={exports:{}},$m.foo.exports="foo",$m.bar={exports:{}};var e=$m.foo.exports;$m.bar.exports=e}();//# sourceMappingURL=bar.js.map');
           done();
         });
       });
@@ -465,6 +465,20 @@ describe('Buddy', () => {
           output: 'output',
           version: 'node'
         });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(eval(content)).to.be.ok();
+          done();
+        });
+      });
+      it('should build a minified complex dependency tree', (done) => {
+        buddy = buddyFactory({
+          input: 'lodash.js',
+          output: 'output',
+          version: 'node'
+        }, { compress: true, deploy: true });
         buddy.build((err, filepaths) => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
