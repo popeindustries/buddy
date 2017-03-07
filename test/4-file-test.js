@@ -312,6 +312,10 @@ describe('file', () => {
         file = create('src/umd.js');
         expect(file.content).to.contain("typeof $m[\'src/umd\'].exports === \'object\' && typeof $m[\'src/umd\'] !== \'undefined\' ? $m[\'src/umd\'].exports = factory()");
       });
+      it('should fix D3 boilerplate', () => {
+        file = create('src/d3.js');
+        expect(file.content).to.contain("typeof $m[\'src/d3\'].exports === \'object\' && typeof $m[\'src/d3\'] !== \'undefined\' ? factory($m[\'src/d3\'].exports)");
+      });
     });
 
     describe('parse()', () => {
