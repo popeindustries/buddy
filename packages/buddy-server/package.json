@@ -1,7 +1,7 @@
 {
   "name": "buddy-server",
   "description": "A simple asset server and livereload server for Buddy projects.",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "author": "popeindustries <alex@pope-industries.com>",
   "keywords": [
     "server",
