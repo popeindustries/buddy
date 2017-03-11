@@ -13,7 +13,7 @@ describe('buddy-server', () => {
 
   describe('server', () => {
     before((done) => {
-      this.server = ServerFactory('www', 8000, { 'X-Hello': 'World!' });
+      this.server = ServerFactory('www', 8000, { 'X-Hello': 'World!' }, [path.resolve('assets')]);
       this.server.start(done);
     });
     after(() => {
@@ -55,30 +55,17 @@ describe('buddy-server', () => {
         done();
       });
     });
+    it('should serve files from additional directories', (done) => {
+      request('http://localhost:8000/index.css', (err, res, body) => {
+        expect(res.statusCode).to.eql(200);
+        expect(res.headers['content-type']).to.eql('text/css');
+        expect(body).to.equal('body {\n  background-color: white;\n}');
+        done();
+      });
+    });
     it('should return 404 for missing file', (done) => {
       request('http://localhost:8000/not.css', (err, res, body) => {
         expect(res.statusCode).to.eql(404);
-        done();
-      });
-    });
-    it('should reroute to root when a missing directory is requested', (done) => {
-      request('http://localhost:8000/something', (err, res, body) => {
-        expect(res.statusCode).to.eql(200);
-        expect(res.req.path).to.eql('/something');
-        done();
-      });
-    });
-    it('should handle rerouted files when a missing directory is requested', (done) => {
-      request('http://localhost:8000/something/style.css', (err, res, body) => {
-        expect(res.statusCode).to.eql(200);
-        expect(res.req.path).to.eql('/something/style.css');
-        done();
-      });
-    });
-    it('should handle rerouted nested files when a missing directory is requested', (done) => {
-      request('http://localhost:8000/something/nested/style.css', (err, res, body) => {
-        expect(res.statusCode).to.eql(200);
-        expect(res.req.path).to.eql('/something/nested/style.css');
         done();
       });
     });
