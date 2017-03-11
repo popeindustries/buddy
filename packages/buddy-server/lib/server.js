@@ -14,10 +14,11 @@ const PORT = 8080;
  * @param {String} [directory]
  * @param {Number} [port]
  * @param {Object} [headers]
+ * @param {Array} [extraDirectories]
  * @returns {Server}
  */
-module.exports = function ServerFactory (directory, port, headers) {
-  return new Server(directory, port, headers);
+module.exports = function ServerFactory (directory, port, headers, extraDirectories) {
+  return new Server(directory, port, headers, extraDirectories);
 };
 
 class Server extends Event {
@@ -26,15 +27,22 @@ class Server extends Event {
    * @param {String} [directory]
    * @param {Number} [port]
    * @param {Object} [headers]
+   * @param {Array} [extraDirectories]
    */
-  constructor (directory, port, headers = {}) {
+  constructor (directory, port, headers = {}, extraDirectories = []) {
     super();
 
+    this.cwd = process.cwd();
     this.config = {
       cache: 0,
       headers
     };
-    this.directory = path.resolve(directory) || process.cwd();
+    // Paths must be relative to cwd
+    this.directories = [directory || this.cwd, ...extraDirectories].map((directory) => {
+      return ~directory.indexOf(this.cwd)
+        ? path.relative(this.cwd, directory)
+        : directory;
+    });
     this.port = port || PORT;
     this.server = null;
   }
@@ -44,37 +52,22 @@ class Server extends Event {
    * @param {Function} fn(err)
    */
   start (fn) {
-    const fileServer = new StaticServer(this.directory, this.config);
-    const hasIndex = fs.existsSync(path.resolve(this.directory, 'index.html'));
+    const fileServer = new StaticServer(this.cwd, this.config);
 
     this.server = http.createServer((req, res) => {
-      fileServer.serve(req, res, (err, resp) => {
-        if (err) {
-          if (err.status == '404') {
-            const uri = url.parse(req.url, true).pathname;
-            const filename = path.join(this.directory, uri);
-            const isFile = !!path.extname(filename).length;
-            const paths = uri.split('/');
-            let p, n;
+      let uri = url.parse(req.url, true).pathname;
+      const isFile = !!path.extname(uri).length;
 
-            if (isFile) {
-              // Walk to root
-              while (paths.length > 1) {
-                paths.shift();
-                p = '/' + paths.join('/');
-                n = path.join(this.directory, p);
-                if (fs.existsSync(n)) return fileServer.serveFile(p, 200, {}, req, res);
-              }
-            } else if (hasIndex) {
-              // Serve index
-              return fileServer.serveFile('/index.html', 200, {}, req, res);
-            }
-          }
+      if (!isFile) uri = path.join(uri, 'index.html');
 
-          res.writeHead(err.status, err.headers);
-          res.end();
-        }
-      });
+      for (const directory of this.directories) {
+        const filepath = path.join(directory, uri);
+
+        if (fs.existsSync(filepath)) return fileServer.serveFile(filepath, 200, {}, req, res);
+      }
+
+      res.writeHead('404', this.config.headers);
+      res.end();
     }).listen(this.port, fn);
   }
 

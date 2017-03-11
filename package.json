@@ -16,7 +16,7 @@
   ],
   "dependencies": {
     "async": "2.1.5",
-    "autoprefixer": "6.7.6",
+    "autoprefixer": "6.7.7",
     "babel-core": "6.23.1",
     "babel-plugin-external-helpers": "6.22.0",
     "babel-plugin-minify-dead-code-elimination": "0.1.4",
@@ -32,11 +32,11 @@
     "md5": "2.2.1",
     "minimatch": "3.0.3",
     "portscanner": "2.1.1",
-    "postcss": "5.2.15",
+    "postcss": "5.2.16",
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "source-map": "0.5.6",
-    "uglify-js": "2.8.7"
+    "uglify-js": "2.8.12"
   },
   "devDependencies": {
     "babel-plugin-transform-es5-property-mutators": "*",
