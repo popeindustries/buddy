@@ -4,7 +4,7 @@
 
 A simple development fileserver, with LiveReload support, for the [buddy](https://github.com/popeindustries/buddy) build tool.
 
-***WARNING***: default fileserving is very permissive, and will walk the project directory tree looking for the requested file until a match is found. This is inherently insecure, and therefore only recommended for local development.
+***WARNING***: default fileserving is very permissive! This is inherently insecure, and therefore only recommended for local development.
 
 When working with the LiveReload feature, it is recommended to install the [LiveReload Chrome extension](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei?hl=en), or include the following in your html source to initiate the connection:
 
@@ -29,6 +29,16 @@ When working with the LiveReload feature, it is recommended to install the [Live
 ```
 ```bash
 $ buddy watch --serve --reload
+```
+
+Specify multiple directories:
+```json
+"buddy": {
+  "server": {
+    "port": 8000,
+    "directory": ["www", "assets"]
+  }
+}
 ```
 
 Configure `headers` to pass to the default static file server:
