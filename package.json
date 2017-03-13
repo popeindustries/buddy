@@ -17,10 +17,10 @@
   "dependencies": {
     "async": "2.1.5",
     "autoprefixer": "6.7.7",
-    "babel-core": "6.23.1",
+    "babel-core": "6.24.0",
     "babel-plugin-external-helpers": "6.22.0",
     "babel-plugin-minify-dead-code-elimination": "0.1.4",
-    "babel-plugin-transform-es2015-modules-commonjs": "6.23.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "6.24.0",
     "browserslist": "1.7.6",
     "buddy-cli": "6.1.0",
     "chalk": "1.1.3",
