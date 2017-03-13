@@ -17,8 +17,8 @@ When working with the LiveReload feature, it is recommended to install the [Live
 ```json
 {
   "devDependencies": {
-    "buddy": "6.0.0",
-    "buddy-server": "2.0.0"
+    "buddy": "6.13.0",
+    "buddy-server": "3.0.0"
   },
   "buddy": {
     "server": {
