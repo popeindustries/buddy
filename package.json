@@ -36,11 +36,11 @@
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "source-map": "0.5.6",
-    "uglify-js": "2.8.12"
+    "uglify-js": "2.8.14"
   },
   "devDependencies": {
     "babel-plugin-transform-es5-property-mutators": "*",
-    "babel-preset-env": "1.2.1",
+    "babel-preset-env": "1.2.2",
     "expect.js": "*",
     "mocha": "*",
     "rimraf": "*"
