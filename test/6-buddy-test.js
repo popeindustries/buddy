@@ -1,6 +1,5 @@
 'use strict';
 
-const { exec } = require('child_process');
 const buddyFactory = require('../lib/buddy');
 const dependencyResolverConfig = require('../lib/resolver/config');
 const expect = require('expect.js');
@@ -1431,29 +1430,5 @@ describe('Buddy', () => {
         done();
       });
     });
-
-    if (process.platform != 'win32') {
-      it.skip('should rebuild a watched file on change', (done) => {
-        const child = exec('NODE_ENV=dev && ../../../../bin/buddy watch buddy-watch-file.js', {}, done);
-        const foo = fs.readFileSync(path.resolve('foo.js'), 'utf8');
-
-        setTimeout(() => {
-          const content = fs.readFileSync(path.resolve('output/bar.js'), 'utf8');
-
-          expect(content).to.contain('$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'foo\';\n');
-          fs.writeFileSync(path.resolve('foo.js'), "module.exports = 'bar';", 'utf8');
-          setTimeout(() => {
-            const content = fs.readFileSync(path.resolve('output/bar.js'), 'utf8');
-
-            expect(content).to.contain('$m[\'foo\'] = { exports: {} };\n$m[\'foo\'].exports = \'bar\';\n');
-            fs.writeFileSync(path.resolve('foo.js'), foo);
-            child.kill();
-            setTimeout(() => {
-              done();
-            }, 100);
-          }, 100);
-        }, 2000);
-      });
-    }
   });
 });
