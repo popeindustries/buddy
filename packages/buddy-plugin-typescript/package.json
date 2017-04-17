@@ -1,7 +1,7 @@
 {
   "name": "buddy-plugin-typescript",
   "description": "Buddy plugin for typescript source transforms (via TypeScript)",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "author": "mariuslundgard <studio@mariuslundgard.com>",
   "contributors": [
     "popeindustries <alex@pope-industries.com>"
@@ -13,7 +13,7 @@
     "ts"
   ],
   "dependencies": {
-    "typescript": "2.2.1"
+    "typescript": "2.2.2"
   },
   "peerDependencies": {
     "buddy": ">= 6.6.x"
