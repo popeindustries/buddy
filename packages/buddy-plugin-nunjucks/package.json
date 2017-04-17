@@ -9,7 +9,7 @@
     "nunjucks"
   ],
   "dependencies": {
-    "async": "2.1.5",
+    "async": "2.3.0",
     "nunjucks": "3.0.0"
   },
   "peerDependencies": {
