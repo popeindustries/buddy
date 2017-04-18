@@ -69,6 +69,13 @@ describe('buddy-server', () => {
         done();
       });
     });
+    it('should return default index.html if missing html file', (done) => {
+      request('http://localhost:8000/0', (err, res, body) => {
+        expect(res.statusCode).to.eql(200);
+        expect(body).to.contain('<!doctype html>');
+        done();
+      });
+    });
     it('should send custom headers', (done) => {
       request('http://localhost:8000/', (err, res, body) => {
         expect(res.statusCode).to.eql(200);

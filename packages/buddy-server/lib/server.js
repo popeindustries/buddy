@@ -8,6 +8,7 @@ const StaticServer = require('node-static').Server;
 const url = require('url');
 
 const PORT = 8080;
+const RE_IS_HTML = /.html?$/;
 
 /**
  * Server factory
@@ -53,6 +54,17 @@ class Server extends Event {
    */
   start (fn) {
     const fileServer = new StaticServer(this.cwd, this.config);
+    let index;
+
+    // Find default index.html
+    for (const directory of this.directories) {
+      const filepath = path.join(directory, 'index.html');
+
+      if (fs.existsSync(filepath)) {
+        index = filepath;
+        break;
+      }
+    }
 
     this.server = http.createServer((req, res) => {
       let uri = url.parse(req.url, true).pathname;
@@ -65,6 +77,8 @@ class Server extends Event {
 
         if (fs.existsSync(filepath)) return fileServer.serveFile(filepath, 200, {}, req, res);
       }
+
+      if (index && RE_IS_HTML.test(uri)) return fileServer.serveFile(index, 200, {}, req, res);
 
       res.writeHead('404', this.config.headers);
       res.end();
