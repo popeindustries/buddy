@@ -529,6 +529,48 @@ describe('Buddy', () => {
           done();
         });
       });
+      it('should build a react jsx file', (done) => {
+        buddy = buddyFactory({
+          input: 'react.jsx',
+          output: 'output',
+          version: 'react'
+        });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain('React.createElement(');
+          done();
+        });
+      });
+      it('should build a preact jsx file', (done) => {
+        buddy = buddyFactory({
+          input: 'react.jsx',
+          output: 'output',
+          version: 'preact'
+        });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain('h(');
+          done();
+        });
+      });
+      it('should build a inferno jsx file', (done) => {
+        buddy = buddyFactory({
+          input: 'react.jsx',
+          output: 'output',
+          version: 'inferno'
+        });
+        buddy.build((err, filepaths) => {
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain('createVNode(');
+          done();
+        });
+      });
 
       describe('packages', () => {
         before(() => {
@@ -724,7 +766,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain(':-webkit-full-screen a {\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}');
+          expect(content).to.contain(':-webkit-full-screen a {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}');
           done();
         });
       });
@@ -739,7 +781,7 @@ describe('Buddy', () => {
           expect(fs.existsSync(filepaths[0])).to.be(true);
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
-          expect(content).to.contain(':-webkit-full-screen a {\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}');
+          expect(content).to.contain(':-webkit-full-screen a {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}');
           done();
         });
       });
