@@ -43,9 +43,7 @@
     "babel-plugin-transform-es5-property-mutators": "*",
     "babel-preset-env": "1.4.0",
     "expect.js": "*",
-    "inferno": "^3.1.1",
     "mocha": "*",
-    "preact": "^8.1.0",
     "rimraf": "*"
   },
   "main": "lib/buddy.js",

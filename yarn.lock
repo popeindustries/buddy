@@ -1310,20 +1310,9 @@ indexes-of@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/indexes-of/-/indexes-of-1.0.1.tgz#f30f716c8e2bd346c7b67d3df3915566a7c05607"
 
-inferno-shared@3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/inferno-shared/-/inferno-shared-3.1.1.tgz#70376e29a56c53f6ba1e942191fe5cb710654f73"
-
-inferno-vnode-flags@3.0.0, inferno-vnode-flags@^3.0.0:
+inferno-vnode-flags@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/inferno-vnode-flags/-/inferno-vnode-flags-3.0.0.tgz#f396390f3dafae3b76eea04d04eed6cf2004473b"
-
-inferno@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/inferno/-/inferno-3.1.1.tgz#878a7fa9a10e9b373fb95ff9da2f61e664f426f1"
-  dependencies:
-    inferno-shared "3.1.1"
-    inferno-vnode-flags "^3.0.0"
 
 inflight@^1.0.4:
   version "1.0.6"
@@ -2054,10 +2043,6 @@ postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.13, postcss@^5.0
     js-base64 "^2.1.9"
     source-map "^0.5.6"
     supports-color "^3.2.3"
-
-preact@^8.1.0:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/preact/-/preact-8.1.0.tgz#f035b808eebb74e46d56246b02ca0f190b6d6574"
 
 prepend-http@^1.0.0:
   version "1.0.4"
