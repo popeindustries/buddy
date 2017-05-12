@@ -46,7 +46,7 @@
     "mocha": "*",
     "rimraf": "*"
   },
-  "main": "lib/buddy.js",
+  "main": "./lib/buddy.js",
   "bin": {
     "buddy": "./bin/buddy"
   },
