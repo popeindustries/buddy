@@ -541,48 +541,6 @@ describe('JS', () => {
       done();
     });
   });
-  it('should build a react jsx file', done => {
-    buddy = buddyFactory({
-      input: 'react.jsx',
-      output: 'output',
-      version: 'react'
-    });
-    buddy.build((err, filepaths) => {
-      expect(fs.existsSync(filepaths[0])).to.be(true);
-      const content = fs.readFileSync(filepaths[0], 'utf8');
-
-      expect(content).to.contain('React.createElement(');
-      done();
-    });
-  });
-  it('should build a preact jsx file', done => {
-    buddy = buddyFactory({
-      input: 'react.jsx',
-      output: 'output',
-      version: 'preact'
-    });
-    buddy.build((err, filepaths) => {
-      expect(fs.existsSync(filepaths[0])).to.be(true);
-      const content = fs.readFileSync(filepaths[0], 'utf8');
-
-      expect(content).to.contain('h(');
-      done();
-    });
-  });
-  it('should build a inferno jsx file', done => {
-    buddy = buddyFactory({
-      input: 'react.jsx',
-      output: 'output',
-      version: 'inferno'
-    });
-    buddy.build((err, filepaths) => {
-      expect(fs.existsSync(filepaths[0])).to.be(true);
-      const content = fs.readFileSync(filepaths[0], 'utf8');
-
-      expect(content).to.contain('createVNode(');
-      done();
-    });
-  });
 
   describe('packages', () => {
     before(() => {

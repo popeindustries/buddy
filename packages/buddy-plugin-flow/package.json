@@ -1,0 +1,29 @@
+{
+  "name": "buddy-plugin-flow",
+  "description": "Buddy plugin for stripping Flow types from JS source files",
+  "version": "1.0.0",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "buddy",
+    "compile",
+    "flow",
+    "flowtype"
+  ],
+  "dependencies": {
+    "babel-plugin-transform-class-properties": "6.24.1",
+    "babel-plugin-transform-flow-strip-types": "6.22.0"
+  },
+  "peerDependencies": {
+    "buddy": ">= 6.6.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec -t 10000"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-flow",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}
