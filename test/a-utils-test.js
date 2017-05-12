@@ -9,7 +9,7 @@ const path = require('path');
 const sourceMap = require('../lib/utils/sourceMap');
 const stopwatch = require('../lib/utils/stopwatch');
 
-describe('utils', () => {
+describe('UTILS', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/utils'));
   });
@@ -165,7 +165,7 @@ describe('utils', () => {
 
     describe('filepathName()', () => {
       it('should return the dir/file name of a file', () => {
-        expect(filepath.filepathName(__filename)).to.equal('test/1-utils-test.js');
+        expect(filepath.filepathName(__filename)).to.equal('test/a-utils-test.js');
       });
       it('should return the dir/file name of a file relative to current directory', () => {
         expect(filepath.filepathName('package.json')).to.equal('./package.json');

@@ -11,7 +11,7 @@ const serverParser = require('../lib/config/serverParser');
 
 let config, dummyConfig;
 
-describe('config', () => {
+describe('CONFIG', () => {
   beforeEach(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/config'));
   });
@@ -634,7 +634,7 @@ describe('config', () => {
     describe('registerTargetVersionForType()', () => {
       it.skip('should register a target version for js type', () => {
         config = configFactory({ build: { input: 'src/main.js', output: '.', version: ['foo'] } });
-        config.registerTargetVersionForType('foo', ['foo'], 'js');
+        config.registerTargetVersionForType('foo', 'js', ['foo']);
         console.log(config)
         // expect(config.fileExtensions.js).to.eql(['js', 'json', 'jsx', 'foo']);
       });
