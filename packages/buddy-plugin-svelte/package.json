@@ -1,0 +1,27 @@
+{
+  "name": "buddy-plugin-svelte",
+  "description": "Buddy plugin for transforming HTML files to JS with Svelte",
+  "version": "1.20.2",
+  "author": "popeindustries <alex@pope-industries.com>",
+  "keywords": [
+    "buddy",
+    "compile",
+    "svelte"
+  ],
+  "dependencies": {
+    "svelte": "1.20.2"
+  },
+  "peerDependencies": {
+    "buddy": ">= 6.6.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test ../../node_modules/.bin/mocha --reporter spec -t 10000"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "repository": "git://github.com/popeindustries/buddy/tree/master/packages/buddy-plugin-svelte",
+  "readmeFilename": "README.md",
+  "license": "MIT"
+}
