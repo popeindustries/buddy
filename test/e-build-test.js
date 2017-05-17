@@ -9,7 +9,7 @@ const rimraf = require('rimraf');
 
 let config, build;
 
-describe('build', () => {
+describe('BUILD', () => {
   before(() => {
     process.chdir(path.resolve(__dirname, 'fixtures/build'));
   });
