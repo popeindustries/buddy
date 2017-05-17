@@ -1,7 +1,7 @@
 'use strict';
 
 const buildParser = require('../lib/config/buildParser');
-const buildPlugins = require('../lib/config/buildPlugins');
+const buildPlugins = require('../lib/config/buildPlugins2');
 const cache = require('../lib/cache');
 const configFactory = require('../lib/config');
 const expect = require('expect.js');
@@ -25,6 +25,27 @@ describe('CONFIG', () => {
   });
 
   describe('buildPlugins', () => {
+    describe.only('isBrowserEnvironment', () => {
+      it('should return "false" for server version', () => {
+        expect(buildPlugins.isBrowserEnvironment('node')).to.equal(false);
+        expect(buildPlugins.isBrowserEnvironment('server')).to.equal(false);
+        expect(buildPlugins.isBrowserEnvironment(['node'])).to.equal(false);
+        expect(buildPlugins.isBrowserEnvironment(['server'])).to.equal(false);
+        expect(buildPlugins.isBrowserEnvironment(['node', 'react'])).to.equal(false);
+        expect(buildPlugins.isBrowserEnvironment({ node: true })).to.equal(false);
+        expect(buildPlugins.isBrowserEnvironment({ node: true, react: true })).to.equal(false);
+      });
+      it('should return "true" for browser version', () => {
+        expect(buildPlugins.isBrowserEnvironment('browser')).to.equal(true);
+        expect(buildPlugins.isBrowserEnvironment('es6')).to.equal(true);
+        expect(buildPlugins.isBrowserEnvironment(['browser'])).to.equal(true);
+        expect(buildPlugins.isBrowserEnvironment(['es6'])).to.equal(true);
+        expect(buildPlugins.isBrowserEnvironment(['es6', 'react'])).to.equal(true);
+        expect(buildPlugins.isBrowserEnvironment({ chrome: 50 })).to.equal(true);
+        expect(buildPlugins.isBrowserEnvironment({ react: true, chrome: 50 })).to.equal(true);
+      });
+    });
+
     describe('load()', () => {
       it('should generate default Babel plugins', () => {
         const options = buildPlugins.load('js');
