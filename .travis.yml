@@ -2,14 +2,12 @@ language: node_js
 node_js:
   - "6"
   - "7"
+  - "8"
 install:
-  - npm -g install yarn
-  - yarn install
-  - yarn run install:packages
+  - npm run install:packages
 script:
-  - yarn run test:all
+  - npm run test:all
 cache:
   directories:
-    - ~/.yarn
     - ~/.nvm
     - node_modules
