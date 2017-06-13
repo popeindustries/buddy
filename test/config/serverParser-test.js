@@ -2,11 +2,11 @@
 
 const expect = require('expect.js');
 const path = require('path');
-const serverParser = require('./serverParser');
+const serverParser = require('../../lib/config/serverParser');
 
 let dummyConfig;
 
-describe.only('serverParser', () => {
+describe('serverParser', () => {
   it('should parse directory path', () => {
     dummyConfig = {
       runtimeOptions: {},
