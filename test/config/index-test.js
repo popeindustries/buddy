@@ -1,5 +1,6 @@
 'use strict';
 
+const cache = require('../../lib/cache');
 const configFactory = require('../../lib/config/index');
 const expect = require('expect.js');
 const path = require('path');
@@ -59,13 +60,13 @@ describe('config', () => {
 
     describe('from a valid child working directory', () => {
       it('should return a path to the default file in a parent of the cwd when no name is specified', () => {
-        process.chdir(path.join(__dirname, 'fixtures/config/src'));
+        process.chdir(path.join(__dirname, 'fixtures/src'));
         expect(configFactory().url.toLowerCase()).to.equal(
-          path.join(__dirname, 'fixtures/config/buddy.js').toLowerCase()
+          path.join(__dirname, 'fixtures/buddy.js').toLowerCase()
         );
       });
       it('should parse all npm modules', () => {
-        process.chdir(path.join(__dirname, 'fixtures/config/pkgjson'));
+        process.chdir(path.join(__dirname, 'fixtures/pkgjson'));
         expect(configFactory().npmModulepaths).to.eql([
           path.resolve('node_modules/@foo/foo'),
           path.resolve('node_modules/bar')
@@ -94,14 +95,14 @@ describe('config', () => {
       expect(configFactory('buddy.js').builds).to.be.ok();
     });
     it('should return validated file data for named confg set', () => {
-      process.chdir(path.join(__dirname, 'fixtures/config/named'));
+      process.chdir(path.join(__dirname, 'fixtures/named'));
       const config = configFactory('foo');
 
       expect(config.builds).to.be.ok();
       expect(config.builds[0].input).to.equal('foo.js');
     });
     it('should return validated file data for named env confg set', () => {
-      process.chdir(path.join(__dirname, 'fixtures/config/named-env'));
+      process.chdir(path.join(__dirname, 'fixtures/named-env'));
       const config = configFactory();
 
       expect(config.builds).to.be.ok();
