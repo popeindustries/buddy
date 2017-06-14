@@ -1,9 +1,9 @@
 'use strict';
 
-const { isBrowserEnvironment, parsePlugins } = require('../../lib/config/buildPlugins2');
+const { isBrowserEnvironment, parsePlugins } = require('../../lib/config/processorPlugins');
 const expect = require('expect.js');
 
-describe.only('buildPlugins', () => {
+describe.only('processorPlugins', () => {
   describe('isBrowserEnvironment', () => {
     it('should return "false" for server version', () => {
       expect(isBrowserEnvironment('node')).to.equal(false);
@@ -26,8 +26,10 @@ describe.only('buildPlugins', () => {
   });
 
   describe.only('parsePlugins', () => {
-    it('should', () => {
-      parsePlugins();
+    it('should parse default js plugins', () => {
+      const plugins = parsePlugins('js');
+
+      console.log(plugins)
     });
   });
 
