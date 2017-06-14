@@ -1,27 +1,33 @@
 'use strict';
 
-const buildPlugins = require('../../lib/config/buildPlugins');
+const { isBrowserEnvironment, parsePlugins } = require('../../lib/config/buildPlugins2');
 const expect = require('expect.js');
 
-describe('buildPlugins', () => {
+describe.only('buildPlugins', () => {
   describe('isBrowserEnvironment', () => {
     it('should return "false" for server version', () => {
-      expect(buildPlugins.isBrowserEnvironment('node')).to.equal(false);
-      expect(buildPlugins.isBrowserEnvironment('server')).to.equal(false);
-      expect(buildPlugins.isBrowserEnvironment(['node'])).to.equal(false);
-      expect(buildPlugins.isBrowserEnvironment(['server'])).to.equal(false);
-      expect(buildPlugins.isBrowserEnvironment(['node', 'react'])).to.equal(false);
-      expect(buildPlugins.isBrowserEnvironment({ node: true })).to.equal(false);
-      expect(buildPlugins.isBrowserEnvironment({ node: true, react: true })).to.equal(false);
+      expect(isBrowserEnvironment('node')).to.equal(false);
+      expect(isBrowserEnvironment('server')).to.equal(false);
+      expect(isBrowserEnvironment(['node'])).to.equal(false);
+      expect(isBrowserEnvironment(['server'])).to.equal(false);
+      expect(isBrowserEnvironment(['node', 'react'])).to.equal(false);
+      expect(isBrowserEnvironment({ node: true })).to.equal(false);
+      expect(isBrowserEnvironment({ node: true, react: true })).to.equal(false);
     });
     it('should return "true" for browser version', () => {
-      expect(buildPlugins.isBrowserEnvironment('browser')).to.equal(true);
-      expect(buildPlugins.isBrowserEnvironment('es6')).to.equal(true);
-      expect(buildPlugins.isBrowserEnvironment(['browser'])).to.equal(true);
-      expect(buildPlugins.isBrowserEnvironment(['es6'])).to.equal(true);
-      expect(buildPlugins.isBrowserEnvironment(['es6', 'react'])).to.equal(true);
-      expect(buildPlugins.isBrowserEnvironment({ chrome: 50 })).to.equal(true);
-      expect(buildPlugins.isBrowserEnvironment({ react: true, chrome: 50 })).to.equal(true);
+      expect(isBrowserEnvironment('browser')).to.equal(true);
+      expect(isBrowserEnvironment('es6')).to.equal(true);
+      expect(isBrowserEnvironment(['browser'])).to.equal(true);
+      expect(isBrowserEnvironment(['es6'])).to.equal(true);
+      expect(isBrowserEnvironment(['es6', 'react'])).to.equal(true);
+      expect(isBrowserEnvironment({ chrome: 50 })).to.equal(true);
+      expect(isBrowserEnvironment({ react: true, chrome: 50 })).to.equal(true);
+    });
+  });
+
+  describe.only('parsePlugins', () => {
+    it('should', () => {
+      parsePlugins();
     });
   });
 
