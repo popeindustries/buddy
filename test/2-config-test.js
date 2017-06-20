@@ -623,11 +623,11 @@ describe('config', () => {
 
       it('should register extension for new file type', () => {
         config.registerFileExtensionsForType(['foo'], 'js');
-        expect(config.fileExtensions.js).to.eql(['jsx', 'js', 'json', 'foo']);
+        expect(config.fileExtensions.js).to.eql(['js', 'json', 'jsx', 'foo']);
       });
       it('should register multiple extensions for existing file type', () => {
         config.registerFileExtensionsForType(['foo', 'bar'], 'js');
-        expect(config.fileExtensions.js).to.eql(['jsx', 'js', 'json', 'foo', 'bar']);
+        expect(config.fileExtensions.js).to.eql(['js', 'json', 'jsx', 'foo', 'bar']);
       });
     });
 
