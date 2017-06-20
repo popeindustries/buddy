@@ -16,6 +16,11 @@ describe('Buddy', () => {
   beforeEach(() => {
     buddy = null;
     process.env.NODE_ENV = 'test';
+    for (const key in process.env) {
+      if (key.indexOf('BUDDY') === 0) {
+        delete process.env[key];
+      }
+    }
   });
   afterEach(() => {
     if (buddy) buddy.destroy();
@@ -557,7 +562,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a preact jsx file', (done) => {
+      it.skip('should build a preact jsx file', (done) => {
         buddy = buddyFactory({
           input: 'react.jsx',
           output: 'output',
@@ -571,7 +576,7 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should build a inferno jsx file', (done) => {
+      it.skip('should build a inferno jsx file', (done) => {
         buddy = buddyFactory({
           input: 'react.jsx',
           output: 'output',
@@ -1256,8 +1261,9 @@ describe('Buddy', () => {
 
             if (name == 'shared') {
               expect(content).to.contain('/*== foo.js ==*/');
-              expect(content).to.not.contain('/*== __DUMMY.js__ ==*/');
+              expect(content).to.not.contain('/*== __PLACEHOLDER.js__ ==*/');
             } else {
+              expect(content).to.contain(process.env['BUDDY_1_OUTPUT_HASH']);
               expect(content).to.contain("require('foo')");
               expect(content).to.not.contain('/*== foo.js ==*/');
             }
@@ -1299,7 +1305,7 @@ describe('Buddy', () => {
 
             if (name == 'shared') {
               expect(content).to.contain('/*== foo.js ==*/');
-              expect(content).to.not.contain('/*== __DUMMY.js__ ==*/');
+              expect(content).to.not.contain('/*== __PLACEHOLDER.js__ ==*/');
             } else {
               expect(content).to.not.contain('/*== foo.js ==*/');
             }
@@ -1331,7 +1337,7 @@ describe('Buddy', () => {
 
             if (name == 'shared') {
               expect(content).to.contain('/*== foo.js ==*/');
-              expect(content).to.not.contain('/*== __DUMMY.js__ ==*/');
+              expect(content).to.not.contain('/*== __PLACEHOLDER.js__ ==*/');
             } else {
               expect(content).to.contain("require('foo')");
               expect(content).to.not.contain('/*== foo.js ==*/');
@@ -1368,7 +1374,7 @@ describe('Buddy', () => {
 
             if (name == 'shared') {
               expect(content).to.contain('node_modules/lodash/camelCase.js ≠≠*/');
-              expect(content).to.not.contain('/*== __DUMMY.js__ ==*/');
+              expect(content).to.not.contain('/*== __PLACEHOLDER.js__ ==*/');
             } else {
               expect(content).to.contain("require('lodash/camelCase')");
               expect(content).to.not.contain('node_modules/lodash/camelCase.js ≠≠*/');
