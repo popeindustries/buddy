@@ -229,7 +229,7 @@ describe('config', () => {
       }];
       buildParser(dummyConfig);
 
-      expect(dummyConfig.builds[0].inputpaths).to.eql(['__DUMMY__.js']);
+      expect(dummyConfig.builds[0].inputpaths).to.eql(['__PLACEHOLDER__.js']);
       expect(dummyConfig.builds[0].isGeneratedBuild).to.equal(true);
     });
     it('should parse generated build target based on matching child builds', () => {
@@ -249,7 +249,7 @@ describe('config', () => {
       }];
       buildParser(dummyConfig);
 
-      expect(dummyConfig.builds[0].inputpaths).to.eql(['__DUMMY__.js']);
+      expect(dummyConfig.builds[0].inputpaths).to.eql(['__PLACEHOLDER__.js']);
       expect(dummyConfig.builds[0].isGeneratedBuild).to.equal(true);
     });
     it('should parse build target with nested builds and different "version"', () => {
