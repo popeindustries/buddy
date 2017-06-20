@@ -8,3 +8,4 @@ packages/
 CHANGELOG.md
 README.md
 yarn.lock
+perf/
