@@ -9,7 +9,7 @@
     "dust"
   ],
   "dependencies": {
-    "async": "2.4.0",
+    "async": "2.4.1",
     "dustjs-helpers": "1.7.3",
     "dustjs-linkedin": "2.7.5"
   },
