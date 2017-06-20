@@ -4,10 +4,13 @@ node_js:
   - "7"
   - "8"
 install:
-  - npm run install:packages
+  - npm -g install yarn
+  - yarn install
+  - yarn run install:packages
 script:
-  - npm run test:all
+  - yarn run test:all
 cache:
   directories:
+    - ~/.yarn
     - ~/.nvm
     - node_modules
