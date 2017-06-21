@@ -50,7 +50,7 @@
   },
   "scripts": {
     "example": "./bin/example",
-    "install:packages": "./bin/packages",
+    "install:packages": "./bin/packages install",
     "outdated:packages": "./bin/packages outdated",
     "test:all": "NODE_ENV=test mocha \"./packages/buddy-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
     "test": "NODE_ENV=test mocha \"./{lib,test}/**/*-test.js\" --reporter spec --timeout 20000 --bail",
