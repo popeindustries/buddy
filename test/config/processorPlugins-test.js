@@ -29,7 +29,31 @@ describe.only('processorPlugins', () => {
     it('should parse default js plugins', () => {
       const plugins = parsePlugins('js');
 
-      console.log(plugins)
+      expect(plugins).to.have.property('babel');
+      expect(plugins.babel.plugins).to.have.length(2);
+    });
+    it('should parse es* string version', () => {
+      const plugins = parsePlugins('js', 'es6');
+
+      expect(plugins).to.have.property('babel');
+      expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
+      expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
+    });
+    it('should parse es* array version', () => {
+      const plugins = parsePlugins('js', ['es6']);
+
+      expect(plugins).to.have.property('babel');
+      expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
+      expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
+    });
+    it.only('should parse node array version', () => {
+      const plugins = parsePlugins('js', ['es6', 'node']);
+
+      console.dir(plugins, {depth:6})
+      expect(plugins).to.have.property('babel');
+      expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
+      expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
+      expect(plugins.babel.presets[0][1].targets).to.have.property('node', true);
     });
   });
 
