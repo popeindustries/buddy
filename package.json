@@ -20,6 +20,7 @@
     "babel-core": "6.25.0",
     "babel-plugin-minify-dead-code-elimination": "0.1.7",
     "babel-plugin-transform-es2015-modules-commonjs": "6.24.1",
+    "babel-plugin-transform-runtime": "6.23.0",
     "babel-preset-env": "1.5.2",
     "babel-runtime": "6.23.0",
     "browserslist": "2.1.5",
@@ -37,7 +38,7 @@
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "source-map": "0.5.6",
-    "uglify-js": "3.0.16"
+    "uglify-js": "3.0.19"
   },
   "devDependencies": {
     "expect.js": "*",

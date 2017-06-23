@@ -26,79 +26,141 @@ describe.only('processorPlugins', () => {
   });
 
   describe.only('parsePlugins', () => {
-    it('should parse default js plugins', () => {
-      const plugins = parsePlugins('js');
+    describe('js', () => {
+      it('should parse default plugins', () => {
+        const plugins = parsePlugins('js');
 
-      expect(plugins).to.have.property('babel');
-      expect(plugins.babel.plugins).to.have.length(2);
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.plugins).to.have.length(2);
+      });
+      it('should parse es* string version', () => {
+        const plugins = parsePlugins('js', 'es6');
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
+        expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
+      });
+      it('should parse es* array version', () => {
+        const plugins = parsePlugins('js', ['es6']);
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
+        expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
+      });
+      it('should parse node array version', () => {
+        const plugins = parsePlugins('js', ['es6', 'node']);
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
+        expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
+        expect(plugins.babel.presets[0][1].targets).to.have.property('node', true);
+      });
+      it('should parse browserlist string version', () => {
+        const plugins = parsePlugins('js', '> 5%');
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
+        expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['> 5%']);
+      });
+      it('should parse browserlist array version', () => {
+        const plugins = parsePlugins('js', ['> 5%', 'not ie 10']);
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
+        expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['> 5%', 'not ie 10']);
+      });
+      it('should parse es object version', () => {
+        const plugins = parsePlugins('js', { es6: true });
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
+        expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
+      });
+      it('should parse node object version', () => {
+        const plugins = parsePlugins('js', { node: '6' });
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.presets[0][1].targets).to.have.property('node', '6');
+      });
+      it('should parse server object version', () => {
+        const plugins = parsePlugins('js', { server: true });
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.presets[0][1].targets).to.have.property('node', true);
+      });
+      it('should parse browser object version', () => {
+        const plugins = parsePlugins('js', { chrome: 51 });
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.presets[0][1].targets).to.have.property('chrome', 51);
+      });
+      it('should parse browserlist object version', () => {
+        const plugins = parsePlugins('js', { browsers: ['> 5%', 'not ie 10'] });
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
+      });
+      it('should parse default plugins with options', () => {
+        const plugins = parsePlugins('js', undefined, { babel: { plugins: ['foo'] } });
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.plugins[0]).to.equal('foo');
+      });
+      it('should parse default plugins with override options', () => {
+        const plugins = parsePlugins('js', undefined, {
+          babel: { plugins: [['babel-plugin-transform-es2015-modules-commonjs', { loose: false }]] }
+        });
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.plugins[0][1]).to.have.property('loose', false);
+      });
+      it('should parse default plugins with alt name override options', () => {
+        const plugins = parsePlugins('js', undefined, {
+          babel: { plugins: [['transform-es2015-modules-commonjs', { loose: false }]] }
+        });
+
+        expect(plugins).to.have.property('babel');
+        expect(plugins.babel.plugins[0]).to.have.length(2);
+        expect(plugins.babel.plugins[0][0]).to.equal('babel-plugin-transform-es2015-modules-commonjs');
+        expect(plugins.babel.plugins[0][1]).to.have.property('loose', false);
+      });
     });
-    it('should parse es* string version', () => {
-      const plugins = parsePlugins('js', 'es6');
 
-      expect(plugins).to.have.property('babel');
-      expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
-      expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
-    });
-    it('should parse es* array version', () => {
-      const plugins = parsePlugins('js', ['es6']);
+    describe('css', () => {
+      it('should parse default plugins', () => {
+        const plugins = parsePlugins('css');
 
-      expect(plugins).to.have.property('babel');
-      expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
-      expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
-    });
-    it('should parse node array version', () => {
-      const plugins = parsePlugins('js', ['es6', 'node']);
+        expect(plugins).to.have.property('postcss');
+        expect(plugins.postcss.plugins).to.have.length(0);
+      });
+      it('should parse browserlist string version', () => {
+        const plugins = parsePlugins('css', '> 5%');
 
-      expect(plugins).to.have.property('babel');
-      expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
-      expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
-      expect(plugins.babel.presets[0][1].targets).to.have.property('node', true);
-    });
-    it('should parse browserlist string version', () => {
-      const plugins = parsePlugins('js', '> 5%');
+        expect(plugins).to.have.property('postcss');
+        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers');
+        expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%']);
+      });
+      it('should parse browserlist array version', () => {
+        const plugins = parsePlugins('css', ['> 5%', 'not ie 10']);
 
-      expect(plugins).to.have.property('babel');
-      expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
-      expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['> 5%']);
-    });
-    it('should parse browserlist array version', () => {
-      const plugins = parsePlugins('js', ['> 5%', 'not ie 10']);
+        expect(plugins).to.have.property('postcss');
+        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers');
+        expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%', 'not ie 10']);
+      });
+      it('should parse browserlist array version', () => {
+        const plugins = parsePlugins('css', ['> 5%', 'not ie 10']);
 
-      expect(plugins).to.have.property('babel');
-      expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
-      expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['> 5%', 'not ie 10']);
-    });
-    it('should parse es object version', () => {
-      const plugins = parsePlugins('js', { es6: true });
+        expect(plugins).to.have.property('postcss');
+        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers');
+        expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%', 'not ie 10']);
+      });
+      it.only('should parse browserlist object version', () => {
+        const plugins = parsePlugins('css', { browsers: ['> 5%', 'not ie 10'] });
 
-      expect(plugins).to.have.property('babel');
-      expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
-      expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
-    });
-    it('should parse node object version', () => {
-      const plugins = parsePlugins('js', { node: '6' });
-
-      expect(plugins).to.have.property('babel');
-      expect(plugins.babel.presets[0][1].targets).to.have.property('node', '6');
-    });
-    it('should parse server object version', () => {
-      const plugins = parsePlugins('js', { server: true });
-
-      expect(plugins).to.have.property('babel');
-      expect(plugins.babel.presets[0][1].targets).to.have.property('node', true);
-    });
-    it('should parse browser object version', () => {
-      const plugins = parsePlugins('js', { chrome: 51 });
-
-      expect(plugins).to.have.property('babel');
-      expect(plugins.babel.presets[0][1].targets).to.have.property('chrome', 51);
-    });
-    it.only('should parse default js plugins with options', () => {
-      const plugins = parsePlugins('js', undefined, { babel: { plugins: [ 'foo' ]}});
-
-      console.dir(plugins, {depth:6})
-      // expect(plugins).to.have.property('babel');
-      // expect(plugins.babel.presets[0][1].targets).to.have.property('chrome', 51);
+        console.dir(plugins, { depth: 6 });
+        expect(plugins).to.have.property('postcss');
+        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
+      });
     });
   });
 
