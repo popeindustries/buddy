@@ -3,3 +3,4 @@ node_modules/*
 packages/**/node_modules/*
 examples/**/www/*.js
 npm-debug.log*
+package-lock.json
