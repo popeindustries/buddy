@@ -15,7 +15,7 @@
     "html"
   ],
   "dependencies": {
-    "async": "2.4.1",
+    "async": "2.5.0",
     "autoprefixer": "7.1.1",
     "babel-core": "6.25.0",
     "babel-plugin-minify-dead-code-elimination": "0.1.7",
@@ -34,11 +34,11 @@
     "md5": "2.2.1",
     "minimatch": "3.0.4",
     "portscanner": "2.1.1",
-    "postcss": "6.0.2",
+    "postcss": "6.0.3",
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "source-map": "0.5.6",
-    "uglify-js": "3.0.19"
+    "uglify-js": "3.0.20"
   },
   "devDependencies": {
     "expect.js": "*",

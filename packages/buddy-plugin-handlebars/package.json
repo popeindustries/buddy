@@ -9,7 +9,7 @@
     "handlebars"
   ],
   "dependencies": {
-    "async": "2.4.1",
+    "async": "2.5.0",
     "handlebars": "4.0.10"
   },
   "peerDependencies": {
