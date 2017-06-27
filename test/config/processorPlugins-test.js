@@ -154,12 +154,24 @@ describe.only('processorPlugins', () => {
         expect(plugins.postcss.plugins[0][1]).to.have.property('browsers');
         expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%', 'not ie 10']);
       });
-      it.only('should parse browserlist object version', () => {
+      it('should parse browserlist object version', () => {
         const plugins = parsePlugins('css', { browsers: ['> 5%', 'not ie 10'] });
+
+        expect(plugins).to.have.property('postcss');
+        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
+      });
+      it('should parse default plugins with options', () => {
+        const plugins = parsePlugins('css', undefined, { autoprefixer: { browsers: ['> 5%', 'not ie 10'] } });
+
+        expect(plugins).to.have.property('postcss');
+        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
+      });
+      it('should parse plugins with override options', () => {
+        const plugins = parsePlugins('css', ['> 5%', 'not ie 10'], { autoprefixer: { add: false } });
 
         console.dir(plugins, { depth: 6 });
         expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
+        expect(plugins.postcss.plugins[0][1]).to.have.property('add', false);
       });
     });
   });
