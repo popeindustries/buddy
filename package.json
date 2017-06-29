@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "expect.js": "*",
+    "flow-bin": "^0.49.1",
     "mocha": "*",
     "rimraf": "2.6.1"
   },
