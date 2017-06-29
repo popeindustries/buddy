@@ -1,0 +1,39 @@
+{
+  "env": {
+    "es6": true,
+    "mocha": true,
+    "node": true
+  },
+  "extends": [
+    "prettier"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2016,
+    "sourceType": "script"
+  },
+  "rules": {
+    "complexity": [1, { "max": 20 }],
+    "consistent-return": [1, { "treatUndefinedAsUnspecified": true }],
+    "default-case": 0,
+    "eqeqeq": [1, "always", { "null": "never" }],
+    "global-require": 0,
+    "guard-for-in": 0,
+    "strict": 0,
+    "max-nested-callbacks": 0,
+    "max-params": 0,
+    "no-bitwise": 0,
+    "no-eq-null": 0,
+    "no-invalid-this": 0,
+    "no-param-reassign": 0,
+    "no-process-env": 0,
+    "no-return-assign": 0,
+    "no-sync": 0,
+    "no-undefined": 0,
+    "no-unused-vars": [2, { "args": "none" }],
+    "no-useless-escape": 0,
+    "no-void": 0,
+    "no-warning-comments": 0,
+    "prefer-const": [1, { "destructuring": "all" }],
+    "valid-jsdoc": 0
+  }
+}

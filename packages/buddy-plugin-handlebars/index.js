@@ -103,7 +103,7 @@ function define (HTMLFile, utils) {
      *  - {Boolean} compress
      *  - {Boolean} helpers
      *  - {Array} ignoredFiles
-     *  - {Boolean} import
+     *  - {Boolean} importBoilerplate
      *  - {Boolean} watchOnly
      * @param {Function} fn(err)
      */
@@ -128,7 +128,7 @@ function define (HTMLFile, utils) {
      *  - {Boolean} compress
      *  - {Boolean} helpers
      *  - {Array} ignoredFiles
-     *  - {Boolean} import
+     *  - {Boolean} importBoilerplate
      *  - {Boolean} watchOnly
      * @param {Function} fn(err)
      */

@@ -38,7 +38,7 @@
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "source-map": "0.5.6",
-    "uglify-js": "3.0.20"
+    "uglify-js": "3.0.21"
   },
   "devDependencies": {
     "expect.js": "*",

@@ -7,9 +7,6 @@ packages/
 .travis.yml
 CHANGELOG.md
 README.md
-<<<<<<< HEAD
-package-lock.json
-=======
 yarn.lock
 perf/
->>>>>>> master
+.vscode

@@ -6,22 +6,6 @@ abbrev@1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.0.tgz#d0554c2256636e2f56e7c2e5ad183f859428d81f"
 
-acorn-jsx@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-3.0.1.tgz#afdf9488fb1ecefc8348f6fb22f464e32a58b36b"
-  dependencies:
-    acorn "^3.0.4"
-
-acorn-object-spread@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/acorn-object-spread/-/acorn-object-spread-1.0.0.tgz#48ead0f4a8eb16995a17a0db9ffc6acaada4ba68"
-  dependencies:
-    acorn "^3.1.0"
-
-acorn@^3.0.4, acorn@^3.1.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-3.3.0.tgz#45e37fb39e8da3f25baee3ff5369e2bb5f22017a"
-
 ajv@^4.9.1:
   version "4.11.8"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-4.11.8.tgz#82ffb02b29e662ae53bdc20af15947706739c536"
@@ -103,9 +87,9 @@ async@1.5.2:
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
 
-async@2.4.1:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/async/-/async-2.4.1.tgz#62a56b279c98a11d0987096a01cc3eeb8eb7bbd7"
+async@2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/async/-/async-2.5.0.tgz#843190fd6b7357a0b9e1c956edddd5ec8462b54d"
   dependencies:
     lodash "^4.14.0"
 
@@ -686,25 +670,6 @@ browserslist@^1.3.6, browserslist@^1.5.2, browserslist@^1.7.6:
     caniuse-db "^1.0.30000639"
     electron-to-chromium "^1.2.7"
 
-buble@^0.12.0:
-  version "0.12.5"
-  resolved "https://registry.yarnpkg.com/buble/-/buble-0.12.5.tgz#c66ffe92f9f4a3c65d3256079b711e2bd0bc5013"
-  dependencies:
-    acorn "^3.1.0"
-    acorn-jsx "^3.0.1"
-    acorn-object-spread "^1.0.0"
-    chalk "^1.1.3"
-    magic-string "^0.14.0"
-    minimist "^1.2.0"
-    os-homedir "^1.0.1"
-
-bubleify@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/bubleify/-/bubleify-0.5.1.tgz#f65c47cee31b80cad8b9e747bbe187d7fe51e927"
-  dependencies:
-    buble "^0.12.0"
-    object-assign "^4.0.1"
-
 buddy-cli@6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/buddy-cli/-/buddy-cli-6.1.0.tgz#5d96e961978f992cd88e3b81df5d11733f3e88a3"
@@ -723,12 +688,12 @@ caniuse-api@^1.5.2:
     lodash.uniq "^4.5.0"
 
 caniuse-db@^1.0.30000529, caniuse-db@^1.0.30000634, caniuse-db@^1.0.30000639:
-  version "1.0.30000693"
-  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000693.tgz#8510e7a9ab04adcca23a5dcefa34df9d28c1ce20"
+  version "1.0.30000696"
+  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000696.tgz#e71f5c61e1f96c7a3af4e791ac5db55e11737604"
 
 caniuse-lite@^1.0.30000670, caniuse-lite@^1.0.30000684:
-  version "1.0.30000693"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000693.tgz#c9c6298697c71fdf6cb13eefe8aa93926f2f8613"
+  version "1.0.30000696"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000696.tgz#30f2695d2a01a0dfd779a26ab83f4d134b3da5cc"
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -1008,8 +973,8 @@ ecc-jsbn@~0.1.1:
     jsbn "~0.1.0"
 
 electron-to-chromium@^1.2.7, electron-to-chromium@^1.3.14:
-  version "1.3.14"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.14.tgz#64af0f9efd3c3c6acd57d71f83b49ca7ee9c4b43"
+  version "1.3.15"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.15.tgz#08397934891cbcfaebbd18b82a95b5a481138369"
 
 entities@^1.1.1, entities@~1.1.1:
   version "1.1.1"
@@ -1220,6 +1185,10 @@ has-flag@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/has-flag/-/has-flag-1.0.0.tgz#9d9e793165ce017a00f00418c43f942a7b1d11fa"
 
+has-flag@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/has-flag/-/has-flag-2.0.0.tgz#e8207af1cc7b30d446cc70b734b5e8be18f88d51"
+
 has-unicode@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/has-unicode/-/has-unicode-2.0.1.tgz#e0e6fe6a28cf51138855e086d1691e771de2a8b9"
@@ -1360,10 +1329,9 @@ is-glob@^2.0.0, is-glob@^2.0.1:
     is-extglob "^1.0.0"
 
 is-number-like@^1.0.3:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/is-number-like/-/is-number-like-1.0.7.tgz#a38d6b0fd2cd4282449128859eed86c03fd23552"
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/is-number-like/-/is-number-like-1.0.8.tgz#2e129620b50891042e44e9bbbb30593e75cfbbe3"
   dependencies:
-    bubleify "^0.5.1"
     lodash.isfinite "^3.3.2"
 
 is-number@^2.1.0:
@@ -1419,8 +1387,8 @@ js-base64@^2.1.9:
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.1.9.tgz#f0e80ae039a4bd654b5f281fc93f04a914a7fcce"
 
 js-tokens@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.1.tgz#08e9f132484a2c45a30907e9dc4d5567b7f114d7"
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
 
 js-yaml@~3.7.0:
   version "3.7.0"
@@ -1565,12 +1533,6 @@ macaddress@^0.2.8:
   version "0.2.8"
   resolved "https://registry.yarnpkg.com/macaddress/-/macaddress-0.2.8.tgz#5904dc537c39ec6dbefeae902327135fa8511f12"
 
-magic-string@^0.14.0:
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.14.0.tgz#57224aef1701caeed273b17a39a956e72b172462"
-  dependencies:
-    vlq "^0.2.1"
-
 math-expression-evaluator@^1.2.14:
   version "1.2.17"
   resolved "https://registry.yarnpkg.com/math-expression-evaluator/-/math-expression-evaluator-1.2.17.tgz#de819fdbcd84dccd8fae59c6aeb79615b9d266ac"
@@ -1706,8 +1668,8 @@ normalize-url@^1.4.0:
     sort-keys "^1.0.0"
 
 npmlog@^4.0.2:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/npmlog/-/npmlog-4.1.0.tgz#dc59bee85f64f00ed424efb2af0783df25d1c0b5"
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/npmlog/-/npmlog-4.1.2.tgz#08a7f2a8bf734604779a9efa4ad5cc717abb954b"
   dependencies:
     are-we-there-yet "~1.1.2"
     console-control-strings "~1.1.0"
@@ -1743,7 +1705,7 @@ once@^1.3.0, once@^1.3.3:
   dependencies:
     wrappy "1"
 
-os-homedir@^1.0.0, os-homedir@^1.0.1:
+os-homedir@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/os-homedir/-/os-homedir-1.0.2.tgz#ffbc4988336e0e833de0c168c7ef152121aa7fb3"
 
@@ -1984,13 +1946,13 @@ postcss-zindex@^2.0.1:
     postcss "^5.0.4"
     uniqs "^2.0.0"
 
-postcss@6.0.2, postcss@^6.0.1:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-6.0.2.tgz#5c4fea589f0ac3b00caa75b1cbc3a284195b7e5d"
+postcss@6.0.3, postcss@^6.0.1:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-6.0.3.tgz#b7f565b3d956fbb8565ca7c1e239d0506e427d8b"
   dependencies:
     chalk "^1.1.3"
     source-map "^0.5.6"
-    supports-color "^3.2.3"
+    supports-color "^4.0.0"
 
 postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.13, postcss@^5.0.14, postcss@^5.0.16, postcss@^5.0.2, postcss@^5.0.4, postcss@^5.0.5, postcss@^5.0.8, postcss@^5.2.16:
   version "5.2.17"
@@ -2313,6 +2275,12 @@ supports-color@^3.2.3:
   dependencies:
     has-flag "^1.0.0"
 
+supports-color@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-4.0.0.tgz#33a7c680aa512c9d03ef929cacbb974d203d2790"
+  dependencies:
+    has-flag "^2.0.0"
+
 svgo@0.7.2, svgo@^0.7.0:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/svgo/-/svgo-0.7.2.tgz#9f5772413952135c6fefbf40afe6a4faa88b4bb5"
@@ -2377,9 +2345,9 @@ uglify-js@3.0.15:
     commander "~2.9.0"
     source-map "~0.5.1"
 
-uglify-js@3.0.19:
-  version "3.0.19"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.0.19.tgz#ab1dfe2a171361b81fa9ffb3383461ea384557ed"
+uglify-js@3.0.21:
+  version "3.0.21"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.0.21.tgz#db66690c7a129a2dbb2417f820ca15c119215a05"
   dependencies:
     commander "~2.9.0"
     source-map "~0.5.1"
@@ -2419,10 +2387,6 @@ verror@1.3.6:
   resolved "https://registry.yarnpkg.com/verror/-/verror-1.3.6.tgz#cff5df12946d297d2baaefaa2689e25be01c005c"
   dependencies:
     extsprintf "1.0.2"
-
-vlq@^0.2.1:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/vlq/-/vlq-0.2.2.tgz#e316d5257b40b86bb43cb8d5fea5d7f54d6b0ca1"
 
 whet.extend@~0.9.9:
   version "0.9.9"
