@@ -41,6 +41,8 @@
     "uglify-js": "3.0.21"
   },
   "devDependencies": {
+    "babel-cli": "6.24.1",
+    "babel-preset-flow": "6.23.0",
     "expect.js": "*",
     "flow-bin": "^0.49.1",
     "mocha": "*",
@@ -51,6 +53,7 @@
     "buddy": "./bin/buddy"
   },
   "scripts": {
+    "build": "babel src -d lib",
     "example": "./bin/example",
     "install:packages": "./bin/packages install",
     "outdated:packages": "./bin/packages outdated",

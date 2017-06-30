@@ -3,6 +3,7 @@ test/
 docs/
 examples/
 packages/
+src/
 .DS_Store
 .travis.yml
 CHANGELOG.md
