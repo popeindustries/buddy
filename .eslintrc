@@ -5,7 +5,8 @@
     "node": true
   },
   "extends": [
-    "prettier"
+    "prettier",
+    "flowtyped"
   ],
   "parserOptions": {
     "ecmaVersion": 2016,

@@ -1,11 +1,9 @@
 // @flow
 
-/*::
 type MapObject = {
   sources: Array<string>,
   sourcesContent: Array<string>
 };
-*/
 
 'use strict';
 
@@ -27,7 +25,7 @@ module.exports = {
  * @param {String} [url]
  * @returns {SourceMapGenerator}
  */
-function create(content /*: string*/, url /*: string*/) /*: SourceMapGenerator */ {
+function create(content: string, url: string): SourceMapGenerator {
   url = url || '<source>';
   const map = new SourceMapGenerator({ file: url });
   const lines = content.split('\n');
@@ -51,7 +49,7 @@ function create(content /*: string*/, url /*: string*/) /*: SourceMapGenerator *
  * Create source map from 'mapObject' and 'content'
  * @returns {SourceMapGenerator}
  */
-function createFromMap(mapObject /*: MapObject */, content /*: string */, url /*: ?string */) /*: SourceMapGenerator */ {
+function createFromMap(mapObject: MapObject, content: string, url: ?string): SourceMapGenerator {
   url = url || '<source>';
   if (typeof mapObject === 'string') {
     try {
@@ -76,7 +74,7 @@ function createFromMap(mapObject /*: MapObject */, content /*: string */, url /*
 /**
  * Clone 'map'
  */
-function clone(map /*: SourceMapGenerator */) /*: SourceMapGenerator */ {
+function clone(map: SourceMapGenerator): SourceMapGenerator {
   return map instanceof SourceMapGenerator
     ? SourceMapGenerator.fromSourceMap(new SourceMapConsumer(map.toJSON()))
     : map;
@@ -85,7 +83,7 @@ function clone(map /*: SourceMapGenerator */) /*: SourceMapGenerator */ {
 /**
  * Append 'inMap' to 'outMap' with line 'offset'
  */
-function append(outMap /*: SourceMapGenerator */, inMap /*: SourceMapGenerator */, offset /*: number */) {
+function append(outMap: SourceMapGenerator, inMap: SourceMapGenerator, offset: number) {
   if (inMap != null) {
     const inConsumer = new SourceMapConsumer(inMap.toJSON());
 
@@ -114,7 +112,7 @@ function append(outMap /*: SourceMapGenerator */, inMap /*: SourceMapGenerator *
 /**
  * Prepend 'inMap' to 'outMap' with line 'offset'
  */
-function prepend(outMap /*: SourceMapGenerator */, inMap /*: SourceMapGenerator */, offset /*: number */) {
+function prepend(outMap: SourceMapGenerator, inMap: SourceMapGenerator, offset: number) {
   // Move existing mappings
   outMap._mappings.unsortedForEach(mapping => {
     mapping.generatedLine += offset;
@@ -149,10 +147,10 @@ function prepend(outMap /*: SourceMapGenerator */, inMap /*: SourceMapGenerator 
  * Insert line in 'outMap' with 'inMap' at line 'index'
  */
 function insert(
-  outMap /*: SourceMapGenerator */,
-  inMap /*: ?SourceMapGenerator */,
-  length /*: number */,
-  index /*: number */
+  outMap: SourceMapGenerator,
+  inMap: ?SourceMapGenerator,
+  length: number,
+  index: number
 ) {
   // Move existing mappings
   if (length > 0) {
@@ -192,7 +190,7 @@ function insert(
 /**
  * Determine if 'mapObject' has empty sources
  */
-function emptySources(mapObject /*: MapObject */) {
+function emptySources(mapObject: MapObject) {
   return (
     isNullOrUndefined(mapObject.sources) ||
     isEmptyArray(mapObject.sources) ||

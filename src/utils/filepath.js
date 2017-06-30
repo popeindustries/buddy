@@ -21,14 +21,14 @@ module.exports = {
   /**
    * Determine if 'str' is a filepath or package reference
    */
-  isFilepath(str /*: string */) /*: boolean */ {
+  isFilepath(str: string): boolean {
     return !isInvalid(str) && (isAbsoluteFilepath(str) || isRelativeFilepath(str));
   },
 
   /**
    * Retrieve path name (dirname/filename) of 'p'
    */
-  filepathName(p /*: string */) /*: string */ {
+  filepathName(p: string): string {
     p = path.resolve(p);
 
     let dir = path.resolve(p, '..');
@@ -43,7 +43,7 @@ module.exports = {
   /**
    * Determine type of 'filepath'
    */
-  filepathType(filepath /*: string */, fileExtensions /*: {} */) /*: string */ {
+  filepathType(filepath: string, fileExtensions: {}): string {
     const ext = path.extname(filepath).slice(1);
 
     // Match input extension to type
@@ -63,7 +63,7 @@ module.exports = {
   /**
    * Check the location of 'filepath'
    */
-  findFilepath(filepath /*: string*/, type /*: string*/, fileExtensions /*: {} */) /*: string*/ {
+  findFilepath(filepath: string, type: string, fileExtensions: {}): string {
     if (isString(filepath) && !isInvalid(type) && !isNullOrUndefined(fileExtensions)) {
       let stat;
 
@@ -104,7 +104,7 @@ module.exports = {
   /**
    * Find file matching unique 'pattern'
    */
-  findUniqueFilepath(pattern /*: string*/) /*: string*/ {
+  findUniqueFilepath(pattern: string): string {
     pattern = path.resolve(pattern);
 
     // Limit scope to containing directory
@@ -140,7 +140,7 @@ module.exports = {
   /**
    * Generate unique filepath from 'pattern'
    */
-  generateUniqueFilepath(pattern /*: string*/, content /*: string | boolean */) /*: string*/ {
+  generateUniqueFilepath(pattern: string, content: string | boolean): string {
     pattern = path.resolve(pattern);
 
     let reToken, wildcard;
@@ -162,7 +162,7 @@ module.exports = {
   /**
    * Determine whether 'pattern' is supported
    */
-  isUniqueFilepath(pattern /*: string*/) /*: boolean*/ {
+  isUniqueFilepath(pattern: string): boolean {
     return RE_UNIQUE_TOKEN.test(pattern);
   }
 };
@@ -170,7 +170,7 @@ module.exports = {
 /**
  * Determine if 'filepath' exists
  */
-function exists(filepath /*: string*/) /*: boolean*/ {
+function exists(filepath: string): boolean {
   // Only return positive to allow for generated files
   if (existsCache.has(filepath)) {
     return true;
@@ -190,7 +190,7 @@ function exists(filepath /*: string*/) /*: boolean*/ {
  * @param {String} filepath
  * @returns {Boolean}
  */
-function isRelativeFilepath(filepath /*: string*/) /*: boolean*/ {
+function isRelativeFilepath(filepath: string): boolean {
   return isString(filepath) && filepath.charAt(0) === '.';
 }
 
@@ -199,6 +199,6 @@ function isRelativeFilepath(filepath /*: string*/) /*: boolean*/ {
  * @param {String} filepath
  * @returns {Boolean}
  */
-function isAbsoluteFilepath(filepath /*: string*/) /*: boolean*/ {
+function isAbsoluteFilepath(filepath: string): boolean {
   return isString(filepath) && path.resolve(filepath) === filepath;
 }

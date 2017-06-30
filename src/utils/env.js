@@ -11,13 +11,13 @@ const RE_ILLEGAL_ID = /[\- .*]/g;
 /**
  * Set BUDDY env 'key'
  */
-module.exports = function env(key /*: string */, value /*: Array<string | File> */, id /*: ?string */) {
+module.exports = function env(key: string, value: Array<string | File>, id: ?string) {
   id = !isInvalid(id) ? id.replace(RE_ILLEGAL_ID, '').toUpperCase() + '_' : '';
   if (!Array.isArray(value)) {
     value = [value];
   }
 
-  const valueString = value.reduce((value /*: string */, item /*: string | File */) => {
+  const valueString = value.reduce((value: string, item: string | File) => {
     const isFile = item instanceof File;
 
     switch (key) {

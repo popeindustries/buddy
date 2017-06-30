@@ -20,7 +20,7 @@ exports.verbose = false;
 /**
  * Print 'msg' to console, with indentation level
  */
-exports.print = function(msg /*: string */, column /*: number */) {
+exports.print = function(msg: string, column: number) {
   if (isNullOrUndefined(column)) {
     column = 0;
   }
@@ -32,7 +32,7 @@ exports.print = function(msg /*: string */, column /*: number */) {
 /**
  * Print 'err' to console, with error colour and indentation level
  */
-exports.error = function(err /*: { message: string } | string */, column /*: number */, throws /*: boolean */) {
+exports.error = function(err: { message: string } | string, column: number, throws: boolean) {
   if (exports.silent) {
     return;
   }
@@ -63,7 +63,7 @@ exports.error = function(err /*: { message: string } | string */, column /*: num
 /**
  * Print 'msg' to console, with warning colour and indentation level
  */
-exports.warn = function(msg /*: string */, column /*: number */) {
+exports.warn = function(msg: string, column: number) {
   if (isNullOrUndefined(column)) {
     column = 0;
   }
@@ -76,7 +76,7 @@ exports.warn = function(msg /*: string */, column /*: number */) {
 /**
  * Print 'msg' to console, with debug colour and indentation level
  */
-exports.debug = function(msg /*: string */, column /*: number */) {
+exports.debug = function(msg: string, column: number) {
   const now = process.hrtime();
 
   if (isNullOrUndefined(last)) {
@@ -106,6 +106,6 @@ exports.debug = function(msg /*: string */, column /*: number */) {
  * @param {String} string
  * @returns {String}
  */
-exports.strong = function(string /*: string */) {
+exports.strong = function(string: string) {
   return chalk.bold.grey(string);
 };

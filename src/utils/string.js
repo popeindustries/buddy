@@ -28,7 +28,7 @@ module.exports = {
 /**
  * Strip comments from 'string'
  */
-function commentStrip(string /*: string */) /*: string */ {
+function commentStrip(string: string): string {
   // Remove commented lines
   string = string.replace(RE_COMMENT_SINGLE_LINE, '');
   string = string.replace(RE_COMMENT_MULTI_LINES, '');
@@ -38,14 +38,14 @@ function commentStrip(string /*: string */) /*: string */ {
 /**
  * Strip source map comment from 'string'
  */
-function sourceMapCommentStrip(string /*: string */) /*: string */ {
+function sourceMapCommentStrip(string: string): string {
   return string.replace(RE_SOURCE_MAPPING_URL, '');
 }
 
 /**
  * Wrap 'string' in comment based on 'type'
  */
-function commentWrap(string /*: string*/, type /*: string*/) /*: string*/ {
+function commentWrap(string: string, type: string): string {
   let open, close;
 
   if (type === 'html') {
@@ -62,7 +62,7 @@ function commentWrap(string /*: string*/, type /*: string*/) /*: string*/ {
 /**
  * Indent the given 'string' a specific number of columns
  */
-function indent(string /*: string */, column /*: number */) /*: string */ {
+function indent(string: string, column: number): string {
   const spaces = new Array(++column).join(COLUMN);
 
   return string.replace(RE_LINE_BEGIN, spaces);
@@ -71,7 +71,7 @@ function indent(string /*: string */, column /*: number */) /*: string */ {
 /**
  * Match unique occurrences in 'string'
  */
-function uniqueMatch(string /*: string */, regexp /*: RegExp */) /*: Array<{}> */ {
+function uniqueMatch(string: string, regexp: RegExp): Array<{}> {
   const results = [];
   let match;
 
@@ -89,14 +89,14 @@ function uniqueMatch(string /*: string */, regexp /*: RegExp */) /*: Array<{}> *
 /**
  * Escape 'string' for use in RegExp constructor
  */
-function regexpEscape(string /*: string */) /*: string */ {
+function regexpEscape(string: string): string {
   return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
 /**
  * Truncate 'string'
  */
-function truncate(string /*: string */) /*: string */ {
+function truncate(string: string): string {
   if (string.length > SEG_LENGTH * 2 + 3) {
     return string.slice(0, SEG_LENGTH) + '...' + string.slice(-SEG_LENGTH);
   }
@@ -108,7 +108,7 @@ function truncate(string /*: string */) /*: string */ {
  * Retrieve line/column from 'index' of 'string'
  * Column is zero-indexed
  */
-function getLocationFromIndex(string /*: string */, index /*: number */) /*: { line: number, column: number } */ {
+function getLocationFromIndex(string: string, index: number): { line: number, column: number } {
   const lines = string.split('\n');
   let destructure = false;
   let idx = 0;
