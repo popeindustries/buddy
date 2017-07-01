@@ -31,7 +31,7 @@ module.exports = {
   /**
    * Start the servers
    */
-  start(serve: boolean, reload: boolean, options: Options, fn: function) {
+  start(serve: boolean, reload: boolean, options: Options, fn: (Error | null) => void) {
     const { ReloadServerFactory, ServerFactory } = require(options.buddyServerPath);
     const tasks = [];
 
@@ -95,7 +95,7 @@ module.exports = {
   /**
    * Restart app server
    */
-  restart(fn: function) {
+  restart(fn: (Error | null) => void) {
     if (server != null) {
       checkingAppServerPort = false;
       server.removeAllListeners();
@@ -155,7 +155,7 @@ module.exports = {
 /**
  * Start app server
  */
-function startAppServer(fn: function) {
+function startAppServer(fn: (Error | null) => void) {
   if (!checkingAppServerPort) {
     server = fork(appServer.file, [], appServer.options);
     server.on('exit', code => {
@@ -173,7 +173,7 @@ function startAppServer(fn: function) {
 /**
  * Wait for app server connection on 'port'
  */
-function waitForPortOpen(port: number, fn: function) {
+function waitForPortOpen(port: number, fn: (Error | null) => void) {
   function check() {
     if (checkingAppServerPort) {
       portscanner.checkPortStatus(port, '127.0.0.1', (err, status) => {
@@ -181,7 +181,7 @@ function waitForPortOpen(port: number, fn: function) {
           setTimeout(check, 20);
         } else {
           checkingAppServerPort = false;
-          fn();
+          fn(null);
         }
       });
     }

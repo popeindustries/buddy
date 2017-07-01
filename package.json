@@ -58,7 +58,7 @@
     "install:packages": "./bin/packages install",
     "outdated:packages": "./bin/packages outdated",
     "test:all": "NODE_ENV=test mocha \"./packages/buddy-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
-    "test": "NODE_ENV=test mocha \"./{lib,test}/**/*-test.js\" --reporter spec --timeout 20000 --bail",
+    "test": "NODE_ENV=test yarn run build && mocha \"./test/**/*-test.js\" --reporter spec --timeout 20000 --bail",
     "test:windows": "set NODE_ENV=test&&node.exe ./node_modules/mocha/bin/mocha --reporter spec -t 20000 --bail",
     "perf:build": "NODE_ENV=test node perf/build.js",
     "perf:config": "NODE_ENV=test node perf/config.js",

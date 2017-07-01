@@ -6,8 +6,12 @@
   },
   "extends": [
     "prettier",
-    "flowtyped"
+    "plugin:flowtype/recommended"
   ],
+  "plugins": [
+    "flowtype"
+  ],
+  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 2016,
     "sourceType": "script"
