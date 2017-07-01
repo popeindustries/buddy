@@ -1,10 +1,25 @@
+// @flow
+
 'use strict';
+
+type FileWorkflows = {
+  standard: Array<string>,
+  standardWatch: Array<string>,
+  inlineable: Array<string>,
+  writeable: Array<string>
+};
+export type WriteResult = {
+  content: string | Buffer,
+  filepath: string,
+  type: string,
+  printPrefix: string
+};
 
 const { debug, strong, warn } = require('./utils/cnsl');
 const { dummyFile } = require('./settings');
 const { exists, generateUniqueFilepath, isUniqueFilepath } = require('./utils/filepath');
 const { getLocationFromIndex, sourceMapCommentStrip, truncate } = require('./utils/string');
-const { isArray, isEmptyArray, isInvalid, isNullOrUndefined, isString, isUndefined } = require('./utils/is');
+const { isEmptyArray, isInvalid } = require('./utils/is');
 const { mkdir: { sync: mkdir } } = require('recur-fs');
 const { readFileSync: readFile, writeFileSync: writeFile } = require('fs');
 const { resolve } = require('./resolver');
@@ -25,11 +40,41 @@ const WORKFLOW_INLINEABLE = ['load'];
 const WORKFLOW_STANDARD = ['load', 'parse', 'runForDependencies'];
 
 module.exports = class File {
+  allDependencies: Array<File> | null;
+  allDependencyReferences: Array<{}> | null;
+  content: string | Buffer;
+  fileContent: string | Buffer;
+  date: number;
+  dependencies: Array<File>;
+  dependencyReferences: Array<{}>;
+  encoding: string;
+  extension: string;
+  filepath: string;
+  hash: string;
+  hasMaps: boolean;
+  hasUnresolvedDependencies: boolean;
+  id: string;
+  idSafe: string;
+  isDependency: boolean;
+  isDummy: boolean;
+  isInline: boolean;
+  isLocked: boolean;
+  map: {};
+  mapUrl: string;
+  name: string;
+  options: {} | null;
+  relpath: string;
+  relUrl: string;
+  totalLines: number;
+  type: string;
+  writepath: string;
+  writeDate: number;
+  writeHash: string;
+  writeUrl: string;
+  workflows: FileWorkflows;
+
   /**
    * Constructor
-   * @param {String} id
-   * @param {String} filepath
-   * @param {String} type
    * @param {Object} options
    *  - {Boolean} browser
    *  - {Function} buildFactory
@@ -44,9 +89,9 @@ module.exports = class File {
    *  - {Object} runtimeOptions
    *  - {String} webroot
    */
-  constructor(id, filepath, type, options) {
-    this.allDependencies = null;
-    this.allDependencyReferences = null;
+  constructor(id: string, filepath: string, type: string, options: {}) {
+    this.allDependencies;
+    this.allDependencyReferences;
     this.content = '';
     this.fileContent = '';
     this.date = Date.now();
@@ -64,7 +109,7 @@ module.exports = class File {
     this.isDummy = filepath == dummyFile;
     this.isInline = false;
     this.isLocked = false;
-    this.map = null;
+    this.map;
     this.mapUrl = '';
     this.name = path.basename(filepath);
     this.options = options;
@@ -76,7 +121,6 @@ module.exports = class File {
     this.writeDate = 0;
     this.writeHash = '';
     this.writeUrl = '';
-    // TODO: drop nested array format
     this.workflows = {
       standard: WORKFLOW_STANDARD,
       standardWatch: WORKFLOW_STANDARD,
@@ -92,63 +136,58 @@ module.exports = class File {
 
   /**
    * Retrieve writeable state
-   * @param {Boolean} batch
-   * @returns {Boolean}
    */
-  isWriteable(batch) {
+  isWriteable(batch: boolean): boolean {
     return !this.isInline &&
-      // Only writeable if not node_module in batch mode
-      batch
+    // Only writeable if not node_module in batch mode
+    batch
       ? !this.filepath.includes('node_modules')
       : !this.isDependency;
   }
 
   /**
    * Retrieve inlineable state
-   * @returns {Boolean}
    */
-  isInlineable() {
+  isInlineable(): boolean {
     return this.isInline;
   }
 
   /**
    * Set 'content'
-   * @param {String} content
    */
-  setContent(content) {
-    this.content = content;
-
-    if (this.encoding === 'utf8') {
-      this.content = this.content || '';
+  setContent(content: string | Buffer) {
+    if (typeof content === 'string') {
+      this.content = content || '';
       this.totalLines = this.content ? this.content.split('\n').length : 0;
+    } else {
+      this.content = content;
     }
   }
 
   /**
    * Set 'map'
-   * @param {Object} [map]
    */
-  setMap(map) {
-    if (!this.hasMaps || this.encoding != 'utf8') {
+  setMap(map?: {}) {
+    if (!this.hasMaps || this.encoding !== 'utf8') {
       return;
     }
 
-    this.map = isNullOrUndefined(map)
-      ? sourceMap.create(this.fileContent, this.relUrl)
-      : map instanceof SourceMapGenerator ? map : sourceMap.createFromMap(map, this.fileContent, this.relUrl);
+    this.map =
+      map == null
+        ? sourceMap.create(this.fileContent, this.relUrl)
+        : map instanceof SourceMapGenerator ? map : sourceMap.createFromMap(map, this.fileContent, this.relUrl);
   }
 
   /**
    * Append 'content' of content
-   * @param {String|File} content
    */
-  appendContent(content) {
+  appendContent(content: string | File) {
     let contentLines = 0;
 
-    if (isString(content)) {
+    if (typeof content === 'string') {
       contentLines = content.split('\n').length;
     } else {
-      if (!isNullOrUndefined(this.map)) {
+      if (this.map != null) {
         sourceMap.append(this.map, content.map, this.totalLines);
       }
       contentLines = content.totalLines;
@@ -161,19 +200,18 @@ module.exports = class File {
 
   /**
    * Append 'content' of content
-   * @param {String|File} content
    */
-  prependContent(content) {
+  prependContent(content: string | File) {
     let contentLines = 0;
 
-    if (isString(content)) {
+    if (typeof content === 'string') {
       contentLines = content.split('\n').length;
-      if (!isNullOrUndefined(this.map)) {
+      if (this.map != null) {
         sourceMap.prepend(this.map, null, contentLines);
       }
     } else {
       contentLines = content.totalLines;
-      if (!isNullOrUndefined(this.map)) {
+      if (this.map != null) {
         sourceMap.prepend(this.map, content.map, contentLines);
       }
       content = content.content;
@@ -184,18 +222,15 @@ module.exports = class File {
 
   /**
    * Replace 'string' at 'index' with 'content'
-   * @param {String|Array} string
-   * @param {Number} [index]
-   * @param {String|File} [content]
    */
-  replaceContent(string, index, content) {
+  replaceContent(string: string | Array<[string, number, string | File]>, index: number, content: string | File) {
     // Convert to batch
-    if (!isArray(string)) {
+    if (!Array.isArray(string)) {
       string = [[string, index, content]];
     }
-    index = string.map(args => args[1]);
 
-    const location = getLocationFromIndex(this.content, index);
+    const indexes = string.map(args => args[1]);
+    const location = getLocationFromIndex(this.content, indexes);
     let offsetIndex = 0;
     let offsetLine = 0;
 
@@ -207,14 +242,14 @@ module.exports = class File {
       index += offsetIndex;
       line += offsetLine;
 
-      if (isString(content)) {
+      if (typeof content === 'string') {
         contentLines = content.split('\n').length - 1;
-        if (contentLines > 0 && !isNullOrUndefined(this.map)) {
+        if (contentLines > 0 && this.map != null) {
           sourceMap.insert(this.map, null, contentLines, line);
         }
       } else {
         contentLines = content.totalLines - 1;
-        if (!isNullOrUndefined(this.map)) {
+        if (this.map != null) {
           sourceMap.insert(this.map, content.map, contentLines, line);
         }
         content = content.content;
@@ -232,10 +267,9 @@ module.exports = class File {
 
   /**
    * Retrieve flattened dependency tree
-   * @returns {Array}
    */
-  getAllDependencies() {
-    if (isNullOrUndefined(this.allDependencies)) {
+  getAllDependencies(): Array<File> {
+    if (this.allDependencies == null) {
       const dependencies = [];
 
       walk(this.dependencies, file => {
@@ -253,17 +287,16 @@ module.exports = class File {
 
   /**
    * Retrieve flattened dependency reference tree
-   * @returns {Array}
    */
-  getAllDependencyReferences() {
-    if (isNullOrUndefined(this.allDependencyReferences)) {
+  getAllDependencyReferences(): Array<File> {
+    if (this.allDependencyReferences == null) {
       const references = [];
       const seen = {};
 
       walk(this.dependencyReferences, reference => {
-        if (isNullOrUndefined(reference.file) || isNullOrUndefined(seen[reference.file.id])) {
+        if (reference.file == null || seen[reference.file.id] == null) {
           references.push(reference);
-          if (!isNullOrUndefined(reference.file)) {
+          if (reference.file != null) {
             seen[reference.file.id] = true;
             return reference.file.dependencyReferences;
           }
@@ -278,21 +311,9 @@ module.exports = class File {
 
   /**
    * Add 'dependencies'
-   * @param {Array} dependencies
-   * @param {Object} buildOptions
-   *  - {Boolean} batch
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Boolean} helpers
-   *  - {Array} ignoredFiles
-   *  - {Boolean} importBoilerplate
-   *  - {Boolean} watchOnly
    */
-  addDependencies(dependencies, buildOptions) {
-    if (!isArray(dependencies)) {
+  addDependencies(dependencies: Array<{}>, buildOptions: {}) {
+    if (!Array.isArray(dependencies)) {
       dependencies = [dependencies];
     }
 
@@ -350,27 +371,14 @@ module.exports = class File {
 
   /**
    * Retrieve parsed workflows for 'buildOptions'
-   * @param {String} type
-   * @param {Object} buildOptions
-   *  - {Boolean} batch
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Boolean} helpers
-   *  - {Array} ignoredFiles
-   *  - {Boolean} importBoilerplate
-   *  - {Boolean} watchOnly
-   * @returns {Array}
    */
-  parseWorkflow(type, buildOptions) {
-    if (isNullOrUndefined(this.workflows[type])) {
+  parseWorkflow(type: string, buildOptions: {}): Array<string> {
+    if (this.workflows[type] == null) {
       return [];
     }
 
     // Backwards compat with nested array
-    const workflow = isArray(this.workflows[type][0]) ? this.workflows[type][0] : this.workflows[type];
+    const workflow = Array.isArray(this.workflows[type][0]) ? this.workflows[type][0] : this.workflows[type];
 
     return workflow.reduce((tasks, task) => {
       if (task.includes(':')) {
@@ -378,7 +386,7 @@ module.exports = class File {
 
         task = conditions.pop();
         const passed = conditions.every(condition => {
-          const negative = condition.charAt(0) == '!';
+          const negative = condition.charAt(0) === '!';
 
           condition = negative ? condition.slice(1) : condition;
           const test = condition in buildOptions ? buildOptions[condition] : this[condition];
@@ -397,39 +405,25 @@ module.exports = class File {
 
   /**
    * Run workflow set based on 'type' and 'buildOptions'
-   * @param {String} type
-   * @param {Object} buildOptions
-   *  - {Boolean} batch
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Boolean} helpers
-   *  - {Array} ignoredFiles
-   *  - {Boolean} importBoilerplate
-   *  - {Boolean} watchOnly
-   * @param {Function} fn(err)
-   * @returns {null}
    */
-  run(type, buildOptions, fn) {
+  run(type: string, buildOptions: {}, fn: (?Error) => void) {
     type = buildOptions.watchOnly && !type.includes('Watch') ? type + 'Watch' : type;
     if (this.isInline && type === 'standard') {
       type = 'inlineable';
     }
-    if (isNullOrUndefined(this.workflows[type])) {
-      return fn();
+    if (this.workflows[type] == null) {
+      return void fn();
     }
 
     const workflow = this.parseWorkflow(type, buildOptions);
     const tasks = workflow.map(task => {
-      return task == 'runForDependencies'
+      return task === 'runForDependencies'
         ? callable(this, task, type, this.dependencies, buildOptions)
         : callable(this, task, buildOptions);
     });
 
     series(tasks, err => {
-      if (!isNullOrUndefined(err)) {
+      if (err != null) {
         return fn(err);
       }
       fn();
@@ -438,26 +432,11 @@ module.exports = class File {
 
   /**
    * Run workflow tasks for 'type' on dependencies
-   * @param {String} type
-   * @param {Array} [dependencies]
-   * @param {Object} buildOptions
-   *  - {Boolean} batch
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Boolean} helpers
-   *  - {Array} ignoredFiles
-   *  - {Boolean} importBoilerplate
-   *  - {Boolean} watchOnly
-   * @param {Function} fn(err)
-   * @returns {null}
    */
-  runForDependencies(type, dependencies, buildOptions, fn) {
+  runForDependencies(type: string, dependencies?: Array<File>, buildOptions: {}, fn: (?Error) => void) {
     dependencies = dependencies || this.dependencies;
     if (isEmptyArray(dependencies)) {
-      return fn();
+      return void fn();
     }
 
     parallel(dependencies.map(dependency => callable(dependency, 'run', type, buildOptions)), fn);
@@ -465,9 +444,8 @@ module.exports = class File {
 
   /**
    * Read file content
-   * @returns {String|Buffer}
    */
-  readFileContent() {
+  readFileContent(): string | Buffer {
     let content = ' ';
 
     if (!this.isDummy) {
@@ -478,7 +456,7 @@ module.exports = class File {
       }
     }
 
-    if (isString(content)) {
+    if (typeof content === 'string') {
       content = content.replace(RE_WIN_LINE_ENDINGS, '\n');
       content = sourceMapCommentStrip(content);
     }
@@ -488,10 +466,8 @@ module.exports = class File {
 
   /**
    * Hash 'content'
-   * @param {Boolean} forWrite
-   * @returns {String}
    */
-  hashContent(forWrite = false) {
+  hashContent(forWrite: boolean = false): string {
     return forWrite
       ? md5([this, ...this.getAllDependencies()].map(file => file.content).join(''))
       : md5(this.content || this.fileContent);
@@ -499,20 +475,8 @@ module.exports = class File {
 
   /**
    * Read and store file contents
-   * @param {Object} buildOptions
-   *  - {Boolean} batch
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Boolean} helpers
-   *  - {Array} ignoredFiles
-   *  - {Boolean} importBoilerplate
-   *  - {Boolean} watchOnly
-   * @param {Function} fn(err)
    */
-  load(buildOptions, fn) {
+  load(buildOptions: {}, fn: (?Error) => void) {
     if (isInvalid(this.fileContent)) {
       this.fileContent = this.readFileContent();
       this.hash = this.hashContent(false);
@@ -523,87 +487,39 @@ module.exports = class File {
     this.setContent(this.fileContent);
     this.setMap();
 
-    if (!isUndefined(fn)) {
+    if (fn != null) {
       fn();
     }
   }
 
   /**
    * Parse file contents for dependency references [no-op]
-   * @param {Object} buildOptions
-   *  - {Boolean} batch
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Boolean} helpers
-   *  - {Array} ignoredFiles
-   *  - {Boolean} importBoilerplate
-   *  - {Boolean} watchOnly
-   * @param {Function} fn(err)
    */
-  parse(buildOptions, fn) {
+  parse(buildOptions: {}, fn: (?Error) => void) {
     warn(`no parser for: ${strong(this.relpath)}`, this.options.level);
     fn();
   }
 
   /**
    * Compile file contents [no-op]
-   * @param {Object} buildOptions
-   *  - {Boolean} batch
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Boolean} helpers
-   *  - {Array} ignoredFiles
-   *  - {Boolean} importBoilerplate
-   *  - {Boolean} watchOnly
-   * @param {Function} fn(err)
    */
-  compile(buildOptions, fn) {
+  compile(buildOptions: {}, fn: (?Error) => void) {
     warn(`no compiler for: ${strong(this.relpath)}`, this.options.level);
     fn();
   }
 
   /**
    * Compress file contents [no-op]
-   * @param {Object} buildOptions
-   *  - {Boolean} batch
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Boolean} helpers
-   *  - {Array} ignoredFiles
-   *  - {Boolean} importBoilerplate
-   *  - {Boolean} watchOnly
-   * @param {Function} fn(err)
    */
-  compress(buildOptions, fn) {
+  compress(buildOptions: {}, fn: (?Error) => void) {
     warn(`no compressor for: ${strong(this.relpath)}`, this.options.level);
     fn();
   }
 
   /**
    * Prepare for writing
-   * @param {String} filepath
-   * @param {Object} buildOptions
-   *  - {Boolean} batch
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Boolean} helpers
-   *  - {Array} ignoredFiles
-   *  - {Boolean} importBoilerplate
-   *  - {Boolean} watchOnly
    */
-  prepareForWrite(filepath, buildOptions) {
+  prepareForWrite(filepath: string, buildOptions: {}) {
     const { sourceroot, webroot } = this.options;
 
     this.writeDate = Date.now();
@@ -623,28 +539,18 @@ module.exports = class File {
 
   /**
    * Write file contents to disk
-   * @param {Object} buildOptions
-   *  - {Boolean} batch
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Boolean} helpers
-   *  - {Array} ignoredFiles
-   *  - {Boolean} importBoilerplate
-   *  - {Boolean} watchOnly
-   * @param {Function} fn(err, results)
    */
-  write(buildOptions, fn) {
+  write(buildOptions: {}, fn: (?Error, ?WriteResult) => void) {
     this.run('writeable', buildOptions, err => {
-      if (!isNullOrUndefined(err)) {
+      if (err != null) {
         return fn(err);
       }
 
-      if (this.hasMaps && !isNullOrUndefined(this.map)) {
+      if (this.hasMaps && this.map != null) {
         writeFile(`${this.writepath}.map`, this.map.toString(), 'utf8');
-        this.content += `${buildOptions.compress ? '' : '\n\n\n'}//# sourceMappingURL=${this.mapUrl}`;
+        if (typeof this.content === 'string') {
+          this.content += `${buildOptions.compress ? '' : '\n\n\n'}//# sourceMappingURL=${this.mapUrl}`;
+        }
       }
 
       writeFile(this.writepath, this.content, this.encoding);
@@ -659,9 +565,8 @@ module.exports = class File {
 
   /**
    * Reset content
-   * @param {Boolean} hard
    */
-  reset(hard) {
+  reset(hard?: boolean) {
     this.allDependencies = null;
     this.allDependencyReferences = null;
     this.date = Date.now();

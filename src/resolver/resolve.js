@@ -1,3 +1,5 @@
+// @flow
+
 'use strict';
 
 const { filepathType, isAbsoluteFilepath, isFilepath, isRelativeFilepath, findFilepath } = require('../utils/filepath');
@@ -10,17 +12,8 @@ const path = require('path');
 
 /**
  * Resolve the path for 'id' from 'sourcepath'
- * @param {String} sourcepath
- * @param {String} id
- * @param {Object} [options]
- *  - {Boolean} browser
- *  - {ResolverCache} cache
- *  - {Object} fileExtensions
- *  - {Array} nativeModules
- *  - {Array} sources
- * @returns {String|Boolean}
  */
-module.exports = function resolve(sourcepath, id, options) {
+module.exports = function resolve(sourcepath: string, id: string, options: Object): string | boolean {
   options = config(options);
 
   const { fileExtensions } = options;
@@ -42,18 +35,8 @@ module.exports = function resolve(sourcepath, id, options) {
 
 /**
  * Find filepath for 'id' in 'sourcedir' directory
- * @param {String} id
- * @param {String} type
- * @param {String} sourcedir
- * @param {Object} options
- *  - {Boolean} browser
- *  - {ResolverCache} cache
- *  - {Object} fileExtensions
- *  - {Array} nativeModules
- *  - {Array} sources
- * @returns {String|Boolean}
  */
-function find(id, type, sourcedir, options) {
+function find(id: string, type: string, sourcedir: string, options: Object): string | boolean {
   const { cache, fileExtensions, nativeModules } = options;
   const pkgDetails = pkg.getDetails(sourcedir, options);
   let filepath = isRelativeFilepath(id) ? path.join(sourcedir, id) : id;

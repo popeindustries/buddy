@@ -1,15 +1,27 @@
+// @flow
+
 'use strict';
 
-const { isNullOrUndefined } = require('../utils/is');
+type File = {
+  id: string,
+  path: string,
+  version: string
+};
+type Package = {
+  id: string,
+  pkgpath: string
+};
+
 const { print, strong, warn } = require('../utils/cnsl');
 const path = require('path');
 
 module.exports = class ResolverCache {
-  /**
-   * Constructor
-   * @param {FileWatcher} [watcher]
-   */
-  constructor(watcher) {
+  _fileCache: Map<string, string>;
+  _packageCache: Map<string, Package>;
+  _versionedFileCache: Map<string, Array<string>>;
+  _warnedVersion: Set<string>;
+
+  constructor() {
     this._fileCache = new Map();
     this._packageCache = new Map();
     this._versionedFileCache = new Map();
@@ -18,20 +30,15 @@ module.exports = class ResolverCache {
 
   /**
    * Retrieve id or filepath for 'key'
-   * @param {String} key
-   * @returns {String}
    */
-  getFile(key) {
+  getFile(key: string): ?string {
     return this._fileCache.get(key);
   }
 
   /**
    * Retrieve file versions for 'id'
-   * @param {String} id
-   * @param {String} versionDelimiter
-   * @returns {Array}
    */
-  getFileVersions(id, versionDelimiter) {
+  getFileVersions(id: string, versionDelimiter: string): ?Array<string> {
     const name = id.split(versionDelimiter)[0];
 
     return this._versionedFileCache.get(name);
@@ -39,17 +46,12 @@ module.exports = class ResolverCache {
 
   /**
    * Add 'file' to cache
-   * @param {Object} file
-   *  - {String} id
-   *  - {String} path
-   *  - {String} version
-   * @param {String} versionDelimiter
    */
-  setFile(file, versionDelimiter) {
+  setFile(file: File, versionDelimiter: string) {
     // Make sure not to overwrite
     if (
-      !isNullOrUndefined(file.path) &&
-      !isNullOrUndefined(file.id) &&
+      file.path != null &&
+      file.id != null &&
       !this._fileCache.has(file.path) &&
       !this._fileCache.has(file.id)
     ) {
@@ -58,12 +60,11 @@ module.exports = class ResolverCache {
 
       // Store in versioned cash to enable multiple version check
       const name = file.id.split(versionDelimiter)[0];
+      const versions = this._versionedFileCache.get(name);
 
-      if (!this._versionedFileCache.has(name)) {
+      if (versions == null) {
         this._versionedFileCache.set(name, [file.version]);
       } else {
-        const versions = this._versionedFileCache.get(name);
-
         if (!versions.includes(file.version)) {
           versions.push(file.version);
         }
@@ -76,15 +77,14 @@ module.exports = class ResolverCache {
    * @param {String} key
    * @returns {Object}
    */
-  getPackage(key) {
+  getPackage(key: string) {
     return this._packageCache.get(key);
   }
 
   /**
    * Add 'pkg' to cache
-   * @param {Object} pkg
    */
-  setPackage(pkg) {
+  setPackage(pkg: Package) {
     // Make sure not to overwrite
     if (!this._packageCache.has(pkg.pkgpath) && !this._packageCache.has(pkg.id)) {
       this._packageCache.set(pkg.pkgpath, pkg);
@@ -94,18 +94,14 @@ module.exports = class ResolverCache {
 
   /**
    * Warn of multiple versions for 'id'
-   * @param {String} id
-   * @param {String} filepath
-   * @param {String} versionDelimiter
-   * @param {Number} level
    */
-  checkMultipleVersions(id, filepath, versionDelimiter, level) {
+  checkMultipleVersions(id: string, filepath: string, versionDelimiter: string, level: number) {
     const [name, version] = id.split(versionDelimiter);
-    const versions = this.getFileVersions(id, versionDelimiter);
+    const versions = this.getFileVersions(id, versionDelimiter) || [];
     const canonicalVersion = versions[0];
     const parts = name.split('/');
     // Handle scoped
-    const pkg = parts.slice(0, parts[0].charAt(0) == '@' ? 2 : 1).join('/');
+    const pkg = parts.slice(0, parts[0].charAt(0) === '@' ? 2 : 1).join('/');
 
     if (versions.length <= 1 || version === canonicalVersion || this._warnedVersion.has(pkg)) {
       return;

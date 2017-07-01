@@ -1,4 +1,11 @@
+// @flow
+
 'use strict';
+
+type Caches = {
+  fileCache: FileCache,
+  resolverCache: ResolverCache
+};
 
 const { FSWatcher } = require('chokidar');
 const debounce = require('lodash/debounce');
@@ -7,9 +14,13 @@ const FileCache = require('./FileCache');
 const ResolverCache = require('./ResolverCache');
 
 class Cache extends Emitter {
-  /**
-   * Constructor
-   */
+  fileCaches: Set<>;
+  resolverCaches: Set<>;
+  createCaches: boolean => Caches;
+  clear: () => void;
+  debouncedEmit: (type: string, ...args?: Array<any>) => void;
+  _fileWatcher: FSWatcher;
+
   constructor() {
     super();
 
@@ -30,10 +41,8 @@ class Cache extends Emitter {
 
   /**
    * FileCache/ResolverCache instance factory
-   * @param {Boolean} watch
-   * @returns {Object}
    */
-  createCaches(watch) {
+  createCaches(watch: boolean): Caches {
     const fileCache = new FileCache(watch && this._fileWatcher);
     const resolverCache = new ResolverCache();
 
@@ -60,9 +69,8 @@ class Cache extends Emitter {
 
   /**
    * Handle changes to watched files
-   * @param {String} filepath
    */
-  onWatchChange(filepath) {
+  onWatchChange(filepath: string) {
     let changed = false;
 
     for (const fileCache of this.fileCaches) {
@@ -75,21 +83,22 @@ class Cache extends Emitter {
       }
     }
 
-    if (changed) this.debouncedEmit('change', filepath);
+    if (changed) {
+      this.debouncedEmit('change', filepath);
+    }
   }
 
   /**
    * Handle deleted watched files
-   * @param {String} filepath
    */
-  onWatchDelete(filepath) {
+  onWatchDelete(filepath: string) {
     let changed = false;
 
     for (const fileCache of this.fileCaches) {
       const file = fileCache.getFile(filepath);
 
       // Destroy
-      if (file) {
+      if (file != null) {
         changed = true;
         file.destroy();
         fileCache.removeFile(file);
@@ -103,9 +112,8 @@ class Cache extends Emitter {
 
   /**
    * Handle error watching files
-   * @param {Error} err
    */
-  onWatchError(err) {
+  onWatchError(err: Error) {
     this.emit('error', err);
   }
 }

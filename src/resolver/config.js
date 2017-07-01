@@ -1,4 +1,14 @@
+// @flow
+
 'use strict';
+
+type Config = {
+  browser: boolean,
+  cache: ResolverCache,
+  fileExtensions: { [string]: Array<string>},
+  nativeModules: Array<string>,
+  sources: Array<string>
+};
 
 const { execSync: exec } = require('child_process');
 const { isInvalid } = require('../utils/is');
@@ -14,6 +24,8 @@ const DEFAULT_EXTENSIONS = {
   html: ['html']
 };
 
+const sources = resolveSources();
+
 /**
  * Parse and format 'options'
  * @param {Object} [options]
@@ -21,7 +33,7 @@ const DEFAULT_EXTENSIONS = {
  *  - {Object} fileExtensions
  * @returns {Object}
  */
-module.exports = function config(options) {
+module.exports = function config(options?: Object): Config {
   options = options || {};
   options.fileExtensions = options.fileExtensions || {};
 
@@ -34,18 +46,17 @@ module.exports = function config(options) {
       html: union(options.fileExtensions.html || [], DEFAULT_EXTENSIONS.html)
     },
     nativeModules,
-    sources: module.exports.sources
+    sources
   };
 };
 
 // Expose
-module.exports.sources = resolveSources();
+module.exports.sources = sources;
 
 /**
  * Resolve sources
- * @returns {Array}
  */
-function resolveSources() {
+function resolveSources(): Array<string> {
   const sources = [
     ...resolveEnvSources('NODE_PATH'),
     ...resolveEnvSources('BROWSER_PATH'),
@@ -56,7 +67,7 @@ function resolveSources() {
     )
   ];
 
-  return unique(sources.map(source => path.resolve(source)));
+  return unique(sources.map(source => source != null ? path.resolve(source) : null));
 }
 
 /**
@@ -64,7 +75,7 @@ function resolveSources() {
  * @param {String} env
  * @returns {Array}
  */
-function resolveEnvSources(env) {
+function resolveEnvSources(env: string): Array<string> {
   let paths = [];
 
   if (!isInvalid(process.env[env])) {

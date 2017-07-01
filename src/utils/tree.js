@@ -10,7 +10,7 @@ module.exports = {
    * If 'visitor' returns more nodes, keep walking
    * 'revisitor' will be called after potential recursive walk
    */
-  walk(nodes: Array<{}>, visitor: (node: {}) => void, revisitor: (node: {}) => void) {
+  walk(nodes: Array<any>, visitor: (node: any) => ?Array<any>, revisitor?: (node: any) => void) {
     function _walk(nodes) {
       if (nodes != null) {
         for (let i = 0, n = nodes.length; i < n; i++) {

@@ -3,7 +3,6 @@
 'use strict';
 
 const { indent } = require('./string');
-const { isNullOrUndefined, isString } = require('./is');
 const { msDiff } = require('./stopwatch');
 const chalk = require('chalk');
 
@@ -20,10 +19,7 @@ exports.verbose = false;
 /**
  * Print 'msg' to console, with indentation level
  */
-exports.print = function(msg: string, column: number) {
-  if (isNullOrUndefined(column)) {
-    column = 0;
-  }
+exports.print = function(msg: string, column: number = 0) {
   if (!exports.silent) {
     console.log(indent(msg, column));
   }
@@ -32,17 +28,11 @@ exports.print = function(msg: string, column: number) {
 /**
  * Print 'err' to console, with error colour and indentation level
  */
-exports.error = function(err: { message: string } | string, column: number, throws: boolean) {
+exports.error = function(err: { message: string } | string, column?: number = 0, throws?: boolean = true) {
   if (exports.silent) {
     return;
   }
-  if (isNullOrUndefined(column)) {
-    column = 0;
-  }
-  if (isNullOrUndefined(throws)) {
-    throws = true;
-  }
-  if (isString(err)) {
+  if (typeof err === 'string') {
     err = new Error(err);
   }
   // Add beep when not throwing
@@ -63,10 +53,7 @@ exports.error = function(err: { message: string } | string, column: number, thro
 /**
  * Print 'msg' to console, with warning colour and indentation level
  */
-exports.warn = function(msg: string, column: number) {
-  if (isNullOrUndefined(column)) {
-    column = 0;
-  }
+exports.warn = function(msg: string, column: number = 0) {
   if (msg instanceof Error) {
     msg = msg.message;
   }
@@ -76,18 +63,15 @@ exports.warn = function(msg: string, column: number) {
 /**
  * Print 'msg' to console, with debug colour and indentation level
  */
-exports.debug = function(msg: string, column: number) {
+exports.debug = function(msg: string, column: number = 0) {
   const now = process.hrtime();
 
-  if (isNullOrUndefined(last)) {
+  if (last == null) {
     last = now;
   }
 
   const ellapsed = msDiff(now, last);
 
-  if (isNullOrUndefined(column)) {
-    column = 0;
-  }
   if (exports.verbose) {
     msg =
       chalk.cyan('+') +

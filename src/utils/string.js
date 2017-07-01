@@ -108,7 +108,7 @@ function truncate(string: string): string {
  * Retrieve line/column from 'index' of 'string'
  * Column is zero-indexed
  */
-function getLocationFromIndex(string: string, index: number): { line: number, column: number } {
+function getLocationFromIndex(string: string, index: number | Array<number>): { line: number, column: number } {
   const lines = string.split('\n');
   let destructure = false;
   let idx = 0;

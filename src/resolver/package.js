@@ -1,7 +1,23 @@
+// @flow
+
 'use strict';
 
+type Package = {
+  aliases: { [string]: string },
+  dirname: string,
+  id: string,
+  isNestedProjectPackage: boolean,
+  isNpmPackage: boolean,
+  manifestpath: string,
+  main: string,
+  name: string,
+  paths: Array<string>,
+  pkgpath: string,
+  version: string
+};
+
 const { exists, filepathType, findFilepath, isFilepath } = require('../utils/filepath');
-const { isInvalid, isString, isNullOrUndefined } = require('../utils/is');
+const { isInvalid } = require('../utils/is');
 const { maxFileSystemDepth, versionDelimiter } = require('../settings');
 const alias = require('./alias');
 const path = require('path');
@@ -17,16 +33,8 @@ module.exports = {
 
 /**
  * Retrieve package details for 'filepath'
- * @param {String} filepath
- * @param {Object} options
- *  - {Boolean} browser
- *  - {ResolverCache} cache
- *  - {Object} fileExtensions
- *  - {Array} nativeModules
- *  - {Array} sources
- * @returns {Object}
  */
-function getDetails(filepath, options) {
+function getDetails(filepath: string, options: Object): Package {
   options = Object.assign({ sources: [] }, options);
 
   const { browser, cache, fileExtensions, sources } = options;
@@ -85,7 +93,7 @@ function getDetails(filepath, options) {
     details.main = findFilepath(path.join(manifestRoot, json.main || 'index.js'), type, fileExtensions);
     // Resolve json.browser aliasing
     if (!isInvalid(json.browser) && browser) {
-      if (isString(json.browser)) {
+      if (typeof json.browser === 'string') {
         details.main = path.join(manifestRoot, json.browser);
       } else {
         details.aliases = Object.assign(details.aliases, alias.parse(manifestRoot, json.browser, type, fileExtensions));
@@ -114,7 +122,7 @@ function getDetails(filepath, options) {
     details.dirname = path.dirname(details.dirname);
   }
   // Append version number if multiple versions exist
-  if (!isNullOrUndefined(cache.getPackage(details.id))) {
+  if (cache.getPackage(details.id) != null) {
     details.id += versionDelimiter + details.version;
   }
 
@@ -126,10 +134,8 @@ function getDetails(filepath, options) {
 
 /**
  * Resolve package path from 'filepath'
- * @param {String} filepath
- * @returns {String}
  */
-function resolvePath(filepath) {
+function resolvePath(filepath: string): string {
   filepath = filepath.replace(RE_TRAILING, '');
   const cwd = process.cwd();
 
@@ -142,7 +148,7 @@ function resolvePath(filepath) {
       idx += 2;
     }
     // Handle scoped
-    if (parts[idx - 1].charAt(0) == '@') {
+    if (parts[idx - 1].charAt(0) === '@') {
       idx++;
     }
 
@@ -184,10 +190,8 @@ function resolvePath(filepath) {
 
 /**
  * Resolve package name from 'pkgpath'
- * @param {String} pkgpath
- * @returns {String}
  */
-function resolveName(pkgpath) {
+function resolveName(pkgpath: string): string {
   pkgpath = pkgpath.replace(RE_TRAILING, '');
 
   const cwd = process.cwd();
@@ -214,10 +218,10 @@ function resolveName(pkgpath) {
  * @param {String} filepath
  * @returns {String}
  */
-function resolveId(details, filepath) {
+function resolveId(details: Package, filepath: string): string {
   let id = '';
 
-  if (isString(filepath)) {
+  if (typeof filepath === 'string') {
     // Only version if more than one package
     const version = details.id.includes(versionDelimiter) ? versionDelimiter + details.version : '';
     const versioned = (id, stripExtension) => {
@@ -225,13 +229,15 @@ function resolveId(details, filepath) {
       if (stripExtension) {
         id = id.replace(path.extname(id), '');
       }
-      return (process.platform == 'win32' ? id.replace(/\\/g, '/') : id) + version;
+      return (process.platform === 'win32' ? id.replace(/\\/g, '/') : id) + version;
     };
 
     // Resolve aliases
     id = alias.resolve(filepath, details.aliases);
     // Ignore disabled (false)
-    id = id || filepath;
+    if (typeof id !== 'string') {
+      id = filepath;
+    }
     // Return if resolved id
     if (!isFilepath(id)) {
       return versioned(id, false);
@@ -267,9 +273,9 @@ function resolveId(details, filepath) {
  * @param {String} pkgpath
  * @returns {Array}
  */
-function resolveNodeModules(pkgpath) {
+function resolveNodeModules(pkgpath: string): Array<string> {
+  const dirs = [];
   let dir = pkgpath;
-  let dirs = [];
   let depth = maxFileSystemDepth;
   let parent;
   let nodeModulespath;

@@ -1,13 +1,18 @@
+//  @flow
+
 'use strict';
+
+import type File from '../File';
+import { FSWatcher } from 'chokidar';
 
 const path = require('path');
 
 module.exports = class FileCache {
-  /**
-   * Constructor
-   * @param {FileWatcher} [watcher]
-   */
-  constructor(watcher) {
+  watcher: FSWatcher;
+  _cache: Map<string, File>;
+  _dirs: Set<string>;
+
+  constructor(watcher?: FSWatcher) {
     this._cache = new Map();
     this._dirs = new Set();
     if (watcher) {
@@ -17,10 +22,8 @@ module.exports = class FileCache {
 
   /**
    * Store a 'file' in the cache
-   * @param {File} file
-   * @returns {File}
    */
-  addFile(file) {
+  addFile(file: File): File {
     if (!this._cache.has(file.filepath)) {
       const dir = path.dirname(file.filepath);
 
@@ -38,10 +41,8 @@ module.exports = class FileCache {
 
   /**
    * Remove a file from the cache by it's 'filepath'
-   * @param {Object} file
-   * @returns {File}
    */
-  removeFile(file) {
+  removeFile(file: File): File {
     this._cache.delete(file.filepath);
     if (this.watcher) {
       this.watcher.unwatch(file.filepath);
@@ -51,35 +52,29 @@ module.exports = class FileCache {
 
   /**
    * Retrieve a file from the cache by 'key' (filepath or type:id)
-   * @param {String} key
-   * @returns {Object}
    */
-  getFile(key) {
+  getFile(key: string): ?File {
     return this._cache.get(key);
   }
 
   /**
    * Determine if the cache contains a file by 'key' (filepath or type:id)
-   * @param {String} key
-   * @returns {Boolean}
    */
-  hasFile(key) {
+  hasFile(key: string): boolean {
     return this._cache.has(key);
   }
 
   /**
    * Retrieve all file paths
-   * @returns {Array}
    */
-  getPaths() {
-    return this._cache.keys();
+  getPaths(): Array<string> {
+    return Array.from(this._cache.keys());
   }
 
   /**
    * Retrieve all unique directories
-   * @returns {Array}
    */
-  getDirs() {
+  getDirs(): Array<string> {
     return Array.from(this._dirs);
   }
 
@@ -87,7 +82,7 @@ module.exports = class FileCache {
    * Clear the cache
    */
   clear() {
-    if (this.watcher) {
+    if (this.watcher != null) {
       for (const filepath of this._cache.keys()) {
         this.watcher.unwatch(filepath);
       }

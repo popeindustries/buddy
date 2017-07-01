@@ -1,8 +1,25 @@
+// @flow
+
 'use strict';
+
+type ProcessFileOptions = {
+  batch: boolean,
+  boilerplate: boolean,
+  bootstrap: boolean,
+  browser: boolean,
+  bundle: boolean,
+  compress: boolean,
+  helpers: boolean,
+  ignoredFiles: Array<string>,
+  importBoilerplate: boolean,
+  watchOnly: boolean
+};
+import File, { WriteResult } from './File';
+import FileCache from './cache/FileCache';
 
 const { debug, print, strong, warn } = require('./utils/cnsl');
 const { filepathName, findUniqueFilepath, isUniqueFilepath } = require('./utils/filepath');
-const { isEmptyArray, isInvalid, isNullOrUndefined } = require('./utils/is');
+const { isEmptyArray, isInvalid } = require('./utils/is');
 const { maxInputStringLength, recommendedFileSizeLimit } = require('./settings');
 const { truncate } = require('./utils/string');
 const callable = require('./utils/callable');
@@ -24,61 +41,51 @@ const RE_GENERATED_SHARED = /common|shared/;
 
 /**
  * Build instance factory
- * @param {Object} props
- *  - {Boolean} batch
- *  - {Boolean} boilerplate
- *  - {Boolean} bootstrap
- *  - {Boolean} [browser]
- *  - {Boolean} bundle
- *  - {FileCache} [fileCache]
- *  - {Function} [fileFactory]
- *  - {String} generatedInputPattern
- *  - {Number} index
- *  - {String} input
- *  - {Array} inputpaths
- *  - {Boolean} [isAppServer]
- *  - {Boolean} [isDynamicBuild]
- *  - {Boolean} [isGeneratedBuild]
- *  - {String} label
- *  - {Number} level
- *  - {String} output
- *  - {Array} outputpaths
- *  - {Build} parent
- *  - {Object} runtimeOptions
- *  - {String} type
- *  - {Boolean} watchOnly
- * @returns {Build}
  */
-module.exports = function buildFactory(props) {
+module.exports = function buildFactory(props: Object): Build {
   return new Build(props);
 };
 
 class Build {
+  batch: boolean;
+  boilerplate: boolean;
+  bootstrap: boolean;
+  browser: boolean;
+  builds: Array<Build>;
+  bundle: boolean;
+  childInputpaths: Array<string>;
+  fileCache: FileCache;
+  fileFactory: Function;
+  fileFactoryOptions: FileOptions;
+  generatedInputPattern: string;
+  id: string;
+  index: number;
+  input: string;
+  inputFiles: Array<File>;
+  inputpaths: Array<string>;
+  inputString: string;
+  isAppServer: boolean;
+  isDynamicBuild: boolean;
+  isGeneratedBuild: boolean;
+  label: string;
+  level: number;
+  output: string;
+  outputFiles: Array<File>;
+  outputpaths: Array<string>;
+  outputString: string;
+  parent: Build;
+  printPrefix: string;
+  processFilesOptions: ProcessFileOptions;
+  referencedFiles: Array<File>;
+  results: Array<WriteResult>;
+  runtimeOptions: RuntimeOptions;
+  timerID: string;
+  type: string;
+  watchOnly: boolean;
+
   /**
    * Constructor
    * @param {Object} props
-   *  - {Boolean} batch
-   *  - {Boolean} boilerplate
-   *  - {Boolean} bootstrap
-   *  - {Boolean} [browser]
-   *  - {Boolean} bundle
-   *  - {FileCache} [fileCache]
-   *  - {Function} [fileFactory]
-   *  - {String} generatedInputPattern
-   *  - {Number} index
-   *  - {String} input
-   *  - {Array} inputpaths
-   *  - {Boolean} [isAppServer]
-   *  - {Boolean} [isDynamicBuild]
-   *  - {Boolean} [isGeneratedBuild]
-   *  - {String} label
-   *  - {Number} level
-   *  - {String} output
-   *  - {Array} outputpaths
-   *  - {Build} parent
-   *  - {Object} runtimeOptions
-   *  - {String} type
-   *  - {Boolean} watchOnly
    */
   constructor(props) {
     Object.assign(this, props);
@@ -87,12 +94,12 @@ class Build {
     this.childInputpaths = [];
     this.id = this.label || (!isInvalid(this.index) && this.index.toString());
     this.inputFiles = [];
-    this.processFilesOptions = {};
+    this.outputFiles = [];
+    this.printPrefix = new Array(this.level + 1).join('\u2219');
+    this.processFilesOptions;
     this.referencedFiles = [];
     this.results = [];
     this.timerID = this.inputpaths[0];
-    this.outputFiles = [];
-    this.printPrefix = new Array(this.level + 1).join('\u2219');
 
     // Handle printing long input/output arrays
     this.inputString = generatePathString(this.inputpaths);
@@ -103,11 +110,9 @@ class Build {
 
   /**
    * Determine if 'filepath' is a referenced file (child targets included)
-   * @param {String} filepath
-   * @returns {Boolean}
    */
-  hasFile(filepath) {
-    if (this.referencedFiles.some(refFile => refFile.filepath == filepath)) {
+  hasFile(filepath: string): boolean {
+    if (this.referencedFiles.some(refFile => refFile.filepath === filepath)) {
       return true;
     }
     if (!isEmptyArray(this.builds)) {
@@ -119,17 +124,15 @@ class Build {
 
   /**
    * Run build
-   * @param {Function} fn(err, results)
    */
-  run(fn) {
+  run(fn: (?Error, Array<WriteResult>) => void) {
     waterfall([callable(this, 'runProcess'), callable(this, 'runWrite'), callable(this, 'runReset')], fn);
   }
 
   /**
    * Run processing tasks
-   * @param {Function} fn(err)
    */
-  runProcess(fn) {
+  runProcess(fn: (?Error) => void) {
     waterfall(
       [
         // Initialize
@@ -151,9 +154,8 @@ class Build {
 
   /**
    * Run write tasks
-   * @param {Function} fn(err)
    */
-  runWrite(fn) {
+  runWrite(fn: (?Error) => void) {
     waterfall(
       [
         // Write files
@@ -169,7 +171,7 @@ class Build {
    * Run reset tasks
    * @param {Function} fn(err, results)
    */
-  runReset(fn) {
+  runReset(fn: (?Error, ?WriteResult) => void) {
     waterfall(
       [
         // Reset
@@ -185,10 +187,8 @@ class Build {
 
   /**
    * Initialize state before run
-   * @param {Function} fn(err, files)
-   * @returns {null}
    */
-  init(fn) {
+  init(fn: (?Error, ?Array<File>) => void) {
     let type = this.watchOnly && this.runtimeOptions.watch ? 'watching' : 'building';
 
     if (this.isDynamicBuild) {
@@ -217,14 +217,16 @@ class Build {
 
     // Skip if watch only and not running a watch build
     if (this.watchOnly && !this.runtimeOptions.watch) {
-      return fn(null, []);
+      return void fn(null, []);
     }
 
     if (this.isGeneratedBuild) {
       print(`${this.printPrefix} ${type} ${strong(this.outputString)}`, 1);
     } else {
       print(
-        `${this.printPrefix} ${type} ${strong(this.inputString)} ${this.outputString ? 'to ' + strong(this.outputString) : ''}`,
+        `${this.printPrefix} ${type} ${strong(this.inputString)} ${this.outputString
+          ? 'to ' + strong(this.outputString)
+          : ''}`,
         1
       );
     }
@@ -234,7 +236,7 @@ class Build {
       this.inputpaths.reduce((files, filepath) => {
         const file = this.fileFactory(filepath);
 
-        if (isNullOrUndefined(file)) {
+        if (file == null) {
           warn(`${strong(filepath)} not found in project source`, 1);
         } else {
           // Force for dynamic builds
@@ -249,16 +251,14 @@ class Build {
 
   /**
    * Process 'files'
-   * @param {Array} files
-   * @param {Function} fn(err, files)
    */
-  processFiles(files, fn) {
+  processFiles(files: Array<File>, fn: (?Error, ?Array<File>) => void) {
     env('INPUT', files, this.id);
     env('INPUT_HASH', files, this.id);
     env('INPUT_DATE', files, this.id);
 
     parallel(files.map(file => callable(file, 'run', 'standard', this.processFilesOptions)), err => {
-      if (!isNullOrUndefined(err)) {
+      if (err != null) {
         return fn(err);
       }
       this.referencedFiles = files.reduce((referencedFiles, file) => {
@@ -276,14 +276,12 @@ class Build {
 
   /**
    * Print progress
-   * @param {Array} files
-   * @param {Function} fn(err, files)
    */
-  printProcessProgress(files, fn) {
+  printProcessProgress(files: Array<File>, fn: (?Error, ?Array<File>) => void) {
     if (files.length) {
       print(
         '[processed ' +
-          strong(files.length) +
+          strong(`${files.length}`) +
           (files.length > 1 ? ' files' : ' file') +
           ' in ' +
           chalk.cyan(stopwatch.stop(this.timerID, true)) +
@@ -296,19 +294,16 @@ class Build {
 
   /**
    * Run processing for child builds
-   * @param {Array} files
-   * @param {Function} fn(err)
-   * @returns {null}
    */
-  runProcessForChildren(files, fn) {
+  runProcessForChildren(files: Array<File>, fn: (?Error, ?Array<File>) => void) {
     if (isEmptyArray(this.builds)) {
-      return fn();
+      return void fn();
     }
 
     // Lock files to prevent inclusion in downstream targets
     this.lock(this.referencedFiles);
     series(this.builds.map(build => callable(build, 'runProcess')), (err, childFiles) => {
-      if (!isNullOrUndefined(err)) {
+      if (err != null) {
         return fn(err);
       }
       this.unlock(this.referencedFiles);
@@ -318,12 +313,10 @@ class Build {
 
   /**
    * Process generated build based on children
-   * @param {Function} fn(err)
-   * @returns {null}
    */
-  processGeneratedBuild(fn) {
+  processGeneratedBuild(fn: (?Error) => void) {
     if (!this.isGeneratedBuild) {
-      return fn();
+      return void fn();
     }
 
     const dummyFile = this.inputFiles[0];
@@ -386,64 +379,59 @@ class Build {
 
   /**
    * Pre-process write files
-   * @param {Function} fn(err)
    */
-  preProcessWriteFiles(fn) {
-    this.outputFiles = this.inputFiles.filter(file => file.isWriteable(this.processFilesOptions.batch)).reduce((
-      outputFiles,
-      file,
-      idx
-    ) => {
-      let filepath = '';
+  preProcessWriteFiles(fn: (?Error) => void) {
+    this.outputFiles = this.inputFiles
+      .filter(file => file.isWriteable(this.processFilesOptions.batch))
+      .reduce((outputFiles, file, idx) => {
+        let filepath = '';
 
-      this.inputpaths.some((inputpath, idx) => {
-        if (inputpath == file.filepath) {
-          filepath = this.outputpaths[idx];
-          return true;
-        }
-      });
+        this.inputpaths.some((inputpath, idx) => {
+          if (inputpath === file.filepath) {
+            filepath = this.outputpaths[idx];
+            return true;
+          }
+        });
 
-      // Don't write if no output path
-      if (filepath) {
-        // Handle generating unique paths
-        if (isUniqueFilepath(filepath)) {
-          // Remove existing
-          const existing = findUniqueFilepath(filepath);
+        // Don't write if no output path
+        if (filepath) {
+          // Handle generating unique paths
+          if (isUniqueFilepath(filepath)) {
+            // Remove existing
+            const existing = findUniqueFilepath(filepath);
 
-          if (existing) {
-            try {
-              fs.unlinkSync(existing);
-            } catch (err) {
-              /* ignore */
+            if (existing) {
+              try {
+                fs.unlinkSync(existing);
+              } catch (err) {
+                /* ignore */
+              }
             }
           }
+
+          file.prepareForWrite(filepath, this.processFilesOptions);
+          outputFiles.push(file);
+          env('OUTPUT', file, this.id);
+          env('OUTPUT_HASH', file, this.id);
+          env('OUTPUT_DATE', file, this.id);
+          env('OUTPUT_URL', file, this.id);
         }
 
-        file.prepareForWrite(filepath, this.processFilesOptions);
-        outputFiles.push(file);
-        env('OUTPUT', file, this.id);
-        env('OUTPUT_HASH', file, this.id);
-        env('OUTPUT_DATE', file, this.id);
-        env('OUTPUT_URL', file, this.id);
-      }
-
-      return outputFiles;
-    }, []);
+        return outputFiles;
+      }, []);
 
     fn(null);
   }
 
   /**
    * Write content for 'files'
-   * @param {Array} files
-   * @param {Function} fn(err, files, results)
    */
-  writeFiles(files, fn) {
+  writeFiles(files: Array<File>, fn: (?Error, ?Array<File>, ?Array<WriteResult>) => void) {
     const writeable = files.map(file => callable(file, 'write', this.processFilesOptions));
 
     // Results are [{ filepath, content, type }]
     parallel(writeable, (err, results) => {
-      if (!isNullOrUndefined(err)) {
+      if (err != null) {
         return fn(err);
       }
 
@@ -457,20 +445,16 @@ class Build {
 
   /**
    * Run write for child builds
-   * @param {Array} files
-   * @param {Array} results
-   * @param {Function} fn(err)
-   * @returns {null}
    */
-  runWriteForChildren(files, results, fn) {
+  runWriteForChildren(files: Array<File>, results: Array<WriteResult>, fn: (?Error) => void) {
     if (isEmptyArray(this.builds)) {
-      return fn();
+      return void fn();
     }
 
     // Lock files to prevent inclusion in downstream targets
     this.lock(this.referencedFiles);
     series(this.builds.map(build => callable(build, 'runWrite')), (err, childResults) => {
-      if (!isNullOrUndefined(err)) {
+      if (err != null) {
         return fn(err);
       }
       this.unlock(this.referencedFiles);
@@ -480,27 +464,22 @@ class Build {
 
   /**
    * Reset input files
-   * @param {Array} results
-   * @param {Array} fn(err, results)
    */
-  reset(results, fn) {
+  reset(results: Array<WriteResult>, fn: (?Error, ?Array<WriteResult>) => void) {
     this.referencedFiles.forEach(file => file.reset());
     fn(null, results);
   }
 
   /**
    * Run reset for child builds
-   * @param {Array} results
-   * @param {Array} fn(err, results)
-   * @returns {null}
    */
-  runResetForChildren(results, fn) {
+  runResetForChildren(results: Array<WriteResult>, fn: (?Error, ?Array<WriteResult>) => void) {
     if (isEmptyArray(this.builds)) {
-      return fn(null, results);
+      return void fn(null, results);
     }
 
     series(this.builds.map(build => callable(build, 'runReset')), (err, childResults) => {
-      if (!isNullOrUndefined(err)) {
+      if (err != null) {
         return fn(err);
       }
       fn(null, results.concat(flatten(childResults || [])));
@@ -509,13 +488,10 @@ class Build {
 
   /**
    * Print progress
-   * @param {Array} results
-   * @param {Function} fn(err, results)
-   * @returns {null}
    */
-  printWriteProgress(results, fn) {
-    if (!isNullOrUndefined(this.parent)) {
-      return fn(null, results);
+  printWriteProgress(results: Array<WriteResult>, fn: (?Error, ?Array<WriteResult>) => void) {
+    if (this.parent != null) {
+      return void fn(null, results);
     }
 
     const prints = results.slice().reverse().map(result => {
@@ -536,9 +512,8 @@ class Build {
 
   /**
    * Set lock flag for 'files'
-   * @param {Array} files
    */
-  lock(files) {
+  lock(files: Array<File>) {
     files.forEach(file => {
       file.isLocked = true;
     });
@@ -546,9 +521,8 @@ class Build {
 
   /**
    * Unset lock flag for 'files'
-   * @param {Array} files
    */
-  unlock(files) {
+  unlock(files: Array<File>) {
     files.forEach(file => {
       file.isLocked = false;
     });
@@ -557,13 +531,11 @@ class Build {
 
 /**
  * Generate path string for 'paths'
- * @param {Array} paths
- * @returns {String}
  */
-function generatePathString(paths) {
+function generatePathString(paths: Array<string>): string {
   let pathString = '';
 
-  if (isNullOrUndefined(paths) || isEmptyArray(paths)) {
+  if (paths == null || isEmptyArray(paths)) {
     return pathString;
   }
 
@@ -573,9 +545,9 @@ function generatePathString(paths) {
     if (pathString.length > maxInputStringLength) {
       const remainder = pathString.length - maxInputStringLength;
 
-      pathString = `${pathString
-        .slice(0, maxInputStringLength)
-        .join(', ')} ...and ${remainder} other${remainder > 1 ? 's' : ''}`;
+      pathString = `${pathString.slice(0, maxInputStringLength).join(', ')} ...and ${remainder} other${remainder > 1
+        ? 's'
+        : ''}`;
     } else {
       pathString = pathString.join(', ');
     }
@@ -588,18 +560,19 @@ function generatePathString(paths) {
 
 /**
  * Print 'result'
- * @param {Object} result
- * @param {Boolean} isDeploy
- * @param {Boolean} isCompressed
- * @param {String} prefix
- * @param {Function} fn
  */
-function printResult(result, isDeploy, isCompressed, prefix, fn) {
+function printResult(
+  result: WriteResult,
+  isDeploy: boolean,
+  isCompressed: boolean,
+  prefix: string,
+  fn: (?Error) => void
+) {
   const relpath = truncate(path.relative(process.cwd(), result.filepath));
 
   if ((result.type === 'js' || result.type === 'css') && isDeploy) {
     zlib.gzip(result.content, (err, buffer) => {
-      if (!isNullOrUndefined(err)) {
+      if (err != null) {
         return fn(err);
       }
 

@@ -1,22 +1,23 @@
+// @flow
+
 'use strict';
 
+type Aliases = {
+  [string]: string
+};
+
 const { findFilepath, isFilepath, isRelativeFilepath } = require('../utils/filepath');
-const { isInvalid, isString, isNullOrUndefined } = require('../utils/is');
+const { isInvalid } = require('../utils/is');
 const path = require('path');
 
 module.exports = {
   /**
    * Parse 'aliases' relative to 'pkgpath'
-   * @param {String} pkgpath
-   * @param {Object} aliases
-   * @param {String} type
-   * @param {Object} fileExtensions
-   * @returns {Object}
    */
-  parse(pkgpath, aliases, type, fileExtensions) {
+  parse(pkgpath: string, aliases: Aliases, type: string, fileExtensions: Object): Aliases {
     const parsedAliases = {};
 
-    if (isNullOrUndefined(pkgpath) || isNullOrUndefined(aliases)) {
+    if (pkgpath == null || aliases == null) {
       return parsedAliases;
     }
 
@@ -26,12 +27,12 @@ module.exports = {
       if (isRelativeFilepath(key)) {
         key = path.resolve(pkgpath, key);
       }
-      if (isString(value) && isRelativeFilepath(value)) {
+      if (typeof value === 'string' && isRelativeFilepath(value)) {
         value = path.resolve(pkgpath, value);
       }
 
       // Resolve missing file paths
-      if (!isInvalid(type) && !isNullOrUndefined(fileExtensions)) {
+      if (!isInvalid(type) && fileExtensions != null) {
         if (isFilepath(key)) {
           key = findFilepath(key, type, fileExtensions) || key;
         }
@@ -51,15 +52,13 @@ module.exports = {
 
   /**
    * Resolve alias for 'id'
-   * @param {String} id
-   * @param {Object} aliases
-   * @returns {String}
    */
-  resolve(id, aliases) {
-    if (isInvalid(id) || isNullOrUndefined(aliases)) {
+  resolve(id: string, aliases: Aliases): string | boolean {
+    if (isInvalid(id) || aliases == null) {
       return id;
     }
 
+    // TODO: guard against endless loop
     // Follow chain of aliases
     // a => b; b => c; c => d
     while (id in aliases) {
@@ -71,10 +70,10 @@ module.exports = {
       // Packages should always be written with forward slash
       const parts = id.split('/');
       // Handle scoped
-      const pkg = parts.slice(0, parts[0].charAt(0) == '@' ? 2 : 1).join('/');
+      const pkg = parts.slice(0, parts[0].charAt(0) === '@' ? 2 : 1).join('/');
 
       if (aliases[pkg] === false) {
-        id = false;
+        return false;
       }
     }
 
@@ -83,12 +82,9 @@ module.exports = {
 
   /**
    * Resolve id for 'alias'
-   * @param {String} alias
-   * @param {Object} aliases
-   * @returns {String}
    */
-  resolveReverse(alias, aliases) {
-    if (isInvalid(alias) || isNullOrUndefined(aliases)) {
+  resolveReverse(alias: string, aliases: Aliases): string {
+    if (isInvalid(alias) || aliases == null) {
       return alias;
     }
 

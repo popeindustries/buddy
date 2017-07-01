@@ -1,6 +1,7 @@
+// @flow
+
 'use strict';
 
-const { isNullOrUndefined } = require('./utils/is');
 const { spawn } = require('child_process');
 const cache = require('./cache');
 const callable = require('./utils/callable');
@@ -18,49 +19,26 @@ let serverfarm = null;
 
 /**
  * Buddy instance factory
- * @param {String|Object} configpath [file name | JSON Object]
- * @param {Object} runtimeOptions
- *  - {Boolean} compress
- *  - {Boolean} debug
- *  - {Boolean} deploy
- *  - {Boolean} grep
- *  - {Boolean} invert
- *  - {Boolean} maps
- *  - {Boolean} reload
- *  - {Boolean} script
- *  - {Boolean} serve
- *  - {Boolean} watch
- * @returns {Buddy}
+ * Initialize based on configuration located at 'configpath'
+ * The directory tree will be walked if no 'configpath' specified
  */
-module.exports = function buddyFactory(configpath, runtimeOptions) {
+module.exports = function buddyFactory(configpath: string | Object, runtimeOptions: Object): Buddy {
   return new Buddy(configpath, runtimeOptions);
 };
 
 class Buddy {
-  /**
-   * Constructor
-   * Initialize based on configuration located at 'configpath'
-   * The directory tree will be walked if no 'configpath' specified
-   * @param {String|Object} configpath [file name | JSON Object]
-   * @param {Object} runtimeOptions
-   *  - {Boolean} compress
-   *  - {Boolean} debug
-   *  - {Boolean} deploy
-   *  - {Boolean} grep
-   *  - {Boolean} invert
-   *  - {Boolean} maps
-   *  - {Boolean} reload
-   *  - {Boolean} script
-   *  - {Boolean} serve
-   *  - {Boolean} watch
-   */
-  constructor(configpath, runtimeOptions = {}) {
+  building: boolean;
+  config: Config;
+  builds: Array<Build>;
+  onFileCacheChange: string => void;
+
+  constructor(configpath: string | Object, runtimeOptions: Object = {}) {
     // Set console behaviour
     cnsl.verbose = runtimeOptions.debug;
 
     this.building = false;
     this.config = configFactory(configpath, runtimeOptions);
-    this.builds = this.config.builds;
+    this.builds = this.config.builds || [];
     this.onFileCacheChange = this.onFileCacheChange.bind(this);
 
     cache.on('change', this.onFileCacheChange);
@@ -68,21 +46,20 @@ class Buddy {
 
   /**
    * Build sources based on build targets specified in config
-   * @param {Function} fn
-   * @returns {Buddy}
    */
-  build(fn) {
+  build(fn?: (?Error, ?Array<string>) => void): Buddy {
     stopwatch.start('build');
 
     // Build targets
     this.run(this.builds, (err, filepaths) => {
-      if (!isNullOrUndefined(err)) {
-        return !isNullOrUndefined(fn) ? fn(err) : error(err, 2);
+      if (err != null) {
+        return fn != null ? fn(err) : error(err, 2);
       }
+
       print(`\ndone build in ${chalk.cyan(stopwatch.stop('build', true))}\n`, 0);
       // Run script
       this.executeScript();
-      if (!isNullOrUndefined(fn)) {
+      if (fn != null) {
         fn(null, filepaths);
       }
     });
@@ -92,14 +69,12 @@ class Buddy {
 
   /**
    * Build sources and watch for changes
-   * @param {Function} fn
-   * @returns {Buddy}
    */
-  watch(fn) {
+  watch(fn: (?Error, ?Array<string>) => void): Buddy {
     // Build first
     this.build((err, filepaths) => {
-      if (!isNullOrUndefined(err)) {
-        return !isNullOrUndefined(fn) ? fn(err) : error(err, 2);
+      if (err != null) {
+        return fn != null ? fn(err) : error(err, 2);
       }
 
       if (this.config.runtimeOptions.reload || this.config.runtimeOptions.serve) {
@@ -125,10 +100,10 @@ class Buddy {
    * Destroy
    */
   destroy() {
-    if (!isNullOrUndefined(serverfarm)) {
+    if (serverfarm != null) {
       serverfarm.stop();
     }
-    if (!isNullOrUndefined(this.config)) {
+    if (this.config != null) {
       this.config.destroy();
     }
     this.config = null;
@@ -137,17 +112,15 @@ class Buddy {
 
   /**
    * Run all build targets
-   * @param {Array} builds
-   * @param {Function} fn(err, filepaths)
    */
-  run(builds, fn) {
+  run(builds: Array<Build>, fn: (?Error, ?Array<string>) => void) {
     this.building = true;
 
     // Execute builds in sequence
     series(builds.map(build => callable(build, 'run')), (err, results) => {
       this.building = false;
 
-      if (!isNullOrUndefined(err)) {
+      if (err != null) {
         return fn(err);
       }
       fn(null, compact(flatten(results)).map(result => result.filepath));
@@ -190,23 +163,23 @@ class Buddy {
    * Handle cache changes
    * @param {String} filepath
    */
-  onFileCacheChange(filepath) {
+  onFileCacheChange(filepath: string) {
     const now = new Date();
     const builds = this.builds.filter(build => build.hasFile(filepath));
     // Determine if any changes to app server code that needs a restart
-    const servers = builds.filter(build => build.isAppServer);
+    const servers = builds.filter(build => build.isAppServer) || [];
 
     if (!this.building) {
       print(`\n[${now.toLocaleTimeString()}] ${chalk.yellow('changed')} ${strong(filepath)}`, 0);
 
       stopwatch.start('watch');
 
-      this.run(builds, (err, filepaths) => {
-        // Don't throw
-        if (!isNullOrUndefined(err)) {
+      this.run(builds, (err?: Error, filepaths: Array<string>) => {
+        if (err != null) {
+          // Don't throw
           return error(err, 2, false);
         }
-        if (!isNullOrUndefined(serverfarm)) {
+        if (serverfarm != null) {
           // Trigger partial refresh if only 1 css file, full reload if not
           const filepath = filepaths.length === 1 && path.extname(filepaths[0]) === '.css' ? filepaths[0] : 'foo.js';
 
@@ -216,8 +189,8 @@ class Buddy {
           } else {
             // Restart app server
             serverfarm.restart(err => {
-              if (!isNullOrUndefined(err)) {
-                return console.log(err);
+              if (err != null) {
+                return void console.log(err);
               }
               // Refresh browser
               serverfarm.refresh(path.basename(filepath));

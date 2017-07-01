@@ -43,7 +43,7 @@ module.exports = {
   /**
    * Determine type of 'filepath'
    */
-  filepathType(filepath: string, fileExtensions: {}): string {
+  filepathType(filepath: string, fileExtensions: Object): string {
     const ext = path.extname(filepath).slice(1);
 
     // Match input extension to type
@@ -63,7 +63,7 @@ module.exports = {
   /**
    * Check the location of 'filepath'
    */
-  findFilepath(filepath: string, type: string, fileExtensions: {}): string {
+  findFilepath(filepath: string, type: string, fileExtensions: Object): string {
     if (isString(filepath) && !isInvalid(type) && !isNullOrUndefined(fileExtensions)) {
       let stat;
 
