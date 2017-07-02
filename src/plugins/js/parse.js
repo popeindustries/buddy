@@ -1,4 +1,12 @@
+// @flow
+
 'use strict';
+
+type Match = {
+  id: string,
+  context: string,
+  match: string
+};
 
 const { commentStrip, uniqueMatch } = require('../../utils/string');
 
@@ -11,18 +19,20 @@ const RE_REQUIRE = /require\(['"]([^'"]+)[^)]+\)/g;
  * @param {String} content
  * @returns {Array}
  */
-module.exports = function parse(content) {
+module.exports = function parse(content: string): [Array<Match>, Array<Match>, Array<Match>] {
   content = commentStrip(content);
 
-  const requires = uniqueMatch(content, RE_REQUIRE);
-  const imports = uniqueMatch(content, RE_IMPORT);
-  const dynamicImports = uniqueMatch(content, RE_DYNAMIC_IMPORT);
+  const results = [
+    uniqueMatch(content, RE_REQUIRE),
+    uniqueMatch(content, RE_IMPORT),
+    uniqueMatch(content, RE_DYNAMIC_IMPORT)
+  ];
 
-  [requires, imports, dynamicImports].forEach(matches => {
+  results.forEach(matches => {
     matches.forEach(match => {
       match.id = match.match;
     });
   });
 
-  return [requires, imports, dynamicImports];
+  return results;
 };

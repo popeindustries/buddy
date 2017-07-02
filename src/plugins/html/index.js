@@ -1,4 +1,8 @@
+// @flow
+
 'use strict';
+
+import typeof File from '../../File';
 
 const { debug, strong, warn } = require('../../utils/cnsl');
 const { exists } = require('../../utils/filepath');
@@ -18,60 +22,29 @@ module.exports = {
 
   /**
    * Register plugin
-   * @param {Config} config
    */
-  register(config) {
+  register(config: Config) {
     config.registerFileDefinitionAndExtensionsForType(define, FILE_EXTENSIONS, this.type);
   }
 };
 
 /**
  * Extend 'File' with new behaviour
- * @param {Class} File
- * @param {Object} utils
- * @returns {Class}
  */
-function define(File, utils) {
+function define(File: File, utils: Object): HTMLFile {
   return class HTMLFile extends File {
-    /**
-     * Constructor
-     * @param {String} id
-     * @param {String} filepath
-     * @param {Object} options
-     *  - {Function} buildFactory
-     *  - {Object} fileCache
-     *  - {Object} fileExtensions
-     *  - {Function} fileFactory
-     *  - {Array} npmModulepaths
-     *  - {Object} pluginOptions
-     *  - {Object} runtimeOptions
-     *  - {String} webroot
-     */
-    constructor(id, filepath, options) {
+    constructor(id: string, filepath: string, options: FileOptions) {
       super(id, filepath, 'html', options);
 
       this.hasMaps = false;
-      this.map = null;
       this.workflows.standard = WORKFLOW_STANDARD;
       this.workflows.writeable = WORKFLOW_WRITEABLE;
     }
 
     /**
      * Parse file contents for dependency references
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    parse(buildOptions, fn) {
+    parse(buildOptions: BuildOptions, fn: (?Error) => void) {
       const context = inlineContext.create({ compress: false });
 
       context.html = this.content;
@@ -95,9 +68,8 @@ function define(File, utils) {
 
     /**
      * Parse sidecar data file
-     * @returns {Object}
      */
-    parseSidecarDependency() {
+    parseSidecarDependency(): ?{ context: string, filepath: string, match: string } {
       const filepath = path.resolve(path.dirname(this.filepath), this.name.replace(`.${this.extension}`, '.json'));
 
       if (exists(filepath)) {
@@ -107,14 +79,13 @@ function define(File, utils) {
 
     /**
      * Retrieve sidecar data dependency
-     * @returns {Object}
      */
-    findSidecarDependency() {
+    findSidecarDependency(): Object {
       let data = {};
 
       // Find sidecar data
       for (const dependency of this.dependencies) {
-        if (dependency.type == 'json') {
+        if (dependency.type === 'json') {
           try {
             data = JSON.parse(dependency.content);
           } catch (err) {
@@ -128,20 +99,8 @@ function define(File, utils) {
 
     /**
      * Replace {BUDDY_*} references with values
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    replaceEnvironment(buildOptions, fn) {
+    replaceEnvironment(buildOptions: BuildOptions, fn: (?Error) => void) {
       this.setContent(replaceEnvironment(this.content));
       debug(`replace environment vars: ${strong(this.relpath)}`, 4);
       fn();
@@ -149,27 +108,14 @@ function define(File, utils) {
 
     /**
      * Inline css/img/js dependency content
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
-     * @returns {null}
      */
-    inline(buildOptions, fn) {
+    inline(buildOptions: BuildOptions, fn: (?Error) => void) {
       const inlineableDependencyReferences = [...this.dependencyReferences].filter(
         reference => reference.file.isInline
       );
 
       if (!inlineableDependencyReferences.length) {
-        return fn();
+        return void fn();
       }
 
       // Prepare for inline-source
@@ -189,7 +135,7 @@ function define(File, utils) {
 
         this.setContent(content);
       } catch (err) {
-        return fn(err);
+        return void fn(err);
       }
 
       debug(`inline: ${strong(this.relpath)}`, 4);

@@ -71,7 +71,7 @@ function indent(string: string, column: number): string {
 /**
  * Match unique occurrences in 'string'
  */
-function uniqueMatch(string: string, regexp: RegExp): Array<{}> {
+function uniqueMatch(string: string, regexp: RegExp): Array<{ context: string, match: string }> {
   const results = [];
   let match;
 

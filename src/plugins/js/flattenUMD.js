@@ -1,3 +1,5 @@
+// @flow
+
 'use strict';
 
 const { isNullOrUndefined } = require('../../utils/is');
@@ -8,11 +10,8 @@ const RE_EXPORTS = /[^.](exports)/g;
 
 /**
  * Flatten UMD 'content'
- * @param {String} content
- * @param {String} moduleString
- * @returns {String}
  */
-module.exports = function flattenUMD(content, moduleString) {
+module.exports = function flattenUMD(content: string, moduleString: string): string {
   const match = RE_UMD_BOILERPLATE.exec(content);
   const boilerplate = !isNullOrUndefined(match) && match[0];
 

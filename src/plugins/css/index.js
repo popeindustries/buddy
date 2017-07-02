@@ -1,4 +1,8 @@
+// @flow
+
 'use strict';
+
+import typeof File from '../../File';
 
 const { commentStrip, uniqueMatch } = require('../../utils/string');
 const { debug, error, strong } = require('../../utils/cnsl');
@@ -17,36 +21,18 @@ module.exports = {
 
   /**
    * Register plugin
-   * @param {Config} config
    */
-  register(config) {
+  register(config: Config) {
     config.registerFileDefinitionAndExtensionsForType(define, FILE_EXTENSIONS, this.type);
   }
 };
 
 /**
  * Extend 'File' with new behaviour
- * @param {Class} File
- * @param {Object} utils
- * @returns {Class}
  */
-function define(File, utils) {
+function define(File: File, utils: Object): CSSFile {
   return class CSSFile extends File {
-    /**
-     * Constructor
-     * @param {String} id
-     * @param {String} filepath
-     * @param {Object} options
-     *  - {Function} buildFactory
-     *  - {Object} fileCache
-     *  - {Object} fileExtensions
-     *  - {Function} fileFactory
-     *  - {Array} npmModulepaths
-     *  - {Object} pluginOptions
-     *  - {Object} runtimeOptions
-     *  - {String} webroot
-     */
-    constructor(id, filepath, options) {
+    constructor(id: string, filepath: string, options: FileOptions) {
       super(id, filepath, 'css', options);
 
       this.workflows.inlineable = WORKFLOW_INLINEABLE;
@@ -55,23 +41,10 @@ function define(File, utils) {
 
     /**
      * Parse file contents for dependency references
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
-     * @returns {null}
      */
-    parse(buildOptions, fn) {
+    parse(buildOptions: BuildOptions, fn: (?Error) => void) {
       if (this.isInline || !buildOptions.bundle) {
-        return fn();
+        return void fn();
       }
 
       super.addDependencies(
@@ -86,20 +59,8 @@ function define(File, utils) {
 
     /**
      * Inline '@import' content
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    inline(buildOptions, fn) {
+    inline(buildOptions: BuildOptions, fn: (?Error) => void) {
       inline(this);
       debug(`inline: ${strong(this.relpath)}`, 4);
       fn();
@@ -107,20 +68,8 @@ function define(File, utils) {
 
     /**
      * Transpile content
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    transpile(buildOptions, fn) {
+    transpile(buildOptions: BuildOptions, fn: (?Error) => void) {
       const postcssOptions = Object.assign(
         { from: this.filepath },
         this.hasMaps ? { map: { annotation: false, inline: false, prev: this.map, sourcesContent: true } } : {},

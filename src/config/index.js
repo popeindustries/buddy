@@ -7,7 +7,7 @@ const { error, print, strong } = require('../utils/cnsl');
 const { exists } = require('../utils/filepath');
 const { hunt: { sync: hunt } } = require('recur-fs');
 const { identify } = require('../resolver');
-const { isInvalid, isNullOrUndefined, isString, isUndefined } = require('../utils/is');
+const { isInvalid } = require('../utils/is');
 const buildParser = require('./buildParser');
 const cache = require('../cache');
 const chalk = require('chalk');
@@ -40,11 +40,8 @@ const DEFAULT_OPTIONS = {
 
 /**
  * Retrieve new instance of Config
- * @param {String|Object} [configPath]
- * @param {Object} [runtimeOptions]
- * @returns {Config}
  */
-module.exports = function configFactory(configPath, runtimeOptions) {
+module.exports = function configFactory(configPath?: string | Object, runtimeOptions: RuntimeOptions): Config {
   return new Config(configPath, runtimeOptions);
 };
 

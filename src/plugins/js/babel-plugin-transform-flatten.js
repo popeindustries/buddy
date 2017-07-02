@@ -1,15 +1,15 @@
+// @flow
+
 'use strict';
 
 /**
  * Identifier visitor to namespace all declarations in root scope,
  * and replace 'module/exports' global references
- * @param {Babel} babel
- * @returns {Object}
  */
-module.exports = function flatten(babel) {
+module.exports = function flatten(babel: Object): Object {
   return {
     visitor: {
-      VariableDeclarator(path) {
+      VariableDeclarator(path: Object) {
         const name = path.node.id.name;
         const parent = path.parentPath;
         const rootScope = path.scope.getProgramParent();
@@ -20,7 +20,7 @@ module.exports = function flatten(babel) {
       },
 
       Identifier: {
-        enter(path, state) {
+        enter(path: Object, state: Object) {
           const { opts } = state;
           const name = path.node.name;
 
@@ -37,10 +37,8 @@ module.exports = function flatten(babel) {
 
 /**
  * Replace module/exports with 'name'
- * @param {NodePath} path
- * @param {String} name
  */
-function replaceModuleExports(path, name) {
+function replaceModuleExports(path: Object, name: string) {
   const { scope } = path;
   const oldName = path.node.name;
 
@@ -57,10 +55,8 @@ function replaceModuleExports(path, name) {
 
 /**
  * Rename declarations and references in global scope
- * @param {NodePath} path
- * @param {String} namespace
  */
-function renameRootDeclarations(path, namespace) {
+function renameRootDeclarations(path: Object, namespace: string) {
   const { scope } = path;
   const oldName = path.node.name;
   const rootScope = scope.getProgramParent();
@@ -82,10 +78,8 @@ function renameRootDeclarations(path, namespace) {
 
 /**
  * Retrieve declaration parent for 'path'
- * @param {NodePath} path
- * @returns {NodePath}
  */
-function getDeclarationParent(path) {
+function getDeclarationParent(path: Object): ?Object {
   do {
     if (
       path.isFunctionDeclaration() ||
@@ -100,22 +94,15 @@ function getDeclarationParent(path) {
 
 /**
  * Determine if 'path' is an key or property of another object
- * @param {NodePath} path
- * @returns {Boolean}
  */
-function isPropertyOrKey(path) {
+function isPropertyOrKey(path: Object): boolean {
   return path.parentPath.get('key') === path || path.parentPath.get('property') === path;
 }
 
 /**
  * Determine if declaration 'path' should be renamed
- * @param {String} name
- * @param {NodePath} path
- * @param {Binding} binding
- * @param {Scope} rootScope
- * @returns {Boolean}
  */
-function shouldRenameDeclaration(name, path, binding, rootScope) {
+function shouldRenameDeclaration(name: string, path: Object, binding: Object, rootScope: Object): boolean {
   const isRootScope = path.scope === rootScope;
   const isGlobal = isRootScope && name in rootScope.globals;
   const program = rootScope.path;
@@ -129,7 +116,7 @@ function shouldRenameDeclaration(name, path, binding, rootScope) {
     const declarationParent = getDeclarationParent(path);
 
     // Bail if not a declaration or is property/key of object
-    if (!declarationParent || isPropertyOrKey(path)) {
+    if (declarationParent == null || isPropertyOrKey(path)) {
       return false;
     }
 

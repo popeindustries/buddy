@@ -41,7 +41,7 @@ const WORKFLOW_STANDARD = ['load', 'parse', 'runForDependencies'];
 
 module.exports = class File {
   allDependencies: Array<File> | null;
-  allDependencyReferences: Array<{}> | null;
+  allDependencyReferences: Array<Object> | null;
   content: string | Buffer;
   fileContent: string | Buffer;
   date: number;
@@ -59,7 +59,7 @@ module.exports = class File {
   isDummy: boolean;
   isInline: boolean;
   isLocked: boolean;
-  map: {};
+  map: Object;
   mapUrl: string;
   name: string;
   options: {} | null;
@@ -89,7 +89,7 @@ module.exports = class File {
    *  - {Object} runtimeOptions
    *  - {String} webroot
    */
-  constructor(id: string, filepath: string, type: string, options: {}) {
+  constructor(id: string, filepath: string, type: string, options: FileOptions) {
     this.allDependencies;
     this.allDependencyReferences;
     this.content = '';
@@ -106,7 +106,7 @@ module.exports = class File {
     this.id = id;
     this.idSafe = id.replace(RE_ESCAPE_ID, '');
     this.isDependency = false;
-    this.isDummy = filepath == dummyFile;
+    this.isDummy = filepath === dummyFile;
     this.isInline = false;
     this.isLocked = false;
     this.map;
@@ -312,7 +312,7 @@ module.exports = class File {
   /**
    * Add 'dependencies'
    */
-  addDependencies(dependencies: Array<{}>, buildOptions: {}) {
+  addDependencies(dependencies: Array<{}>, buildOptions: BuildOptions) {
     if (!Array.isArray(dependencies)) {
       dependencies = [dependencies];
     }
@@ -372,7 +372,7 @@ module.exports = class File {
   /**
    * Retrieve parsed workflows for 'buildOptions'
    */
-  parseWorkflow(type: string, buildOptions: {}): Array<string> {
+  parseWorkflow(type: string, buildOptions: BuildOptions): Array<string> {
     if (this.workflows[type] == null) {
       return [];
     }
@@ -406,7 +406,7 @@ module.exports = class File {
   /**
    * Run workflow set based on 'type' and 'buildOptions'
    */
-  run(type: string, buildOptions: {}, fn: (?Error) => void) {
+  run(type: string, buildOptions: BuildOptions, fn: (?Error) => void) {
     type = buildOptions.watchOnly && !type.includes('Watch') ? type + 'Watch' : type;
     if (this.isInline && type === 'standard') {
       type = 'inlineable';
@@ -433,7 +433,7 @@ module.exports = class File {
   /**
    * Run workflow tasks for 'type' on dependencies
    */
-  runForDependencies(type: string, dependencies?: Array<File>, buildOptions: {}, fn: (?Error) => void) {
+  runForDependencies(type: string, dependencies?: Array<File>, buildOptions: BuildOptions, fn: (?Error) => void) {
     dependencies = dependencies || this.dependencies;
     if (isEmptyArray(dependencies)) {
       return void fn();
@@ -476,7 +476,7 @@ module.exports = class File {
   /**
    * Read and store file contents
    */
-  load(buildOptions: {}, fn: (?Error) => void) {
+  load(buildOptions?: BuildOptions, fn?: (?Error) => void) {
     if (isInvalid(this.fileContent)) {
       this.fileContent = this.readFileContent();
       this.hash = this.hashContent(false);
@@ -485,7 +485,9 @@ module.exports = class File {
     }
 
     this.setContent(this.fileContent);
-    this.setMap();
+    if (this.hasMaps) {
+      this.setMap();
+    }
 
     if (fn != null) {
       fn();
@@ -495,7 +497,7 @@ module.exports = class File {
   /**
    * Parse file contents for dependency references [no-op]
    */
-  parse(buildOptions: {}, fn: (?Error) => void) {
+  parse(buildOptions: BuildOptions, fn: (?Error) => void) {
     warn(`no parser for: ${strong(this.relpath)}`, this.options.level);
     fn();
   }
@@ -503,7 +505,7 @@ module.exports = class File {
   /**
    * Compile file contents [no-op]
    */
-  compile(buildOptions: {}, fn: (?Error) => void) {
+  compile(buildOptions: BuildOptions, fn: (?Error) => void) {
     warn(`no compiler for: ${strong(this.relpath)}`, this.options.level);
     fn();
   }
@@ -511,7 +513,7 @@ module.exports = class File {
   /**
    * Compress file contents [no-op]
    */
-  compress(buildOptions: {}, fn: (?Error) => void) {
+  compress(buildOptions: BuildOptions, fn: (?Error) => void) {
     warn(`no compressor for: ${strong(this.relpath)}`, this.options.level);
     fn();
   }
@@ -519,7 +521,7 @@ module.exports = class File {
   /**
    * Prepare for writing
    */
-  prepareForWrite(filepath: string, buildOptions: {}) {
+  prepareForWrite(filepath: string, buildOptions: BuildOptions) {
     const { sourceroot, webroot } = this.options;
 
     this.writeDate = Date.now();
@@ -540,7 +542,7 @@ module.exports = class File {
   /**
    * Write file contents to disk
    */
-  write(buildOptions: {}, fn: (?Error, ?WriteResult) => void) {
+  write(buildOptions: BuildOptions, fn: (?Error, ?WriteResult) => void) {
     this.run('writeable', buildOptions, err => {
       if (err != null) {
         return fn(err);

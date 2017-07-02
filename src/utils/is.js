@@ -5,16 +5,16 @@
 const isPlainObject = require('lodash/isPlainObject');
 
 module.exports = {
-  isArray: Array.isArray,
+  // isArray: Array.isArray,
   isPlainObject,
   isEmptyArray,
   isFunction,
-  isString,
+  // isString,
   isNumber,
   isObject,
-  isNull,
-  isUndefined,
-  isNullOrUndefined,
+  // isNull,
+  // isUndefined,
+  // isNullOrUndefined,
   isInvalid
 };
 

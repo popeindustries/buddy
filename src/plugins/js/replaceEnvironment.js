@@ -1,6 +1,7 @@
+// @flow
+
 'use strict';
 
-const { isUndefined } = require('../../utils/is');
 const { regexpEscape } = require('../../utils/string');
 
 const ENV_RUNTIME = 'RUNTIME';
@@ -10,11 +11,8 @@ const RE_PROCESS_BROWSER = /process\.browser/g;
 
 /**
  * Replace process.env references with values
- * @param {String} content
- * @param {Boolean} [browser]
- * @returns {String}
  */
-module.exports = function replaceEnvironment(content, browser = true) {
+module.exports = function replaceEnvironment(content: string, browser?: boolean = true): string {
   const matches = {};
   let match;
 
@@ -22,7 +20,7 @@ module.exports = function replaceEnvironment(content, browser = true) {
   while ((match = RE_ENV.exec(content))) {
     const env = process.env[match[1]];
     // Do not stringify empty values
-    let value = !isUndefined(env) ? `'${env}'` : env;
+    let value = env != null ? `'${env}'` : env;
 
     // Force RUNTIME to "browser/server"
     if (match[1] === ENV_RUNTIME) {
@@ -43,7 +41,7 @@ module.exports = function replaceEnvironment(content, browser = true) {
     content = content.replace(new RegExp(regexpEscape(context), 'g'), matches[context]);
   }
   // Replace all process.browser matches
-  content = content.replace(RE_PROCESS_BROWSER, browser);
+  content = content.replace(RE_PROCESS_BROWSER, browser.toString());
 
   return content;
 };

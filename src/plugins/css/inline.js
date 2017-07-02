@@ -1,13 +1,16 @@
+// @flow
+
 'use strict';
+
+import typeof File from '../../File';
 
 const { isEmptyArray } = require('../../utils/is');
 const { regexpEscape } = require('../../utils/string');
 
 /**
  * Inline dependencyReferences for 'file'
- * @param {CSSFile} file
  */
-module.exports = function inline(file) {
+module.exports = function inline(file: File) {
   function inline(file) {
     const matches = [];
 

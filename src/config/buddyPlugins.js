@@ -1,7 +1,14 @@
+// @flow
+
 'use strict';
 
+type Plugin = {
+  name: string;
+  type: string;
+  register: (Config) => void;
+}
+
 const { print, strong, warn } = require('../utils/cnsl');
-const { isString } = require('../utils/is');
 const fs = require('fs');
 const path = require('path');
 
@@ -21,10 +28,8 @@ const RE_PLUGIN = /^buddy-plugin-/;
 module.exports = {
   /**
    * Load default/global buddy plugins
-   * @param {Object} config
-   * @param {Array} [additionalPluginModules]
    */
-  load(config, additionalPluginModules = []) {
+  load(config: Config, additionalPluginModules: Array<string> = []) {
     const cwd = process.cwd();
 
     // Load default and additional modules
@@ -40,10 +45,8 @@ module.exports = {
 
 /**
  * Load plugins in 'dir'
- * @param {String} dir
- * @param {Object} config
  */
-function loadPluginsFromDir(dir, config) {
+function loadPluginsFromDir(dir: string, config: Config) {
   try {
     fs
       .readdirSync(dir)
@@ -63,22 +66,22 @@ function loadPluginsFromDir(dir, config) {
 
 /**
  * Register plugin 'resource'
- * @param {String} resource
- * @param {Object} config
- * @param {Boolean} [silent]
- * @returns {null}
  */
-function registerPlugin(resource, config, silent) {
-  let pluginModule;
+function registerPlugin(resource: string | Plugin, config: Config, silent?: boolean) {
+  let pluginModule: Plugin;
 
-  try {
-    pluginModule = isString(resource) ? require(resource) : resource;
-  } catch (err) {
-    return warn(`unable to load plugin ${strong(resource)}`);
+  if (typeof resource === 'string') {
+    try {
+      pluginModule = require(resource);
+    } catch (err) {
+      return void warn(`unable to load plugin ${strong(resource)}`);
+    }
+  } else {
+    pluginModule = resource;
   }
 
   if (!('register' in pluginModule)) {
-    return warn(`invalid plugin ${strong(resource)}`);
+    return void warn(`invalid plugin ${strong(resource.toString())}`);
   }
 
   pluginModule.register(config);

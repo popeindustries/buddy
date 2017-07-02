@@ -1,3 +1,5 @@
+// @flow
+
 'use strict';
 
 const { regexpEscape } = require('../../utils/string');
@@ -7,12 +9,12 @@ const IMPORT = 'import';
 
 /**
  * Replace 'dependencyReferences' in 'content'
- * @param {String} content
- * @param {Boolean} browser
- * @param {Array} dependencyReferences
- * @returns {String}
  */
-module.exports = function replaceDynamicReferences(content, browser, dependencyReferences) {
+module.exports = function replaceDynamicReferences(
+  content: string,
+  browser: boolean,
+  dependencyReferences: Array<Object>
+): string {
   for (const reference of dependencyReferences) {
     const url = browser ? reference.file.writeUrl : reference.file.filepath;
     const quoteStyle = reference.context.charAt(reference.context.indexOf(reference.id) - 1);

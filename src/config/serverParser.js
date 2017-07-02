@@ -1,6 +1,8 @@
+// @flow
+
 'use strict';
 
-const { isArray, isInvalid, isNullOrUndefined } = require('../utils/is');
+const { isInvalid } = require('../utils/is');
 const dependencies = require('./dependencies');
 const path = require('path');
 
@@ -8,9 +10,8 @@ const BUDDY_SERVER = 'buddy-server';
 
 /**
  * Parse and validate "server" section of 'config'
- * @param {Object} config
  */
-module.exports = function serverParser(config) {
+module.exports = function serverParser(config: Config) {
   const { runtimeOptions, server } = config;
 
   // Make sure 'buddy-server' module exists if running '--serve' and/or '--reload'
@@ -25,17 +26,17 @@ module.exports = function serverParser(config) {
   }
 
   // Handle array of directories
-  if (!isNullOrUndefined(server.directory) && isArray(server.directory)) {
+  if (server.directory != null && Array.isArray(server.directory)) {
     const [directory, ...extraDirectories] = server.directory;
 
     server.directory = directory;
     server.extraDirectories = extraDirectories.map(directory => path.resolve(directory));
   }
   server.directory = path.resolve(server.directory);
-  if (!isNullOrUndefined(server.file)) {
+  if (server.file != null) {
     server.file = path.resolve(server.file);
   }
-  if (isNullOrUndefined(server.sourceroot)) {
+  if (server.sourceroot == null) {
     server.sourceroot = '';
   }
   server.webroot = isInvalid(server.webroot) ? server.directory : path.resolve(server.webroot);

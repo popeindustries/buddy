@@ -1,27 +1,26 @@
+// @flow
+
 'use strict';
 
-const { isNullOrUndefined } = require('../../utils/is');
 const { regexpEscape } = require('../../utils/string');
 
 /**
  * Replace 'dependencyReferences' in 'content'
- * @param {String} content
- * @param {Array} dependencyReferences
- * @returns {String}
  */
-module.exports = function replaceReferences(content, dependencyReferences) {
+module.exports = function replaceReferences(content: string, dependencyReferences: Array<Object>): string {
   for (const reference of dependencyReferences) {
     // Ignore inlineable references
     if (
       !reference.isDisabled &&
-      !isNullOrUndefined(reference.file) &&
+      reference.file != null &&
       reference.file.type !== 'json' &&
-      !isNullOrUndefined(reference.context)
+      reference.context != null
     ) {
       // Don't inline 'require' call if ignored, locked, or circular
-      const context = !reference.isIgnored && !reference.file.isLocked && !reference.file.isCircularDependency
-        ? `$m['${reference.file.id}'].exports`
-        : reference.context.replace(reference.id, reference.file.id);
+      const context =
+        !reference.isIgnored && !reference.file.isLocked && !reference.file.isCircularDependency
+          ? `$m['${reference.file.id}'].exports`
+          : reference.context.replace(reference.id, reference.file.id);
       // Create new RegExp so that flags work properly
       content = content.replace(new RegExp(regexpEscape(reference.context), 'g'), context);
     }

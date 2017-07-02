@@ -1,4 +1,8 @@
+// @flow
+
 'use strict';
+
+import typeof File from '../../File';
 
 const { debug, strong } = require('../../utils/cnsl');
 
@@ -11,9 +15,8 @@ module.exports = {
 
   /**
    * Register plugin
-   * @param {Config} config
    */
-  register(config) {
+  register(config: Config) {
     config.registerFileDefinitionAndExtensionsForType(define, FILE_EXTENSIONS, this.type);
   }
 };
@@ -24,70 +27,30 @@ module.exports = {
  * @param {Object} utils
  * @returns {Class}
  */
-function define(File, utils) {
+function define(File: File, utils: Object): IMGFile {
   return class IMGFile extends File {
-    /**
-     * Constructor
-     * @param {String} id
-     * @param {String} filepath
-     * @param {Object} options
-     *  - {Function} buildFactory
-     *  - {Object} fileCache
-     *  - {Object} fileExtensions
-     *  - {Function} fileFactory
-     *  - {Array} npmModulepaths
-     *  - {Object} pluginOptions
-     *  - {Object} runtimeOptions
-     *  - {String} webroot
-     */
-    constructor(id, filepath, options) {
+    constructor(id: string, filepath: string, options: FileOptions) {
       super(id, filepath, 'img', options);
 
       this.hasMaps = false;
-      this.map = null;
       this.workflows.writeable = WORKFLOW_WRITEABLE;
     }
 
     /**
      * Read and store file contents
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    load(buildOptions, fn) {
+    load(buildOptions: BuildOptions, fn: (?Error) => void) {
       // Make sure to load as Buffer
-      if (this.extension != 'svg') {
+      if (this.extension !== 'svg') {
         this.encoding = null;
       }
       super.load(buildOptions, fn);
-      this.map = null;
     }
 
     /**
      * Parse file contents for dependency references [no-op]
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    parse(buildOptions, fn) {
+    parse(buildOptions: BuildOptions, fn: (?Error) => void) {
       debug(`parse: ${strong(this.relpath)}`, 4);
       fn();
     }

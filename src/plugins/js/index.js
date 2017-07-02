@@ -1,4 +1,8 @@
+// @flow
+
 'use strict';
+
+import typeof File from '../../File';
 
 const { debug, error, strong, warn } = require('../../utils/cnsl');
 const { isNullOrUndefined } = require('../../utils/is');
@@ -45,9 +49,8 @@ module.exports = {
 
   /**
    * Register plugin
-   * @param {Config} config
    */
-  register(config) {
+  register(config: Config) {
     config.registerFileDefinitionAndExtensionsForType(define, FILE_EXTENSIONS, this.type);
   }
 };
@@ -58,26 +61,19 @@ module.exports = {
  * @param {Object} utils
  * @returns {Class}
  */
-function define(File, utils) {
+function define(File: File, utils: Object): JSFile {
   return class JSFile extends File {
-    /**
-     * Constructor
-     * @param {String} id
-     * @param {String} filepath
-     * @param {Object} options
-     *  - {Boolean} browser
-     *  - {Function} buildFactory
-     *  - {FileCache} fileCache
-     *  - {Object} fileExtensions
-     *  - {Function} fileFactory
-     *  - {Number} level
-     *  - {Array} npmModulepaths
-     *  - {Object} pluginOptions
-     *  - {ResolverCache} resolverCache
-     *  - {Object} runtimeOptions
-     *  - {String} webroot
-     */
-    constructor(id, filepath, options) {
+    depth: number;
+    dynamicDependencyReferences: Array<Object>;
+    isBuddyBuilt: boolean;
+    isBuilt: boolean;
+    isCircularDependency: boolean;
+    isNpmModule: boolean;
+    transpiledContent: string;
+    transpiledFingerprint: string;
+    transpiledMap: Object;
+
+    constructor(id: string, filepath: string, options: FileOptions) {
       super(id, filepath, 'js', options);
 
       /* set via super call:
@@ -96,15 +92,14 @@ function define(File, utils) {
         : false;
       this.transpiledContent = '';
       this.transpiledFingerprint = '';
-      this.transpiledMap = null;
+      this.transpiledMap;
     }
 
     /**
      * Retrieve flattened dependency tree
-     * @returns {Array}
      */
-    getAllDependencies() {
-      if (!this.allDependencies) {
+    getAllDependencies(): Array<JSFile> {
+      if (this.allDependencies == null) {
         this.allDependencies = sort(this);
       }
 
@@ -125,9 +120,8 @@ function define(File, utils) {
 
     /**
      * Add dynamic 'dependencies'
-     * @param {Array} dependencies
      */
-    addDynamicDependencies(dependencies) {
+    addDynamicDependencies(dependencies: Array<JSFile>) {
       const { fileFactory } = this.options;
       const resolveOptions = {
         browser: this.options.browser,
@@ -155,9 +149,8 @@ function define(File, utils) {
 
     /**
      * Read file content
-     * @returns {String|Buffer}
      */
-    readFileContent() {
+    readFileContent(): string {
       let content = super.readFileContent();
 
       this.isBuddyBuilt = RE_BUDDY_BUILT.test(content);
@@ -175,10 +168,8 @@ function define(File, utils) {
 
     /**
      * Hash 'content'
-     * @param {Boolean} forWrite
-     * @returns {String}
      */
-    hashContent(forWrite = false) {
+    hashContent(forWrite: boolean = false): string {
       return forWrite
         ? md5(
             // TODO: add header
@@ -198,20 +189,8 @@ function define(File, utils) {
 
     /**
      * Read and store file contents
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    load(buildOptions, fn) {
+    load(buildOptions: BuildOptions, fn: (?Error) => void) {
       super.load(buildOptions, err => {
         if (err) {
           return fn && fn();
@@ -228,28 +207,15 @@ function define(File, utils) {
 
     /**
      * Parse file contents for dependency references
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
-     * @returns {null}
      */
-    parse(buildOptions, fn) {
+    parse(buildOptions: BuildOptions, fn: (?Error) => void) {
       if (
         this.isBuddyBuilt ||
         this.isBuilt ||
         // Don't parse input file dependencies if not bundling
         (!buildOptions.bundle && this.isDependency)
       ) {
-        return fn();
+        return void fn();
       }
 
       const [requires, imports, dynamicImports] = parse(this.content);
@@ -263,41 +229,16 @@ function define(File, utils) {
 
     /**
      * Compile file contents [no-op]
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    compile(buildOptions, fn) {
+    compile(buildOptions: BuildOptions, fn: (?Error) => void) {
       debug(`compile: ${strong(this.relpath)}`, 4);
       fn();
     }
 
     /**
      * Replace process.env references with values
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
-     * @returns {void}
      */
-    replaceEnvironment(buildOptions, fn) {
+    replaceEnvironment(buildOptions: BuildOptions, fn: (?Error) => void) {
       if (this.isBuddyBuilt || this.isBuilt) {
         return void fn();
       }
@@ -309,21 +250,8 @@ function define(File, utils) {
 
     /**
      * Transpile file contents
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
-     * @returns {void}
      */
-    transpile(buildOptions, fn) {
+    transpile(buildOptions: BuildOptions, fn: (?Error) => void) {
       if (this.isBuddyBuilt || this.isBuilt) {
         this.transpiledContent = this.content;
         if (this.hasMaps) {
@@ -360,7 +288,7 @@ function define(File, utils) {
         };
 
         plugins.push([babelPluginTransformFlatten, data]);
-        optionsFingerprint += md5(`${data.replace}`);
+        optionsFingerprint += md5(`${data.replace.toString()}`);
       }
 
       const contentFingerprint = md5(JSON.stringify(this.content));
@@ -406,20 +334,8 @@ function define(File, utils) {
 
     /**
      * Inline json/disabled dependency content
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    inline(buildOptions, fn) {
+    inline(buildOptions: BuildOptions, fn: (?Error) => void) {
       [...this.getAllDependencies(), this].forEach(file => {
         if (file.isBuddyBuilt || file.isBuilt) {
           return;
@@ -432,23 +348,10 @@ function define(File, utils) {
 
     /**
      * Reparse transpiled file contents to account for possibly removed dependencies
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
-     * @returns {null}
      */
-    reparse(buildOptions, fn) {
+    reparse(buildOptions: BuildOptions, fn: (?Error) => void) {
       if (this.isDummy) {
-        return fn();
+        return void fn();
       }
 
       [this, ...this.getAllDependencies()].forEach(file => {
@@ -504,20 +407,8 @@ function define(File, utils) {
 
     /**
      * Replace relative dependency references with fully resolved
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    rewriteDirnameFilename(buildOptions, fn) {
+    rewriteDirnameFilename(buildOptions: BuildOptions, fn: (?Error) => void) {
       [...this.getAllDependencies(), this].forEach(file => {
         if (file.isBuddyBuilt) {
           return;
@@ -530,20 +421,8 @@ function define(File, utils) {
 
     /**
      * Replace relative dependency references with fully resolved
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    replaceReferences(buildOptions, fn) {
+    replaceReferences(buildOptions: BuildOptions, fn: (?Error) => void) {
       [...this.getAllDependencies(), this].forEach(file => {
         if (file.isBuddyBuilt || file.isBuilt) {
           return;
@@ -556,20 +435,8 @@ function define(File, utils) {
 
     /**
      * Replace dynamic dependency references with fully resolved
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    replaceDynamicReferences(buildOptions, fn) {
+    replaceDynamicReferences(buildOptions: BuildOptions, fn: (?Error) => void) {
       [this, ...this.getAllDependencies()].forEach(file => {
         if (file.isBuilt) {
           return;
@@ -582,20 +449,8 @@ function define(File, utils) {
 
     /**
      * Concatenate file contents
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    concat(buildOptions, fn) {
+    concat(buildOptions: BuildOptions, fn: (?Error) => void) {
       concat(this, HEADER, buildOptions);
       debug(`concat: ${strong(this.relpath)}`, 4);
       fn();
@@ -611,9 +466,8 @@ function define(File, utils) {
 
     /**
      * Reset content
-     * @param {Boolean} hard
      */
-    reset(hard) {
+    reset(hard?: boolean) {
       super.reset(hard);
       this.depth = 0;
       this.dynamicDependencyReferences = [];

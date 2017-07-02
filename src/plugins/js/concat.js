@@ -1,4 +1,8 @@
+// @flow
+
 'use strict';
+
+import File from '../../File';
 
 const { buildExternalHelpers } = require('babel-core');
 const { uniqueMatch } = require('../../utils/string');
@@ -16,19 +20,8 @@ const RE_WRAP_OPEN = /([\s\S]+?)\/\*==/;
 
 /**
  * Concatenate dependency content for 'file'
- * @param {JSFile} file
- * @param {String} headerComment
- * @param {Object} buildOptions
- *  - {Boolean} bootstrap
- *  - {Boolean} boilerplate
- *  - {Boolean} browser
- *  - {Boolean} bundle
- *  - {Boolean} compress
- *  - {Array} ignoredFiles
- *  - {Boolean} helpers
- *  - {Boolean} watchOnly
  */
-module.exports = function concat(file, headerComment, buildOptions) {
+module.exports = function concat(file: File, headerComment: string, buildOptions: BuildOptions) {
   const { boilerplate, bootstrap, browser, helpers, importBoilerplate } = buildOptions;
   const dependencies = file.getAllDependencies();
   const content = file.content;
@@ -106,17 +99,14 @@ module.exports = function concat(file, headerComment, buildOptions) {
 
 /**
  * Undo wrapping of 'content'
- * @param {String} content
- * @param {String} id
- * @returns {String}
  */
-module.exports.unwrap = function unwrap(content, id) {
+module.exports.unwrap = function unwrap(content: string, id: string): string {
   content = content.replace(RE_WRAP_OPEN, '/*==').replace(RE_WRAP_CLOSE, '');
 
   const lastModule = RE_LAST_MODULE_DECLARATION.exec(content);
 
   // Remap module declaration if file id doesn't match bundle entry id
-  if (lastModule[1] != id) {
+  if (lastModule[1] !== id) {
     content = content.replace(lastModule[0], `$m['${id}'] = ${lastModule[0]}`);
   }
 
@@ -126,11 +116,8 @@ module.exports.unwrap = function unwrap(content, id) {
 
 /**
  * Wrap 'file' contents
- * @param {File} file
- * @param {Boolean} isCircularDependency
- * @returns {Array}
  */
-function wrap(file, isCircularDependency) {
+function wrap(file: File, isCircularDependency: boolean): [string, string] {
   const header =
     `/*== ${file.relpath} ==*/\n` +
     `$m['${file.id}'] = ${isCircularDependency ? "function () {\n$m['" + file.id + "'] = " : ''}{ exports: {} };`;

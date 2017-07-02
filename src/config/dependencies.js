@@ -1,3 +1,5 @@
+// @flow
+
 'use strict';
 
 const { error, print, strong } = require('../utils/cnsl');
@@ -16,10 +18,8 @@ module.exports = {
 
 /**
  * Resolve dependency filepath from 'id'
- * @param {String} id
- * @returns {String}
  */
-function find(id) {
+function find(id: string): string {
   let filepath = '';
 
   if (isString(id)) {
@@ -37,10 +37,8 @@ function find(id) {
 
 /**
  * Install dependencies based on 'ids'
- * @param {Array} ids
- * @param {Boolean} dev
  */
-function install(ids, dev) {
+function install(ids: Array<string>, dev: boolean) {
   if (isEmptyArray(ids)) {
     return;
   }

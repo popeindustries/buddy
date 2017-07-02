@@ -1,3 +1,5 @@
+// @flow
+
 'use strict';
 
 const { isEmptyArray } = require('../../utils/is');
@@ -12,9 +14,15 @@ const postcss = require('postcss');
  * @param {Function} fn
  * @returns {null}
  */
-module.exports = function transpile(content, filepath, plugins, options, fn) {
+module.exports = function transpile(
+  content: string,
+  filepath: string,
+  plugins: Array<Object>,
+  options: BuildOptions,
+  fn: (?Error, ?{ code: string, map?: Object }) => void
+) {
   if (isEmptyArray(plugins)) {
-    return fn(null, { code: content });
+    return void fn(null, { code: content });
   }
 
   postcss(plugins)

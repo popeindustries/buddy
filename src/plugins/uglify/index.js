@@ -1,3 +1,5 @@
+// @flow
+
 'use strict';
 
 const uglify = require('uglify-js');
@@ -20,9 +22,8 @@ module.exports = {
 
   /**
    * Register plugin
-   * @param {Config} config
    */
-  register(config) {
+  register(config: Config) {
     config.extendFileDefinitionForExtensionsOrType(extend, null, this.type);
   }
 };
@@ -32,24 +33,14 @@ module.exports = {
  * @param {Object} prototype
  * @param {Object} utils
  */
-function extend(prototype, utils) {
+function extend(prototype: Object, utils: Object) {
   const { debug, strong, warn } = utils.cnsl;
   const { sourceMapCommentStrip } = utils.string;
 
   /**
    * Compress file contents
-   * @param {Object} buildOptions
-   *  - {Boolean} bootstrap
-   *  - {Boolean} boilerplate
-   *  - {Boolean} browser
-   *  - {Boolean} bundle
-   *  - {Boolean} compress
-   *  - {Array} ignoredFiles
-   *  - {Boolean} helpers
-   *  - {Boolean} watchOnly
-   * @param {Function} fn(err)
    */
-  prototype.compress = function compress(buildOptions, fn) {
+  prototype.compress = function compress(buildOptions: BuildOptions, fn: (?Error) => void) {
     try {
       const options = Object.assign(
         this.hasMaps

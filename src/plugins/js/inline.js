@@ -1,3 +1,5 @@
+// @flow
+
 'use strict';
 
 const { isNullOrUndefined } = require('../../utils/is');
@@ -5,11 +7,8 @@ const { regexpEscape } = require('../../utils/string');
 
 /**
  * Inline json/disabled dependency content
- * @param {String} content
- * @param {Array} dependencyReferences
- * @returns {String}
  */
-module.exports = function inline(content, dependencyReferences) {
+module.exports = function inline(content: string, dependencyReferences: Array<Object>): string {
   for (const reference of dependencyReferences) {
     let context = '';
 

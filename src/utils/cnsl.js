@@ -87,9 +87,7 @@ exports.debug = function(msg: string, column: number = 0) {
 
 /**
  * Colourize 'string' for emphasis
- * @param {String} string
- * @returns {String}
  */
-exports.strong = function(string: string) {
+exports.strong = function(string: string): string {
   return chalk.bold.grey(string);
 };

@@ -1,19 +1,19 @@
+// @flow
+
 'use strict';
 
-const { isNullOrUndefined } = require('../../utils/is');
+import File from '../../File';
 
 const MAX_DEPTH = Number.POSITIVE_INFINITY;
 const START_DEPTH = Number.MAX_SAFE_INTEGER;
 
 /**
  * Sort and collect all dependencies
- * @param {JSFile} rootFile
- * @returns {Array}
  */
-module.exports = function sort(rootFile) {
+module.exports = function sort(rootFile: File): Array<File> {
   let depth = START_DEPTH;
 
-  function collect(file, collection, ancestors = []) {
+  function collect(file: File, collection: Array<File>, ancestors: Array<File> = []) {
     const isSeen = collection.includes(file);
 
     // Handle circular dependencies
@@ -40,7 +40,7 @@ module.exports = function sort(rootFile) {
       for (let i = file.dependencyReferences.length - 1; i >= 0; i--) {
         const reference = file.dependencyReferences[i];
 
-        if (!isNullOrUndefined(reference.file) && !reference.isIgnored && reference.file !== rootFile) {
+        if (reference.file != null && !reference.isIgnored && reference.file !== rootFile) {
           collect(reference.file, collection, ancestors.slice());
         }
       }

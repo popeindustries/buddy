@@ -1,4 +1,8 @@
+// @flow
+
 'use strict';
+
+import typeof File from '../../File';
 
 const { debug, strong } = require('../../utils/cnsl');
 
@@ -11,9 +15,8 @@ module.exports = {
 
   /**
    * Register plugin
-   * @param {Config} config
    */
-  register(config) {
+  register(config: Config) {
     // Allow json files to be parsed as js also
     config.registerFileExtensionsForType(FILE_EXTENSIONS, 'js');
     config.registerFileDefinitionAndExtensionsForType(define, FILE_EXTENSIONS, this.type);
@@ -22,31 +25,13 @@ module.exports = {
 
 /**
  * Extend 'File' with new behaviour
- * @param {Class} File
- * @param {Object} utils
- * @returns {Class}
  */
-function define(File, utils) {
+function define(File: File, utils: Object): JSONFile {
   return class JSONFile extends File {
-    /**
-     * Constructor
-     * @param {String} id
-     * @param {String} filepath
-     * @param {Object} options
-     *  - {Function} buildFactory
-     *  - {Object} fileCache
-     *  - {Object} fileExtensions
-     *  - {Function} fileFactory
-     *  - {Array} npmModulepaths
-     *  - {Object} pluginOptions
-     *  - {Object} runtimeOptions
-     *  - {String} webroot
-     */
-    constructor(id, filepath, options) {
+    constructor(id: string, filepath: string, options: FileOptions) {
       super(id, filepath, 'json', options);
 
       this.hasMaps = false;
-      this.map = null;
       this.workflows.standard = WORKFLOW_STANDARD;
       // No processing required
       this.workflows.inlineable = [];
@@ -54,20 +39,8 @@ function define(File, utils) {
 
     /**
      * Parse file contents for dependency references [no-op]
-     * @param {Object} buildOptions
-     *  - {Boolean} batch
-     *  - {Boolean} bootstrap
-     *  - {Boolean} boilerplate
-     *  - {Boolean} browser
-     *  - {Boolean} bundle
-     *  - {Boolean} compress
-     *  - {Boolean} helpers
-     *  - {Array} ignoredFiles
-     *  - {Boolean} importBoilerplate
-     *  - {Boolean} watchOnly
-     * @param {Function} fn(err)
      */
-    parse(buildOptions, fn) {
+    parse(buildOptions: BuildOptions, fn: (?Error) => void) {
       debug(`parse: ${strong(this.relpath)}`, 4);
       fn();
     }

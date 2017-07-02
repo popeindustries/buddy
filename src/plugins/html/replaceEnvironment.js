@@ -1,3 +1,5 @@
+// @flow
+
 'use strict';
 
 const { regexpEscape } = require('../../utils/string');
@@ -7,10 +9,8 @@ const RE_ENV = /{(BUDDY_[0-9A-Z_]+)}/g;
 
 /**
  * Replace process.env references with values
- * @param {String} content
- * @returns {String}
  */
-module.exports = function replaceEnvironment(content) {
+module.exports = function replaceEnvironment(content: string): string {
   const matches = {};
   let match;
 
