@@ -2,10 +2,10 @@
 
 'use strict';
 
-import typeof File from '../../File';
+import type File, { DependencyReference } from '../../File';
+import type Config, { BuildOptions, FileOptions } from '../../config';
 
 const { debug, error, strong, warn } = require('../../utils/cnsl');
-const { isNullOrUndefined } = require('../../utils/is');
 const { resolve } = require('../../resolver');
 const babelPluginTransformFlatten = require('./babel-plugin-transform-flatten');
 const concat = require('./concat');
@@ -57,14 +57,11 @@ module.exports = {
 
 /**
  * Extend 'File' with new behaviour
- * @param {Class} File
- * @param {Object} utils
- * @returns {Class}
  */
 function define(File: File, utils: Object): JSFile {
   return class JSFile extends File {
     depth: number;
-    dynamicDependencyReferences: Array<Object>;
+    dynamicDependencyReferences: Array<DependencyReference>;
     isBuddyBuilt: boolean;
     isBuilt: boolean;
     isCircularDependency: boolean;
@@ -76,10 +73,6 @@ function define(File: File, utils: Object): JSFile {
     constructor(id: string, filepath: string, options: FileOptions) {
       super(id, filepath, 'js', options);
 
-      /* set via super call:
-      this.isBuddyBuilt = false;
-      this.isBuilt = false;
-      */
       this.workflows.standard = WORKFLOW_STANDARD;
       this.workflows.inlineable = WORKFLOW_INLINEABLE;
       this.workflows.writeable = WORKFLOW_WRITEABLE;
@@ -107,7 +100,7 @@ function define(File: File, utils: Object): JSFile {
         .filter(reference => {
           return (
             !reference.isIgnored &&
-            !isNullOrUndefined(reference.file) &&
+            reference.file != null &&
             !reference.file.isLocked &&
             reference.file.type !== 'json' &&
             this.allDependencies.includes(reference.file)
@@ -197,7 +190,7 @@ function define(File: File, utils: Object): JSFile {
         }
 
         RE_STRICT.lastIndex = 0;
-        if (!isNullOrUndefined(buildOptions) && buildOptions.bundle && RE_STRICT.test(this.content)) {
+        if (buildOptions != null && buildOptions.bundle && RE_STRICT.test(this.content)) {
           this.setContent(this.content.replace(RE_STRICT, ''));
         }
 
@@ -340,7 +333,7 @@ function define(File: File, utils: Object): JSFile {
         if (file.isBuddyBuilt || file.isBuilt) {
           return;
         }
-        file.setContent(inline(file.content, file.dependencyReferences, buildOptions.browser));
+        file.setContent(inline(file.content, file.dependencyReferences));
         debug(`inline: ${strong(file.relpath)}`, 4);
       });
       fn();
@@ -383,7 +376,7 @@ function define(File: File, utils: Object): JSFile {
             dependency.isDisabled = originalReference.isDisabled;
             dependency.isIgnored = originalReference.isIgnored;
             file.dependencyReferences.push(dependency);
-            if (!isNullOrUndefined(originalReference.file)) {
+            if (originalReference.file != null) {
               dependency.file = originalReference.file;
               dependency.file.depth = 0;
               dependency.file.isCircularDependency = false;
@@ -394,7 +387,7 @@ function define(File: File, utils: Object): JSFile {
         dynamicImports.forEach(dependency => {
           const originalReference = dynamicReferencesById[dependency.id];
 
-          if (!isNullOrUndefined(originalReference)) {
+          if (originalReference != null) {
             dependency.file = originalReference.file;
             file.dynamicDependencyReferences.push(dependency);
           }

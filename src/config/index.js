@@ -5,6 +5,7 @@
 import type Build from '../Build';
 import type FileCache from '../cache/FileCache';
 import type ResolverCache from '../cache/ResolverCache';
+export type { FileCache, ResolverCache };
 export type BuildOptions = {
   batch: boolean,
   boilerplate: boolean,
@@ -28,7 +29,9 @@ export type FileOptions = {
   npmModulepaths: Array<string>,
   pluginOptions: { [string]: Object },
   resolverCache: ResolverCache,
-  runtimeOptions: RuntimeOptions,
+  runtimeOptions: RuntimeOptions
+  // sourceroot: string | null,
+  // webroot: string | null
 };
 export type RuntimeOptions = {
   compress: boolean,

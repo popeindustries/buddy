@@ -9,6 +9,14 @@ type FileWorkflows = {
   writeable: Array<string>
 };
 import type { BuildOptions, FileOptions } from './config';
+export type DependencyReference = {
+  file: File,
+  filepath: string,
+  id: string,
+  isDisabled: boolean,
+  isIgnored: boolean,
+  isUnresolved: boolean
+};
 export type WriteResult = {
   content: string | Buffer,
   filepath: string,
@@ -42,7 +50,7 @@ const WORKFLOW_STANDARD = ['load', 'parse', 'runForDependencies'];
 
 module.exports = class File {
   allDependencies: Array<File> | null;
-  allDependencyReferences: Array<Object> | null;
+  allDependencyReferences: Array<DependencyReference> | null;
   content: string | Buffer;
   fileContent: string | Buffer;
   date: number;
@@ -63,7 +71,7 @@ module.exports = class File {
   map: Object;
   mapUrl: string;
   name: string;
-  options: FileOptions | null;
+  options: FileOptions;
   relpath: string;
   relUrl: string;
   totalLines: number;
@@ -74,22 +82,6 @@ module.exports = class File {
   writeUrl: string;
   workflows: FileWorkflows;
 
-  /**
-   * Constructor
-   * @param {Object} options
-   *  - {Boolean} browser
-   *  - {Function} buildFactory
-   *  - {FileCache} fileCache
-   *  - {Object} fileExtensions
-   *  - {Function} fileFactory
-   *  - {Number} level
-   *  - {String} sourceroot
-   *  - {Array} npmModulepaths
-   *  - {Object} pluginOptions
-   *  - {ResolverCache} resolverCache
-   *  - {Object} runtimeOptions
-   *  - {String} webroot
-   */
   constructor(id: string, filepath: string, type: string, options: FileOptions) {
     this.allDependencies;
     this.allDependencyReferences;
@@ -289,7 +281,7 @@ module.exports = class File {
   /**
    * Retrieve flattened dependency reference tree
    */
-  getAllDependencyReferences(): Array<File> {
+  getAllDependencyReferences(): Array<DependencyReference> {
     if (this.allDependencyReferences == null) {
       const references = [];
       const seen = {};
@@ -313,7 +305,7 @@ module.exports = class File {
   /**
    * Add 'dependencies'
    */
-  addDependencies(dependencies: Array<{}>, buildOptions: BuildOptions) {
+  addDependencies(dependencies: Array<DependencyReference>, buildOptions: BuildOptions) {
     if (!Array.isArray(dependencies)) {
       dependencies = [dependencies];
     }

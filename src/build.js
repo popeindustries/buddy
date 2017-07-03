@@ -3,8 +3,7 @@
 'use strict';
 
 import type File, { WriteResult } from './File';
-import FileCache from './cache/FileCache';
-import type { BuildOptions, FileOptions, RuntimeOptions } from './config';
+import type { BuildOptions, FileCache, FileOptions, RuntimeOptions } from './config';
 
 const { debug, print, strong, warn } = require('./utils/cnsl');
 const { filepathName, findUniqueFilepath, isUniqueFilepath } = require('./utils/filepath');

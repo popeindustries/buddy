@@ -2,7 +2,6 @@
 
 'use strict';
 
-const { isNullOrUndefined } = require('../../utils/is');
 const { regexpEscape } = require('../../utils/string');
 
 /**
@@ -16,7 +15,7 @@ module.exports = function inline(content: string, dependencyReferences: Array<Ob
     if (reference.isDisabled) {
       context = '{}';
       // Inline json
-    } else if (!isNullOrUndefined(reference.file) && reference.file.type === 'json') {
+    } else if (reference.file != null && reference.file.type === 'json') {
       // Remove line breaks to preserve source map line positions
       context = (reference.file.content || '{}').replace(/\n/g, '');
     }

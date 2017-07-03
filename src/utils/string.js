@@ -2,6 +2,11 @@
 
 'use strict';
 
+type Position = {
+  line: number,
+  column: number
+};
+
 const isEqual = require('lodash/isEqual');
 const unique = require('lodash/uniqWith');
 
@@ -71,15 +76,16 @@ function indent(string: string, column: number): string {
 /**
  * Match unique occurrences in 'string'
  */
-function uniqueMatch(string: string, regexp: RegExp): Array<{ context: string, match: string }> {
+function uniqueMatch(string: string, regexp: RegExp): Array<{ context: string, id: string, match: string }> {
   const results = [];
   let match;
 
   while ((match = regexp.exec(string))) {
-    results.push({
-      context: match[0],
-      match: match[1] || ''
-    });
+    const result = {};
+
+    result.context = match[0];
+    result.match = result.id = match[1] || '';
+    results.push(result);
   }
 
   // Filter duplicates
@@ -108,7 +114,7 @@ function truncate(string: string): string {
  * Retrieve line/column from 'index' of 'string'
  * Column is zero-indexed
  */
-function getLocationFromIndex(string: string, index: number | Array<number>): { line: number, column: number } {
+function getLocationFromIndex(string: string, index: number | Array<number>): Position | Array<Position> {
   const lines = string.split('\n');
   let destructure = false;
   let idx = 0;
