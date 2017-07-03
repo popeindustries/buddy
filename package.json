@@ -38,7 +38,7 @@
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "source-map": "0.5.6",
-    "uglify-js": "3.0.22"
+    "uglify-js": "3.0.23"
   },
   "devDependencies": {
     "babel-cli": "6.24.1",
