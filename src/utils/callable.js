@@ -8,7 +8,7 @@ const { isFunction, isInvalid } = require('./is');
  * Retrieve callable function for 'fnName' of 'context'
  */
 module.exports = function callable(
-  context: () => mixed,
+  context: Object | () => mixed,
   fnName: ?string,
   ...args: Array<any>
 ): (...args: Array<any>) => mixed {

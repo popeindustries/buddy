@@ -29,8 +29,9 @@ module.exports = {
   /**
    * Load default/global buddy plugins
    */
-  load(config: Config, additionalPluginModules: Array<string> = []) {
+  load(config: Config) {
     const cwd = process.cwd();
+    const additionalPluginModules = parseConfigPlugins(config);
 
     // Load default and additional modules
     DEFAULT_PLUGINS.concat(additionalPluginModules).forEach(module => {
@@ -42,6 +43,35 @@ module.exports = {
     loadPluginsFromDir(path.join(cwd, DEFAULT_PLUGINS_DIR), config);
   }
 };
+
+/**
+ * Parse plugins defined in 'config'
+ */
+function parseConfigPlugins(config: Config): Array<string> {
+  const plugins = [];
+
+  function parse(plugins) {
+    return plugins.map(plugin => {
+      if (typeof plugin === 'string') {
+        plugin = path.resolve(plugin);
+      }
+      return plugin;
+    });
+  }
+
+  // Handle plugin paths defined in config file
+  if (config.plugins != null) {
+    plugins.push(...parse(config.plugins));
+    config.plugins = null;
+  }
+  // Handle plugin paths/functions defined in runtime options
+  if (config.runtimeOptions.plugins != null) {
+    plugins.push(...parse(config.runtimeOptions.plugins));
+    config.runtimeOptions.plugins = null;
+  }
+
+  return plugins;
+}
 
 /**
  * Load plugins in 'dir'

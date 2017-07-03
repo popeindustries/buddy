@@ -30,8 +30,6 @@ module.exports = {
 
 /**
  * Extend 'prototype' with new behaviour
- * @param {Object} prototype
- * @param {Object} utils
  */
 function extend(prototype: Object, utils: Object) {
   const { debug, strong, warn } = utils.cnsl;

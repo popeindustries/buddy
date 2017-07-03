@@ -1,21 +1,12 @@
 // @flow
 
-type Options = {
-  buddyServerPath: string,
-  directory: string,
-  env: Object,
-  extraDirectories: Array<string>,
-  flags: Array<string>,
-  file: string,
-  headers: Object,
-  port: number,
-};
-
 'use strict';
+
+import type { ServerOptions } from '../config';
 
 const { debug, print, strong } = require('./cnsl');
 const { fork } = require('child_process');
-const { isInvalid, isUndefined } = require('./is');
+const { isInvalid } = require('./is');
 const chalk = require('chalk');
 const merge = require('lodash/merge');
 const path = require('path');
@@ -31,7 +22,7 @@ module.exports = {
   /**
    * Start the servers
    */
-  start(serve: boolean, reload: boolean, options: Options, fn: (?Error) => void) {
+  start(serve: boolean, reload: boolean, options: ServerOptions, fn: (?Error) => void) {
     const { ReloadServerFactory, ServerFactory } = require(options.buddyServerPath);
     const tasks = [];
 
@@ -57,7 +48,7 @@ module.exports = {
       tasks.push(done => {
         const file = options.file ? path.resolve(options.file) : '';
         const started = err => {
-          if (!isUndefined(err)) {
+          if (err != null) {
             return fn(err);
           }
           done();

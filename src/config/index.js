@@ -2,21 +2,75 @@
 
 'use strict';
 
+import type Build from '../Build';
+import type FileCache from '../cache/FileCache';
+import type ResolverCache from '../cache/ResolverCache';
+export type BuildOptions = {
+  batch: boolean,
+  boilerplate: boolean,
+  bootstrap: boolean,
+  browser: boolean,
+  bundle: boolean,
+  compress: boolean,
+  helpers: boolean,
+  ignoredFiles: Array<string>,
+  importBoilerplate: boolean,
+  watchOnly: boolean
+};
+export type FileOptions = {
+  browser: boolean,
+  buildFactory: (string, string) => Build,
+  bundle: boolean,
+  fileCache: FileCache,
+  fileExtensions: { [string]: Array<string> },
+  fileFactory: (string, FileOptions) => File,
+  level: number,
+  npmModulepaths: Array<string>,
+  pluginOptions: { [string]: Object },
+  resolverCache: ResolverCache,
+  runtimeOptions: RuntimeOptions,
+};
+export type RuntimeOptions = {
+  compress: boolean,
+  debug: boolean,
+  deploy: boolean,
+  grep: boolean,
+  invert: boolean,
+  maps: boolean,
+  reload: boolean,
+  script: boolean,
+  serve: boolean,
+  watch: boolean
+};
+export type ServerOptions = {
+  buddyServerPath: string,
+  directory: string,
+  env: Array<string>,
+  extraDirectories: Array<string> | null,
+  file: string | null,
+  flags: Array<string>,
+  headers: Object,
+  port: number,
+  sourceroot: string | null,
+  webroot: string | null
+};
+
 const { dummyFile, versionDelimiter } = require('../settings');
 const { error, print, strong } = require('../utils/cnsl');
 const { exists } = require('../utils/filepath');
 const { hunt: { sync: hunt } } = require('recur-fs');
 const { identify } = require('../resolver');
 const { isInvalid } = require('../utils/is');
+const buddyPlugins = require('./buddyPlugins');
 const buildParser = require('./buildParser');
+const buildPlugins = require('./buildPlugins');
 const cache = require('../cache');
 const chalk = require('chalk');
 const File = require('../File');
 const fs = require('fs');
 const merge = require('lodash/merge');
 const path = require('path');
-const buddyPlugins = require('./buddyPlugins');
-const buildPlugins = require('./buildPlugins');
+const runtimeOptions = require('./runtimeOptions');
 const serverParser = require('./serverParser');
 const utils = require('../utils');
 
@@ -25,60 +79,36 @@ const DEFAULT_MANIFEST = {
   json: 'buddy.json',
   pkgjson: 'package.json'
 };
-const DEFAULT_OPTIONS = {
-  compress: false,
-  debug: false,
-  deploy: false,
-  grep: false,
-  invert: false,
-  maps: false,
-  reload: false,
-  script: false,
-  serve: false,
-  watch: false
-};
 
-/**
- * Retrieve new instance of Config
- */
-module.exports = function configFactory(configPath?: string | Object, runtimeOptions: RuntimeOptions): Config {
-  return new Config(configPath, runtimeOptions);
-};
+module.exports = class Config {
+  builds: Array<Build> | null;
+  fileDefinitionByExtension: { [string]: File };
+  fileExtensions: { [string]: Array<string> };
+  fileFactory: (string, FileOptions) => File;
+  npmModulepaths: Array<string>;
+  runtimeOptions: RuntimeOptions;
+  script: string;
+  server: ServerOptions;
+  url: string;
 
-class Config {
-  /**
-   * Constructor
-   * @param {String|Object} [configPath]
-   * @param {Object} [runtimeOptions]
-   *  - {Boolean} compress
-   *  - {Boolean} debug
-   *  - {Boolean} deploy
-   *  - {Boolean} grep
-   *  - {Boolean} invert
-   *  - {Boolean} maps
-   *  - {Boolean} reload
-   *  - {Boolean} script
-   *  - {Boolean} serve
-   *  - {Boolean} watch
-   */
-  constructor(configPath, runtimeOptions) {
-    runtimeOptions = Object.assign({}, DEFAULT_OPTIONS, runtimeOptions);
+  constructor(configPath?: string | Object, options?: Object) {
+    const parsedRuntimeOptions: RuntimeOptions = runtimeOptions(options);
 
     // Force NODE_ENV
     if (runtimeOptions.deploy) {
       process.env.NODE_ENV = 'production';
-    } else if (isNullOrUndefined(process.env.NODE_ENV)) {
+    } else if (process.env.NODE_ENV == null) {
       process.env.NODE_ENV = 'development';
     }
 
-    const cmd = (runtimeOptions.deploy && 'deploy') || (runtimeOptions.watch && 'watch') || 'build';
+    const cmd = (parsedRuntimeOptions.deploy && 'deploy') || (parsedRuntimeOptions.watch && 'watch') || 'build';
     let data;
 
     // No config specified or filepath or named set
-    if (isNullOrUndefined(configPath) || isString(configPath)) {
+    if (configPath == null || typeof configPath === 'string') {
       const env = process.env.NODE_ENV;
       const isNamed =
-        !isNullOrUndefined(configPath) && path.extname(configPath) === '' && !exists(path.resolve(configPath));
+        configPath != null && path.extname(configPath) === '' && !exists(path.resolve(configPath));
 
       this.url = locateConfig(isNamed ? '' : configPath);
       data = normalizeData(require(this.url));
@@ -118,21 +148,15 @@ class Config {
     this.fileDefinitionByExtension = {};
     this.fileExtensions = {};
     this.npmModulepaths = parseNpmModulePaths();
-    this.runtimeOptions = runtimeOptions;
+    this.runtimeOptions = parsedRuntimeOptions;
     this.script = '';
-    this.server = {
-      directory: '.',
-      port: 8080
-    };
     this.fileFactory = this.fileFactory.bind(this);
 
     // Merge file data
     merge(this, data);
 
-    buildParser.preparse(this);
-    // Load default/installed plugins
     // Generates fileExtensions/types used to validate build
-    buddyPlugins.load(this, parsePlugins(this));
+    buddyPlugins.load(this);
     // Parse 'server' data parameter
     serverParser(this);
     // Parse 'builds' data parameter
@@ -141,24 +165,11 @@ class Config {
 
   /**
    * Retrieve File instance for 'filepath'
-   * @param {String} filepath
-   * @param {Object} options
-   *  - {Boolean} browser
-   *  - {Function} buildFactory
-   *  - {Boolean} bundle
-   *  - {Object} fileCache
-   *  - {Object} fileExtensions
-   *  - {Function} fileFactory
-   *  - {Number} level
-   *  - {Array} npmModulepaths
-   *  - {Object} pluginOptions
-   *  - {Object} resolverCache
-   *  - {Object} runtimeOptions
-   * @returns {File}
    */
-  fileFactory(filepath, options) {
+  fileFactory(filepath: string, options: FileOptions): File {
     const { browser, bundle, fileCache, fileExtensions, resolverCache } = options;
-    let ctor, file;
+    let ctor: (string, string, FileOptions) => File;
+    let file;
 
     // Handle dummy file from generated build
     if (filepath === dummyFile) {
@@ -168,8 +179,8 @@ class Config {
     }
 
     // Retrieve cached
-    if (fileCache.hasFile(filepath)) {
-      file = fileCache.getFile(filepath);
+    file = fileCache.getFile(filepath);
+    if (file != null) {
       file.options = options;
       return file;
     }
@@ -191,10 +202,8 @@ class Config {
 
   /**
    * Register file 'extensions' for 'type'
-   * @param {Array} extensions
-   * @param {String} type
    */
-  registerFileExtensionsForType(extensions, type) {
+  registerFileExtensionsForType(extensions: Array<string>, type: string) {
     extensions = [...extensions];
     if (!this.fileExtensions[type]) {
       this.fileExtensions[type] = [];
@@ -208,11 +217,8 @@ class Config {
 
   /**
    * Register target 'version' for 'type'
-   * @param {String} version
-   * @param {String} type
-   * @param {Array} plugins
    */
-  registerTargetVersionForType(version, type, plugins) {
+  registerTargetVersionForType(version: string, type: string, plugins: Array<string | Array<[string, Object]>>) {
     if (type === 'js') {
       buildPlugins.addPreset('babel', version, plugins);
     }
@@ -220,14 +226,11 @@ class Config {
 
   /**
    * Register file definition and 'extensions' for 'type'
-   * @param {Function} define
-   * @param {Array} extensions
-   * @param {String} type
    */
-  registerFileDefinitionAndExtensionsForType(define, extensions, type) {
+  registerFileDefinitionAndExtensionsForType(define: (File, Object) => File, extensions: Array<string>, type: string) {
     const def = define(this.fileDefinitionByExtension[type] || File, utils);
 
-    if (!isNullOrUndefined(extensions)) {
+    if (extensions != null) {
       extensions.forEach(extension => {
         this.fileDefinitionByExtension[extension] = def;
       });
@@ -237,16 +240,12 @@ class Config {
 
   /**
    * Extend file definition for 'extensions' or 'type'
-   * @param {Function} extend
-   * @param {Array} extensions
-   * @param {String} type
-   * @returns {void}
    */
-  extendFileDefinitionForExtensionsOrType(extend, extensions, type) {
-    const key = !isNullOrUndefined(extensions) ? extensions[0] : this.fileExtensions[type][0];
+  extendFileDefinitionForExtensionsOrType(extend: (Object, Object) => void, extensions: Array<string>, type: string) {
+    const key = extensions != null ? extensions[0] : this.fileExtensions[type][0];
     const def = this.fileDefinitionByExtension[key];
 
-    if (isUndefined(def)) {
+    if (def == null) {
       return void error(`no File type available for extension for ${strong(key)}`);
     }
 
@@ -264,10 +263,8 @@ class Config {
 /**
  * Locate the configuration file
  * Walks the directory tree if no file/directory specified
- * @param {String} [url]
- * @returns {String}
  */
-function locateConfig(url) {
+function locateConfig(url?: string): string {
   let configPath = '';
 
   function check(dir) {
@@ -283,7 +280,7 @@ function locateConfig(url) {
     return '';
   }
 
-  if (!isNullOrUndefined(url)) {
+  if (url != null) {
     configPath = path.resolve(url);
 
     try {
@@ -330,41 +327,9 @@ function locateConfig(url) {
 }
 
 /**
- * Parse plugins defined in 'config'
- * @param {Config} config
- * @returns {Array}
- */
-function parsePlugins(config) {
-  const plugins = [];
-
-  function parse(plugins) {
-    return plugins.map(plugin => {
-      if (isString(plugin)) {
-        plugin = path.resolve(plugin);
-      }
-      return plugin;
-    });
-  }
-
-  // Handle plugin paths defined in config file
-  if (!isNullOrUndefined(config.plugins)) {
-    plugins.push(...parse(config.plugins));
-    config.plugins = null;
-  }
-  // Handle plugin paths/functions defined in runtime options
-  if (!isNullOrUndefined(config.runtimeOptions.plugins)) {
-    plugins.push(...parse(config.runtimeOptions.plugins));
-    config.runtimeOptions.plugins = null;
-  }
-
-  return plugins;
-}
-
-/**
  * Parse all npm package paths
- * @returns {Array}
  */
-function parseNpmModulePaths() {
+function parseNpmModulePaths(): Array<string> {
   const jsonPath = path.resolve('package.json');
 
   try {
@@ -385,16 +350,14 @@ function parseNpmModulePaths() {
 
 /**
  * Normalize 'data'
- * @param {Object} data
- * @returns {Object}
  */
-function normalizeData(data) {
+function normalizeData(data: Object): Object {
   // Package.json
-  if (!isNullOrUndefined(data.buddy)) {
+  if (data.buddy != null) {
     data = data.buddy;
   }
   // Handle super simple mode
-  if (!isNullOrUndefined(data.input)) {
+  if (data.input != null) {
     data = { build: [data] };
   }
   return data;

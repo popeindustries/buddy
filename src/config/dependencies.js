@@ -4,7 +4,7 @@
 
 const { error, print, strong } = require('../utils/cnsl');
 const { execSync: exec } = require('child_process');
-const { isEmptyArray, isString } = require('../utils/is');
+const { isEmptyArray } = require('../utils/is');
 const { resolve } = require('../resolver');
 const fs = require('fs');
 const path = require('path');
@@ -22,7 +22,7 @@ module.exports = {
 function find(id: string): string {
   let filepath = '';
 
-  if (isString(id)) {
+  if (typeof id === 'string') {
     try {
       // Resolve relative to buddy package
       filepath = require.resolve(id);

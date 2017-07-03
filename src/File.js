@@ -8,6 +8,7 @@ type FileWorkflows = {
   inlineable: Array<string>,
   writeable: Array<string>
 };
+import type { BuildOptions, FileOptions } from './config';
 export type WriteResult = {
   content: string | Buffer,
   filepath: string,
@@ -62,7 +63,7 @@ module.exports = class File {
   map: Object;
   mapUrl: string;
   name: string;
-  options: {} | null;
+  options: FileOptions | null;
   relpath: string;
   relUrl: string;
   totalLines: number;

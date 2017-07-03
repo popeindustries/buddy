@@ -2,13 +2,15 @@
 
 'use strict';
 
+import type Build from './Build';
+
 const { spawn } = require('child_process');
 const cache = require('./cache');
 const callable = require('./utils/callable');
 const chalk = require('chalk');
 const cnsl = require('./utils/cnsl');
 const compact = require('lodash/compact');
-const configFactory = require('./config');
+const Config = require('./config');
 const flatten = require('lodash/flatten');
 const path = require('path');
 const series = require('async/series');
@@ -22,8 +24,8 @@ let serverfarm = null;
  * Initialize based on configuration located at 'configpath'
  * The directory tree will be walked if no 'configpath' specified
  */
-module.exports = function buddyFactory(configpath: string | Object, runtimeOptions: Object): Buddy {
-  return new Buddy(configpath, runtimeOptions);
+module.exports = function buddyFactory(configpath: string | Object, options: Object): Buddy {
+  return new Buddy(configpath, options);
 };
 
 class Buddy {
@@ -32,12 +34,12 @@ class Buddy {
   builds: Array<Build>;
   onFileCacheChange: string => void;
 
-  constructor(configpath: string | Object, runtimeOptions: Object = {}) {
+  constructor(configpath: string | Object, options: Object) {
     // Set console behaviour
-    cnsl.verbose = runtimeOptions.debug;
+    cnsl.verbose = options.debug;
 
     this.building = false;
-    this.config = configFactory(configpath, runtimeOptions);
+    this.config = new Config(configpath, options);
     this.builds = this.config.builds || [];
     this.onFileCacheChange = this.onFileCacheChange.bind(this);
 
@@ -174,32 +176,34 @@ class Buddy {
 
       stopwatch.start('watch');
 
-      this.run(builds, (err?: Error, filepaths: Array<string>) => {
+      this.run(builds, (err, filepaths) => {
         if (err != null) {
           // Don't throw
           return error(err, 2, false);
-        }
-        if (serverfarm != null) {
-          // Trigger partial refresh if only 1 css file, full reload if not
-          const filepath = filepaths.length === 1 && path.extname(filepaths[0]) === '.css' ? filepaths[0] : 'foo.js';
+        // TODO: unnecessary, but flow
+        } else if (filepaths != null) {
+          if (serverfarm != null) {
+            // Trigger partial refresh if only 1 css file, full reload if not
+            const filepath = filepaths.length === 1 && path.extname(filepaths[0]) === '.css' ? filepaths[0] : 'foo.js';
 
-          // Refresh browser
-          if (!servers.length > 0) {
-            serverfarm.refresh(path.basename(filepath));
-          } else {
-            // Restart app server
-            serverfarm.restart(err => {
-              if (err != null) {
-                return void console.log(err);
-              }
-              // Refresh browser
+            // Refresh browser
+            if (servers.length > 0) {
               serverfarm.refresh(path.basename(filepath));
-            });
+            } else {
+              // Restart app server
+              serverfarm.restart(err => {
+                if (err != null) {
+                  return void console.log(err);
+                }
+                // Refresh browser
+                serverfarm.refresh(path.basename(filepath));
+              });
+            }
           }
+          print(`\ndone build in ${chalk.cyan(stopwatch.stop('watch', true))}\n`, 0);
+          // Run test script
+          this.executeScript();
         }
-        print(`\ndone build in ${chalk.cyan(stopwatch.stop('watch', true))}\n`, 0);
-        // Run test script
-        this.executeScript();
       });
     }
   }

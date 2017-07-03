@@ -2,16 +2,27 @@
 
 'use strict';
 
+import type Config, { ServerOptions } from './index';
+
 const { isInvalid } = require('../utils/is');
 const dependencies = require('./dependencies');
 const path = require('path');
 
 const BUDDY_SERVER = 'buddy-server';
+const DEFAULT: ServerOptions = {
+  directory: '.',
+  extraDirectories: null,
+  file: null,
+  port: 8080,
+  sourceroot: null,
+  webroot: null
+};
 
 /**
  * Parse and validate "server" section of 'config'
  */
 module.exports = function serverParser(config: Config) {
+  config.server = Object.assign({}, DEFAULT, config.server);
   const { runtimeOptions, server } = config;
 
   // Make sure 'buddy-server' module exists if running '--serve' and/or '--reload'
@@ -19,7 +30,7 @@ module.exports = function serverParser(config: Config) {
     let buddyServerPath = dependencies.find(BUDDY_SERVER);
 
     if (isInvalid(buddyServerPath)) {
-      dependencies.install(BUDDY_SERVER, true);
+      dependencies.install([BUDDY_SERVER], true);
       buddyServerPath = dependencies.find(BUDDY_SERVER);
     }
     server.buddyServerPath = buddyServerPath;

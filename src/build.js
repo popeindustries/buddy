@@ -2,20 +2,9 @@
 
 'use strict';
 
-type ProcessFileOptions = {
-  batch: boolean,
-  boilerplate: boolean,
-  bootstrap: boolean,
-  browser: boolean,
-  bundle: boolean,
-  compress: boolean,
-  helpers: boolean,
-  ignoredFiles: Array<string>,
-  importBoilerplate: boolean,
-  watchOnly: boolean
-};
-import File, { WriteResult } from './File';
+import type File, { WriteResult } from './File';
 import FileCache from './cache/FileCache';
+import type { BuildOptions, FileOptions, RuntimeOptions } from './config';
 
 const { debug, print, strong, warn } = require('./utils/cnsl');
 const { filepathName, findUniqueFilepath, isUniqueFilepath } = require('./utils/filepath');
@@ -39,14 +28,7 @@ const zlib = require('zlib');
 
 const RE_GENERATED_SHARED = /common|shared/;
 
-/**
- * Build instance factory
- */
-module.exports = function buildFactory(props: Object): Build {
-  return new Build(props);
-};
-
-class Build {
+module.exports = class Build {
   batch: boolean;
   boilerplate: boolean;
   bootstrap: boolean;
@@ -55,7 +37,7 @@ class Build {
   bundle: boolean;
   childInputpaths: Array<string>;
   fileCache: FileCache;
-  fileFactory: Function;
+  fileFactory: (string, FileOptions) => File;
   fileFactoryOptions: FileOptions;
   generatedInputPattern: string;
   id: string;
@@ -69,13 +51,13 @@ class Build {
   isGeneratedBuild: boolean;
   label: string;
   level: number;
+  options: BuildOptions;
   output: string;
   outputFiles: Array<File>;
   outputpaths: Array<string>;
   outputString: string;
   parent: Build;
   printPrefix: string;
-  processFilesOptions: ProcessFileOptions;
   referencedFiles: Array<File>;
   results: Array<WriteResult>;
   runtimeOptions: RuntimeOptions;
@@ -83,20 +65,16 @@ class Build {
   type: string;
   watchOnly: boolean;
 
-  /**
-   * Constructor
-   * @param {Object} props
-   */
-  constructor(props) {
+  constructor(props: Object) {
     Object.assign(this, props);
 
     this.builds = [];
     this.childInputpaths = [];
     this.id = this.label || (!isInvalid(this.index) && this.index.toString());
     this.inputFiles = [];
+    this.options;
     this.outputFiles = [];
     this.printPrefix = new Array(this.level + 1).join('\u2219');
-    this.processFilesOptions;
     this.referencedFiles = [];
     this.results = [];
     this.timerID = this.inputpaths[0];
@@ -199,7 +177,7 @@ class Build {
     this.referencedFiles = [];
     this.results = [];
     this.outputFiles = [];
-    this.processFilesOptions = {
+    this.options = {
       batch: !this.bundle && this.batch,
       boilerplate: this.boilerplate,
       bootstrap: this.bootstrap,
@@ -257,7 +235,7 @@ class Build {
     env('INPUT_HASH', files, this.id);
     env('INPUT_DATE', files, this.id);
 
-    parallel(files.map(file => callable(file, 'run', 'standard', this.processFilesOptions)), err => {
+    parallel(files.map(file => callable(file, 'run', 'standard', this.options)), err => {
       if (err != null) {
         return fn(err);
       }
@@ -367,7 +345,7 @@ class Build {
     });
 
     dummyFile.allDependencies = dummyFile.allDependencyReferences = null;
-    dummyFile.addDependencies(matchingDependencies, this.processFilesOptions);
+    dummyFile.addDependencies(matchingDependencies, this.options);
     dummyFile.getAllDependencies().forEach(dependency => {
       if (!this.referencedFiles.includes(dependency)) {
         this.referencedFiles.push(dependency);
@@ -382,7 +360,7 @@ class Build {
    */
   preProcessWriteFiles(fn: (?Error) => void) {
     this.outputFiles = this.inputFiles
-      .filter(file => file.isWriteable(this.processFilesOptions.batch))
+      .filter(file => file.isWriteable(this.options.batch))
       .reduce((outputFiles, file, idx) => {
         let filepath = '';
 
@@ -409,7 +387,7 @@ class Build {
             }
           }
 
-          file.prepareForWrite(filepath, this.processFilesOptions);
+          file.prepareForWrite(filepath, this.options);
           outputFiles.push(file);
           env('OUTPUT', file, this.id);
           env('OUTPUT_HASH', file, this.id);
@@ -427,7 +405,7 @@ class Build {
    * Write content for 'files'
    */
   writeFiles(files: Array<File>, fn: (?Error, ?Array<File>, ?Array<WriteResult>) => void) {
-    const writeable = files.map(file => callable(file, 'write', this.processFilesOptions));
+    const writeable = files.map(file => callable(file, 'write', this.options));
 
     // Results are [{ filepath, content, type }]
     parallel(writeable, (err, results) => {
