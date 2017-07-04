@@ -2,6 +2,17 @@
 
 'use strict';
 
+export type CnslUtils = {
+  BELL: string,
+  silent: boolean,
+  verbose: boolean,
+  print: (string, number) => void,
+  error: ({ message: string } | string, number, ?boolean) => void,
+  warn: (string, number) => void,
+  debug: (string, number) => void,
+  strong: (string) => string
+};
+
 const { indent } = require('./string');
 const { msDiff } = require('./stopwatch');
 const chalk = require('chalk');

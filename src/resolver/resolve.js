@@ -3,7 +3,7 @@
 'use strict';
 
 const { filepathType, isAbsoluteFilepath, isFilepath, isRelativeFilepath, findFilepath } = require('../utils/filepath');
-const { isInvalid, isUndefined } = require('../utils/is');
+const { isInvalid } = require('../utils/is');
 const { versionDelimiter } = require('../settings');
 const alias = require('./alias');
 const config = require('./config');
@@ -13,7 +13,7 @@ const path = require('path');
 /**
  * Resolve the path for 'id' from 'sourcepath'
  */
-module.exports = function resolve(sourcepath: string, id: string, options: Object): string | boolean {
+module.exports = function resolve(sourcepath: string, id: string, options: Object): string | false {
   options = config(options);
 
   const { fileExtensions } = options;
@@ -30,13 +30,13 @@ module.exports = function resolve(sourcepath: string, id: string, options: Objec
     filepath = find(id, type, sourcedir, options);
   }
 
-  return isUndefined(filepath) ? '' : filepath;
+  return filepath == null ? '' : filepath;
 };
 
 /**
  * Find filepath for 'id' in 'sourcedir' directory
  */
-function find(id: string, type: string, sourcedir: string, options: Object): string | boolean {
+function find(id: string, type: string, sourcedir: string, options: Object): string | false {
   const { cache, fileExtensions, nativeModules } = options;
   const pkgDetails = pkg.getDetails(sourcedir, options);
   let filepath = isRelativeFilepath(id) ? path.join(sourcedir, id) : id;

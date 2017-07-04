@@ -6,6 +6,16 @@ type Position = {
   line: number,
   column: number
 };
+export type StringUtils = {
+  commentStrip: (string) => string,
+  sourceMapCommentStrip: (string) => string,
+  commentWrap: (string, string) => string,
+  indent: (string, number) => string,
+  uniqueMatch: (string, RegExp) => Array<{ context: string, id: string, match: string }>,
+  regexpEscape: (string) => string,
+  truncate: (string) => string,
+  getLocationFromIndex: (string, number | Array<number>) => Position | Array<Position>
+};
 
 const isEqual = require('lodash/isEqual');
 const unique = require('lodash/uniqWith');

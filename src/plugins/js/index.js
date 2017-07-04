@@ -2,8 +2,10 @@
 
 'use strict';
 
-import type File, { DependencyReference } from '../../File';
+import typeof File from '../../File';
+import type { DependencyReference } from '../../File';
 import type Config, { BuildOptions, FileOptions } from '../../config';
+import type { Utils } from '../../utils';
 
 const { debug, error, strong, warn } = require('../../utils/cnsl');
 const { resolve } = require('../../resolver');
@@ -58,7 +60,9 @@ module.exports = {
 /**
  * Extend 'File' with new behaviour
  */
-function define(File: File, utils: Object): JSFile {
+function define(File: File, utils: Utils): JSFile {
+  const { file: fileUtils } = utils;
+
   return class JSFile extends File {
     depth: number;
     dynamicDependencyReferences: Array<DependencyReference>;
@@ -70,7 +74,7 @@ function define(File: File, utils: Object): JSFile {
     transpiledFingerprint: string;
     transpiledMap: Object;
 
-    constructor(id: string, filepath: string, options: FileOptions) {
+    constructor(id: string, filepath: string, type: string, options: FileOptions) {
       super(id, filepath, 'js', options);
 
       this.workflows.standard = WORKFLOW_STANDARD;

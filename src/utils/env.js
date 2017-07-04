@@ -2,6 +2,8 @@
 
 'use strict';
 
+export type EnvUtils = (string, Array<string | File>, ?string) => void;
+
 const { isInvalid } = require('./is');
 const File = require('../File');
 const path = require('path');

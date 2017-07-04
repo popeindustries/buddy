@@ -1,13 +1,21 @@
 // @flow
 
-type MapObject = {
-  sources: Array<string>,
-  sourcesContent: Array<string>
-};
-
 'use strict';
 
-const { isEmptyArray, isInvalid, isNullOrUndefined } = require('./is');
+type MapObject = {
+  sources?: Array<string>,
+  sourcesContent?: Array<string>
+};
+export type SourceMapUtils = {
+  create: (string, string) => SourceMapGenerator,
+  createFromMap: (MapObject, string, ?string) => SourceMapGenerator,
+  clone: (SourceMapGenerator) => SourceMapGenerator,
+  append: (SourceMapGenerator, SourceMapGenerator, number) => void,
+  prepend: (SourceMapGenerator, SourceMapGenerator, number) => void,
+  insert: (SourceMapGenerator, ?SourceMapGenerator, number, number) => void
+};
+
+const { isEmptyArray, isInvalid } = require('./is');
 const { SourceMapConsumer, SourceMapGenerator } = require('source-map');
 
 module.exports = {
@@ -21,9 +29,6 @@ module.exports = {
 
 /**
  * Create source map from 'content'
- * @param {String} content
- * @param {String} [url]
- * @returns {SourceMapGenerator}
  */
 function create(content: string, url: string): SourceMapGenerator {
   url = url || '<source>';
@@ -47,7 +52,6 @@ function create(content: string, url: string): SourceMapGenerator {
 
 /**
  * Create source map from 'mapObject' and 'content'
- * @returns {SourceMapGenerator}
  */
 function createFromMap(mapObject: MapObject, content: string, url: ?string): SourceMapGenerator {
   url = url || '<source>';
@@ -90,7 +94,7 @@ function append(outMap: SourceMapGenerator, inMap: SourceMapGenerator, offset: n
     inConsumer.eachMapping(mapping => {
       outMap.addMapping({
         source: mapping.source,
-        original: isNullOrUndefined(mapping.source)
+        original: mapping.source == null
           ? null
           : {
               line: mapping.originalLine,
@@ -118,13 +122,13 @@ function prepend(outMap: SourceMapGenerator, inMap: SourceMapGenerator, offset: 
     mapping.generatedLine += offset;
   });
 
-  if (!isNullOrUndefined(inMap)) {
+  if (inMap != null) {
     const inConsumer = new SourceMapConsumer(inMap.toJSON());
 
     inConsumer.eachMapping(mapping => {
       outMap.addMapping({
         source: mapping.source,
-        original: isNullOrUndefined(mapping.source)
+        original: mapping.source == null
           ? null
           : {
               line: mapping.originalLine,
@@ -168,7 +172,7 @@ function insert(
     inConsumer.eachMapping(mapping => {
       outMap.addMapping({
         source: mapping.source,
-        original: isNullOrUndefined(mapping.source)
+        original: mapping.source == null
           ? null
           : {
               line: mapping.originalLine,
@@ -192,9 +196,9 @@ function insert(
  */
 function emptySources(mapObject: MapObject) {
   return (
-    isNullOrUndefined(mapObject.sources) ||
+    mapObject.sources == null ||
     isEmptyArray(mapObject.sources) ||
-    isNullOrUndefined(mapObject.sourcesContent) ||
+    mapObject.sourcesContent == null ||
     isEmptyArray(mapObject.sourcesContent) ||
     mapObject.sources.length !== mapObject.sourcesContent.length
   );

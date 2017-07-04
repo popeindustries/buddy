@@ -2,7 +2,20 @@
 
 'use strict';
 
-const { isInvalid, isString, isNullOrUndefined } = require('./is');
+export type FilepathUtils = {
+  exists: (string) => boolean,
+  isAbsoluteFilepath: (string) => boolean,
+  isRelativeFilepath: (string) => boolean,
+  isFilepath: (string) => boolean,
+  isUniqueFilepath: (string) => boolean,
+  filepathName: (string) => string,
+  filepathType: (string, { [string]: Array<string> }) => string,
+  findFilepath: (string, string, { [string]: Array<string> }) => string,
+  findUniqueFilepath: (string) => string,
+  generateUniqueFilepath: (string, string | boolean) => string
+};
+
+const { isInvalid } = require('./is');
 const { regexpEscape } = require('./string');
 const fs = require('fs');
 const md5 = require('md5');
@@ -26,6 +39,13 @@ module.exports = {
   },
 
   /**
+   * Determine whether 'pattern' is supported
+   */
+  isUniqueFilepath(pattern: string): boolean {
+    return RE_UNIQUE_TOKEN.test(pattern);
+  }
+
+  /**
    * Retrieve path name (dirname/filename) of 'p'
    */
   filepathName(p: string): string {
@@ -43,7 +63,7 @@ module.exports = {
   /**
    * Determine type of 'filepath'
    */
-  filepathType(filepath: string, fileExtensions: Object): string {
+  filepathType(filepath: string, fileExtensions: { [string]: Array<string> }): string {
     const ext = path.extname(filepath).slice(1);
 
     // Match input extension to type
@@ -63,8 +83,8 @@ module.exports = {
   /**
    * Check the location of 'filepath'
    */
-  findFilepath(filepath: string, type: string, fileExtensions: Object): string {
-    if (isString(filepath) && !isInvalid(type) && !isNullOrUndefined(fileExtensions)) {
+  findFilepath(filepath: string, type: string, fileExtensions: { [string]: Array<string> }): string {
+    if (typeof filepath === 'string' && !isInvalid(type) && fileExtensions != null) {
       let stat;
 
       try {
@@ -112,7 +132,7 @@ module.exports = {
     let files, reToken;
 
     // Matches {hash} or {date}
-    if (!isNullOrUndefined((reToken = RE_UNIQUE_TOKEN.exec(pattern)))) {
+    if ((reToken = RE_UNIQUE_TOKEN.exec(pattern)) != null) {
       try {
         files = fs.readdirSync(dir);
       } catch (err) {
@@ -145,7 +165,7 @@ module.exports = {
 
     let reToken, wildcard;
 
-    if (!isNullOrUndefined((reToken = RE_UNIQUE_TOKEN.exec(pattern)))) {
+    if ((reToken = RE_UNIQUE_TOKEN.exec(pattern)) != null) {
       wildcard = reToken[0];
       if (wildcard === '%hash%') {
         // Remove if content == false
@@ -158,13 +178,6 @@ module.exports = {
 
     return pattern;
   },
-
-  /**
-   * Determine whether 'pattern' is supported
-   */
-  isUniqueFilepath(pattern: string): boolean {
-    return RE_UNIQUE_TOKEN.test(pattern);
-  }
 };
 
 /**
@@ -187,18 +200,14 @@ function exists(filepath: string): boolean {
 
 /**
  * Determine if 'filepath' is relative
- * @param {String} filepath
- * @returns {Boolean}
  */
 function isRelativeFilepath(filepath: string): boolean {
-  return isString(filepath) && filepath.charAt(0) === '.';
+  return typeof filepath === 'string' && filepath.charAt(0) === '.';
 }
 
 /**
  * Determine if 'filepath' is absolute
- * @param {String} filepath
- * @returns {Boolean}
  */
 function isAbsoluteFilepath(filepath: string): boolean {
-  return isString(filepath) && path.resolve(filepath) === filepath;
+  return typeof filepath === 'string' && path.resolve(filepath) === filepath;
 }

@@ -5,6 +5,7 @@
 import type Build from '../Build';
 import type FileCache from '../cache/FileCache';
 import type ResolverCache from '../cache/ResolverCache';
+import type { Utils } from '../utils';
 export type { FileCache, ResolverCache };
 export type BuildOptions = {
   batch: boolean,
@@ -171,13 +172,13 @@ module.exports = class Config {
    */
   fileFactory(filepath: string, options: FileOptions): File {
     const { browser, bundle, fileCache, fileExtensions, resolverCache } = options;
-    let ctor: (string, string, FileOptions) => File;
+    let ctor: (string, string, string, FileOptions) => File;
     let file;
 
     // Handle dummy file from generated build
     if (filepath === dummyFile) {
       ctor = this.fileDefinitionByExtension.js;
-      file = new ctor('dummy', filepath, options);
+      file = new ctor('dummy', filepath, 'js', options);
       return file;
     }
 
@@ -192,7 +193,7 @@ module.exports = class Config {
     const id = identify(filepath, { browser, cache: resolverCache, fileExtensions });
 
     ctor = this.fileDefinitionByExtension[extension];
-    file = new ctor(id, filepath, options);
+    file = new ctor(id, filepath, undefined, options);
     fileCache.addFile(file);
 
     // Warn of multiple versions
@@ -230,7 +231,7 @@ module.exports = class Config {
   /**
    * Register file definition and 'extensions' for 'type'
    */
-  registerFileDefinitionAndExtensionsForType(define: (File, Object) => File, extensions: Array<string>, type: string) {
+  registerFileDefinitionAndExtensionsForType(define: (File, Utils) => File, extensions: Array<string>, type: string) {
     const def = define(this.fileDefinitionByExtension[type] || File, utils);
 
     if (extensions != null) {

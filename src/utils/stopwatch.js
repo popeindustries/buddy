@@ -2,7 +2,13 @@
 
 'use strict';
 
-const { isUndefined } = require('./is');
+export type StopwatchUtils = {
+  start: (string) => void,
+  pause: (string) => void,
+  stop: (string, boolean) => number | string,
+  clear: (string) => void,
+  msDiff: ([number, number], [number, number]) => number
+};
 
 const timers = {};
 
@@ -18,7 +24,7 @@ module.exports = {
  * Start timer with 'id'
  */
 function start(id: string) {
-  if (isUndefined(timers[id])) {
+  if (timers[id] == null) {
     timers[id] = {
       start: 0,
       elapsed: 0
@@ -31,7 +37,7 @@ function start(id: string) {
  * Pause timer with 'id'
  */
 function pause(id: string) {
-  if (isUndefined(timers[id])) {
+  if (timers[id] == null) {
     return void start(id);
   }
 

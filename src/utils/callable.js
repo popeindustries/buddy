@@ -2,6 +2,8 @@
 
 'use strict';
 
+export type CallableUtils = (Object | () => mixed, ?string, Array<any>) => (Array<any>) => mixed;
+
 const { isFunction, isInvalid } = require('./is');
 
 /**

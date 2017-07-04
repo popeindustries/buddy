@@ -2,81 +2,66 @@
 
 'use strict';
 
+export type IsUtils = {
+  isPlainObject: (Object) => boolean,
+  isEmptyArray: (Array<any>) => boolean,
+  isFunction: (() => mixed) => boolean,
+  isString: (string) => boolean,
+  isNumber: (number) => boolean,
+  isObject: (Object) => boolean,
+  isInvalid: (any) => boolean
+};
+
 const isPlainObject = require('lodash/isPlainObject');
 
 module.exports = {
-  // isArray: Array.isArray,
   isPlainObject,
   isEmptyArray,
   isFunction,
-  // isString,
+  isString,
   isNumber,
   isObject,
-  // isNull,
-  // isUndefined,
-  // isNullOrUndefined,
   isInvalid
 };
 
 /**
  * Determine if 'o' is an empty Array
  */
-function isEmptyArray(o: any): boolean {
+function isEmptyArray(o: Array<any>): boolean {
   return Array.isArray(o) && o.length === 0;
 }
 
 /**
  * Determine if 'o' is a Function
  */
-function isFunction(o: any): boolean {
+function isFunction(o: () => mixed): boolean {
   return typeof o === 'function';
 }
 
 /**
  * Determine if 'o' is a String
  */
-function isString(o: any): boolean {
+function isString(o: string): boolean {
   return typeof o === 'string';
 }
 
 /**
  * Determine if 'o' is a Number
  */
-function isNumber(o: any): boolean {
+function isNumber(o: number): boolean {
   return typeof o === 'number';
 }
 
 /**
  * Determine if 'o' is an Object
  */
-function isObject(o: any): boolean {
+function isObject(o: Object): boolean {
   return typeof o === 'object';
-}
-
-/**
- * Determine if 'o' is Null
- */
-function isNull(o: any): boolean {
-  return o === null;
-}
-
-/**
- * Determine if 'o' is undefined
- */
-function isUndefined(o: any): boolean {
-  return o === void 0;
-}
-
-/**
- * Determine if 'o' is Null or undefined
- */
-function isNullOrUndefined(o: any): boolean {
-  return isUndefined(o) || isNull(o);
 }
 
 /**
  * Determine if 'o' is invalid
  */
-function isInvalid(o: any): boolean {
-  return isUndefined(o) || isNull(o) || o === false || o === '';
+function isInvalid(o: mixed): boolean {
+  return o == null || o === false || o === '';
 }

@@ -51,8 +51,8 @@ const WORKFLOW_STANDARD = ['load', 'parse', 'runForDependencies'];
 module.exports = class File {
   allDependencies: Array<File> | null;
   allDependencyReferences: Array<DependencyReference> | null;
-  content: string | Buffer;
-  fileContent: string | Buffer;
+  content: string;
+  fileContent: string;
   date: number;
   dependencies: Array<File>;
   dependencyReferences: Array<{}>;
@@ -82,7 +82,11 @@ module.exports = class File {
   writeUrl: string;
   workflows: FileWorkflows;
 
-  constructor(id: string, filepath: string, type: string, options: FileOptions) {
+  constructor(id: string, filepath: string, type?: string, options: FileOptions) {
+    if (type == null) {
+      type = 'generic';
+    }
+
     this.allDependencies;
     this.allDependencyReferences;
     this.content = '';
@@ -160,8 +164,8 @@ module.exports = class File {
   /**
    * Set 'map'
    */
-  setMap(map?: {}) {
-    if (!this.hasMaps || this.encoding !== 'utf8') {
+  setMap(map?: SourceMapGenerator | Object) {
+    if (!this.hasMaps || typeof this.fileContent !== 'string') {
       return;
     }
 
