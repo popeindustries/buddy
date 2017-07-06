@@ -8,26 +8,32 @@ type FileWorkflows = {
   inlineable: Array<string>,
   writeable: Array<string>
 };
-import type { BuildOptions, FileOptions } from './config';
-export type DependencyReference = {
-  file: File,
-  filepath: string,
-  id: string,
-  isDisabled: boolean,
-  isIgnored: boolean,
-  isUnresolved: boolean
+type DependencyReference = {
+  context?: string,
+  file?: File,
+  filepath?: string,
+  id?: string,
+  isDisabled?: boolean,
+  isIgnored?: boolean,
+  isUnresolved?: boolean,
+  match?: string
 };
-export type WriteResult = {
-  content: string | Buffer,
+type WriteResult = {
+  content: string,
   filepath: string,
   type: string,
-  printPrefix: string
+  printPrefix?: string
 };
+interface IFile {
+
+}
+import type { BuildOptions, FileOptions } from './config';
+export type { DependencyReference, WriteResult };
 
 const { debug, strong, warn } = require('./utils/cnsl');
 const { dummyFile } = require('./settings');
 const { exists, generateUniqueFilepath, isUniqueFilepath } = require('./utils/filepath');
-const { getLocationFromIndex, sourceMapCommentStrip, truncate } = require('./utils/string');
+const { sourceMapCommentStrip, truncate } = require('./utils/string');
 const { isEmptyArray, isInvalid } = require('./utils/is');
 const { mkdir: { sync: mkdir } } = require('recur-fs');
 const { readFileSync: readFile, writeFileSync: writeFile } = require('fs');
@@ -48,14 +54,14 @@ const RE_WIN_SEPARATOR = /\\/g;
 const WORKFLOW_INLINEABLE = ['load'];
 const WORKFLOW_STANDARD = ['load', 'parse', 'runForDependencies'];
 
-module.exports = class File {
+module.exports = class File implements IFile {
   allDependencies: Array<File> | null;
   allDependencyReferences: Array<DependencyReference> | null;
   content: string;
   fileContent: string;
   date: number;
   dependencies: Array<File>;
-  dependencyReferences: Array<{}>;
+  dependencyReferences: Array<DependencyReference>;
   encoding: string;
   extension: string;
   filepath: string;
@@ -152,7 +158,7 @@ module.exports = class File {
   /**
    * Set 'content'
    */
-  setContent(content: string | Buffer) {
+  setContent(content: string) {
     if (typeof content === 'string') {
       this.content = content || '';
       this.totalLines = this.content ? this.content.split('\n').length : 0;
@@ -175,92 +181,92 @@ module.exports = class File {
         : map instanceof SourceMapGenerator ? map : sourceMap.createFromMap(map, this.fileContent, this.relUrl);
   }
 
-  /**
-   * Append 'content' of content
-   */
-  appendContent(content: string | File) {
-    let contentLines = 0;
+  // /**
+  //  * Append 'content' of content
+  //  */
+  // appendContent(content: string | File) {
+  //   let contentLines = 0;
 
-    if (typeof content === 'string') {
-      contentLines = content.split('\n').length;
-    } else {
-      if (this.map != null) {
-        sourceMap.append(this.map, content.map, this.totalLines);
-      }
-      contentLines = content.totalLines;
-      content = content.content;
-    }
-    // New line if not first
-    this.content += `${this.content.length > 0 ? '\n' : ''}${content}`;
-    this.totalLines += contentLines;
-  }
+  //   if (typeof content === 'string') {
+  //     contentLines = content.split('\n').length;
+  //   } else {
+  //     if (this.map != null) {
+  //       sourceMap.append(this.map, content.map, this.totalLines);
+  //     }
+  //     contentLines = content.totalLines;
+  //     content = content.content;
+  //   }
+  //   // New line if not first
+  //   this.content += `${this.content.length > 0 ? '\n' : ''}${content}`;
+  //   this.totalLines += contentLines;
+  // }
 
-  /**
-   * Append 'content' of content
-   */
-  prependContent(content: string | File) {
-    let contentLines = 0;
+  // /**
+  //  * Append 'content' of content
+  //  */
+  // prependContent(content: string | File) {
+  //   let contentLines = 0;
 
-    if (typeof content === 'string') {
-      contentLines = content.split('\n').length;
-      if (this.map != null) {
-        sourceMap.prepend(this.map, null, contentLines);
-      }
-    } else {
-      contentLines = content.totalLines;
-      if (this.map != null) {
-        sourceMap.prepend(this.map, content.map, contentLines);
-      }
-      content = content.content;
-    }
-    this.content = `${content}${this.content.length > 0 ? '\n' : ''}` + this.content;
-    this.totalLines += contentLines;
-  }
+  //   if (typeof content === 'string') {
+  //     contentLines = content.split('\n').length;
+  //     if (this.map != null) {
+  //       sourceMap.prepend(this.map, null, contentLines);
+  //     }
+  //   } else {
+  //     contentLines = content.totalLines;
+  //     if (this.map != null) {
+  //       sourceMap.prepend(this.map, content.map, contentLines);
+  //     }
+  //     content = content.content;
+  //   }
+  //   this.content = `${content}${this.content.length > 0 ? '\n' : ''}` + this.content;
+  //   this.totalLines += contentLines;
+  // }
 
-  /**
-   * Replace 'string' at 'index' with 'content'
-   */
-  replaceContent(string: string | Array<[string, number, string | File]>, index: number, content: string | File) {
-    // Convert to batch
-    if (!Array.isArray(string)) {
-      string = [[string, index, content]];
-    }
+  // /**
+  //  * Replace 'string' at 'index' with 'content'
+  //  */
+  // replaceContent(string: string | Array<[string, number, string | File]>, index: number, content: string | File) {
+  //   // Convert to batch
+  //   if (!Array.isArray(string)) {
+  //     string = [[string, index, content]];
+  //   }
 
-    const indexes = string.map(args => args[1]);
-    const location = getLocationFromIndex(this.content, indexes);
-    let offsetIndex = 0;
-    let offsetLine = 0;
+  //   const indexes = string.map(args => args[1]);
+  //   const location = getLocationFromIndex(this.content, indexes);
+  //   let offsetIndex = 0;
+  //   let offsetLine = 0;
 
-    const replace = (args, idx) => {
-      let [string, index, content] = args;
-      let line = location[idx].line;
-      let contentLines = 0;
+  //   const replace = (args, idx) => {
+  //     let [string, index, content] = args;
+  //     let line = location[idx].line;
+  //     let contentLines = 0;
 
-      index += offsetIndex;
-      line += offsetLine;
+  //     index += offsetIndex;
+  //     line += offsetLine;
 
-      if (typeof content === 'string') {
-        contentLines = content.split('\n').length - 1;
-        if (contentLines > 0 && this.map != null) {
-          sourceMap.insert(this.map, null, contentLines, line);
-        }
-      } else {
-        contentLines = content.totalLines - 1;
-        if (this.map != null) {
-          sourceMap.insert(this.map, content.map, contentLines, line);
-        }
-        content = content.content;
-      }
+  //     if (typeof content === 'string') {
+  //       contentLines = content.split('\n').length - 1;
+  //       if (contentLines > 0 && this.map != null) {
+  //         sourceMap.insert(this.map, null, contentLines, line);
+  //       }
+  //     } else {
+  //       contentLines = content.totalLines - 1;
+  //       if (this.map != null) {
+  //         sourceMap.insert(this.map, content.map, contentLines, line);
+  //       }
+  //       content = content.content;
+  //     }
 
-      this.content = this.content.substring(0, index) + content + this.content.substring(index + string.length);
-      this.totalLines += contentLines;
+  //     this.content = this.content.substring(0, index) + content + this.content.substring(index + string.length);
+  //     this.totalLines += contentLines;
 
-      offsetIndex += content.length - string.length;
-      offsetLine += contentLines;
-    };
+  //     offsetIndex += content.length - string.length;
+  //     offsetLine += contentLines;
+  //   };
 
-    string.forEach(replace);
-  }
+  //   string.forEach(replace);
+  // }
 
   /**
    * Retrieve flattened dependency tree
@@ -442,7 +448,7 @@ module.exports = class File {
   /**
    * Read file content
    */
-  readFileContent(): string | Buffer {
+  readFileContent(): string {
     let content = ' ';
 
     if (!this.isDummy) {

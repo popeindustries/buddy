@@ -43,7 +43,7 @@ module.exports = {
    */
   isUniqueFilepath(pattern: string): boolean {
     return RE_UNIQUE_TOKEN.test(pattern);
-  }
+  },
 
   /**
    * Retrieve path name (dirname/filename) of 'p'
