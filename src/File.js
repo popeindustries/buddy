@@ -24,11 +24,62 @@ type WriteResult = {
   type: string,
   printPrefix?: string
 };
-interface IFile {
-
-}
 import type { BuildOptions, FileOptions } from './config';
-export type { DependencyReference, WriteResult };
+interface IFile {
+  allDependencies: Array<IFile> | null,
+  allDependencyReferences: Array<DependencyReference> | null,
+  content: string,
+  fileContent: string,
+  date: number,
+  dependencies: Array<IFile>,
+  dependencyReferences: Array<DependencyReference>,
+  encoding: string,
+  extension: string,
+  filepath: string,
+  hash: string,
+  hasMaps: boolean,
+  hasUnresolvedDependencies: boolean,
+  id: string,
+  idSafe: string,
+  isDependency: boolean,
+  isDummy: boolean,
+  isInline: boolean,
+  isLocked: boolean,
+  map: Object,
+  mapUrl: string,
+  name: string,
+  options: FileOptions,
+  relpath: string,
+  relUrl: string,
+  totalLines: number,
+  type: string,
+  writepath: string,
+  writeDate: number,
+  writeHash: string,
+  writeUrl: string,
+  workflows: FileWorkflows,
+  isWriteable(batch: boolean): boolean,
+  isInlineable(): boolean,
+  setContent(content: string): void,
+  setMap(map?: SourceMapGenerator | Object): void,
+  getAllDependencies(): Array<IFile>,
+  getAllDependencyReferences(): Array<DependencyReference>,
+  addDependencies(dependencies: Array<DependencyReference>, buildOptions: BuildOptions): void,
+  parseWorkflow(type: string, buildOptions: BuildOptions): Array<string>,
+  run(type: string, buildOptions: BuildOptions, fn: (?Error) => void): void,
+  runForDependencies(type: string, dependencies?: Array<IFile>, buildOptions: BuildOptions, fn: (?Error) => void): void,
+  readFileContent(): string,
+  hashContent(forWrite: boolean): string,
+  load(buildOptions?: BuildOptions, fn?: (?Error) => void): void,
+  parse(buildOptions: BuildOptions, fn: (?Error) => void): void,
+  compile(buildOptions: BuildOptions, fn: (?Error) => void): void,
+  compress(buildOptions: BuildOptions, fn: (?Error) => void): void,
+  prepareForWrite(filepath: string, buildOptions: BuildOptions): void,
+  write(buildOptions: BuildOptions, fn: (?Error, ?WriteResult) => void): void,
+  reset(hard?: boolean): void,
+  destroy(): void
+}
+export type { DependencyReference, IFile, WriteResult };
 
 const { debug, strong, warn } = require('./utils/cnsl');
 const { dummyFile } = require('./settings');
@@ -55,12 +106,12 @@ const WORKFLOW_INLINEABLE = ['load'];
 const WORKFLOW_STANDARD = ['load', 'parse', 'runForDependencies'];
 
 module.exports = class File implements IFile {
-  allDependencies: Array<File> | null;
+  allDependencies: Array<IFile> | null;
   allDependencyReferences: Array<DependencyReference> | null;
   content: string;
   fileContent: string;
   date: number;
-  dependencies: Array<File>;
+  dependencies: Array<IFile>;
   dependencyReferences: Array<DependencyReference>;
   encoding: string;
   extension: string;
@@ -180,93 +231,6 @@ module.exports = class File implements IFile {
         ? sourceMap.create(this.fileContent, this.relUrl)
         : map instanceof SourceMapGenerator ? map : sourceMap.createFromMap(map, this.fileContent, this.relUrl);
   }
-
-  // /**
-  //  * Append 'content' of content
-  //  */
-  // appendContent(content: string | File) {
-  //   let contentLines = 0;
-
-  //   if (typeof content === 'string') {
-  //     contentLines = content.split('\n').length;
-  //   } else {
-  //     if (this.map != null) {
-  //       sourceMap.append(this.map, content.map, this.totalLines);
-  //     }
-  //     contentLines = content.totalLines;
-  //     content = content.content;
-  //   }
-  //   // New line if not first
-  //   this.content += `${this.content.length > 0 ? '\n' : ''}${content}`;
-  //   this.totalLines += contentLines;
-  // }
-
-  // /**
-  //  * Append 'content' of content
-  //  */
-  // prependContent(content: string | File) {
-  //   let contentLines = 0;
-
-  //   if (typeof content === 'string') {
-  //     contentLines = content.split('\n').length;
-  //     if (this.map != null) {
-  //       sourceMap.prepend(this.map, null, contentLines);
-  //     }
-  //   } else {
-  //     contentLines = content.totalLines;
-  //     if (this.map != null) {
-  //       sourceMap.prepend(this.map, content.map, contentLines);
-  //     }
-  //     content = content.content;
-  //   }
-  //   this.content = `${content}${this.content.length > 0 ? '\n' : ''}` + this.content;
-  //   this.totalLines += contentLines;
-  // }
-
-  // /**
-  //  * Replace 'string' at 'index' with 'content'
-  //  */
-  // replaceContent(string: string | Array<[string, number, string | File]>, index: number, content: string | File) {
-  //   // Convert to batch
-  //   if (!Array.isArray(string)) {
-  //     string = [[string, index, content]];
-  //   }
-
-  //   const indexes = string.map(args => args[1]);
-  //   const location = getLocationFromIndex(this.content, indexes);
-  //   let offsetIndex = 0;
-  //   let offsetLine = 0;
-
-  //   const replace = (args, idx) => {
-  //     let [string, index, content] = args;
-  //     let line = location[idx].line;
-  //     let contentLines = 0;
-
-  //     index += offsetIndex;
-  //     line += offsetLine;
-
-  //     if (typeof content === 'string') {
-  //       contentLines = content.split('\n').length - 1;
-  //       if (contentLines > 0 && this.map != null) {
-  //         sourceMap.insert(this.map, null, contentLines, line);
-  //       }
-  //     } else {
-  //       contentLines = content.totalLines - 1;
-  //       if (this.map != null) {
-  //         sourceMap.insert(this.map, content.map, contentLines, line);
-  //       }
-  //       content = content.content;
-  //     }
-
-  //     this.content = this.content.substring(0, index) + content + this.content.substring(index + string.length);
-  //     this.totalLines += contentLines;
-
-  //     offsetIndex += content.length - string.length;
-  //     offsetLine += contentLines;
-  //   };
-
-  //   string.forEach(replace);
-  // }
 
   /**
    * Retrieve flattened dependency tree
@@ -601,6 +565,6 @@ module.exports = class File implements IFile {
    */
   destroy() {
     this.reset(true);
-    this.options = null;
+    delete this.options;
   }
 };

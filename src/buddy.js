@@ -108,7 +108,7 @@ class Buddy {
     if (this.config != null) {
       this.config.destroy();
     }
-    this.config = null;
+    delete this.config;
     this.builds = [];
   }
 

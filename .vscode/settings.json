@@ -11,5 +11,6 @@
   },
   "javascript.validate.enable": false,
   "flow.useNPMPackagedFlow": true,
-  "prettier.parser": "flow"
+  "prettier.parser": "flow",
+  "editor.codeLens": false
 }

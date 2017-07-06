@@ -2,12 +2,12 @@
 
 'use strict';
 
+import type { Utils } from '../utils';
 import type Build from '../Build';
 import type FileCache from '../cache/FileCache';
 import type ResolverCache from '../cache/ResolverCache';
-import type { Utils } from '../utils';
-export type { FileCache, ResolverCache };
-export type BuildOptions = {
+import type { IFile } from '../File';
+type BuildOptions = {
   batch: boolean,
   boilerplate: boolean,
   bootstrap: boolean,
@@ -19,7 +19,7 @@ export type BuildOptions = {
   importBoilerplate: boolean,
   watchOnly: boolean
 };
-export type FileOptions = {
+type FileOptions = {
   browser: boolean,
   buildFactory: (string, string) => Build,
   bundle: boolean,
@@ -30,11 +30,11 @@ export type FileOptions = {
   npmModulepaths: Array<string>,
   pluginOptions: { [string]: Object },
   resolverCache: ResolverCache,
-  runtimeOptions: RuntimeOptions
-  // sourceroot: string | null,
-  // webroot: string | null
+  runtimeOptions: RuntimeOptions,
+  sourceroot: string,
+  webroot: string
 };
-export type RuntimeOptions = {
+type RuntimeOptions = {
   compress: boolean,
   debug: boolean,
   deploy: boolean,
@@ -46,31 +46,30 @@ export type RuntimeOptions = {
   serve: boolean,
   watch: boolean
 };
-export type ServerOptions = {
-  buddyServerPath: string,
+type ServerOptions = {
+  buddyServerPath?: string,
   directory: string,
-  env: Array<string>,
+  env?: Array<string>,
   extraDirectories: Array<string> | null,
   file: string | null,
-  flags: Array<string>,
-  headers: Object,
+  flags?: Array<string>,
+  headers?: Object,
   port: number,
   sourceroot: string | null,
   webroot: string | null
 };
+export type { BuildOptions, FileCache, FileOptions, ResolverCache, RuntimeOptions, ServerOptions };
 
-const { dummyFile, versionDelimiter } = require('../settings');
 const { error, print, strong } = require('../utils/cnsl');
 const { exists } = require('../utils/filepath');
 const { hunt: { sync: hunt } } = require('recur-fs');
-const { identify } = require('../resolver');
 const { isInvalid } = require('../utils/is');
 const buddyPlugins = require('./buddyPlugins');
 const buildParser = require('./buildParser');
 const buildPlugins = require('./buildPlugins');
 const cache = require('../cache');
 const chalk = require('chalk');
-const File = require('../File');
+// const File = require('../File');
 const fs = require('fs');
 const merge = require('lodash/merge');
 const path = require('path');
@@ -85,10 +84,9 @@ const DEFAULT_MANIFEST = {
 };
 
 module.exports = class Config {
-  builds: Array<Build> | null;
-  fileDefinitionByExtension: { [string]: File };
+  builds: ?Array<Build>;
+  fileDefinitionByExtension: { [string]: Class<IFile> };
   fileExtensions: { [string]: Array<string> };
-  fileFactory: (string, FileOptions) => File;
   npmModulepaths: Array<string>;
   runtimeOptions: RuntimeOptions;
   script: string;
@@ -123,7 +121,7 @@ module.exports = class Config {
 
         if (env in data) {
           namedData = data[env];
-        } else if (configPath in data) {
+        } else if (configPath != null && configPath in data) {
           namedData = data[configPath];
         }
 
@@ -154,7 +152,6 @@ module.exports = class Config {
     this.npmModulepaths = parseNpmModulePaths();
     this.runtimeOptions = parsedRuntimeOptions;
     this.script = '';
-    this.fileFactory = this.fileFactory.bind(this);
 
     // Merge file data
     merge(this, data);
@@ -162,46 +159,9 @@ module.exports = class Config {
     // Generates fileExtensions/types used to validate build
     buddyPlugins.load(this);
     // Parse 'server' data parameter
-    serverParser(this);
+    this.server = serverParser(this);
     // Parse 'builds' data parameter
-    buildParser(this);
-  }
-
-  /**
-   * Retrieve File instance for 'filepath'
-   */
-  fileFactory(filepath: string, options: FileOptions): File {
-    const { browser, bundle, fileCache, fileExtensions, resolverCache } = options;
-    let ctor: (string, string, string, FileOptions) => File;
-    let file;
-
-    // Handle dummy file from generated build
-    if (filepath === dummyFile) {
-      ctor = this.fileDefinitionByExtension.js;
-      file = new ctor('dummy', filepath, 'js', options);
-      return file;
-    }
-
-    // Retrieve cached
-    file = fileCache.getFile(filepath);
-    if (file != null) {
-      file.options = options;
-      return file;
-    }
-
-    const extension = path.extname(filepath).slice(1);
-    const id = identify(filepath, { browser, cache: resolverCache, fileExtensions });
-
-    ctor = this.fileDefinitionByExtension[extension];
-    file = new ctor(id, filepath, undefined, options);
-    fileCache.addFile(file);
-
-    // Warn of multiple versions
-    if (bundle && browser) {
-      resolverCache.checkMultipleVersions(id, filepath, versionDelimiter, options.level);
-    }
-
-    return file;
+    this.builds = buildParser(this);
   }
 
   /**
@@ -231,7 +191,7 @@ module.exports = class Config {
   /**
    * Register file definition and 'extensions' for 'type'
    */
-  registerFileDefinitionAndExtensionsForType(define: (File, Utils) => File, extensions: Array<string>, type: string) {
+  registerFileDefinitionAndExtensionsForType(define: (IFile, Utils) => IFile, extensions: Array<string>, type: string) {
     const def = define(this.fileDefinitionByExtension[type] || File, utils);
 
     if (extensions != null) {

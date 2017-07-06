@@ -1,9 +1,15 @@
+// @flow
+
 'use strict';
 
-const { dummyFile } = require('../settings');
+import type Config, { FileOptions, RuntimeOptions, ServerOptions } from './index';
+import type Build from '../Build';
+
+const { dummyFile, versionDelimiter } = require('../settings');
 const { filepathType } = require('../utils/filepath');
+const { identify } = require('../resolver');
 const { indir, readdir: { sync: readdir } } = require('recur-fs');
-const { isArray, isNullOrUndefined, isInvalid } = require('../utils/is');
+const { isInvalid } = require('../utils/is');
 const { strong, warn } = require('../utils/cnsl');
 const buildFactory = require('../build');
 const buildPlugins = require('./buildPlugins');
@@ -30,22 +36,28 @@ const RE_TRAILING = /[\/\\]$/;
 let numBuilds;
 
 module.exports = {
-  preparse(config) {
-
-  },
-
   /**
    * Parse and validate "build" section of 'config'
-   * @param {Object} config
    */
-  parse(config) {
-    if (isNullOrUndefined(config.builds)) {
+  parse(config: Config): Array<Build> {
+    if (config.build == null) {
       throw Error('missing build data');
     }
-    config.builds = parseBuild(
-      config.builds,
+
+    // Deprecate sources
+    if ('sources' in config.build) {
+      warn(DEPRECATED_SOURCES, 1);
+    }
+    // Deprecate targets
+    if ('targets' in config.build) {
+      warn(DEPRECATED_VERSION, 1);
+      config.build = config.build.targets;
+    }
+
+    return parseBuild(
+      config.build || [],
       config.fileExtensions,
-      config.fileFactory,
+      getFileFactory(config),
       config.npmModulepaths,
       config.runtimeOptions,
       config.server
@@ -65,20 +77,19 @@ module.exports = {
  * @param {Number} [level]
  * @returns {Array}
  */
-function parseBuild(builds, fileExtensions, fileFactory, npmModulepaths, runtimeOptions, serverConfig, parent, level) {
-  if (isNullOrUndefined(parent)) {
+function parseBuild(
+  builds: Array<Object>,
+  fileExtensions: { [string]: Array<string> },
+  fileFactory: (string, FileOptions) => IFile,
+  npmModulepaths: Array<string>,
+  runtimeOptions: RuntimeOptions,
+  serverOptions: ServerOptions,
+  parent?: Build,
+  level?: number
+): Array<Build> {
+  if (parent == null) {
     numBuilds = 0;
     level = 1;
-  }
-
-  // Deprecate sources
-  if ('sources' in builds) {
-    warn(DEPRECATED_SOURCES, 1);
-  }
-  // Deprecate targets
-  if ('targets' in builds) {
-    warn(DEPRECATED_VERSION, 1);
-    builds = builds.targets;
   }
 
   return builds.reduce((builds, buildConfig) => {
@@ -169,6 +180,45 @@ function parseBuild(builds, fileExtensions, fileFactory, npmModulepaths, runtime
 
     return builds;
   }, []);
+}
+
+/**
+ * Retrieve file factory for 'config'
+ */
+function getFileFactory(config: Config): (string, FileOptions) => IFile {
+  return function fileFactory(filepath: string, options: FileOptions): IFile {
+    const { browser, bundle, fileCache, fileExtensions, resolverCache } = options;
+    let ctor: (string, string, string, FileOptions) => IFile;
+    let file;
+
+    // Handle dummy file from generated build
+    if (filepath === dummyFile) {
+      ctor = config.fileDefinitionByExtension.js;
+      file = new ctor('dummy', filepath, 'js', options);
+      return file;
+    }
+
+    // Retrieve cached
+    file = fileCache.getFile(filepath);
+    if (file != null) {
+      file.options = options;
+      return file;
+    }
+
+    const extension = path.extname(filepath).slice(1);
+    const id = identify(filepath, { browser, cache: resolverCache, fileExtensions });
+
+    ctor = config.fileDefinitionByExtension[extension];
+    file = new ctor(id, filepath, undefined, options);
+    fileCache.addFile(file);
+
+    // Warn of multiple versions
+    if (bundle && browser) {
+      resolverCache.checkMultipleVersions(id, filepath, versionDelimiter, options.level);
+    }
+
+    return file;
+  };
 }
 
 /**

@@ -21,9 +21,9 @@ const DEFAULT: ServerOptions = {
 /**
  * Parse and validate "server" section of 'config'
  */
-module.exports = function serverParser(config: Config) {
-  config.server = Object.assign({}, DEFAULT, config.server);
-  const { runtimeOptions, server } = config;
+module.exports = function serverParser(config: Config): ServerOptions {
+  const { runtimeOptions } = config;
+  const server: ServerOptions = Object.assign({}, DEFAULT, config.server);
 
   // Make sure 'buddy-server' module exists if running '--serve' and/or '--reload'
   if (runtimeOptions.serve || runtimeOptions.reload) {
@@ -51,4 +51,6 @@ module.exports = function serverParser(config: Config) {
     server.sourceroot = '';
   }
   server.webroot = isInvalid(server.webroot) ? server.directory : path.resolve(server.webroot);
+
+  return server;
 };
