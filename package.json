@@ -43,6 +43,7 @@
   "devDependencies": {
     "babel-cli": "6.24.1",
     "babel-preset-flow": "6.23.0",
+    "chokidar-cli": "^1.2.0",
     "expect.js": "*",
     "flow-bin": "^0.49.1",
     "mocha": "*",
@@ -54,15 +55,17 @@
   },
   "scripts": {
     "build": "babel src -d lib",
+    "build:all": "babel src -d lib",
     "example": "./bin/example",
     "install:packages": "./bin/packages install",
     "outdated:packages": "./bin/packages outdated",
-    "test:all": "NODE_ENV=test mocha \"./packages/buddy-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
-    "test": "NODE_ENV=test yarn run build && mocha \"./test/**/*-test.js\" --reporter spec --timeout 20000 --bail",
+    "test:all": "NODE_ENV=test yarn run build:all && mocha \"./packages/buddy-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
+    "test": "NODE_ENV=test mocha \"./test/**/*-test.js\" --reporter spec --timeout 20000 --bail",
     "test:windows": "set NODE_ENV=test&&node.exe ./node_modules/mocha/bin/mocha --reporter spec -t 20000 --bail",
     "perf:build": "NODE_ENV=test node perf/build.js",
     "perf:config": "NODE_ENV=test node perf/config.js",
-    "inspect": "NODE_ENV=test node --inspect --debug-brk perf/build.js"
+    "inspect": "NODE_ENV=test node --inspect --debug-brk perf/build.js",
+    "watch": "yarn run build && chokidar src/**/*.js -c 'yarn run build'"
   },
   "engines": {
     "node": ">=6"

@@ -2,10 +2,9 @@
 
 'use strict';
 
-export type EnvUtils = (string, Array<string | File>, ?string) => void;
+import type { IFile } from '../File';
+export type EnvUtils = (string, Array<string | IFile>, ?string) => void;
 
-const { isInvalid } = require('./is');
-const File = require('../File');
 const path = require('path');
 
 const RE_ILLEGAL_ID = /[\- .*]/g;
@@ -13,41 +12,41 @@ const RE_ILLEGAL_ID = /[\- .*]/g;
 /**
  * Set BUDDY env 'key'
  */
-module.exports = function env(key: string, value: Array<string | File>, id: ?string) {
-  id = !isInvalid(id) ? id.replace(RE_ILLEGAL_ID, '').toUpperCase() + '_' : '';
+module.exports = function env(key: string, value: Array<string | IFile>, id?: string) {
+  id = typeof id === 'string' ? id.replace(RE_ILLEGAL_ID, '').toUpperCase() + '_' : '';
   if (!Array.isArray(value)) {
     value = [value];
   }
 
-  const valueString = value.reduce((value: string, item: string | File) => {
-    const isFile = item instanceof File;
+  process.env[`BUDDY_${id}${key}`] = value.reduce((value: string, item: string | IFile) => {
+    if (value.length > 0) {
+      value += ','
+    }
 
     switch (key) {
       case 'INPUT':
-        value += isFile ? path.relative(process.cwd(), item.filepath) : item;
+        value += typeof item !== 'string' ? path.relative(process.cwd(), item.filepath) : item;
         break;
       case 'INPUT_HASH':
-        value += isFile ? item.hash : item;
+        value += typeof item !== 'string' ? item.hash : item;
         break;
       case 'INPUT_DATE':
-        value += isFile ? item.date : item;
+        value += typeof item !== 'string' ? item.date : item;
         break;
       case 'OUTPUT':
-        value += isFile ? path.relative(process.cwd(), item.writepath) : item;
+        value += typeof item !== 'string' ? path.relative(process.cwd(), item.writepath) : item;
         break;
       case 'OUTPUT_HASH':
-        value += isFile ? item.writeHash : item;
+        value += typeof item !== 'string' ? item.writeHash : item;
         break;
       case 'OUTPUT_DATE':
-        value += isFile ? item.writeDate : item;
+        value += typeof item !== 'string' ? item.writeDate : item;
         break;
       case 'OUTPUT_URL':
-        value += isFile ? item.writeUrl : item;
+        value += typeof item !== 'string' ? item.writeUrl : item;
         break;
     }
 
     return value;
   }, '');
-  // console.log(`BUDDY_${id}${key}`, value);
-  process.env[`BUDDY_${id}${key}`] = valueString;
 };

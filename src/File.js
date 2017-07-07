@@ -212,7 +212,7 @@ module.exports = class File implements IFile {
   setContent(content: string) {
     if (typeof content === 'string') {
       this.content = content || '';
-      this.totalLines = this.content ? this.content.split('\n').length : 0;
+      this.totalLines = this.content !== '' ? this.content.split('\n').length : 0;
     } else {
       this.content = content;
     }

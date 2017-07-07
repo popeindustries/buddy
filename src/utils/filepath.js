@@ -12,7 +12,7 @@ export type FilepathUtils = {
   filepathType: (string, { [string]: Array<string> }) => string,
   findFilepath: (string, string, { [string]: Array<string> }) => string,
   findUniqueFilepath: (string) => string,
-  generateUniqueFilepath: (string, string | boolean) => string
+  generateUniqueFilepath: (string, string | false) => string
 };
 
 const { isInvalid } = require('./is');
@@ -35,7 +35,7 @@ module.exports = {
    * Determine if 'str' is a filepath or package reference
    */
   isFilepath(str: string): boolean {
-    return !isInvalid(str) && (isAbsoluteFilepath(str) || isRelativeFilepath(str));
+    return typeof str === 'string' && (isAbsoluteFilepath(str) || isRelativeFilepath(str));
   },
 
   /**
@@ -160,7 +160,7 @@ module.exports = {
   /**
    * Generate unique filepath from 'pattern'
    */
-  generateUniqueFilepath(pattern: string, content: string | boolean): string {
+  generateUniqueFilepath(pattern: string, content: string | false): string {
     pattern = path.resolve(pattern);
 
     let reToken, wildcard;
@@ -170,7 +170,7 @@ module.exports = {
       if (wildcard === '%hash%') {
         // Remove if content == false
         // Hash content if not already a hash
-        pattern = pattern.replace(wildcard, !isInvalid(content) ? (content.length == 32 ? content : md5(content)) : '');
+        pattern = pattern.replace(wildcard, content !== false ? (content.length === 32 ? content : md5(content)) : '');
       } else if (wildcard === '%date%') {
         pattern = pattern.replace(wildcard, content ? Date.now().toString() : '');
       }

@@ -63,17 +63,14 @@ export type { BuildOptions, FileCache, FileOptions, ResolverCache, RuntimeOption
 const { error, print, strong } = require('../utils/cnsl');
 const { exists } = require('../utils/filepath');
 const { hunt: { sync: hunt } } = require('recur-fs');
-const { isInvalid, isNullOrUndefined, isObject } = require('../utils/is');
+const { isInvalid, isNullOrUndefined } = require('../utils/is');
 const buddyPlugins = require('./buddyPlugins');
 const buildParser = require('./buildParser');
 const buildPlugins = require('./buildPlugins');
 const cache = require('../cache');
 const chalk = require('chalk');
-// const File = require('../File');
 const fs = require('fs');
-const merge = require('lodash/merge');
 const path = require('path');
-const runtimeOptions = require('./runtimeOptions');
 const serverParser = require('./serverParser');
 const utils = require('../utils');
 
@@ -81,6 +78,18 @@ const DEFAULT_MANIFEST = {
   js: 'buddy.js',
   json: 'buddy.json',
   pkgjson: 'package.json'
+};
+const DEFAULT_RUNTIME_OPTIONS = {
+  compress: false,
+  debug: false,
+  deploy: false,
+  grep: false,
+  invert: false,
+  maps: false,
+  reload: false,
+  script: false,
+  serve: false,
+  watch: false
 };
 
 module.exports = class Config {
@@ -94,7 +103,7 @@ module.exports = class Config {
   url: string;
 
   constructor(configPath?: string | Object, options?: Object) {
-    const parsedRuntimeOptions: RuntimeOptions = runtimeOptions(options);
+    const runtimeOptions: RuntimeOptions = Object.assign({}, DEFAULT_RUNTIME_OPTIONS, options);
 
     // Force NODE_ENV
     if (runtimeOptions.deploy) {
@@ -103,72 +112,47 @@ module.exports = class Config {
       process.env.NODE_ENV = 'development';
     }
 
-    const cmd = (parsedRuntimeOptions.deploy && 'deploy') || (parsedRuntimeOptions.watch && 'watch') || 'build';
+    const cmd = (runtimeOptions.deploy && 'deploy') || (runtimeOptions.watch && 'watch') || 'build';
     const env = process.env.NODE_ENV;
     let data;
 
-      // Passed in JSON object
-    if (!isNullOrUndefined(configPath) && isObject(configPath)) {
-      this.url = '';
-      data = normalizeData(configPath, env);
+    // No config specified
+    if (isNullOrUndefined(configPath)) {
+      this.url = locateConfig();
+      data = normalizeData(require(this.url), env);
     } else {
-      // No config specified
-      if (isNullOrUndefined(configPath)) {
-        this.url = locateConfig();
-        data = normalizeData(require(this.url), env);
-      } else if (typeof configPath === 'string') {
+      // Path or namespace
+      if (typeof configPath === 'string') {
+        // Determine if passed a namespace ('development', etc)
+        const isNamespaced = path.extname(configPath) === '' && !exists(path.resolve(configPath));
 
+        this.url = locateConfig(isNamespaced ? '' : configPath);
+        data = normalizeData(require(this.url), isNamespaced ? configPath : env);
+        // Passed in JSON object
+      } else {
+        this.url = '';
+        data = normalizeData(configPath, env);
       }
 
-    }
-
-
-
-      const isNamed = configPath != null && path.extname(configPath) === '' && !exists(path.resolve(configPath));
-
-      this.url = locateConfig(isNamed ? '' : configPath);
-      data = normalizeData(require(this.url));
-
-      // Handle nested config with named sets
-      if (isNamed || env in data) {
-        let namedData;
-
-        if (env in data) {
-          namedData = data[env];
-        } else if (configPath != null && configPath in data) {
-          namedData = data[configPath];
-        }
-
-        if (namedData) {
-          if ('server' in data) {
-            namedData.server = data.server;
-          }
-          if ('script' in data) {
-            namedData.script = data.script;
-          }
-          data = namedData;
-        }
-      }
-
-      // Set current directory to location of file
-      process.chdir(path.dirname(this.url));
       print(`\n${chalk.green.inverse(' BUDDY ' + cmd + ' ')} ${chalk.grey(new Date().toLocaleTimeString())}`, 0);
-      print('\nloaded config ' + strong(this.url), 0);
-
+      // Set current directory to location of file
+      if (!isInvalid(this.url)) {
+        process.chdir(path.dirname(this.url));
+        print('\nloaded config ' + strong(this.url), 0);
+      }
+    }
 
     this.fileDefinitionByExtension = {};
     this.fileExtensions = {};
     this.npmModulepaths = parseNpmModulePaths();
-    this.runtimeOptions = parsedRuntimeOptions;
-    this.script = '';
-
-    // Merge file data
-    merge(this, data);
+    this.runtimeOptions = runtimeOptions;
 
     // Generates fileExtensions/types used to validate build
     buddyPlugins.load(this);
+
+    this.script = isNullOrUndefined(data.script) ? '' : data.script;
     // Parse 'server' data parameter
-    this.server = serverParser(this);
+    this.server = serverParser(data.server, truntimeOptions);
     // Parse 'builds' data parameter
     this.builds = buildParser(this);
   }

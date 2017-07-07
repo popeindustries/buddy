@@ -2,9 +2,10 @@
 
 'use strict';
 
+import type { FSWatcher } from 'chokidar';
 import type File from '../File';
-import { FSWatcher } from 'chokidar';
 
+const { isNullOrUndefined } = require('../utils/is');
 const path = require('path');
 
 module.exports = class FileCache {
@@ -12,10 +13,10 @@ module.exports = class FileCache {
   _cache: Map<string, File>;
   _dirs: Set<string>;
 
-  constructor(watcher?: FSWatcher) {
+  constructor(watcher?: FSWatcher | null) {
     this._cache = new Map();
     this._dirs = new Set();
-    if (watcher) {
+    if (!isNullOrUndefined(watcher)) {
       this.watcher = watcher;
     }
   }
@@ -31,7 +32,7 @@ module.exports = class FileCache {
       if (!this._dirs.has(dir)) {
         this._dirs.add(dir);
       }
-      if (this.watcher) {
+      if (!isNullOrUndefined(this.watcher)) {
         this.watcher.add(file.filepath);
       }
     }
@@ -44,7 +45,7 @@ module.exports = class FileCache {
    */
   removeFile(file: File): File {
     this._cache.delete(file.filepath);
-    if (this.watcher) {
+    if (!isNullOrUndefined(this.watcher)) {
       this.watcher.unwatch(file.filepath);
     }
     return file;
@@ -82,7 +83,7 @@ module.exports = class FileCache {
    * Clear the cache
    */
   clear() {
-    if (this.watcher != null) {
+    if (!isNullOrUndefined(this.watcher)) {
       for (const filepath of this._cache.keys()) {
         this.watcher.unwatch(filepath);
       }

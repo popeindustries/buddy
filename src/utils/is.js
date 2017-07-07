@@ -57,19 +57,19 @@ function isNumber(o: any): boolean {
  * Determine if 'o' is an Object
  */
 function isObject(o: any): boolean {
-  return typeof o === 'object';
+  return o !== null && typeof o === 'object';
 }
 
 /**
  * Determine if 'o' is invalid
  */
-function isInvalid(o?: any): boolean {
+function isInvalid(o: any): boolean {
   return o === null || o === undefined || o === false || o === '';
 }
 
 /**
  * Determine if 'o' is null or undefined
  */
-function isNullOrUndefined(o?: any): boolean {
+function isNullOrUndefined(o: any): boolean {
   return o === null || o === undefined;
 }

@@ -3,7 +3,7 @@
 const { isBrowserEnvironment, parsePlugins } = require('../../lib/config/processorPlugins');
 const expect = require('expect.js');
 
-describe.only('processorPlugins', () => {
+describe('processorPlugins', () => {
   describe('isBrowserEnvironment', () => {
     it('should return "false" for server version', () => {
       expect(isBrowserEnvironment('node')).to.equal(false);
@@ -25,7 +25,7 @@ describe.only('processorPlugins', () => {
     });
   });
 
-  describe.only('parsePlugins', () => {
+  describe('parsePlugins', () => {
     describe('js', () => {
       it('should parse default plugins', () => {
         const plugins = parsePlugins('js');
@@ -238,7 +238,7 @@ describe.only('processorPlugins', () => {
     });
 
     describe('buddy', () => {
-      it.only('should parse string version', () => {
+      it('should parse string version', () => {
         const plugins = parsePlugins('js', 'react');
 
         console.dir(plugins, { depth: 6 });

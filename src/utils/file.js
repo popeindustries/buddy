@@ -2,11 +2,11 @@
 
 'use strict';
 
-import type File from '../File';
+import type { IFile } from '../File';
 export type FileUtils = {
-  appendContent: (File, string | File) => void,
-  prependContent: (File, string | File) => void,
-  replaceContent: (string | Array<[string, number, string | File]>, number, string | File) => void
+  appendContent: (IFile, string | IFile) => void,
+  prependContent: (IFile, string | IFile) => void,
+  replaceContent: (IFile, string | Array<[string, number, string | IFile]>, number, string | IFile) => void
 };
 
 const { getLocationFromIndex } = require('./string');
@@ -21,13 +21,13 @@ module.exports = {
 /**
  * Append 'content' to 'file' content
  */
-function appendContent(file: File, content: string | File) {
+function appendContent(file: IFile, content: string | IFile) {
   let contentLines = 0;
 
   if (typeof content === 'string') {
     contentLines = content.split('\n').length;
   } else {
-    if (file.map != null) {
+    if (file.hasMaps && file.map != null) {
       sourceMap.append(file.map, content.map, file.totalLines);
     }
     contentLines = content.totalLines;
@@ -41,17 +41,17 @@ function appendContent(file: File, content: string | File) {
 /**
  * Prepend 'content' to 'file' content
  */
-function prependContent(file: File, content: string | File) {
+function prependContent(file: IFile, content: string | IFile) {
   let contentLines = 0;
 
   if (typeof content === 'string') {
     contentLines = content.split('\n').length;
-    if (file.map != null) {
+    if (file.hasMaps && file.map != null) {
       sourceMap.prepend(file.map, null, contentLines);
     }
   } else {
     contentLines = content.totalLines;
-    if (file.map != null) {
+    if (file.hasMaps && file.map != null) {
       sourceMap.prepend(file.map, content.map, contentLines);
     }
     content = content.content;
@@ -64,10 +64,10 @@ function prependContent(file: File, content: string | File) {
  * Replace 'string' at 'index' with 'content'
  */
 function replaceContent(
-  file: File,
-  string: string | Array<[string, number, string | File]>,
+  file: IFile,
+  string: string | Array<[string, number, string | IFile]>,
   index: number,
-  content: string | File
+  content: string | IFile
 ) {
   // Convert to batch
   if (!Array.isArray(string)) {
@@ -89,12 +89,12 @@ function replaceContent(
 
     if (typeof content === 'string') {
       contentLines = content.split('\n').length - 1;
-      if (contentLines > 0 && file.map != null) {
+      if (contentLines > 0 && file.hasMaps && file.map != null) {
         sourceMap.insert(file.map, null, contentLines, line);
       }
     } else {
       contentLines = content.totalLines - 1;
-      if (file.map != null) {
+      if (file.hasMaps && file.map != null) {
         sourceMap.insert(file.map, content.map, contentLines, line);
       }
       content = content.content;

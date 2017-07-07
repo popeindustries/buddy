@@ -2,7 +2,7 @@
 
 'use strict';
 
-import type Config, { ServerOptions } from './index';
+import type { RuntimeOptions, ServerOptions } from './index';
 
 const { isInvalid } = require('../utils/is');
 const dependencies = require('./dependencies');
@@ -21,9 +21,8 @@ const DEFAULT: ServerOptions = {
 /**
  * Parse and validate "server" section of 'config'
  */
-module.exports = function serverParser(config: Config): ServerOptions {
-  const { runtimeOptions } = config;
-  const server: ServerOptions = Object.assign({}, DEFAULT, config.server);
+module.exports = function serverParser(serverConfig: Object, runtimeOptions: RuntimeOptions): ServerOptions {
+  const server: ServerOptions = Object.assign({}, DEFAULT, serverConfig);
 
   // Make sure 'buddy-server' module exists if running '--serve' and/or '--reload'
   if (runtimeOptions.serve || runtimeOptions.reload) {

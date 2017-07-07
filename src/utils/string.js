@@ -2,6 +2,11 @@
 
 'use strict';
 
+type Match = {
+  context: string,
+  id: string, // Convenience shadowing of 'match'
+  match: string
+};
 type Position = {
   line: number,
   column: number
@@ -77,7 +82,7 @@ function commentWrap(string: string, type: string): string {
 /**
  * Indent the given 'string' a specific number of columns
  */
-function indent(string: string, column: number): string {
+function indent(string: string, column: number = 0): string {
   const spaces = new Array(++column).join(COLUMN);
 
   return string.replace(RE_LINE_BEGIN, spaces);
@@ -86,7 +91,7 @@ function indent(string: string, column: number): string {
 /**
  * Match unique occurrences in 'string'
  */
-function uniqueMatch(string: string, regexp: RegExp): Array<{ context: string, id: string, match: string }> {
+function uniqueMatch(string: string, regexp: RegExp): Array<Match> {
   const results = [];
   let match;
 
