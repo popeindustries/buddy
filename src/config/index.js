@@ -63,7 +63,7 @@ export type { BuildOptions, FileCache, FileOptions, ResolverCache, RuntimeOption
 const { error, print, strong } = require('../utils/cnsl');
 const { exists } = require('../utils/filepath');
 const { hunt: { sync: hunt } } = require('recur-fs');
-const { isInvalid } = require('../utils/is');
+const { isInvalid, isNullOrUndefined, isObject } = require('../utils/is');
 const buddyPlugins = require('./buddyPlugins');
 const buildParser = require('./buildParser');
 const buildPlugins = require('./buildPlugins');
@@ -104,13 +104,27 @@ module.exports = class Config {
     }
 
     const cmd = (parsedRuntimeOptions.deploy && 'deploy') || (parsedRuntimeOptions.watch && 'watch') || 'build';
+    const env = process.env.NODE_ENV;
     let data;
 
-    // No config specified or filepath or named set
-    if (configPath == null || typeof configPath === 'string') {
-      const env = process.env.NODE_ENV;
-      const isNamed =
-        configPath != null && path.extname(configPath) === '' && !exists(path.resolve(configPath));
+      // Passed in JSON object
+    if (!isNullOrUndefined(configPath) && isObject(configPath)) {
+      this.url = '';
+      data = normalizeData(configPath, env);
+    } else {
+      // No config specified
+      if (isNullOrUndefined(configPath)) {
+        this.url = locateConfig();
+        data = normalizeData(require(this.url), env);
+      } else if (typeof configPath === 'string') {
+
+      }
+
+    }
+
+
+
+      const isNamed = configPath != null && path.extname(configPath) === '' && !exists(path.resolve(configPath));
 
       this.url = locateConfig(isNamed ? '' : configPath);
       data = normalizeData(require(this.url));
@@ -141,11 +155,6 @@ module.exports = class Config {
       print(`\n${chalk.green.inverse(' BUDDY ' + cmd + ' ')} ${chalk.grey(new Date().toLocaleTimeString())}`, 0);
       print('\nloaded config ' + strong(this.url), 0);
 
-      // Passed in JSON object
-    } else {
-      this.url = '';
-      data = normalizeData(configPath);
-    }
 
     this.fileDefinitionByExtension = {};
     this.fileExtensions = {};
@@ -222,7 +231,7 @@ module.exports = class Config {
   destroy() {
     cache.clear();
   }
-}
+};
 
 /**
  * Locate the configuration file
@@ -315,14 +324,26 @@ function parseNpmModulePaths(): Array<string> {
 /**
  * Normalize 'data'
  */
-function normalizeData(data: Object): Object {
+function normalizeData(data: Object, namespace?: string): Object {
   // Package.json
-  if (data.buddy != null) {
+  if (!isNullOrUndefined(data.buddy)) {
     data = data.buddy;
   }
   // Handle super simple mode
-  if (data.input != null) {
+  if (!isNullOrUndefined(data.input)) {
     data = { build: [data] };
   }
+  if (!isNullOrUndefined(namespace) && !isNullOrUndefined(data[namespace])) {
+    const namespacedData = data[namespace];
+
+    if ('server' in data) {
+      namespacedData.server = data.server;
+    }
+    if ('script' in data) {
+      namespacedData.script = data.script;
+    }
+    data = namespacedData;
+  }
+
   return data;
 }

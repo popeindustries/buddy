@@ -3,12 +3,12 @@
 'use strict';
 
 export type IsUtils = {
-  isPlainObject: (Object) => boolean,
+  isPlainObject: (any) => boolean,
   isEmptyArray: (Array<any>) => boolean,
-  isFunction: (() => mixed) => boolean,
-  isString: (string) => boolean,
-  isNumber: (number) => boolean,
-  isObject: (Object) => boolean,
+  isFunction: (() => any) => boolean,
+  isString: (any) => boolean,
+  isNumber: (any) => boolean,
+  isObject: (any) => boolean,
   isInvalid: (any) => boolean
 };
 
@@ -21,7 +21,8 @@ module.exports = {
   isString,
   isNumber,
   isObject,
-  isInvalid
+  isInvalid,
+  isNullOrUndefined
 };
 
 /**
@@ -34,34 +35,41 @@ function isEmptyArray(o: Array<any>): boolean {
 /**
  * Determine if 'o' is a Function
  */
-function isFunction(o: () => mixed): boolean {
+function isFunction(o: () => any): boolean {
   return typeof o === 'function';
 }
 
 /**
  * Determine if 'o' is a String
  */
-function isString(o: string): boolean {
+function isString(o: any): boolean {
   return typeof o === 'string';
 }
 
 /**
  * Determine if 'o' is a Number
  */
-function isNumber(o: number): boolean {
+function isNumber(o: any): boolean {
   return typeof o === 'number';
 }
 
 /**
  * Determine if 'o' is an Object
  */
-function isObject(o: Object): boolean {
+function isObject(o: any): boolean {
   return typeof o === 'object';
 }
 
 /**
  * Determine if 'o' is invalid
  */
-function isInvalid(o: mixed): boolean {
-  return o == null || o === false || o === '';
+function isInvalid(o?: any): boolean {
+  return o === null || o === undefined || o === false || o === '';
+}
+
+/**
+ * Determine if 'o' is null or undefined
+ */
+function isNullOrUndefined(o?: any): boolean {
+  return o === null || o === undefined;
 }
