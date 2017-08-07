@@ -152,7 +152,7 @@ module.exports = class Config {
 
     this.script = isNullOrUndefined(data.script) ? '' : data.script;
     // Parse 'server' data parameter
-    this.server = serverParser(data.server, truntimeOptions);
+    this.server = serverParser(data.server, runtimeOptions);
     // Parse 'builds' data parameter
     this.builds = buildParser(this);
   }
