@@ -867,7 +867,7 @@ combined-stream@^1.0.5, combined-stream@~1.0.5:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@2.9.0, commander@~2.9.0:
+commander@2.9.0:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.9.0.tgz#9c99094176e12240cb22d6c5146098400fe0f7d4"
   dependencies:
@@ -1340,16 +1340,16 @@ ini@~1.3.0:
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.4.tgz#0537cb79daf59b59a1a517dff706c86ec039162e"
 
-inline-source@5.2.3:
-  version "5.2.3"
-  resolved "https://registry.yarnpkg.com/inline-source/-/inline-source-5.2.3.tgz#c95da30fe7e39144e9fdff5128d821c302001433"
+inline-source@5.2.4:
+  version "5.2.4"
+  resolved "https://registry.yarnpkg.com/inline-source/-/inline-source-5.2.4.tgz#f782bc52f2e2681753a46631653c09c58a19920d"
   dependencies:
     csso "3.1.1"
     htmlparser2 "3.9.2"
     is-plain-obj "1.1.0"
     object-assign "4.1.1"
     svgo "0.7.2"
-    uglify-js "3.0.15"
+    uglify-js "3.0.x"
 
 invariant@^2.2.0, invariant@^2.2.2:
   version "2.2.2"
@@ -2440,14 +2440,7 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
 
-uglify-js@3.0.15:
-  version "3.0.15"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.0.15.tgz#aacb323a846b234602270dead8a32441a8806f42"
-  dependencies:
-    commander "~2.9.0"
-    source-map "~0.5.1"
-
-uglify-js@3.0.27:
+uglify-js@3.0.27, uglify-js@3.0.x:
   version "3.0.27"
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.0.27.tgz#a97db8c8ba6b9dba4e2f88d86aa9548fa6320034"
   dependencies:
