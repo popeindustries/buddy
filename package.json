@@ -49,6 +49,8 @@
     "babel-preset-env": "1.6.0",
     "expect.js": "*",
     "mocha": "*",
+    "postcss-calc": "^6.0.0",
+    "postcss-custom-properties": "^6.1.0",
     "rimraf": "2.6.1"
   },
   "main": "./lib/buddy.js",

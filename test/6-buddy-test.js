@@ -804,6 +804,25 @@ describe('Buddy', () => {
           done();
         });
       });
+      it('should preserve postcss plugin order when compressing', (done) => {
+        buddy = buddyFactory({
+          input: 'order.css',
+          output: 'output',
+          options: {
+            postcss: {
+              plugins: ['postcss-custom-properties', 'postcss-calc']
+            }
+          }
+        }, { compress: true });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.contain('.test{height:2.5px;width:2.5px}');
+          done();
+        });
+      });
     });
 
     describe('img', () => {

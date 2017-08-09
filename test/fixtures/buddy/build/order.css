@@ -1,0 +1,8 @@
+:root {
+  --height: 10px;
+}
+
+.test {
+  height: calc(var(--height) / 4);
+  width: calc(10px / 4);
+}
