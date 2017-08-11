@@ -19,6 +19,7 @@ describe('config', () => {
     if (config) config.destroy();
   });
   after(() => {
+    process.chdir(path.resolve(__dirname, 'fixtures/config'));
     rimraf.sync(path.resolve('package.json'));
     rimraf.sync(path.resolve('yarn.lock'));
     rimraf.sync(path.resolve('node_modules'));
@@ -29,25 +30,25 @@ describe('config', () => {
       it('should generate default Babel plugins', () => {
         const options = buildPlugins.load('js');
 
-        expect(options.babel.plugins).to.have.length(2);
+        expect(options.babel.plugins).to.have.length(3);
         expect(options.babel.plugins[0]).to.be.a(Function);
       });
       it('should generate and install Babel plugins based on target version', () => {
         const options = buildPlugins.load('js', undefined, 'node6');
 
-        expect(options.babel.plugins).to.have.length(2);
+        expect(options.babel.plugins).to.have.length(3);
         expect(options.babel.plugins[0]).to.be.a(Function);
       });
       it('should generate and install Babel plugins based on target version specified with object notation', () => {
         const options = buildPlugins.load('js', undefined, { node: 6 });
 
-        expect(options.babel.plugins).to.have.length(2);
+        expect(options.babel.plugins).to.have.length(3);
         expect(options.babel.plugins[0]).to.be.a(Function);
       });
       it('should generate and install Babel plugins based on browser target version', () => {
         const options = buildPlugins.load('js', undefined, { chrome: 46 });
 
-        expect(options.babel.plugins).to.have.length(15);
+        expect(options.babel.plugins).to.have.length(16);
         expect(options.babel.plugins[0]).to.be.a(Function);
       });
       it('should generate and install Babel and Postcss plugins based on browsers list', () => {
@@ -61,12 +62,12 @@ describe('config', () => {
       it('should ignore unknown target versions', () => {
         const options = buildPlugins.load('js', undefined, 'foo');
 
-        expect(options.babel.plugins).to.have.length(2);
+        expect(options.babel.plugins).to.have.length(3);
       });
       it('should allow default plugins to be overridden', () => {
         const options = buildPlugins.load('js', { babel: { plugins: [['babel-plugin-external-helpers', { foo: true }]] } });
 
-        expect(options.babel.plugins).to.have.length(2);
+        expect(options.babel.plugins).to.have.length(3);
         expect(options.babel.plugins[0][1]).to.have.property('foo', true);
       });
       it('should allow adding custom plugins', () => {
@@ -518,10 +519,6 @@ describe('config', () => {
         it('should return a path to the default file in a parent of the cwd when no name is specified', () => {
           process.chdir(path.join(__dirname, 'fixtures/config/src'));
           expect(configFactory().url.toLowerCase()).to.equal(path.join(__dirname, 'fixtures/config/buddy.js').toLowerCase());
-        });
-        it('should parse all npm modules', () => {
-          process.chdir(path.join(__dirname, 'fixtures/config/pkgjson'));
-          expect(configFactory().npmModulepaths).to.eql([path.resolve('node_modules/@foo/foo'), path.resolve('node_modules/bar')]);
         });
       });
 
