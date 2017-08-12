@@ -1,7 +1,7 @@
 'use strict';
 
-const buildFactory = require('../lib/build');
-const configFactory = require('../lib/config');
+const buildFactory = require('../../lib/Build');
+const configFactory = require('../../lib/config');
 const expect = require('expect.js');
 const fs = require('fs');
 const path = require('path');

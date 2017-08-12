@@ -1,6 +1,6 @@
 'use strict';
 
-const buddyFactory = require('../lib/buddy');
+const buddyFactory = require('../../lib/buddy');
 const expect = require('expect.js');
 const fs = require('fs');
 const path = require('path');
