@@ -43,6 +43,7 @@
   "devDependencies": {
     "babel-cli": "6.24.1",
     "babel-preset-flow": "6.23.0",
+    "chai": "^4.1.1",
     "chokidar-cli": "^1.2.0",
     "expect.js": "*",
     "flow-bin": "^0.52.0",
