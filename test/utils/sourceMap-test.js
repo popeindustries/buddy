@@ -1,7 +1,7 @@
 'use strict';
 
 const { create } = require('../../lib/utils/sourceMap');
-const expect = require('expect.js');
+const { expect } = require('chai');
 const fs = require('fs');
 const path = require('path');
 

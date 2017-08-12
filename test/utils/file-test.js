@@ -1,8 +1,8 @@
 'use strict';
 
 const { appendContent, prependContent, replaceContent } = require('../../lib/utils/file');
+const { expect } = require('chai');
 const sourceMap = require('../../lib/utils/sourceMap');
-const expect = require('expect.js');
 const path = require('path');
 
 let file;

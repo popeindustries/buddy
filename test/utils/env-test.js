@@ -1,7 +1,7 @@
 'use strict';
 
+const { expect } = require('chai');
 const env = require('../../lib/utils/env');
-const expect = require('expect.js');
 const path = require('path');
 
 describe('env', () => {
@@ -85,7 +85,10 @@ describe('env', () => {
     expect(process.env['BUDDY_OUTPUT']).to.equal('foo.js');
   });
   it('should set OUTPUT var for multiple file items', () => {
-    env('OUTPUT', [{ writepath: path.join(process.cwd(), 'foo.js') }, { writepath: path.join(process.cwd(), 'bar.js') }]);
+    env('OUTPUT', [
+      { writepath: path.join(process.cwd(), 'foo.js') },
+      { writepath: path.join(process.cwd(), 'bar.js') }
+    ]);
     expect(process.env['BUDDY_OUTPUT']).to.equal('foo.js,bar.js');
   });
   it('should set OUTPUT_HASH var for single string item', () => {

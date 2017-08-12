@@ -3,15 +3,15 @@
 'use strict';
 
 export type FilepathUtils = {
-  exists: (string) => boolean,
-  isAbsoluteFilepath: (string) => boolean,
-  isRelativeFilepath: (string) => boolean,
-  isFilepath: (string) => boolean,
-  isUniqueFilepath: (string) => boolean,
-  filepathName: (string) => string,
+  exists: string => boolean,
+  isAbsoluteFilepath: string => boolean,
+  isRelativeFilepath: string => boolean,
+  isFilepath: string => boolean,
+  isUniqueFilepath: string => boolean,
+  filepathName: string => string,
   filepathType: (string, { [string]: Array<string> }) => string,
   findFilepath: (string, string, { [string]: Array<string> }) => string,
-  findUniqueFilepath: (string) => string,
+  findUniqueFilepath: string => string,
   generateUniqueFilepath: (string, string | false) => string
 };
 
@@ -170,14 +170,17 @@ module.exports = {
       if (wildcard === '%hash%') {
         // Remove if content == false
         // Hash content if not already a hash
-        pattern = pattern.replace(wildcard, content !== false ? (content.length === 32 ? content : md5(content)) : '');
+        pattern = pattern.replace(
+          wildcard,
+          !isInvalid(content) ? (content.length === 32 ? content : md5(content)) : ''
+        );
       } else if (wildcard === '%date%') {
         pattern = pattern.replace(wildcard, content ? Date.now().toString() : '');
       }
     }
 
     return pattern;
-  },
+  }
 };
 
 /**

@@ -1,7 +1,7 @@
 'use strict';
 
+const { expect } = require('chai');
 const stopwatch = require('../../lib/utils/stopwatch');
-const expect = require('expect.js');
 const path = require('path');
 
 describe('stopwatch', () => {

@@ -1,5 +1,6 @@
 'use strict';
 
+const { expect } = require('chai');
 const {
   commentStrip,
   sourceMapCommentStrip,
@@ -10,7 +11,6 @@ const {
   truncate,
   getLocationFromIndex
 } = require('../../lib/utils/string');
-const expect = require('expect.js');
 const path = require('path');
 
 describe('string', () => {
@@ -38,7 +38,7 @@ describe('string', () => {
 
   describe('sourceMapCommentStrip()', () => {
     it('should remove source map comment', () => {
-      expect(sourceMapCommentStrip('var foo;\n//# sourceMappingURL="foo.map"')).to.equal('var foo;')
+      expect(sourceMapCommentStrip('var foo;\n//# sourceMappingURL="foo.map"')).to.equal('var foo;');
     });
   });
 
@@ -61,7 +61,7 @@ describe('string', () => {
     it('should indent a string n columns', () => {
       expect(indent('foo', 2)).to.equal('  foo');
     });
-  })
+  });
 
   describe('uniqueMatch()', () => {
     it('should match a simple string', () => {

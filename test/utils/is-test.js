@@ -1,5 +1,6 @@
 'use strict';
 
+const { expect } = require('chai');
 const {
   isPlainObject,
   isEmptyArray,
@@ -10,7 +11,6 @@ const {
   isInvalid,
   isNullOrUndefined
 } = require('../../lib/utils/is');
-const expect = require('expect.js');
 const path = require('path');
 
 describe('is', () => {

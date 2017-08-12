@@ -1,5 +1,6 @@
 'use strict';
 
+const { expect } = require('chai');
 const {
   isAbsoluteFilepath,
   isRelativeFilepath,
@@ -11,7 +12,6 @@ const {
   findUniqueFilepath,
   generateUniqueFilepath
 } = require('../../lib/utils/filepath');
-const expect = require('expect.js');
 const path = require('path');
 
 describe('filepath', () => {
