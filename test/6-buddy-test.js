@@ -430,24 +430,6 @@ describe('Buddy', () => {
           done();
         });
       });
-      it('should remove dead code when referencing "process.env.RUNTIME"', done => {
-        buddy = buddyFactory(
-          {
-            input: 'zee.js',
-            output: 'output'
-          },
-          { compress: false }
-        );
-        buddy.build((err, filepaths) => {
-          expect(filepaths).to.have.length(1);
-          expect(fs.existsSync(filepaths[0])).to.be(true);
-          const content = fs.readFileSync(filepaths[0], 'utf8');
-
-          expect(content).to.contain("$m['foo'] = { exports: {} };\n$m['foo'].exports = 'foo';");
-          expect(content).to.not.contain('/*== c.js ==*/');
-          done();
-        });
-      });
       it('should remove dead code when referencing "process.env.RUNTIME" and minifying', done => {
         buddy = buddyFactory(
           {
@@ -691,24 +673,6 @@ describe('Buddy', () => {
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
             expect(content).to.contain('var bong__bat = {};');
-            done();
-          });
-        });
-        it('should remove dead code from node_modules dependency when referencing "process.env.*"', done => {
-          buddy = buddyFactory(
-            {
-              input: 'zee.js',
-              output: 'output'
-            },
-            { compress: false }
-          );
-          buddy.build((err, filepaths) => {
-            expect(filepaths).to.have.length(1);
-            expect(fs.existsSync(filepaths[0])).to.be(true);
-            const content = fs.readFileSync(filepaths[0], 'utf8');
-
-            expect(content).to.contain('/*== node_modules/boop/development.js ==*/');
-            expect(content).to.not.contain('/*== node_modules/boop/production.js ==*/');
             done();
           });
         });
@@ -976,7 +940,7 @@ describe('Buddy', () => {
             expect(content).to.contain("$m['js-directory/flat");
             if (name == 'foo.js')
               expect(content).to.contain(
-                "/*== js-directory/flat/foo.js ==*/\n$m['js-directory/flat/foo'] = { exports: {} };\n\n/*≠≠ js-directory/flat/foo.js ≠≠*/"
+                "/*== js-directory/flat/foo.js ==*/\n$m[\'js-directory/flat/foo\'] = { exports: {} };\nif (\'test\' == \'production\') console.log(\'foo\');\n/*≠≠ js-directory/flat/foo.js ≠≠*/"
               );
           });
           done();
