@@ -30,7 +30,7 @@ describe('buddy-plugin-coffeescript', () => {
         expect(fs.existsSync(filepaths[0])).to.be(true);
         const content = fs.readFileSync(filepaths[0], 'utf8');
 
-        expect(content).to.contain('(function () {\n/*== foo.coffee ==*/\n$m[\'foo\'] = { exports: {} };\nvar foo__foo = \'foo\';\n/*≠≠ foo.coffee ≠≠*/\n})()');
+        expect(content).to.contain('(function () {\n/*== foo.coffee ==*/\n$m[\'foo\'] = { exports: {} };\nvar foo__foo;\n\nfoo__foo = \'foo\';\n/*≠≠ foo.coffee ≠≠*/\n})()');
         done();
       });
     });
@@ -44,8 +44,8 @@ describe('buddy-plugin-coffeescript', () => {
         const content = fs.readFileSync(filepaths[0], 'utf8');
         const map = JSON.parse(fs.readFileSync(`${filepaths[0]}.map`, 'utf8'));
 
-        expect(content).to.contain('(function () {\n/*== foo.coffee ==*/\n$m[\'foo\'] = { exports: {} };\nvar foo__foo = \'foo\';\n/*≠≠ foo.coffee ≠≠*/\n})()');
-        expect(map).to.have.property('mappings', ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,IAAA,WAAM');
+        expect(content).to.contain('(function () {\n/*== foo.coffee ==*/\n$m[\'foo\'] = { exports: {} };\nvar foo__foo;\n\nfoo__foo = \'foo\';\n/*≠≠ foo.coffee ≠≠*/\n})()');
+        expect(map).to.have.property('mappings', ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,IAAA;;AAAA,WAAM');
         done();
       });
     });
