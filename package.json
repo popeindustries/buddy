@@ -47,7 +47,6 @@
     "babel-plugin-transform-react-display-name": "6.25.0",
     "babel-plugin-transform-react-jsx": "6.24.1",
     "babel-preset-env": "1.6.0",
-    "babel-types": "6.25.0",
     "expect.js": "*",
     "mocha": "*",
     "postcss-calc": "^6.0.0",
