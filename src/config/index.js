@@ -134,13 +134,13 @@ module.exports = class Config {
         this.url = '';
         data = normalizeData(configPath, env);
       }
+    }
 
-      print(`\n${chalk.green.inverse(' BUDDY ' + cmd + ' ')} ${chalk.grey(new Date().toLocaleTimeString())}`, 0);
-      // Set current directory to location of file
-      if (!isInvalid(this.url)) {
-        process.chdir(path.dirname(this.url));
-        print('\nloaded config ' + strong(this.url), 0);
-      }
+    print(`\n${chalk.green.inverse(' BUDDY ' + cmd + ' ')} ${chalk.grey(new Date().toLocaleTimeString())}`, 0);
+    // Set current directory to location of file
+    if (!isInvalid(this.url)) {
+      process.chdir(path.dirname(this.url));
+      print('\nloaded config ' + strong(this.url), 0);
     }
 
     this.fileDefinitionByExtension = {};
@@ -199,7 +199,7 @@ module.exports = class Config {
   /**
    * Extend file definition for 'extensions' or 'type'
    */
-  extendFileDefinitionForExtensionsOrType(extend: (Object, Object) => void, extensions: Array<string>, type: string) {
+  extendFileDefinitionForExtensionsOrType(extend: (Object, Utils) => void, extensions: Array<string>, type: string) {
     const key = extensions != null ? extensions[0] : this.fileExtensions[type][0];
     const def = this.fileDefinitionByExtension[key];
 
