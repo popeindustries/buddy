@@ -28,7 +28,8 @@ module.exports = {
   getDetails,
   resolveId,
   resolveName,
-  resolvePath
+  resolvePath,
+  resolveNodeModules
 };
 
 /**
@@ -214,9 +215,6 @@ function resolveName(pkgpath: string): string {
 
 /**
  * Resolve id for 'filepath'
- * @param {Object} details
- * @param {String} filepath
- * @returns {String}
  */
 function resolveId(details: Package, filepath: string): string {
   let id = '';
@@ -270,8 +268,6 @@ function resolveId(details: Package, filepath: string): string {
 
 /**
  * Gather all node_modules directories reachable from 'pkgpath'
- * @param {String} pkgpath
- * @returns {Array}
  */
 function resolveNodeModules(pkgpath: string): Array<string> {
   const dirs = [];

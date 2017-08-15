@@ -64,6 +64,7 @@ const { error, print, strong } = require('../utils/cnsl');
 const { exists } = require('../utils/filepath');
 const { hunt: { sync: hunt } } = require('recur-fs');
 const { isInvalid, isNullOrUndefined } = require('../utils/is');
+const { resolveNodeModules } = require('../resolver/package');
 const buddyPlugins = require('./buddyPlugins');
 const buildParser = require('./buildParser');
 const buildPlugins = require('./buildPlugins');
@@ -144,7 +145,7 @@ module.exports = class Config {
 
     this.fileDefinitionByExtension = {};
     this.fileExtensions = {};
-    this.npmModulepaths = parseNpmModulePaths();
+    this.npmModulepaths = resolveNodeModules(process.cwd());
     this.runtimeOptions = runtimeOptions;
 
     // Generates fileExtensions/types used to validate build
@@ -281,28 +282,6 @@ function locateConfig(url?: string): string {
   }
 
   return configPath;
-}
-
-/**
- * Parse all npm package paths
- */
-function parseNpmModulePaths(): Array<string> {
-  const jsonPath = path.resolve('package.json');
-
-  try {
-    const json = require(jsonPath);
-
-    return ['dependencies', 'devDependencies', 'optionalDependencies'].reduce((packages, type) => {
-      if (type in json) {
-        for (const dependency in json[type]) {
-          packages.push(path.resolve('node_modules', dependency));
-        }
-      }
-      return packages;
-    }, []);
-  } catch (err) {
-    return [];
-  }
 }
 
 /**

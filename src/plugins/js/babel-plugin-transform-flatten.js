@@ -60,12 +60,21 @@ function renameRootDeclarations(path: Object, namespace: string) {
   const { scope } = path;
   const oldName = path.node.name;
   const rootScope = scope.getProgramParent();
-  const binding = scope.getBinding(oldName);
+  const isRootScope = scope === rootScope;
   const newName = `${namespace}${oldName}`;
+  let binding = scope.getBinding(oldName);
 
   if (binding) {
     if (!path.isReferenced() && shouldRenameDeclaration(oldName, path, binding, rootScope)) {
       path.node.name = newName;
+      if (!isRootScope) {
+        const declarationParent = getDeclarationParent(path);
+
+        // Function declaration defines own scope, so switch to parent
+        if (declarationParent != null && declarationParent.isFunctionDeclaration()) {
+          binding = declarationParent.scope.parent.getBinding(oldName);
+        }
+      }
       // Handle references
       if (binding.referenced) {
         binding.referencePaths.forEach(path => {

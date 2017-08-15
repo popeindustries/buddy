@@ -74,3 +74,6 @@ if (true) {
   let u;
   t.foo = 'c';
 }
+
+function e(e) {}
+var f = e;
