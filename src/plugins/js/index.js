@@ -290,6 +290,7 @@ function define(File: File, utils: Utils): JSFile {
 
       const contentFingerprint = md5(JSON.stringify(this.content));
       const options = Object.assign({}, babelOptions, {
+        babelrc: false,
         filename: this.relUrl,
         plugins,
         sourceMaps: this.hasMaps,
