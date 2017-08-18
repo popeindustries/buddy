@@ -7,7 +7,7 @@ import type { BuildOptions, FileCache, FileOptions, RuntimeOptions } from './con
 
 const { debug, print, strong, warn } = require('./utils/cnsl');
 const { filepathName, findUniqueFilepath, isUniqueFilepath } = require('./utils/filepath');
-const { isEmptyArray, isInvalid } = require('./utils/is');
+const { isEmptyArray } = require('./utils/is');
 const { maxInputStringLength, recommendedFileSizeLimit } = require('./settings');
 const { truncate } = require('./utils/string');
 const callable = require('./utils/callable');
@@ -69,7 +69,7 @@ module.exports = class Build {
 
     this.builds = [];
     this.childInputpaths = [];
-    this.id = this.label || (!isInvalid(this.index) && this.index.toString());
+    this.id = this.label || this.index.toString();
     this.inputFiles = [];
     this.options;
     this.outputFiles = [];

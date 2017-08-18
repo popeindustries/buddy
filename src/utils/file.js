@@ -2,11 +2,11 @@
 
 'use strict';
 
-import type { IFile } from '../File';
+import type File from '../File';
 export type FileUtils = {
-  appendContent: (IFile, string | IFile) => void,
-  prependContent: (IFile, string | IFile) => void,
-  replaceContent: (IFile, string | Array<[string, number, string | IFile]>, number, string | IFile) => void
+  appendContent: (File, string | File) => void,
+  prependContent: (File, string | File) => void,
+  replaceContent: (File, string | Array<[string, number, string | File]>, number, string | File) => void
 };
 
 const { getLocationFromIndex } = require('./string');
@@ -21,7 +21,7 @@ module.exports = {
 /**
  * Append 'content' to 'file' content
  */
-function appendContent(file: IFile, content: string | IFile) {
+function appendContent(file: File, content: string | File) {
   let contentLines = 0;
 
   if (typeof content === 'string') {
@@ -41,7 +41,7 @@ function appendContent(file: IFile, content: string | IFile) {
 /**
  * Prepend 'content' to 'file' content
  */
-function prependContent(file: IFile, content: string | IFile) {
+function prependContent(file: File, content: string | File) {
   let contentLines = 0;
 
   if (typeof content === 'string') {
@@ -64,10 +64,10 @@ function prependContent(file: IFile, content: string | IFile) {
  * Replace 'string' at 'index' with 'content'
  */
 function replaceContent(
-  file: IFile,
-  string: string | Array<[string, number, string | IFile]>,
+  file: File,
+  string: string | Array<[string, number, string | File]>,
   index: number,
-  content: string | IFile
+  content: string | File
 ) {
   // Convert to batch
   if (!Array.isArray(string)) {

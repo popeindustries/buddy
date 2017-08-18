@@ -25,61 +25,7 @@ type WriteResult = {
   printPrefix?: string
 };
 import type { BuildOptions, FileOptions } from './config';
-interface IFile {
-  allDependencies: Array<IFile> | null,
-  allDependencyReferences: Array<DependencyReference> | null,
-  content: string,
-  fileContent: string,
-  date: number,
-  dependencies: Array<IFile>,
-  dependencyReferences: Array<DependencyReference>,
-  encoding: string,
-  extension: string,
-  filepath: string,
-  hash: string,
-  hasMaps: boolean,
-  hasUnresolvedDependencies: boolean,
-  id: string,
-  idSafe: string,
-  isDependency: boolean,
-  isDummy: boolean,
-  isInline: boolean,
-  isLocked: boolean,
-  map: Object,
-  mapUrl: string,
-  name: string,
-  options: FileOptions,
-  relpath: string,
-  relUrl: string,
-  totalLines: number,
-  type: string,
-  writepath: string,
-  writeDate: number,
-  writeHash: string,
-  writeUrl: string,
-  workflows: FileWorkflows,
-  isWriteable(batch: boolean): boolean,
-  isInlineable(): boolean,
-  setContent(content: string): void,
-  setMap(map?: SourceMapGenerator | Object): void,
-  getAllDependencies(): Array<IFile>,
-  getAllDependencyReferences(): Array<DependencyReference>,
-  addDependencies(dependencies: Array<DependencyReference>, buildOptions: BuildOptions): void,
-  parseWorkflow(type: string, buildOptions: BuildOptions): Array<string>,
-  run(type: string, buildOptions: BuildOptions, fn: (?Error) => void): void,
-  runForDependencies(type: string, dependencies?: Array<IFile>, buildOptions: BuildOptions, fn: (?Error) => void): void,
-  readFileContent(): string,
-  hashContent(forWrite: boolean): string,
-  load(buildOptions?: BuildOptions, fn?: (?Error) => void): void,
-  parse(buildOptions: BuildOptions, fn: (?Error) => void): void,
-  compile(buildOptions: BuildOptions, fn: (?Error) => void): void,
-  compress(buildOptions: BuildOptions, fn: (?Error) => void): void,
-  prepareForWrite(filepath: string, buildOptions: BuildOptions): void,
-  write(buildOptions: BuildOptions, fn: (?Error, ?WriteResult) => void): void,
-  reset(hard?: boolean): void,
-  destroy(): void
-}
-export type { DependencyReference, IFile, WriteResult };
+export type { DependencyReference, WriteResult };
 
 const { debug, strong, warn } = require('./utils/cnsl');
 const { dummyFile } = require('./settings');
@@ -105,13 +51,13 @@ const RE_WIN_SEPARATOR = /\\/g;
 const WORKFLOW_INLINEABLE = ['load'];
 const WORKFLOW_STANDARD = ['load', 'parse', 'runForDependencies'];
 
-module.exports = class File implements IFile {
-  allDependencies: Array<IFile> | null;
+module.exports = class File {
+  allDependencies: Array<File> | null;
   allDependencyReferences: Array<DependencyReference> | null;
   content: string;
   fileContent: string;
   date: number;
-  dependencies: Array<IFile>;
+  dependencies: Array<File>;
   dependencyReferences: Array<DependencyReference>;
   encoding: string;
   extension: string;

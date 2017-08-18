@@ -4,12 +4,13 @@
 
 import type Config, { FileOptions, RuntimeOptions, ServerOptions } from './index';
 import type Build from '../Build';
+import type File from '../File';
 
 const { dummyFile, versionDelimiter } = require('../settings');
 const { filepathType } = require('../utils/filepath');
 const { identify } = require('../resolver');
 const { indir, readdir: { sync: readdir } } = require('recur-fs');
-const { isInvalid } = require('../utils/is');
+const { isInvalid, isNullOrUndefined } = require('../utils/is');
 const { strong, warn } = require('../utils/cnsl');
 const buildFactory = require('../build');
 const buildPlugins = require('./buildPlugins');
@@ -80,7 +81,7 @@ module.exports = {
 function parseBuild(
   builds: Array<Object>,
   fileExtensions: { [string]: Array<string> },
-  fileFactory: (string, FileOptions) => IFile,
+  fileFactory: (string, FileOptions) => File,
   npmModulepaths: Array<string>,
   runtimeOptions: RuntimeOptions,
   serverOptions: ServerOptions,
@@ -185,11 +186,11 @@ function parseBuild(
 /**
  * Retrieve file factory for 'config'
  */
-function getFileFactory(config: Config): (string, FileOptions) => IFile {
-  return function fileFactory(filepath: string, options: FileOptions): IFile {
+function getFileFactory(config: Config): (string, FileOptions) => File {
+  return function fileFactory(filepath: string, options: FileOptions): File {
     const { browser, bundle, fileCache, fileExtensions, resolverCache } = options;
-    let ctor: (string, string, string, FileOptions) => IFile;
-    let file;
+    let ctor: (string, string, string, FileOptions) => File;
+    let file: ?File;
 
     // Handle dummy file from generated build
     if (filepath === dummyFile) {

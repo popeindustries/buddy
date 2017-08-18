@@ -2,8 +2,8 @@
 
 'use strict';
 
-import type { IFile } from '../File';
-export type EnvUtils = (string, Array<string | IFile>, ?string) => void;
+import type File from '../File';
+export type EnvUtils = (string, Array<string | File>, ?string) => void;
 
 const path = require('path');
 
@@ -12,13 +12,13 @@ const RE_ILLEGAL_ID = /[\- .*]/g;
 /**
  * Set BUDDY env 'key'
  */
-module.exports = function env(key: string, value: Array<string | IFile>, id?: string) {
+module.exports = function env(key: string, value: Array<string | File>, id?: string) {
   id = typeof id === 'string' ? id.replace(RE_ILLEGAL_ID, '').toUpperCase() + '_' : '';
   if (!Array.isArray(value)) {
     value = [value];
   }
 
-  process.env[`BUDDY_${id}${key}`] = value.reduce((value: string, item: string | IFile) => {
+  process.env[`BUDDY_${id}${key}`] = value.reduce((value: string, item: string | File) => {
     if (value.length > 0) {
       value += ','
     }

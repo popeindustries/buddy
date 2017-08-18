@@ -4,9 +4,9 @@
 
 import type { Utils } from '../utils';
 import type Build from '../Build';
+import type File from '../File';
 import type FileCache from '../cache/FileCache';
 import type ResolverCache from '../cache/ResolverCache';
-import type { IFile } from '../File';
 type BuildOptions = {
   batch: boolean,
   boilerplate: boolean,
@@ -95,7 +95,7 @@ const DEFAULT_RUNTIME_OPTIONS = {
 
 module.exports = class Config {
   builds: ?Array<Build>;
-  fileDefinitionByExtension: { [string]: Class<IFile> };
+  fileDefinitionByExtension: { [string]: Class<File> };
   fileExtensions: { [string]: Array<string> };
   npmModulepaths: Array<string>;
   runtimeOptions: RuntimeOptions;
@@ -185,7 +185,7 @@ module.exports = class Config {
   /**
    * Register file definition and 'extensions' for 'type'
    */
-  registerFileDefinitionAndExtensionsForType(define: (IFile, Utils) => IFile, extensions: Array<string>, type: string) {
+  registerFileDefinitionAndExtensionsForType(define: (File, Utils) => File, extensions: Array<string>, type: string) {
     const def = define(this.fileDefinitionByExtension[type] || File, utils);
 
     if (extensions != null) {
