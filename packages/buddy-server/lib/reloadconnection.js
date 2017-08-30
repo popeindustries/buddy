@@ -12,7 +12,7 @@ const TIMEOUT = 1000;
  * @param {Object} options
  * @returns {ReloadConnection}
  */
-module.exports = function ReloadConnectionFactory (socket, id, options) {
+module.exports = function reloadConnectionFactory(socket, id, options) {
   return new ReloadConnection(socket, id, options);
 };
 
@@ -23,7 +23,7 @@ class ReloadConnection extends Event {
    * @param {String} id
    * @param {Object} options
    */
-  constructor (socket, id, options) {
+  constructor(socket, id, options) {
     super();
 
     let timeoutID = null;
@@ -37,20 +37,20 @@ class ReloadConnection extends Event {
     });
 
     // Register for socket events
-    this.socket.on('message', (data) => {
+    this.socket.on('message', data => {
       this.parser.received(data.utf8Data);
     });
     this.socket.on('close', () => {
       if (timeoutID) clearTimeout(timeoutID);
       this.emit('disconnected');
     });
-    this.socket.on('error', (err) => {
+    this.socket.on('error', err => {
       this.socket.close();
       this.emit('error', err);
     });
 
     // Register for parser events
-    this.parser.on('command', (command) => {
+    this.parser.on('command', command => {
       if (command.command === 'ping') {
         this.send({ command: 'pong', token: command.token });
       } else {
@@ -74,7 +74,7 @@ class ReloadConnection extends Event {
    * Get active state
    * @returns {Boolean}
    */
-  isActive () {
+  isActive() {
     if (this.parser.negotiatedProtocols != null) {
       return this.parser.negotiatedProtocols.monitoring >= 7;
     }
@@ -84,7 +84,7 @@ class ReloadConnection extends Event {
    * Send 'msg' to client
    * @param {Object} msg
    */
-  send (msg) {
+  send(msg) {
     this.parser.sending(msg);
     this.socket.send(JSON.stringify(msg));
   }
@@ -92,7 +92,7 @@ class ReloadConnection extends Event {
   /**
    * Close connection
    */
-  close () {
+  close() {
     this.socket.close();
   }
 }
