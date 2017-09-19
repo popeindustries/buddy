@@ -9,9 +9,8 @@
     "buddy"
   ],
   "dependencies": {
-    "filed": "0.1.0",
     "livereload-protocol": "0.2.2",
-    "node-static": "0.7.9",
+    "node-static": "0.7.10",
     "websocket": "1.0.24"
   },
   "devDependencies": {

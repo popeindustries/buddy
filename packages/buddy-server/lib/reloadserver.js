@@ -3,9 +3,9 @@
 const { server: WSServer } = require('websocket');
 const ConnectionFactory = require('./reloadconnection');
 const Event = require('events');
-const filed = require('filed');
 const http = require('http');
 const path = require('path');
+const StaticServer = require('node-static').Server;
 const url = require('url');
 
 const PORT = 35729;
@@ -34,6 +34,7 @@ class ReloadServer extends Event {
     this.port = this.options.port;
     this.connections = {};
     this.connectionId = 0;
+    this.fileServer = null;
     this.server = null;
     this.wsServer = null;
   }
@@ -43,14 +44,14 @@ class ReloadServer extends Event {
    * @param {Function} fn(err)
    */
   start (fn) {
+    const fileServer = new StaticServer(path.resolve(__dirname, '../vendor'));
+
     this.server = http.createServer((req, res) => {
       const uri = url.parse(req.url, true);
-      let file;
 
       // Serve livereload.js file
       if (uri.pathname == '/livereload.js') {
-        file = filed(path.join(__dirname, '../vendor/livereload.js'));
-        file.pipe(res);
+        fileServer.serveFile('/livereload.js', 200, {}, req, res);
       // All other requests 404
       } else {
         res.writeHead(404);
@@ -76,7 +77,7 @@ class ReloadServer extends Event {
    * @returns {Arrray}
    */
   activeConnections () {
-    let connections = [];
+    const connections = [];
     let connection;
 
     for (const id in this.connections) {
