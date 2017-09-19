@@ -18,7 +18,7 @@ const RE_IS_HTML = /.html?$/;
  * @param {Array} [extraDirectories]
  * @returns {Server}
  */
-module.exports = function serverFactory (directory, port, headers, extraDirectories) {
+module.exports = function ServerFactory (directory, port, headers, extraDirectories) {
   return new Server(directory, port, headers, extraDirectories);
 };
 
@@ -30,7 +30,7 @@ class Server extends Event {
    * @param {Object} [headers]
    * @param {Array} [extraDirectories]
    */
-  constructor (directory, port = PORT, headers = {}, extraDirectories = []) {
+  constructor (directory, port, headers = {}, extraDirectories = []) {
     super();
 
     this.cwd = process.cwd();
@@ -44,7 +44,7 @@ class Server extends Event {
         ? path.relative(this.cwd, directory)
         : directory;
     });
-    this.port = port;
+    this.port = port || PORT;
     this.server = null;
   }
 
@@ -70,21 +70,15 @@ class Server extends Event {
       let uri = url.parse(req.url, true).pathname;
       const isFile = !!path.extname(uri).length;
 
-      if (!isFile) {
-        uri = path.join(uri, 'index.html');
-      }
+      if (!isFile) uri = path.join(uri, 'index.html');
 
       for (const directory of this.directories) {
         const filepath = path.join(directory, uri);
 
-        if (fs.existsSync(filepath)) {
-          return fileServer.serveFile(filepath, 200, {}, req, res);
-        }
+        if (fs.existsSync(filepath)) return fileServer.serveFile(filepath, 200, {}, req, res);
       }
 
-      if (index && RE_IS_HTML.test(uri)) {
-        return fileServer.serveFile(index, 200, {}, req, res);
-      }
+      if (index && RE_IS_HTML.test(uri)) return fileServer.serveFile(index, 200, {}, req, res);
 
       res.writeHead('404', this.config.headers);
       res.end();

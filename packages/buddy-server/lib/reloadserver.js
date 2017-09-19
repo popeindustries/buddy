@@ -1,7 +1,7 @@
 'use strict';
 
 const { server: WSServer } = require('websocket');
-const connectionFactory = require('./reloadconnection');
+const ConnectionFactory = require('./reloadconnection');
 const Event = require('events');
 const filed = require('filed');
 const http = require('http');
@@ -14,12 +14,15 @@ const PORT = 35729;
  * ReloadConnection factory
  * @returns {ReloadServer}
  */
-module.exports = function reloadServerFactory() {
+module.exports = function ReloadServerFactory () {
   return new ReloadServer();
 };
 
 class ReloadServer extends Event {
-  constructor() {
+  /**
+   * Constructor
+   */
+  constructor () {
     super();
 
     this.options = {
@@ -39,16 +42,16 @@ class ReloadServer extends Event {
    * Start server
    * @param {Function} fn(err)
    */
-  start(fn) {
+  start (fn) {
     this.server = http.createServer((req, res) => {
       const uri = url.parse(req.url, true);
       let file;
 
       // Serve livereload.js file
-      if (uri.pathname === '/livereload.js') {
+      if (uri.pathname == '/livereload.js') {
         file = filed(path.join(__dirname, '../vendor/livereload.js'));
         file.pipe(res);
-        // All other requests 404
+      // All other requests 404
       } else {
         res.writeHead(404);
         res.end();
@@ -60,7 +63,7 @@ class ReloadServer extends Event {
       httpServer: this.server,
       autoAcceptConnections: true
     });
-    this.wsServer.on('connect', socket => {
+    this.wsServer.on('connect', (socket) => {
       this._createConnection(socket);
     });
 
@@ -72,15 +75,13 @@ class ReloadServer extends Event {
    * Get all active connections
    * @returns {Arrray}
    */
-  activeConnections() {
-    const connections = [];
+  activeConnections () {
+    let connections = [];
     let connection;
 
     for (const id in this.connections) {
       connection = this.connections[id];
-      if (connection.isActive()) {
-        connections.push(connection);
-      }
+      if (connection.isActive()) connections.push(connection);
     }
 
     return connections;
@@ -89,7 +90,7 @@ class ReloadServer extends Event {
   /**
    * Close server
    */
-  close() {
+  close () {
     for (const connection in this.connections) {
       connection.close();
     }
@@ -97,9 +98,7 @@ class ReloadServer extends Event {
     try {
       this.wsServer.shutDown();
       this.server.close();
-    } catch (err) {
-      /* ignore */
-    }
+    } catch (err) { /* ignore */}
 
     this.connections = {};
   }
@@ -109,8 +108,8 @@ class ReloadServer extends Event {
    * @param {Object} socket
    * @returns {ReloadConnection}
    */
-  _createConnection(socket) {
-    const connection = connectionFactory(socket, `buddy${++this.connectionId}`, this.options);
+  _createConnection (socket) {
+    const connection = ConnectionFactory(socket, `buddy${++this.connectionId}`, this.options);
 
     connection.on('connected', () => {
       this.connections[connection.id] = connection;
@@ -120,10 +119,10 @@ class ReloadServer extends Event {
       delete this.connections[connection.id];
       this.emit('disconnected', connection);
     });
-    connection.on('command', command => {
+    connection.on('command', (command) => {
       this.emit('command', command);
     });
-    connection.on('error', err => {
+    connection.on('error', (err) => {
       this.emit('error', err);
     });
 

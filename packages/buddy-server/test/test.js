@@ -1,9 +1,9 @@
 'use strict';
 
+const { ReloadServerFactory, ServerFactory } = require('..');
 const { client: WSClient } = require('websocket');
-const { start, stop } = require('..');
-const expect = require('expect.js');
 const path = require('path');
+const expect = require('expect.js');
 const request = require('request');
 
 describe('buddy-server', () => {
@@ -13,15 +13,11 @@ describe('buddy-server', () => {
 
   describe('server', () => {
     before((done) => {
-      start(true, false, {
-        directory: 'www',
-        port: 8000,
-        headers: { 'X-Hello': 'World!' },
-        extraDirectories: [path.resolve('assets')]
-      }, done);
+      this.server = ServerFactory('www', 8000, { 'X-Hello': 'World!' }, [path.resolve('assets')]);
+      this.server.start(done);
     });
     after(() => {
-      stop();
+      this.server.close();
     });
 
     it('should implicitly serve index.html', (done) => {
@@ -91,10 +87,11 @@ describe('buddy-server', () => {
 
   describe('reload server', () => {
     before((done) => {
-      start(false, true, {}, done);
+      this.reload = ReloadServerFactory();
+      this.reload.start(done);
     });
     after(() => {
-      stop();
+      this.reload.close();
     });
 
     it('should serve the livereload.js file with correct mime type', (done) => {
