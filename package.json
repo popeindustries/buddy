@@ -16,14 +16,14 @@
   ],
   "dependencies": {
     "async": "2.5.0",
-    "autoprefixer": "7.1.2",
+    "autoprefixer": "7.1.4",
     "babel-core": "6.26.0",
     "babel-plugin-minify-dead-code-elimination": "0.2.0",
     "babel-plugin-transform-es2015-modules-commonjs": "6.26.0",
     "babel-plugin-transform-runtime": "6.23.0",
     "babel-preset-env": "1.6.0",
     "babel-runtime": "6.26.0",
-    "browserslist": "2.3.3",
+    "browserslist": "2.4.0",
     "buddy-cli": "6.1.0",
     "chalk": "2.1.0",
     "chokidar": "1.7.0",
@@ -34,11 +34,11 @@
     "md5": "2.2.1",
     "minimatch": "3.0.4",
     "portscanner": "2.1.1",
-    "postcss": "6.0.9",
+    "postcss": "6.0.11",
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
-    "source-map": "0.5.6",
-    "uglify-js": "3.0.27"
+    "source-map": "0.5.7",
+    "uglify-js": "3.1.1"
   },
   "devDependencies": {
     "babel-cli": "6.26.0",
@@ -46,9 +46,9 @@
     "chai": "^4.1.1",
     "chokidar-cli": "^1.2.0",
     "expect.js": "*",
-    "flow-bin": "^0.53.1",
+    "flow-bin": "^0.55.0",
     "mocha": "*",
-    "rimraf": "2.6.1"
+    "rimraf": "2.6.2"
   },
   "main": "./lib/buddy.js",
   "bin": {
