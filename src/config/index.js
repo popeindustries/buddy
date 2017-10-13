@@ -20,18 +20,16 @@ type BuildOptions = {
   watchOnly: boolean
 };
 type FileOptions = {
-  browser: boolean,
   buildFactory: (string, string) => Build,
-  bundle: boolean,
   fileCache: FileCache,
   fileExtensions: { [string]: Array<string> },
   fileFactory: (string, FileOptions) => File,
   level: number,
   npmModulepaths: Array<string>,
-  pluginOptions: { [string]: Object },
   resolverCache: ResolverCache,
   runtimeOptions: RuntimeOptions,
   sourceroot: string,
+  transpilerOptions: { [string]: Object },
   webroot: string
 };
 type RuntimeOptions = {
@@ -54,9 +52,7 @@ type ServerOptions = {
   file: string | null,
   flags?: Array<string>,
   headers?: Object,
-  port: number,
-  sourceroot: string | null,
-  webroot: string | null
+  port: number
 };
 export type { BuildOptions, FileCache, FileOptions, ResolverCache, RuntimeOptions, ServerOptions };
 
@@ -101,7 +97,9 @@ module.exports = class Config {
   runtimeOptions: RuntimeOptions;
   script: string;
   server: ServerOptions;
+  sourceroot: string;
   url: string;
+  webroot: string;
 
   constructor(configPath?: string | Object, options?: Object) {
     const runtimeOptions: RuntimeOptions = Object.assign({}, DEFAULT_RUNTIME_OPTIONS, options);
@@ -149,11 +147,13 @@ module.exports = class Config {
     this.runtimeOptions = runtimeOptions;
 
     // Generates fileExtensions/types used to validate build
-    buddyPlugins.load(this);
+    // buddyPlugins.load(this);
 
     this.script = isNullOrUndefined(data.script) ? '' : data.script;
     // Parse 'server' data parameter
     this.server = serverParser(data.server, runtimeOptions);
+    this.sourceroot = data.sourceroot || '';
+    this.webroot = isInvalid(data.webroot) ? this.server.directory : path.resolve(data.webroot);
     // Parse 'builds' data parameter
     this.builds = buildParser(this);
   }

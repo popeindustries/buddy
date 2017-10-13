@@ -13,9 +13,7 @@ const DEFAULT: ServerOptions = {
   directory: '.',
   extraDirectories: null,
   file: null,
-  port: 8080,
-  sourceroot: null,
-  webroot: null
+  port: 8080
 };
 
 /**
@@ -46,10 +44,6 @@ module.exports = function serverParser(serverConfig: Object, runtimeOptions: Run
   if (server.file != null) {
     server.file = path.resolve(server.file);
   }
-  if (server.sourceroot == null) {
-    server.sourceroot = '';
-  }
-  server.webroot = isInvalid(server.webroot) ? server.directory : path.resolve(server.webroot);
 
   return server;
 };

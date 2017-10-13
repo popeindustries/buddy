@@ -155,7 +155,7 @@ module.exports = class File {
   /**
    * Set 'content'
    */
-  setContent(content: string) {
+  setContent(content: string | Buffer) {
     if (typeof content === 'string') {
       this.content = content || '';
       this.totalLines = this.content !== '' ? this.content.split('\n').length : 0;
