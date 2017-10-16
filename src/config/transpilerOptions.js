@@ -1,6 +1,8 @@
+// @flow
+
 'use strict';
 
-const { isArray, isNullOrUndefined, isPlainObject, isString } = require('../utils/is');
+const { isNullOrUndefined, isPlainObject, isString } = require('../utils/is');
 const { strong, warn } = require('../utils/cnsl');
 const babelEnv = require('babel-preset-env').default;
 const browserslist = require('browserslist');
@@ -41,11 +43,8 @@ const RE_NODE_TARGET = /^node|^server/i;
 module.exports = {
   /**
    * Add 'preset' definition for 'type'
-   * @param {String} type
-   * @param {String} name
-   * @param {Array} preset
    */
-  addPreset(type, name, preset) {
+  addPreset(type: string, name: string, preset: Array<string>) {
     if (isNullOrUndefined(allPlugins[type])) {
       allPlugins[type] = {};
     }
@@ -112,7 +111,7 @@ module.exports = {
   isBrowserEnvironment(version = []) {
     if (isPlainObject(version)) {
       version = Object.keys(version);
-    } else if (!isArray(version)) {
+    } else if (!Array.isArray(version)) {
       version = [version];
     }
 
@@ -211,11 +210,11 @@ function parseBuddyPlugins(version, options) {
  * @param {String|Array|Object} version
  * @returns {Object}
  */
-function normalizeVersion(version = []) {
+function normalizeVersion(version = {}) {
   if (isString(version)) {
     version = [version];
   }
-  if (isArray(version)) {
+  if (Array.isArray(version)) {
     version = version.reduce((version, key) => {
       version[key] = 1;
       return version;

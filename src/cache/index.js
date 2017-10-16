@@ -14,11 +14,11 @@ const FileCache = require('./FileCache');
 const ResolverCache = require('./ResolverCache');
 
 class Cache extends Emitter {
-  fileCaches: Set<>;
-  resolverCaches: Set<>;
+  fileCaches: Set<FileCache>;
+  resolverCaches: Set<ResolverCache>;
   createCaches: boolean => Caches;
   clear: () => void;
-  debouncedEmit: (type: string, ...args?: Array<any>) => void;
+  debouncedEmit: Function;
   _fileWatcher: FSWatcher;
 
   constructor() {
@@ -43,7 +43,7 @@ class Cache extends Emitter {
    * FileCache/ResolverCache instance factory
    */
   createCaches(watch: boolean): Caches {
-    const fileCache = new FileCache(watch && this._fileWatcher);
+    const fileCache = new FileCache(watch ? this._fileWatcher : undefined);
     const resolverCache = new ResolverCache();
 
     this.fileCaches.add(fileCache);

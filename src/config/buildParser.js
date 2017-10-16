@@ -10,7 +10,7 @@ const { dummyFile, versionDelimiter } = require('../settings');
 const { filepathType } = require('../utils/filepath');
 const { identify } = require('../resolver');
 const { indir, readdir: { sync: readdir } } = require('recur-fs');
-const { isInvalid, isNullOrUndefined } = require('../utils/is');
+const { isInvalid, isNullOrUndefined, isObject } = require('../utils/is');
 const { strong, warn } = require('../utils/cnsl');
 const buildFactory = require('../build');
 const buildPlugins = require('./buildPlugins');
@@ -40,61 +40,53 @@ module.exports = {
   /**
    * Parse and validate "build" section of 'config'
    */
-  parse(config: Config): Array<Build> {
-    if (config.build == null) {
+  parse(builds: Array<Object>, npmModulepaths: Array<string>, runtimeOptions: RuntimeOptions): Array<Build> {
+    if (isNullOrUndefined(builds)) {
       throw Error('missing build data');
     }
 
     // Deprecate sources
-    if ('sources' in config.build) {
+    if ('sources' in builds) {
       warn(DEPRECATED_SOURCES, 1);
     }
     // Deprecate targets
-    if ('targets' in config.build) {
+    if (isObject(builds) && 'targets' in builds) {
       warn(DEPRECATED_VERSION, 1);
-      config.build = config.build.targets;
+      builds = builds.targets;
     }
 
     return parseBuild(
-      config.build || [],
-      config.fileExtensions,
-      getFileFactory(config),
-      config.npmModulepaths,
-      config.runtimeOptions,
-      config.server
+      builds,
+      // config.fileExtensions,
+      // getFileFactory(config),
+      npmModulepaths,
+      runtimeOptions
     );
   }
 };
 
 /**
  * Parse and validate build targets
- * @param {Array} builds
- * @param {Object} fileExtensions
- * @param {Function} fileFactory
- * @param {Array} npmModulepaths
- * @param {Object} runtimeOptions
- * @param {Object} serverConfig
- * @param {Object} [parent]
- * @param {Number} [level]
- * @returns {Array}
  */
 function parseBuild(
   builds: Array<Object>,
-  fileExtensions: { [string]: Array<string> },
-  fileFactory: (string, FileOptions) => File,
+  // fileExtensions: { [string]: Array<string> },
+  // fileFactory: (string, FileOptions) => File,
   npmModulepaths: Array<string>,
   runtimeOptions: RuntimeOptions,
-  serverOptions: ServerOptions,
+  // serverOptions: ServerOptions,
   parent?: Build,
   level?: number
 ): Array<Build> {
-  if (parent == null) {
+  if (isNullOrUndefined(parent)) {
     numBuilds = 0;
     level = 1;
   }
 
   return builds.reduce((builds, buildConfig) => {
     const { options, version } = buildConfig;
+    // Support deprecated 'build' syntax
+    // TODO: add warning?
     const childBuilds = !isNullOrUndefined(buildConfig.build) ? buildConfig.build : buildConfig.children;
 
     buildConfig.build = null;
