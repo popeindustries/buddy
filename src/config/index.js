@@ -3,6 +3,7 @@
 'use strict';
 
 import type { Utils } from '../utils';
+import type { BuddyPlugins } from './buddyPlugins';
 import type Build from '../Build';
 import type File from '../File';
 import type FileCache from '../cache/FileCache';
@@ -91,6 +92,7 @@ const DEFAULT_RUNTIME_OPTIONS = {
 
 module.exports = class Config {
   builds: ?Array<Build>;
+  buddyPlugins: BuddyPlugins;
   fileDefinitionByExtension: { [string]: Class<File> };
   fileExtensions: { [string]: Array<string> };
   npmModulepaths: Array<string>;
@@ -147,7 +149,7 @@ module.exports = class Config {
     this.runtimeOptions = runtimeOptions;
 
     // Generates fileExtensions/types used to validate build
-    // buddyPlugins.load(this);
+    this.buddyPlugins = buddyPlugins.load();
 
     this.script = isNullOrUndefined(data.script) ? '' : data.script;
     // Parse 'server' data parameter

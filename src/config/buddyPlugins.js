@@ -2,14 +2,16 @@
 
 'use strict';
 
-type Plugin = {
-  name: string;
-  type: string;
-  register: (Config) => void;
-}
+type BuddyPlugin = {
+  name: string,
+  type: string,
+  register: Config => void
+};
+type BuddyPlugins = Map<string, BuddyPlugin>;
 import type Config from './index';
+export type { BuddyPlugin, BuddyPlugins };
 
-const { print, strong, warn } = require('../utils/cnsl');
+const { strong, warn } = require('../utils/cnsl');
 const fs = require('fs');
 const path = require('path');
 
@@ -30,24 +32,27 @@ module.exports = {
   /**
    * Load default/global buddy plugins
    */
-  load(config: Config) {
+  load(): BuddyPlugins {
     const cwd = process.cwd();
+    const plugins: BuddyPlugins = new Map();
 
     // Load default and additional modules
     DEFAULT_PLUGINS.forEach(module => {
-      registerPlugin(module, config, true);
+      requirePlugin(module, plugins);
     });
     // Load from project node_modules dir
-    loadPluginsFromDir(path.join(cwd, 'node_modules'), config);
+    loadPluginsFromDir(path.join(cwd, 'node_modules'), plugins);
     // Load from project buddy-plugins dir
-    loadPluginsFromDir(path.join(cwd, DEFAULT_PLUGINS_DIR), config);
+    loadPluginsFromDir(path.join(cwd, DEFAULT_PLUGINS_DIR), plugins);
+
+    return plugins;
   }
 };
 
 /**
  * Load plugins in 'dir'
  */
-function loadPluginsFromDir(dir: string, config: Config) {
+function loadPluginsFromDir(dir: string, plugins: BuddyPlugins) {
   try {
     fs
       .readdirSync(dir)
@@ -58,7 +63,7 @@ function loadPluginsFromDir(dir: string, config: Config) {
         return RE_JS_FILE.test(resource) || fs.statSync(path.join(dir, resource)).isDirectory();
       })
       .forEach(resource => {
-        registerPlugin(path.join(dir, resource), config);
+        requirePlugin(path.join(dir, resource), plugins);
       });
   } catch (err) {
     /* ignore */
@@ -68,7 +73,7 @@ function loadPluginsFromDir(dir: string, config: Config) {
 /**
  * Register plugin 'resource'
  */
-function registerPlugin(resource: string | Plugin, config: Config, silent?: boolean) {
+function requirePlugin(resource: string | BuddyPlugin, plugins: BuddyPlugins) {
   let pluginModule: Plugin;
 
   if (typeof resource === 'string') {
@@ -85,8 +90,5 @@ function registerPlugin(resource: string | Plugin, config: Config, silent?: bool
     return void warn(`invalid plugin ${strong(resource.toString())}`);
   }
 
-  pluginModule.register(config);
-  if (!silent) {
-    print(`registered plugin ${strong(pluginModule.name)}`, 0);
-  }
+  plugins.set(pluginModule.name, pluginModule);
 }
