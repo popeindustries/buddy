@@ -1,9 +1,9 @@
 'use strict';
 
-const { isBrowserEnvironment, parsePlugins } = require('../../lib/config/processorPlugins');
-const expect = require('expect.js');
+const { expect } = require('chai');
+const { isBrowserEnvironment, parse } = require('../../lib/config/buildOptions');
 
-describe('processorPlugins', () => {
+describe('buildOptions', () => {
   describe('isBrowserEnvironment', () => {
     it('should return "false" for server version', () => {
       expect(isBrowserEnvironment('node')).to.equal(false);
@@ -15,6 +15,7 @@ describe('processorPlugins', () => {
       expect(isBrowserEnvironment({ node: true, react: true })).to.equal(false);
     });
     it('should return "true" for browser version', () => {
+      expect(isBrowserEnvironment()).to.equal(true);
       expect(isBrowserEnvironment('browser')).to.equal(true);
       expect(isBrowserEnvironment('es6')).to.equal(true);
       expect(isBrowserEnvironment(['browser'])).to.equal(true);
@@ -25,30 +26,30 @@ describe('processorPlugins', () => {
     });
   });
 
-  describe('parsePlugins', () => {
+  describe('parse', () => {
     describe('js', () => {
-      it('should parse default plugins', () => {
-        const plugins = parsePlugins('js');
+      it.only('should parse default plugins', () => {
+        const plugins = parse('js');
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.plugins).to.have.length(2);
       });
       it('should parse es* string version', () => {
-        const plugins = parsePlugins('js', 'es6');
+        const plugins = parse('js', 'es6');
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
         expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
       });
       it('should parse es* array version', () => {
-        const plugins = parsePlugins('js', ['es6']);
+        const plugins = parse('js', ['es6']);
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
         expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
       });
       it('should parse node array version', () => {
-        const plugins = parsePlugins('js', ['es6', 'node']);
+        const plugins = parse('js', ['es6', 'node']);
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
@@ -56,58 +57,58 @@ describe('processorPlugins', () => {
         expect(plugins.babel.presets[0][1].targets).to.have.property('node', true);
       });
       it('should parse browserlist string version', () => {
-        const plugins = parsePlugins('js', '> 5%');
+        const plugins = parse('js', '> 5%');
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
         expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['> 5%']);
       });
       it('should parse browserlist array version', () => {
-        const plugins = parsePlugins('js', ['> 5%', 'not ie 10']);
+        const plugins = parse('js', ['> 5%', 'not ie 10']);
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
         expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['> 5%', 'not ie 10']);
       });
       it('should parse es object version', () => {
-        const plugins = parsePlugins('js', { es6: true });
+        const plugins = parse('js', { es6: true });
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
         expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
       });
       it('should parse node object version', () => {
-        const plugins = parsePlugins('js', { node: '6' });
+        const plugins = parse('js', { node: '6' });
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('node', '6');
       });
       it('should parse server object version', () => {
-        const plugins = parsePlugins('js', { server: true });
+        const plugins = parse('js', { server: true });
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('node', true);
       });
       it('should parse browser object version', () => {
-        const plugins = parsePlugins('js', { chrome: 51 });
+        const plugins = parse('js', { chrome: 51 });
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('chrome', 51);
       });
       it('should parse browserlist object version', () => {
-        const plugins = parsePlugins('js', { browsers: ['> 5%', 'not ie 10'] });
+        const plugins = parse('js', { browsers: ['> 5%', 'not ie 10'] });
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
       });
       it('should parse default plugins with options', () => {
-        const plugins = parsePlugins('js', undefined, { babel: { plugins: ['foo'] } });
+        const plugins = parse('js', undefined, { babel: { plugins: ['foo'] } });
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.plugins[0]).to.equal('foo');
       });
       it('should parse default plugins with override options', () => {
-        const plugins = parsePlugins('js', undefined, {
+        const plugins = parse('js', undefined, {
           babel: { plugins: [['babel-plugin-transform-es2015-modules-commonjs', { loose: false }]] }
         });
 
@@ -115,7 +116,7 @@ describe('processorPlugins', () => {
         expect(plugins.babel.plugins[0][1]).to.have.property('loose', false);
       });
       it('should parse default plugins with alt name override options', () => {
-        const plugins = parsePlugins('js', undefined, {
+        const plugins = parse('js', undefined, {
           babel: { plugins: [['transform-es2015-modules-commonjs', { loose: false }]] }
         });
 
@@ -125,7 +126,7 @@ describe('processorPlugins', () => {
         expect(plugins.babel.plugins[0][1]).to.have.property('loose', false);
       });
       it('should parse default plugins with compression', () => {
-        const plugins = parsePlugins('js', undefined, { }, true);
+        const plugins = parse('js', undefined, {}, true);
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.plugins).to.have.length(3);
@@ -134,69 +135,69 @@ describe('processorPlugins', () => {
 
     describe('css', () => {
       it('should parse default plugins', () => {
-        const plugins = parsePlugins('css');
+        const plugins = parse('css');
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins).to.have.length(0);
       });
       it('should parse browserlist string version', () => {
-        const plugins = parsePlugins('css', '> 5%');
+        const plugins = parse('css', '> 5%');
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins[0][1]).to.have.property('browsers');
         expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%']);
       });
       it('should parse browserlist array version', () => {
-        const plugins = parsePlugins('css', ['> 5%', 'not ie 10']);
+        const plugins = parse('css', ['> 5%', 'not ie 10']);
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins[0][1]).to.have.property('browsers');
         expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%', 'not ie 10']);
       });
       it('should parse browserlist object version', () => {
-        const plugins = parsePlugins('css', { browsers: ['> 5%', 'not ie 10'] });
+        const plugins = parse('css', { browsers: ['> 5%', 'not ie 10'] });
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins[0][1]).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
       });
       it('should parse default plugins with options', () => {
-        const plugins = parsePlugins('css', undefined, { autoprefixer: { browsers: ['> 5%', 'not ie 10'] } });
+        const plugins = parse('css', undefined, { autoprefixer: { browsers: ['> 5%', 'not ie 10'] } });
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins[0][1]).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
       });
       it('should parse plugins with override options', () => {
-        const plugins = parsePlugins('css', ['> 5%', 'not ie 10'], { autoprefixer: { add: false } });
+        const plugins = parse('css', ['> 5%', 'not ie 10'], { autoprefixer: { add: false } });
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins[0][1]).to.have.property('add', false);
       });
       it('should parse plugins but ignore compression override options', () => {
-        const plugins = parsePlugins('css', ['> 5%', 'not ie 10'], { cssnano: { foo: true } });
+        const plugins = parse('css', ['> 5%', 'not ie 10'], { cssnano: { foo: true } });
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins).to.have.length(1);
       });
       it('should parse default plugins with compression', () => {
-        const plugins = parsePlugins('css', undefined, { }, true);
+        const plugins = parse('css', undefined, {}, true);
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins).to.have.length(1);
       });
       it('should parse default plugins with compression', () => {
-        const plugins = parsePlugins('css', '> 5%', { }, true);
+        const plugins = parse('css', '> 5%', {}, true);
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins).to.have.length(2);
       });
       it('should parse browserlist string version with compression', () => {
-        const plugins = parsePlugins('css', '> 5%', { }, true);
+        const plugins = parse('css', '> 5%', {}, true);
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins).to.have.length(2);
       });
       it('should parse browserlist string version with compression and override options', () => {
-        const plugins = parsePlugins('css', '> 5%', { cssnano: { foo: true }}, true);
+        const plugins = parse('css', '> 5%', { cssnano: { foo: true } }, true);
 
         expect(plugins).to.have.property('postcss');
         expect(plugins.postcss.plugins).to.have.length(2);
@@ -206,13 +207,13 @@ describe('processorPlugins', () => {
 
     describe('mixed', () => {
       it('should parse default plugins', () => {
-        const plugins = parsePlugins('mixed');
+        const plugins = parse('mixed');
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.plugins).to.have.length(2);
       });
       it('should parse es* string version', () => {
-        const plugins = parsePlugins('mixed', 'es6');
+        const plugins = parse('mixed', 'es6');
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
@@ -220,7 +221,7 @@ describe('processorPlugins', () => {
         expect(plugins.postcss.plugins[0][1].browsers).to.eql(['chrome 51']);
       });
       it('should parse browserlist string version', () => {
-        const plugins = parsePlugins('mixed', '> 5%');
+        const plugins = parse('mixed', '> 5%');
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
@@ -228,7 +229,7 @@ describe('processorPlugins', () => {
         expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%']);
       });
       it('should parse browserlist array version', () => {
-        const plugins = parsePlugins('mixed', ['> 5%', 'not ie 10']);
+        const plugins = parse('mixed', ['> 5%', 'not ie 10']);
 
         expect(plugins).to.have.property('babel');
         expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
@@ -239,7 +240,7 @@ describe('processorPlugins', () => {
 
     describe('buddy', () => {
       it('should parse string version', () => {
-        const plugins = parsePlugins('js', 'react');
+        const plugins = parse('js', 'react');
 
         console.dir(plugins, { depth: 6 });
 

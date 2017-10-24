@@ -1,9 +1,12 @@
+'use strict';
+
+const { expect } = require('chai');
 const buddyFactory = require('../../lib/buddy');
-const expect = require('expect.js');
 const fs = require('fs');
 const path = require('path');
 const rimraf = require('rimraf');
 const stylusPlugin = require('../../packages/buddy-plugin-stylus');
+
 let buddy;
 
 describe('BATCH', () => {

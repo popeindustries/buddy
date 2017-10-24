@@ -1,9 +1,9 @@
 'use strict';
 
-const { ReloadServerFactory, ServerFactory } = require('..');
 const { client: WSClient } = require('websocket');
+const { expect } = require('chai');
+const { ReloadServerFactory, ServerFactory } = require('..');
 const path = require('path');
-const expect = require('expect.js');
 const request = require('request');
 
 describe('buddy-server', () => {

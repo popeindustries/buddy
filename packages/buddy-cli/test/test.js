@@ -1,7 +1,7 @@
 'use strict';
 
 const { exec } = require('child_process');
-const expect = require('expect.js');
+const { expect } = require('chai');
 const find = require('../lib/find');
 const os = require('os');
 const path = require('path');

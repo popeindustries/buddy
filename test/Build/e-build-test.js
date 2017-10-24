@@ -1,8 +1,8 @@
 'use strict';
 
+const { expect } = require('chai');
 const buildFactory = require('../../lib/Build');
 const configFactory = require('../../lib/config');
-const expect = require('expect.js');
 const fs = require('fs');
 const path = require('path');
 const rimraf = require('rimraf');

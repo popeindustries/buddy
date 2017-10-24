@@ -1,12 +1,13 @@
 'use strict';
 
+const { expect } = require('chai');
 const { unwrap } = require('../../lib/plugins/js/concat');
 const cache = require('../../lib/cache');
 const configFactory = require('../../lib/config');
-const expect = require('expect.js');
 const File = require('../../lib/File');
 const fs = require('fs');
 const path = require('path');
+
 let config, file;
 
 describe('file', () => {

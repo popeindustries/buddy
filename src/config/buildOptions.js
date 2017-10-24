@@ -2,6 +2,19 @@
 
 'use strict';
 
+type BuildOptions = {
+  babel: {
+    presets: Array<string | [string, {}]>,
+    plugins: Array<string | [string, {}]>
+  },
+  postcss: {
+    plugins: Array<string | [string, {}]>
+  }
+};
+type NormalisedVersion = { [string]: number | string | 'current' | true };
+type Targets = { browsers: Array<string> } | { node: number | string | 'current' | true };
+type Version = string | Array<string> | NormalisedVersion;
+
 const { isNullOrUndefined, isPlainObject, isString } = require('../utils/is');
 const { strong, warn } = require('../utils/cnsl');
 const babelEnv = require('babel-preset-env').default;
@@ -53,20 +66,14 @@ module.exports = {
 
   /**
    * Parse plugins based on 'version' and 'options'
-   * @param {String} type
-   * @param {String|Array|Object} version
-   * @param {Object} options
-   * @param {Boolean} compress
-   * @returns {Object}
    */
-  parsePlugins(type = '', version, options = {}, compress = false) {
+  parse(type: string = '', version: Version, options: Object = {}, compress: boolean = false): BuildOptions {
     const plugins = {
-      buddy: { plugins: [] },
       babel: Object.assign({ presets: [], plugins: [] }, options.babel),
       postcss: Object.assign({ plugins: [] }, options.postcss)
     };
-    const normalizedVersion = normalizeVersion(version);
-    const targetEnvs = parseTargetEnvs(normalizedVersion);
+    const normalisedVersion = normaliseVersion(version);
+    const targetEnvs = parseTargetEnvs(normalisedVersion);
 
     if (type !== 'js') {
       // Convert 'cssnano' options to postcss plugin
@@ -96,23 +103,23 @@ module.exports = {
       }
     }
 
-    plugins.buddy.plugins = parseBuddyPlugins(normalizedVersion, options);
-
     return plugins;
   },
 
-  loadPlugins() {},
+  loadPlugins() { },
 
   /**
    * Determine if browser environment based on 'version'
-   * @param {Array} version
-   * @returns {Boolean}
    */
-  isBrowserEnvironment(version = []) {
-    if (isPlainObject(version)) {
-      version = Object.keys(version);
-    } else if (!Array.isArray(version)) {
+  isBrowserEnvironment(version: ?Version = []): boolean {
+    if (isNullOrUndefined(version)) {
+      return true;
+    }
+
+    if (typeof version === 'string') {
       version = [version];
+    } else if (!Array.isArray(version)) {
+      version = Object.keys(version);
     }
 
     return !version.some(preset => RE_NODE_TARGET.test(preset));
@@ -153,15 +160,13 @@ function mergePlugin(plugins, plugin) {
 
 /**
  * Parse env targets from 'version'
- * @param {Object} version
- * @returns {Object}
  */
-function parseTargetEnvs(version) {
+function parseTargetEnvs(version: NormalisedVersion): Targets {
   const targets = { browsers: [] };
 
   for (const key in version) {
     if (RE_NODE_TARGET.test(key)) {
-      targets.node = version[key] === 1 || version[key];
+      targets.node = Boolean(version[key]);
     } else if (RE_ES_TARGET.test(key)) {
       const browser = BABEL_ES_BROWSERS[key];
 
@@ -183,34 +188,9 @@ function parseTargetEnvs(version) {
 }
 
 /**
- * Parse Buddy plugins from 'version' and 'options'
- * @param {Object} version
- * @param {Object} options
- * @returns {Array}
+ * Normalise 'version' into object
  */
-function parseBuddyPlugins(version, options) {
-  const plugins = [];
-
-  for (const key in version) {
-    if (!RE_NODE_TARGET.test(key) && !RE_ES_TARGET.test(key) && !RE_BROWSERLIST.test(key) && key !== 'browsers') {
-      plugins.push(key);
-    }
-  }
-  for (const key in options) {
-    if (!OPTIONS_WHITELIST.includes(key)) {
-      plugins.push([key, options[key]]);
-    }
-  }
-
-  return plugins;
-}
-
-/**
- * Normalize 'version' into object
- * @param {String|Array|Object} version
- * @returns {Object}
- */
-function normalizeVersion(version = {}) {
+function normaliseVersion(version: Version = {}): NormalisedVersion {
   if (isString(version)) {
     version = [version];
   }
