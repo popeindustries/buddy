@@ -3,7 +3,7 @@
 const { expect } = require('chai');
 const { isBrowserEnvironment, parse } = require('../../lib/config/buildOptions');
 
-describe('buildOptions', () => {
+describe.only('buildOptions', () => {
   describe('isBrowserEnvironment', () => {
     it('should return "false" for server version', () => {
       expect(isBrowserEnvironment('node')).to.equal(false);
@@ -99,7 +99,9 @@ describe('buildOptions', () => {
         const plugins = parse('js', { browsers: ['> 5%', 'not ie 10'] });
 
         expect(plugins).to.have.property('babel');
-        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
+        expect(plugins.babel.presets[0][1].targets)
+          .to.have.property('browsers')
+          .eql(['> 5%', 'not ie 10']);
       });
       it('should parse default plugins with options', () => {
         const plugins = parse('js', undefined, { babel: { plugins: ['foo'] } });
@@ -158,13 +160,17 @@ describe('buildOptions', () => {
         const plugins = parse('css', { browsers: ['> 5%', 'not ie 10'] });
 
         expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
+        expect(plugins.postcss.plugins[0][1])
+          .to.have.property('browsers')
+          .eql(['> 5%', 'not ie 10']);
       });
       it('should parse default plugins with options', () => {
         const plugins = parse('css', undefined, { autoprefixer: { browsers: ['> 5%', 'not ie 10'] } });
 
         expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers').eql(['> 5%', 'not ie 10']);
+        expect(plugins.postcss.plugins[0][1])
+          .to.have.property('browsers')
+          .eql(['> 5%', 'not ie 10']);
       });
       it('should parse plugins with override options', () => {
         const plugins = parse('css', ['> 5%', 'not ie 10'], { autoprefixer: { add: false } });
@@ -236,18 +242,6 @@ describe('buildOptions', () => {
         expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['> 5%', 'not ie 10']);
         expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%', 'not ie 10']);
       });
-    });
-
-    describe('buddy', () => {
-      it('should parse string version', () => {
-        const plugins = parse('js', 'react');
-
-        console.dir(plugins, { depth: 6 });
-
-      });
-      it('should parse array version');
-      it('should parse object version');
-      it('should parse options');
     });
   });
 

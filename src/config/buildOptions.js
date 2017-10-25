@@ -11,11 +11,11 @@ type BuildOptions = {
     plugins: Array<string | [string, {}]>
   }
 };
-type NormalisedVersion = { [string]: number | string | 'current' | true };
-type Targets = { browsers: Array<string> } | { node: number | string | 'current' | true };
-type Version = string | Array<string> | NormalisedVersion;
+type Version =
+  | { browsers: Array<string>, buddy?: Array<string> }
+  | { node: number | string | true, buddy?: Array<string> };
 
-const { isNullOrUndefined, isPlainObject, isString } = require('../utils/is');
+const { isNullOrUndefined, isString } = require('../utils/is');
 const { strong, warn } = require('../utils/cnsl');
 const babelEnv = require('babel-preset-env').default;
 const browserslist = require('browserslist');
@@ -24,12 +24,23 @@ const merge = require('lodash/merge');
 const md5 = require('md5');
 const unique = require('lodash/uniq');
 
-const BABEL_ES_BROWSERS = {
+const ES_TO_BROWSERS = {
   es5: 'ie 8',
   es2015: 'chrome 51',
   es6: 'chrome 51',
   es2016: 'chrome 52',
-  es7: 'chrome 52'
+  es7: 'chrome 52',
+  es2017: 'chrome 55',
+  es8: 'chrome 55'
+};
+const ES_TO_NODE = {
+  es5: '4',
+  es2015: '6.5',
+  es6: '6.5',
+  es2016: '7',
+  es7: '7',
+  es2017: '7.6',
+  es8: '7.6'
 };
 const BABEL_PLUGINS_COMPRESS = [['babel-plugin-minify-dead-code-elimination', { keepFnArgs: true, keepFnName: true }]];
 const BABEL_PLUGINS_DEFAULT = [
@@ -49,9 +60,9 @@ const OPTIONS_WHITELIST = ['autoprefixer', 'babel', 'cssnano', 'postcss'];
 const POSTCSS_PLUGINS_COMPRESS = [['cssnano', {}]];
 const RE_BABEL_PREFIX = /babel-preset-|babel-plugin-/;
 const RE_BUDDY_PREFIX = /buddy-plugin-/;
-const RE_BROWSERLIST = /android|blackberry|bb|chrome|chromeandroid|and_chr|edge|electron|explorer|ie|explorermobile|ie_mob|firefox|ff|firefoxandroid|and_ff|ios|ios_saf|opera|operamini|op_mini|operamobile|op_mob|qqandroid|and_qq|safari|baidu|samsung|ucandroid|and_uc|last|\d%/i;
 const RE_ES_TARGET = /^es/i;
 const RE_NODE_TARGET = /^node|^server/i;
+const VALID_BROWSERS = [...Object.keys(browserslist.data), ...Object.keys(browserslist.aliases)];
 
 module.exports = {
   /**
@@ -67,7 +78,12 @@ module.exports = {
   /**
    * Parse plugins based on 'version' and 'options'
    */
-  parse(type: string = '', version: Version, options: Object = {}, compress: boolean = false): BuildOptions {
+  parse(
+    type: string = '',
+    version: string | Array<string> | { [string]: number | string | true | Array<string> },
+    options: Object = {},
+    compress: boolean = false
+  ): BuildOptions {
     const plugins = {
       babel: Object.assign({ presets: [], plugins: [] }, options.babel),
       postcss: Object.assign({ plugins: [] }, options.postcss)
@@ -106,12 +122,14 @@ module.exports = {
     return plugins;
   },
 
-  loadPlugins() { },
+  loadPlugins() {},
 
   /**
    * Determine if browser environment based on 'version'
    */
-  isBrowserEnvironment(version: ?Version = []): boolean {
+  isBrowserEnvironment(
+    version: ?string | Array<string> | { [string]: number | string | true | Array<string> } = []
+  ): boolean {
     if (isNullOrUndefined(version)) {
       return true;
     }
@@ -160,15 +178,33 @@ function mergePlugin(plugins, plugin) {
 
 /**
  * Parse env targets from 'version'
+ *
+ * 'server'                              => { node: true }
+ * 'es6'                                 => { browsers: ['chrome 51'] }
+ * 'react'                               => { buddy: ['react'] }
+ * 'node'                                => { node: true }
+ * '> 5%'                                => { browsers: ['> 5%'] }
+ * ['node']                              => { node: true }
+ * ['es6', 'node']                       => { node: '6.5' }
+ * ['es6', 'react']                      => { browsers: ['chrome 51'], buddy: ['react'] }
+ * ['> 5%', 'not ie 10']                 => { browsers: ['> 5%', 'not ie 10'] }
+ * { node: true }                        => { node: true }
+ * { react: true }                       => { buddy: ['react'] }
+ * { react: true, chrome: 51 }           => { browsers: ['chrome 51'], buddy: ['react'] }
+ * { chrome: 51 }                        => { browsers: ['chrome 51'] }
+ * { chrome: '51' }                      => { browsers: ['chrome 51'] }
+ * { browsers: ['> 5%', 'not ie 10'] }   => { browsers: ['> 5%', 'not ie 10'] }
  */
-function parseTargetEnvs(version: NormalisedVersion): Targets {
+function parseVersion(version: { [string]: number | string | true | Array<string> }): Version {
+  const versions = Object.keys(version);
+
   const targets = { browsers: [] };
 
   for (const key in version) {
     if (RE_NODE_TARGET.test(key)) {
       targets.node = Boolean(version[key]);
     } else if (RE_ES_TARGET.test(key)) {
-      const browser = BABEL_ES_BROWSERS[key];
+      const browser = ES_TO_BROWSERS[key];
 
       if (!isNullOrUndefined(browser)) {
         targets.browsers.push(browser);
@@ -190,13 +226,15 @@ function parseTargetEnvs(version: NormalisedVersion): Targets {
 /**
  * Normalise 'version' into object
  */
-function normaliseVersion(version: Version = {}): NormalisedVersion {
+function normaliseVersion(
+  version: string | Array<string> | { [string]: number | string | true | Array<string> } = {}
+): { [string]: number | string | true | Array<string> } {
   if (isString(version)) {
     version = [version];
   }
   if (Array.isArray(version)) {
     version = version.reduce((version, key) => {
-      version[key] = 1;
+      version[key] = true;
       return version;
     }, {});
   }
