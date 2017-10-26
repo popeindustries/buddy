@@ -3,19 +3,17 @@
 'use strict';
 
 export type IsUtils = {
-  isPlainObject: (any) => boolean,
+  isArray: any => boolean,
   isEmptyArray: (Array<any>) => boolean,
   isFunction: (() => any) => boolean,
-  isString: (any) => boolean,
-  isNumber: (any) => boolean,
-  isObject: (any) => boolean,
-  isInvalid: (any) => boolean
+  isString: any => boolean,
+  isNumber: any => boolean,
+  isObject: any => boolean,
+  isInvalid: any => boolean
 };
 
-const isPlainObject = require('lodash/isPlainObject');
-
 module.exports = {
-  isPlainObject,
+  isArray,
   isEmptyArray,
   isFunction,
   isString,
@@ -24,6 +22,13 @@ module.exports = {
   isInvalid,
   isNullOrUndefined
 };
+
+/**
+ * Determine if 'o' is an Array
+ */
+function isArray(o: Array<any>): boolean %checks {
+  return Array.isArray(o);
+}
 
 /**
  * Determine if 'o' is an empty Array

@@ -1,10 +1,10 @@
 'use strict';
 
 const { expect } = require('chai');
-const { isBrowserEnvironment, parse } = require('../../lib/config/buildOptions');
+const { isBrowserEnvironment, parse, parseVersion } = require('../../lib/config/buildOptions');
 
 describe.only('buildOptions', () => {
-  describe('isBrowserEnvironment', () => {
+  describe('isBrowserEnvironment()', () => {
     it('should return "false" for server version', () => {
       expect(isBrowserEnvironment('node')).to.equal(false);
       expect(isBrowserEnvironment('server')).to.equal(false);
@@ -26,9 +26,48 @@ describe.only('buildOptions', () => {
     });
   });
 
+  describe.only('parseVersion()', () => {
+    it('should parse node version', () => {
+      expect(parseVersion('node')).to.eql({ node: true, buddy: [] });
+      expect(parseVersion('server')).to.eql({ node: true, buddy: [] });
+      expect(parseVersion(['node'])).to.eql({ node: true, buddy: [] });
+      expect(parseVersion(['server'])).to.eql({ node: true, buddy: [] });
+      expect(parseVersion({ node: true })).to.eql({ node: true, buddy: [] });
+      expect(parseVersion({ server: true })).to.eql({ node: true, buddy: [] });
+      expect(parseVersion({ node: true, chrome: 51 })).to.eql({ node: true, buddy: [] });
+    });
+    it('should parse specific node version', () => {
+      expect(parseVersion({ node: '6' })).to.eql({ node: '6', buddy: [] });
+      expect(parseVersion({ node: 6 })).to.eql({ node: '6', buddy: [] });
+      expect(parseVersion({ node: 'current' })).to.eql({ node: 'current', buddy: [] });
+      expect(parseVersion(['node', 'es6'])).to.eql({ node: '6.5', buddy: [] });
+      expect(parseVersion(['server', 'es6'])).to.eql({ node: '6.5', buddy: [] });
+      expect(parseVersion({ node: true, es6: true })).to.eql({ node: '6.5', buddy: [] });
+      expect(parseVersion({ server: true, es6: true })).to.eql({ node: '6.5', buddy: [] });
+    });
+    it('should parse browser version', () => {
+      expect(parseVersion('es6')).to.eql({ browsers: ['chrome 51'], buddy: [] });
+      expect(parseVersion('> 5%')).to.eql({ browsers: ['> 5%'], buddy: [] });
+      expect(parseVersion(['es6'])).to.eql({ browsers: ['chrome 51'], buddy: [] });
+      expect(parseVersion(['> 5%'])).to.eql({ browsers: ['> 5%'], buddy: [] });
+      expect(parseVersion(['> 5%', 'not ie 10'])).to.eql({ browsers: ['> 5%', 'not ie 10'], buddy: [] });
+      expect(parseVersion({ chrome: 51 })).to.eql({ browsers: ['chrome 51'], buddy: [] });
+      expect(parseVersion({ chrome: '51' })).to.eql({ browsers: ['chrome 51'], buddy: [] });
+      expect(parseVersion({ browsers: ['> 5%', 'not ie 10'] })).to.eql({ browsers: ['> 5%', 'not ie 10'], buddy: [] });
+    });
+    it('should parse buddy plugins', () => {
+      expect(parseVersion('react')).to.eql({ browsers: [], buddy: ['react'] });
+      expect(parseVersion(['react'])).to.eql({ browsers: [], buddy: ['react'] });
+      expect(parseVersion(['react', 'es6'])).to.eql({ browsers: ['chrome 51'], buddy: ['react'] });
+      expect(parseVersion(['react', 'node'])).to.eql({ node: true, buddy: ['react'] });
+      expect(parseVersion({ react: true })).to.eql({ browsers: [], buddy: ['react'] });
+      expect(parseVersion({ react: true, node: true })).to.eql({ node: true, buddy: ['react'] });
+    });
+  });
+
   describe('parse', () => {
     describe('js', () => {
-      it.only('should parse default plugins', () => {
+      it('should parse default plugins', () => {
         const plugins = parse('js');
 
         expect(plugins).to.have.property('babel');

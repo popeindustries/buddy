@@ -12,10 +12,10 @@ type BuildOptions = {
   }
 };
 type Version =
-  | { browsers: Array<string>, buddy?: Array<string> }
-  | { node: number | string | true, buddy?: Array<string> };
+  | { browsers: Array<string>, buddy: Array<string> }
+  | { node: number | string | true, buddy: Array<string> };
 
-const { isNullOrUndefined, isString } = require('../utils/is');
+const { isNullOrUndefined, isNumber, isObject, isString } = require('../utils/is');
 const { strong, warn } = require('../utils/cnsl');
 const babelEnv = require('babel-preset-env').default;
 const browserslist = require('browserslist');
@@ -59,12 +59,16 @@ const DEFAULT_BABEL_ENV_OPTIONS = {
 const OPTIONS_WHITELIST = ['autoprefixer', 'babel', 'cssnano', 'postcss'];
 const POSTCSS_PLUGINS_COMPRESS = [['cssnano', {}]];
 const RE_BABEL_PREFIX = /babel-preset-|babel-plugin-/;
+const RE_BROWSERSLIST_QUERY = /last|unreleased|not|extends|%|>=?|<=?/i;
 const RE_BUDDY_PREFIX = /buddy-plugin-/;
 const RE_ES_TARGET = /^es/i;
 const RE_NODE_TARGET = /^node|^server/i;
 const VALID_BROWSERS = [...Object.keys(browserslist.data), ...Object.keys(browserslist.aliases)];
 
 module.exports = {
+  isBrowserEnvironment,
+  parseVersion,
+
   /**
    * Add 'preset' definition for 'type'
    */
@@ -80,16 +84,16 @@ module.exports = {
    */
   parse(
     type: string = '',
-    version: string | Array<string> | { [string]: number | string | true | Array<string> },
+    version: string | Array<string> | { [string]: number | string | true, browsers?: Array<string> },
     options: Object = {},
     compress: boolean = false
   ): BuildOptions {
+    const parsedVersion = parseVersion(version);
+
     const plugins = {
       babel: Object.assign({ presets: [], plugins: [] }, options.babel),
       postcss: Object.assign({ plugins: [] }, options.postcss)
     };
-    const normalisedVersion = normaliseVersion(version);
-    const targetEnvs = parseTargetEnvs(normalisedVersion);
 
     if (type !== 'js') {
       // Convert 'cssnano' options to postcss plugin
@@ -122,27 +126,110 @@ module.exports = {
     return plugins;
   },
 
-  loadPlugins() {},
-
-  /**
-   * Determine if browser environment based on 'version'
-   */
-  isBrowserEnvironment(
-    version: ?string | Array<string> | { [string]: number | string | true | Array<string> } = []
-  ): boolean {
-    if (isNullOrUndefined(version)) {
-      return true;
-    }
-
-    if (typeof version === 'string') {
-      version = [version];
-    } else if (!Array.isArray(version)) {
-      version = Object.keys(version);
-    }
-
-    return !version.some(preset => RE_NODE_TARGET.test(preset));
-  }
+  loadPlugins() {}
 };
+
+/**
+ * Determine if browser environment based on 'version'
+ */
+function isBrowserEnvironment(
+  version: ?string | Array<string> | { [string]: number | string | true | Array<string> } = []
+): boolean {
+  if (isNullOrUndefined(version)) {
+    return true;
+  }
+
+  if (typeof version === 'string') {
+    version = [version];
+  } else if (isObject(version)) {
+    version = Object.keys(version);
+  }
+
+  return !version.some(key => RE_NODE_TARGET.test(key));
+}
+
+/**
+ * Parse env targets from 'version'
+ *
+ * 'server'                              => { node: true }
+ * 'node'                                => { node: true }
+ * 'react'                               => { buddy: ['react'] }
+ * 'es6'                                 => { browsers: ['chrome 51'] }
+ * '> 5%'                                => { browsers: ['> 5%'] }
+ * ['node']                              => { node: true }
+ * ['es6', 'node']                       => { node: '6.5' }
+ * ['es6', 'react']                      => { browsers: ['chrome 51'], buddy: ['react'] }
+ * ['> 5%', 'not ie 10']                 => { browsers: ['> 5%', 'not ie 10'] }
+ * { node: true }                        => { node: true }
+ * { react: true }                       => { buddy: ['react'] }
+ * { react: true, chrome: 51 }           => { browsers: ['chrome 51'], buddy: ['react'] }
+ * { chrome: 51 }                        => { browsers: ['chrome 51'] }
+ * { chrome: '51' }                      => { browsers: ['chrome 51'] }
+ * { browsers: ['> 5%', 'not ie 10'] }   => { browsers: ['> 5%', 'not ie 10'] }
+ */
+function parseVersion(
+  version: string | Array<string> | { [string]: number | string | true, browsers?: Array<string> }
+): Version {
+  version = normaliseVersion(version);
+
+  const keys = Object.keys(version);
+  const isNode = keys.some(key => RE_NODE_TARGET.test(key));
+
+  if (isNode) {
+    const parsed = { node: true, buddy: [] };
+
+    keys.forEach(key => {
+      if (RE_ES_TARGET.test(key)) {
+        parsed.node = ES_TO_NODE[key] || true;
+      } else if (RE_NODE_TARGET.test(key)) {
+        const value = version[key];
+
+        parsed.node = isString(value) || isNumber(value) ? `${value}` : value;
+      } else if (!VALID_BROWSERS.includes(key) && !RE_BROWSERSLIST_QUERY.test(key)) {
+        parsed.buddy.push(key.toLowerCase());
+      }
+    });
+
+    return parsed;
+  }
+
+  const parsed = { browsers: [], buddy: [] };
+
+  keys.forEach(key => {
+    if (key === 'browsers') {
+      parsed.browsers.push(...version[key]);
+    } else if (RE_ES_TARGET.test(key)) {
+      parsed.browsers.push(ES_TO_BROWSERS[key]);
+    } else if (VALID_BROWSERS.includes(key)) {
+      parsed.browsers.push(`${key} ${version[key]}`);
+    } else if (RE_BROWSERSLIST_QUERY.test(key)) {
+      parsed.browsers.push(key);
+    } else {
+      parsed.buddy.push(key.toLowerCase());
+    }
+  });
+
+  return parsed;
+}
+
+/**
+ * Normalise 'version' into object
+ */
+function normaliseVersion(
+  version: string | Array<string> | { [string]: number | string | true, browsers?: Array<string> } = {}
+): { [string]: number | string | true, browsers?: Array<string> } {
+  if (isString(version)) {
+    version = [version];
+  }
+  if (Array.isArray(version)) {
+    version = version.reduce((version, key) => {
+      version[key] = true;
+      return version;
+    }, {});
+  }
+
+  return version;
+}
 
 /**
  * Merge 'plugin' into 'plugins', taking care to merge with existing
@@ -174,70 +261,4 @@ function mergePlugin(plugins, plugin) {
   }
 
   return existing;
-}
-
-/**
- * Parse env targets from 'version'
- *
- * 'server'                              => { node: true }
- * 'es6'                                 => { browsers: ['chrome 51'] }
- * 'react'                               => { buddy: ['react'] }
- * 'node'                                => { node: true }
- * '> 5%'                                => { browsers: ['> 5%'] }
- * ['node']                              => { node: true }
- * ['es6', 'node']                       => { node: '6.5' }
- * ['es6', 'react']                      => { browsers: ['chrome 51'], buddy: ['react'] }
- * ['> 5%', 'not ie 10']                 => { browsers: ['> 5%', 'not ie 10'] }
- * { node: true }                        => { node: true }
- * { react: true }                       => { buddy: ['react'] }
- * { react: true, chrome: 51 }           => { browsers: ['chrome 51'], buddy: ['react'] }
- * { chrome: 51 }                        => { browsers: ['chrome 51'] }
- * { chrome: '51' }                      => { browsers: ['chrome 51'] }
- * { browsers: ['> 5%', 'not ie 10'] }   => { browsers: ['> 5%', 'not ie 10'] }
- */
-function parseVersion(version: { [string]: number | string | true | Array<string> }): Version {
-  const versions = Object.keys(version);
-
-  const targets = { browsers: [] };
-
-  for (const key in version) {
-    if (RE_NODE_TARGET.test(key)) {
-      targets.node = Boolean(version[key]);
-    } else if (RE_ES_TARGET.test(key)) {
-      const browser = ES_TO_BROWSERS[key];
-
-      if (!isNullOrUndefined(browser)) {
-        targets.browsers.push(browser);
-      }
-    } else if (RE_BROWSERLIST.test(key)) {
-      if (version[key] === 1) {
-        targets.browsers.push(key);
-      } else {
-        targets[key] = version[key];
-      }
-    } else if (key === 'browsers') {
-      targets.browsers = version[key];
-    }
-  }
-
-  return targets;
-}
-
-/**
- * Normalise 'version' into object
- */
-function normaliseVersion(
-  version: string | Array<string> | { [string]: number | string | true | Array<string> } = {}
-): { [string]: number | string | true | Array<string> } {
-  if (isString(version)) {
-    version = [version];
-  }
-  if (Array.isArray(version)) {
-    version = version.reduce((version, key) => {
-      version[key] = true;
-      return version;
-    }, {});
-  }
-
-  return version;
 }
