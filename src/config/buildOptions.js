@@ -3,19 +3,23 @@
 'use strict';
 
 type BuildOptions = {
+  [string]: {},
   babel: {
+    [string]: any,
     presets: Array<string | [string, {}]>,
     plugins: Array<string | [string, {}]>
   },
   postcss: {
+    [string]: any,
     plugins: Array<string | [string, {}]>
-  }
+  },
+  buddy: Array<string>
 };
 type Version =
   | { browsers: Array<string>, buddy: Array<string> }
   | { node: number | string | true, buddy: Array<string> };
 
-const { isNullOrUndefined, isNumber, isObject, isString } = require('../utils/is');
+const { isArray, isEmptyArray, isNullOrUndefined, isNumber, isObject, isString } = require('../utils/is');
 const { strong, warn } = require('../utils/cnsl');
 const babelEnv = require('babel-preset-env').default;
 const browserslist = require('browserslist');
@@ -80,50 +84,66 @@ module.exports = {
   },
 
   /**
-   * Parse plugins based on 'version' and 'options'
+   * Parse 'version' and 'options'
    */
   parse(
-    type: string = '',
-    version: string | Array<string> | { [string]: number | string | true, browsers?: Array<string> },
-    options: Object = {},
-    compress: boolean = false
+    version: ?string | Array<string> | { [string]: number | string | true, browsers?: Array<string> },
+    options: ?{ [string]: any }
   ): BuildOptions {
-    const parsedVersion = parseVersion(version);
-
-    const plugins = {
+    if (isNullOrUndefined(options)) {
+      options = {};
+    }
+    const parsedVersion: Version = parseVersion(version);
+    const opts: BuildOptions = {
       babel: Object.assign({ presets: [], plugins: [] }, options.babel),
-      postcss: Object.assign({ plugins: [] }, options.postcss)
+      postcss: Object.assign({ plugins: [] }, options.postcss),
+      buddy: parsedVersion.buddy
     };
+    const babelEnvPresetOptions = Object.assign({}, DEFAULT_BABEL_ENV_OPTIONS);
 
-    if (type !== 'js') {
-      // Convert 'cssnano' options to postcss plugin
-      if (compress && 'cssnano' in options) {
-        plugins.postcss.plugins.push(['cssnano', options.cssnano]);
-      }
-      // Convert 'autoprefixer' options to postcss plugin
-      if ('autoprefixer' in options) {
-        plugins.postcss.plugins.push(['autoprefixer', options.autoprefixer]);
-      }
-      // Don't configure if no version set
-      if (!isNullOrUndefined(version) || plugins.postcss.plugins.length > 0) {
-        mergePlugin(plugins.postcss.plugins, ['autoprefixer', { browsers: targetEnvs.browsers }]);
-      }
-      if (compress) {
-        mergePlugin(plugins.postcss.plugins, POSTCSS_PLUGINS_COMPRESS);
-      }
+    if (!isEmptyArray(parsedVersion.browsers)) {
+      babelEnvPresetOptions.targets.browsers = parsedVersion.browsers;
     }
-    if (type !== 'css') {
-      mergePlugin(plugins.babel.presets, [
-        'babel-preset-env',
-        Object.assign({}, DEFAULT_BABEL_ENV_OPTIONS, { targets: targetEnvs })
-      ]);
-      mergePlugin(plugins.babel.plugins, BABEL_PLUGINS_DEFAULT);
-      if (compress) {
-        mergePlugin(plugins.babel.plugins, BABEL_PLUGINS_COMPRESS);
-      }
+    if (parsedVersion.node !== undefined) {
+      babelEnvPresetOptions.targets.node = parsedVersion.node;
     }
+    mergePlugin(opts.babel.presets, ['env', babelEnvPresetOptions]);
 
-    return plugins;
+    return opts;
+    // const plugins = {
+    //   babel: Object.assign({ presets: [], plugins: [] }, options.babel),
+    //   postcss: Object.assign({ plugins: [] }, options.postcss)
+    // };
+
+    // if (type !== 'js') {
+    //   // Convert 'cssnano' options to postcss plugin
+    //   if (compress && 'cssnano' in options) {
+    //     plugins.postcss.plugins.push(['cssnano', options.cssnano]);
+    //   }
+    //   // Convert 'autoprefixer' options to postcss plugin
+    //   if ('autoprefixer' in options) {
+    //     plugins.postcss.plugins.push(['autoprefixer', options.autoprefixer]);
+    //   }
+    //   // Don't configure if no version set
+    //   if (!isNullOrUndefined(version) || plugins.postcss.plugins.length > 0) {
+    //     mergePlugin(plugins.postcss.plugins, ['autoprefixer', { browsers: targetEnvs.browsers }]);
+    //   }
+    //   if (compress) {
+    //     mergePlugin(plugins.postcss.plugins, POSTCSS_PLUGINS_COMPRESS);
+    //   }
+    // }
+    // if (type !== 'css') {
+    //   mergePlugin(plugins.babel.presets, [
+    //     'babel-preset-env',
+    //     Object.assign({}, DEFAULT_BABEL_ENV_OPTIONS, { targets: targetEnvs })
+    //   ]);
+    //   mergePlugin(plugins.babel.plugins, BABEL_PLUGINS_DEFAULT);
+    //   if (compress) {
+    //     mergePlugin(plugins.babel.plugins, BABEL_PLUGINS_COMPRESS);
+    //   }
+    // }
+
+    // return plugins;
   },
 
   loadPlugins() {}
@@ -168,7 +188,7 @@ function isBrowserEnvironment(
  * { browsers: ['> 5%', 'not ie 10'] }   => { browsers: ['> 5%', 'not ie 10'] }
  */
 function parseVersion(
-  version: string | Array<string> | { [string]: number | string | true, browsers?: Array<string> }
+  version: ?string | Array<string> | { [string]: number | string | true, browsers?: Array<string> }
 ): Version {
   version = normaliseVersion(version);
 
@@ -216,12 +236,15 @@ function parseVersion(
  * Normalise 'version' into object
  */
 function normaliseVersion(
-  version: string | Array<string> | { [string]: number | string | true, browsers?: Array<string> } = {}
+  version: ?string | Array<string> | { [string]: number | string | true, browsers?: Array<string> }
 ): { [string]: number | string | true, browsers?: Array<string> } {
+  if (isNullOrUndefined(version)) {
+    return {};
+  }
   if (isString(version)) {
     version = [version];
   }
-  if (Array.isArray(version)) {
+  if (isArray(version)) {
     version = version.reduce((version, key) => {
       version[key] = true;
       return version;
@@ -233,12 +256,9 @@ function normaliseVersion(
 
 /**
  * Merge 'plugin' into 'plugins', taking care to merge with existing
- * @param {Array} plugins
- * @param {Array} plugin
- * @returns {Array}
  */
-function mergePlugin(plugins, plugin) {
-  if (Array.isArray(plugin[0])) {
+function mergePlugin(plugins: Array<[string, {}]>, plugin: [string, {}]) {
+  if (isArray(plugin[0])) {
     plugin.forEach(p => mergePlugin(plugins, p));
     return;
   }
@@ -247,18 +267,16 @@ function mergePlugin(plugins, plugin) {
   // Handle optional babel prefix
   const altName = RE_BABEL_PREFIX.test(name) ? name.slice(13) : name;
   let existing = plugins.find(plugin => {
-    const pluginName = !Array.isArray(plugin) ? plugin : plugin[0];
+    const pluginName = !isArray(plugin) ? plugin : plugin[0];
 
     return pluginName === name || pluginName === altName;
   });
 
-  if (isNullOrUndefined(existing) || !Array.isArray(existing)) {
+  if (isNullOrUndefined(existing) || !isArray(existing)) {
     existing = plugin;
     plugins.push(plugin);
   } else {
     existing[0] = name;
     existing[1] = Object.assign({}, options, existing[1]);
   }
-
-  return existing;
 }

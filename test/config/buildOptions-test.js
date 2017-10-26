@@ -26,7 +26,7 @@ describe.only('buildOptions', () => {
     });
   });
 
-  describe.only('parseVersion()', () => {
+  describe('parseVersion()', () => {
     it('should parse node version', () => {
       expect(parseVersion('node')).to.eql({ node: true, buddy: [] });
       expect(parseVersion('server')).to.eql({ node: true, buddy: [] });
@@ -65,13 +65,13 @@ describe.only('buildOptions', () => {
     });
   });
 
-  describe('parse', () => {
+  describe.only('parse', () => {
     describe('js', () => {
-      it('should parse default plugins', () => {
-        const plugins = parse('js');
-
-        expect(plugins).to.have.property('babel');
-        expect(plugins.babel.plugins).to.have.length(2);
+      it.only('should parse default plugins', () => {
+        const options = parse();
+        console.dir(options, { depth: 5 });
+        // expect(plugins).to.have.property('babel');
+        // expect(plugins.babel.plugins).to.have.length(2);
       });
       it('should parse es* string version', () => {
         const plugins = parse('js', 'es6');

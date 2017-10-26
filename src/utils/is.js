@@ -26,14 +26,14 @@ module.exports = {
 /**
  * Determine if 'o' is an Array
  */
-function isArray(o: Array<any>): boolean %checks {
+function isArray(o: any): boolean %checks {
   return Array.isArray(o);
 }
 
 /**
  * Determine if 'o' is an empty Array
  */
-function isEmptyArray(o: Array<any>): boolean %checks {
+function isEmptyArray(o: any): boolean %checks {
   return Array.isArray(o) && o.length === 0;
 }
 
