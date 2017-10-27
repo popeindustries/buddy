@@ -3,18 +3,18 @@
 'use strict';
 
 export type IsUtils = {
-  isArray: any => boolean,
-  isEmptyArray: (Array<any>) => boolean,
-  isFunction: (() => any) => boolean,
-  isString: any => boolean,
-  isNumber: any => boolean,
-  isObject: any => boolean,
-  isInvalid: any => boolean
+  isArray: mixed => boolean,
+  isFilledArray: mixed => boolean,
+  isFunction: mixed => boolean,
+  isString: mixed => boolean,
+  isNumber: mixed => boolean,
+  isObject: mixed => boolean,
+  isInvalid: mixed => boolean
 };
 
 module.exports = {
   isArray,
-  isEmptyArray,
+  isFilledArray,
   isFunction,
   isString,
   isNumber,
@@ -26,55 +26,55 @@ module.exports = {
 /**
  * Determine if 'o' is an Array
  */
-function isArray(o: any): boolean %checks {
+function isArray(o: mixed): boolean %checks {
   return Array.isArray(o);
 }
 
 /**
- * Determine if 'o' is an empty Array
+ * Determine if 'o' is an Array with content
  */
-function isEmptyArray(o: any): boolean %checks {
-  return Array.isArray(o) && o.length === 0;
+function isFilledArray(o: mixed): boolean %checks {
+  return Array.isArray(o) && o.length >= 0;
 }
 
 /**
  * Determine if 'o' is a Function
  */
-function isFunction(o: () => any): boolean %checks {
+function isFunction(o: mixed): boolean %checks {
   return typeof o === 'function';
 }
 
 /**
  * Determine if 'o' is a String
  */
-function isString(o: any): boolean %checks {
+function isString(o: mixed): boolean %checks {
   return typeof o === 'string';
 }
 
 /**
  * Determine if 'o' is a Number
  */
-function isNumber(o: any): boolean %checks {
+function isNumber(o: mixed): boolean %checks {
   return typeof o === 'number';
 }
 
 /**
  * Determine if 'o' is an Object
  */
-function isObject(o: any): boolean %checks {
+function isObject(o: mixed): boolean %checks {
   return o != null && typeof o === 'object' && !Array.isArray(o);
 }
 
 /**
  * Determine if 'o' is invalid
  */
-function isInvalid(o: any): boolean %checks {
+function isInvalid(o: mixed): boolean %checks {
   return o === null || o === undefined || o === false || o === '';
 }
 
 /**
  * Determine if 'o' is null or undefined
  */
-function isNullOrUndefined(o: any): boolean %checks {
+function isNullOrUndefined(o: mixed): boolean %checks {
   return o === null || o === undefined;
 }

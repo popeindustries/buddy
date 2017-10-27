@@ -6,12 +6,17 @@ type BuildOptions = {
   [string]: {},
   babel: {
     [string]: any,
-    presets: Array<string | [string, {}]>,
-    plugins: Array<string | [string, {}]>
+    presets: Array<[string, {}]>,
+    plugins: Array<[string, {}]>
+  },
+  babelESM: {
+    [string]: any,
+    presets: Array<[string, {}]>,
+    plugins: Array<[string, {}]>
   },
   postcss: {
     [string]: any,
-    plugins: Array<string | [string, {}]>
+    plugins: Array<[string, {}]>
   },
   buddy: Array<string>
 };
@@ -19,7 +24,7 @@ type Version =
   | { browsers: Array<string>, buddy: Array<string> }
   | { node: number | string | true, buddy: Array<string> };
 
-const { isArray, isEmptyArray, isNullOrUndefined, isNumber, isObject, isString } = require('../utils/is');
+const { isArray, isFilledArray, isNullOrUndefined, isNumber, isObject, isString } = require('../utils/is');
 const { strong, warn } = require('../utils/cnsl');
 const babelEnv = require('babel-preset-env').default;
 const browserslist = require('browserslist');
@@ -46,22 +51,21 @@ const ES_TO_NODE = {
   es2017: '7.6',
   es8: '7.6'
 };
-const BABEL_PLUGINS_COMPRESS = [['babel-plugin-minify-dead-code-elimination', { keepFnArgs: true, keepFnName: true }]];
-const BABEL_PLUGINS_DEFAULT = [
-  [
-    'babel-plugin-transform-runtime',
-    { helpers: true, polyfill: false, regenerator: false, moduleName: 'babel-runtime' }
-  ],
-  ['babel-plugin-transform-es2015-modules-commonjs', { loose: true, noInterop: true, strictMode: false }]
+// const BABEL_PLUGINS_COMPRESS = [['babel-plugin-minify-dead-code-elimination', { keepFnArgs: true, keepFnName: true }]];
+const DEFAULT_BABEL_PLUGINS = [
+  ['transform-runtime', { helpers: true, polyfill: false, regenerator: false, moduleName: 'babel-runtime' }]
+];
+const DEFAULT_BABEL_PLUGINS_ESM = [
+  ['transform-runtime', { helpers: true, polyfill: false, regenerator: false, moduleName: 'babel-runtime' }],
+  ['transform-es2015-modules-commonjs', { loose: true, noInterop: true, strictMode: false }]
 ];
 const DEFAULT_BABEL_ENV_OPTIONS = {
   modules: false,
   exclude: ['transform-regenerator'],
-  loose: true,
-  targets: {}
+  loose: true
 };
 const OPTIONS_WHITELIST = ['autoprefixer', 'babel', 'cssnano', 'postcss'];
-const POSTCSS_PLUGINS_COMPRESS = [['cssnano', {}]];
+// const POSTCSS_PLUGINS_COMPRESS = [['cssnano', {}]];
 const RE_BABEL_PREFIX = /babel-preset-|babel-plugin-/;
 const RE_BROWSERSLIST_QUERY = /last|unreleased|not|extends|%|>=?|<=?/i;
 const RE_BUDDY_PREFIX = /buddy-plugin-/;
@@ -95,19 +99,38 @@ module.exports = {
     }
     const parsedVersion: Version = parseVersion(version);
     const opts: BuildOptions = {
-      babel: Object.assign({ presets: [], plugins: [] }, options.babel),
-      postcss: Object.assign({ plugins: [] }, options.postcss),
+      babel: { presets: [], plugins: DEFAULT_BABEL_PLUGINS.slice() },
+      babelESM: { presets: [], plugins: DEFAULT_BABEL_PLUGINS_ESM.slice() },
+      postcss: { plugins: [] },
       buddy: parsedVersion.buddy
     };
     const babelEnvPresetOptions = Object.assign({}, DEFAULT_BABEL_ENV_OPTIONS);
+    let babelEnvPresetTargets;
 
-    if (!isEmptyArray(parsedVersion.browsers)) {
-      babelEnvPresetOptions.targets.browsers = parsedVersion.browsers;
+    if (isFilledArray(parsedVersion.browsers)) {
+      babelEnvPresetTargets = { browsers: parsedVersion.browsers };
+      opts.postcss.plugins.push(['autoprefixer', { browsers: parsedVersion.browsers }]);
+    } else if (parsedVersion.node !== undefined) {
+      babelEnvPresetTargets = { node: parsedVersion.node };
     }
-    if (parsedVersion.node !== undefined) {
-      babelEnvPresetOptions.targets.node = parsedVersion.node;
+    if (babelEnvPresetTargets) {
+      babelEnvPresetOptions.targets = babelEnvPresetTargets;
+      opts.babel.presets = opts.babelESM.presets = [['env', babelEnvPresetOptions]];
     }
-    mergePlugin(opts.babel.presets, ['env', babelEnvPresetOptions]);
+
+    for (const key in options) {
+      switch (key) {
+        case 'babel':
+          break;
+        case 'postcss':
+          break;
+        case 'autoprefixer':
+          break;
+        case 'cssnano':
+          break;
+        default:
+      }
+    }
 
     return opts;
     // const plugins = {
@@ -199,14 +222,18 @@ function parseVersion(
     const parsed = { node: true, buddy: [] };
 
     keys.forEach(key => {
-      if (RE_ES_TARGET.test(key)) {
-        parsed.node = ES_TO_NODE[key] || true;
-      } else if (RE_NODE_TARGET.test(key)) {
+      if (key !== 'browsers') {
         const value = version[key];
 
-        parsed.node = isString(value) || isNumber(value) ? `${value}` : value;
-      } else if (!VALID_BROWSERS.includes(key) && !RE_BROWSERSLIST_QUERY.test(key)) {
-        parsed.buddy.push(key.toLowerCase());
+        if (RE_ES_TARGET.test(key)) {
+          parsed.node = ES_TO_NODE[key] || true;
+        } else if (RE_NODE_TARGET.test(key)) {
+          if (!isNullOrUndefined(value)) {
+            parsed.node = isString(value) || isNumber(value) ? `${value}` : value;
+          }
+        } else if (!VALID_BROWSERS.includes(key) && !RE_BROWSERSLIST_QUERY.test(key)) {
+          parsed.buddy.push(key.toLowerCase());
+        }
       }
     });
 
@@ -246,7 +273,7 @@ function normaliseVersion(
   }
   if (isArray(version)) {
     version = version.reduce((version, key) => {
-      version[key] = true;
+      version[key] = null;
       return version;
     }, {});
   }
