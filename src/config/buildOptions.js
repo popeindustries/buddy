@@ -98,7 +98,7 @@ module.exports = {
       options = {};
     }
     const parsedVersion: Version = parseVersion(version);
-    const opts: BuildOptions = {
+    const buildOptions: BuildOptions = {
       babel: { presets: [], plugins: DEFAULT_BABEL_PLUGINS.slice() },
       babelESM: { presets: [], plugins: DEFAULT_BABEL_PLUGINS_ESM.slice() },
       postcss: { plugins: [] },
@@ -109,30 +109,20 @@ module.exports = {
 
     if (isFilledArray(parsedVersion.browsers)) {
       babelEnvPresetTargets = { browsers: parsedVersion.browsers };
-      opts.postcss.plugins.push(['autoprefixer', { browsers: parsedVersion.browsers }]);
+      buildOptions.postcss.plugins.push(['autoprefixer', { browsers: parsedVersion.browsers }]);
     } else if (parsedVersion.node !== undefined) {
       babelEnvPresetTargets = { node: parsedVersion.node };
     }
     if (babelEnvPresetTargets) {
       babelEnvPresetOptions.targets = babelEnvPresetTargets;
-      opts.babel.presets = opts.babelESM.presets = [['env', babelEnvPresetOptions]];
+      buildOptions.babel.presets = buildOptions.babelESM.presets = [['env', babelEnvPresetOptions]];
     }
 
     for (const key in options) {
-      switch (key) {
-        case 'babel':
-          break;
-        case 'postcss':
-          break;
-        case 'autoprefixer':
-          break;
-        case 'cssnano':
-          break;
-        default:
-      }
+      mergeOptions(buildOptions, key, options[key]);
     }
 
-    return opts;
+    return buildOptions;
     // const plugins = {
     //   babel: Object.assign({ presets: [], plugins: [] }, options.babel),
     //   postcss: Object.assign({ plugins: [] }, options.postcss)
@@ -282,28 +272,51 @@ function normaliseVersion(
 }
 
 /**
- * Merge 'plugin' into 'plugins', taking care to merge with existing
+ * Merge 'options' into 'buildOptions', taking care to merge with existing
  */
-function mergePlugin(plugins: Array<[string, {}]>, plugin: [string, {}]) {
-  if (isArray(plugin[0])) {
-    plugin.forEach(p => mergePlugin(plugins, p));
+function mergeOptions(
+  buildOptions: BuildOptions,
+  type: string,
+  options: { [string]: {}, presets: Array<string | [string, {}]>, plugins: Array<string | [string, {}]> }
+) {
+  if (!(type in buildOptions)) {
+    buildOptions[type] = options;
     return;
   }
 
-  const [name, options] = plugin;
-  // Handle optional babel prefix
-  const altName = RE_BABEL_PREFIX.test(name) ? name.slice(13) : name;
-  let existing = plugins.find(plugin => {
-    const pluginName = !isArray(plugin) ? plugin : plugin[0];
+  for (const key in options) {
+    if (key === 'presets' || key === 'plugins') {
+      options[key].forEach(plugin => {
+        mergePlugin(buildOptions[type], key, plugin);
+        if (type === 'babel') {
+          mergePlugin(buildOptions.babelESM, key, plugin);
+        }
+      });
+    }
+  }
+}
 
-    return pluginName === name || pluginName === altName;
-  });
+function mergePlugin(options: {}, key: string, plugin: string | [string, {}]) {
+  if (!isArray(plugin)) {
+    plugin = [plugin, {}];
+  }
 
-  if (isNullOrUndefined(existing) || !isArray(existing)) {
-    existing = plugin;
-    plugins.push(plugin);
+  let [pluginName, pluginOptions] = plugin;
+
+  if (RE_BABEL_PREFIX.test(pluginName)) {
+    pluginName = pluginName.slice(13);
+  }
+
+  if (isNullOrUndefined(options[key])) {
+    options[key] = [plugin];
+    return;
+  }
+
+  const existing = options[key].find(existingPlugin => existingPlugin[0] === pluginName);
+
+  if (isNullOrUndefined(existing)) {
+    options[key].push(plugin);
   } else {
-    existing[0] = name;
-    existing[1] = Object.assign({}, options, existing[1]);
+    existing[1] = Object.assign({}, pluginOptions, existing[1]);
   }
 }

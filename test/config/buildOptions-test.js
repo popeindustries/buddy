@@ -136,26 +136,18 @@ describe.only('buildOptions', () => {
         expect(options.babel.presets).to.have.length(1);
         expect(options.babel.presets[0][1].targets.browsers).to.eql(['> 5%', 'not ie 10']);
       });
-      it.only('should configure optional babel plugins', () => {
+      it('should configure optional babel plugins', () => {
         const options = parse(undefined, { babel: { plugins: ['foo'] } });
-        console.dir(options, { depth: 10 });
 
         expect(options.babel.plugins).to.have.length(2);
-        expect(options.babel.plugins[0]).to.eql(['foo', {}]);
+        expect(options.babel.plugins[1]).to.eql(['foo', {}]);
+        expect(options.babelESM.plugins[2]).to.eql(['foo', {}]);
       });
-      it('should parse default plugins with options', () => {
-        const plugins = parse('js', undefined, { babel: { plugins: ['foo'] } });
+      it.only('should parse default plugins with override options', () => {
+        const options = parse(undefined, { babel: { plugins: ['transform-runtime', { helpers: false }] } });
+        console.dir(options, { depth: 10 });
 
-        expect(plugins).to.have.property('babel');
-        expect(plugins.babel.plugins[0]).to.equal('foo');
-      });
-      it('should parse default plugins with override options', () => {
-        const plugins = parse('js', undefined, {
-          babel: { plugins: [['babel-plugin-transform-es2015-modules-commonjs', { loose: false }]] }
-        });
-
-        expect(plugins).to.have.property('babel');
-        expect(plugins.babel.plugins[0][1]).to.have.property('loose', false);
+        expect(options.babel.plugins[0][1]).to.have.property('helpers', false);
       });
       it('should parse default plugins with alt name override options', () => {
         const plugins = parse('js', undefined, {
