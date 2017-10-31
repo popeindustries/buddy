@@ -317,6 +317,6 @@ function mergePlugin(options: {}, key: string, plugin: string | [string, {}]) {
   if (isNullOrUndefined(existing)) {
     options[key].push(plugin);
   } else {
-    existing[1] = Object.assign({}, pluginOptions, existing[1]);
+    existing[1] = Object.assign({}, existing[1], pluginOptions);
   }
 }

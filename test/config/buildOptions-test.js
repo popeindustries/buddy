@@ -143,130 +143,69 @@ describe.only('buildOptions', () => {
         expect(options.babel.plugins[1]).to.eql(['foo', {}]);
         expect(options.babelESM.plugins[2]).to.eql(['foo', {}]);
       });
-      it.only('should parse default plugins with override options', () => {
-        const options = parse(undefined, { babel: { plugins: ['transform-runtime', { helpers: false }] } });
-        console.dir(options, { depth: 10 });
-
-        expect(options.babel.plugins[0][1]).to.have.property('helpers', false);
-      });
-      it('should parse default plugins with alt name override options', () => {
-        const plugins = parse('js', undefined, {
-          babel: { plugins: [['transform-es2015-modules-commonjs', { loose: false }]] }
+      it('should configure default plugins with override options', () => {
+        const options = parse(undefined, {
+          babel: { plugins: [['transform-runtime', { helpers: false, foo: true }]] }
         });
 
-        expect(plugins).to.have.property('babel');
-        expect(plugins.babel.plugins[0]).to.have.length(2);
-        expect(plugins.babel.plugins[0][0]).to.equal('babel-plugin-transform-es2015-modules-commonjs');
-        expect(plugins.babel.plugins[0][1]).to.have.property('loose', false);
+        expect(options.babel.plugins[0][1]).to.have.property('helpers', false);
+        expect(options.babel.plugins[0][1]).to.have.property('foo', true);
+      });
+      it('should configure default plugins by alt name with override options', () => {
+        const options = parse(undefined, {
+          babel: { plugins: [['babel-plugin-transform-runtime', { helpers: false, foo: true }]] }
+        });
+
+        expect(options.babel.plugins[0][1]).to.have.property('helpers', false);
+        expect(options.babel.plugins[0][1]).to.have.property('foo', true);
       });
     });
 
     describe('css', () => {
-      it('should parse default plugins', () => {
-        const plugins = parse('css');
+      it('should configure default postcss plugins', () => {
+        const options = parse();
 
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins).to.have.length(0);
+        expect(options.postcss.plugins).to.have.length(1);
+        expect(options.postcss.plugins[0][0]).to.equal('autoprefixer');
       });
-      it('should parse browserlist string version', () => {
-        const plugins = parse('css', '> 5%');
+      it('should configure autoprefixer with browserslist string version', () => {
+        const options = parse('> 5%');
 
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers');
-        expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%']);
+        expect(options.postcss.plugins).to.have.length(1);
+        expect(options.postcss.plugins[0][1].browsers).to.eql(['> 5%']);
       });
-      it('should parse browserlist array version', () => {
-        const plugins = parse('css', ['> 5%', 'not ie 10']);
+      it('should configure autoprefixer with browserslist array version', () => {
+        const options = parse(['> 5%', 'not ie 10']);
 
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins[0][1]).to.have.property('browsers');
-        expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%', 'not ie 10']);
+        expect(options.postcss.plugins).to.have.length(1);
+        expect(options.postcss.plugins[0][1].browsers).to.eql(['> 5%', 'not ie 10']);
       });
-      it('should parse browserlist object version', () => {
-        const plugins = parse('css', { browsers: ['> 5%', 'not ie 10'] });
+      it('should configure autoprefixer with browserslist object version', () => {
+        const options = parse({ browsers: ['> 5%', 'not ie 10'] });
 
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins[0][1])
-          .to.have.property('browsers')
-          .eql(['> 5%', 'not ie 10']);
+        expect(options.postcss.plugins).to.have.length(1);
+        expect(options.postcss.plugins[0][1].browsers).to.eql(['> 5%', 'not ie 10']);
       });
-      it('should parse default plugins with options', () => {
-        const plugins = parse('css', undefined, { autoprefixer: { browsers: ['> 5%', 'not ie 10'] } });
+      it('should configure optional postcss plugins', () => {
+        const options = parse(undefined, { postcss: { plugins: ['foo'] } });
 
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins[0][1])
-          .to.have.property('browsers')
-          .eql(['> 5%', 'not ie 10']);
+        expect(options.postcss.plugins).to.have.length(2);
+        expect(options.postcss.plugins[1]).to.eql(['foo', {}]);
       });
-      it('should parse plugins with override options', () => {
-        const plugins = parse('css', ['> 5%', 'not ie 10'], { autoprefixer: { add: false } });
+      it('should configure default postcss plugins with options', () => {
+        const options = parse(undefined, { postcss: { plugins: [['autoprefixer', { browsers: ['> 5%'] }]] } });
 
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins[0][1]).to.have.property('add', false);
+        expect(options.postcss.plugins).to.have.length(1);
+        expect(options.postcss.plugins[0][0]).to.eql('autoprefixer');
+        expect(options.postcss.plugins[0][1].browsers).to.eql(['> 5%']);
       });
-      it('should parse plugins but ignore compression override options', () => {
-        const plugins = parse('css', ['> 5%', 'not ie 10'], { cssnano: { foo: true } });
+      it('should configure default postcss plugins with override options', () => {
+        const options = parse('> 5%', { postcss: { plugins: [['autoprefixer', { add: false }]] } });
 
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins).to.have.length(1);
-      });
-      it('should parse default plugins with compression', () => {
-        const plugins = parse('css', undefined, {}, true);
-
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins).to.have.length(1);
-      });
-      it('should parse default plugins with compression', () => {
-        const plugins = parse('css', '> 5%', {}, true);
-
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins).to.have.length(2);
-      });
-      it('should parse browserlist string version with compression', () => {
-        const plugins = parse('css', '> 5%', {}, true);
-
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins).to.have.length(2);
-      });
-      it('should parse browserlist string version with compression and override options', () => {
-        const plugins = parse('css', '> 5%', { cssnano: { foo: true } }, true);
-
-        expect(plugins).to.have.property('postcss');
-        expect(plugins.postcss.plugins).to.have.length(2);
-        expect(plugins.postcss.plugins[0][1]).to.have.property('foo', true);
-      });
-    });
-
-    describe('mixed', () => {
-      it('should parse default plugins', () => {
-        const plugins = parse('mixed');
-
-        expect(plugins).to.have.property('babel');
-        expect(plugins.babel.plugins).to.have.length(2);
-      });
-      it('should parse es* string version', () => {
-        const plugins = parse('mixed', 'es6');
-
-        expect(plugins).to.have.property('babel');
-        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
-        expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['chrome 51']);
-        expect(plugins.postcss.plugins[0][1].browsers).to.eql(['chrome 51']);
-      });
-      it('should parse browserlist string version', () => {
-        const plugins = parse('mixed', '> 5%');
-
-        expect(plugins).to.have.property('babel');
-        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
-        expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['> 5%']);
-        expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%']);
-      });
-      it('should parse browserlist array version', () => {
-        const plugins = parse('mixed', ['> 5%', 'not ie 10']);
-
-        expect(plugins).to.have.property('babel');
-        expect(plugins.babel.presets[0][1].targets).to.have.property('browsers');
-        expect(plugins.babel.presets[0][1].targets.browsers).to.eql(['> 5%', 'not ie 10']);
-        expect(plugins.postcss.plugins[0][1].browsers).to.eql(['> 5%', 'not ie 10']);
+        expect(options.postcss.plugins).to.have.length(1);
+        expect(options.postcss.plugins[0][0]).to.eql('autoprefixer');
+        expect(options.postcss.plugins[0][1].browsers).to.eql(['> 5%']);
+        expect(options.postcss.plugins[0][1].add).to.eql(false);
       });
     });
   });
