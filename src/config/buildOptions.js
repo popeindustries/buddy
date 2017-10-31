@@ -118,45 +118,19 @@ module.exports = {
       buildOptions.babel.presets = buildOptions.babelESM.presets = [['env', babelEnvPresetOptions]];
     }
 
-    for (const key in options) {
-      mergeOptions(buildOptions, key, options[key]);
+    for (let key in options) {
+      let value = options[key];
+
+      // Convert autoprefixer to postcss plugin
+      if (key === 'autoprefixer') {
+        key = 'postcss';
+        value = { plugins: [['autoprefixer', value]] };
+      }
+
+      mergeOptions(buildOptions, key, value);
     }
 
     return buildOptions;
-    // const plugins = {
-    //   babel: Object.assign({ presets: [], plugins: [] }, options.babel),
-    //   postcss: Object.assign({ plugins: [] }, options.postcss)
-    // };
-
-    // if (type !== 'js') {
-    //   // Convert 'cssnano' options to postcss plugin
-    //   if (compress && 'cssnano' in options) {
-    //     plugins.postcss.plugins.push(['cssnano', options.cssnano]);
-    //   }
-    //   // Convert 'autoprefixer' options to postcss plugin
-    //   if ('autoprefixer' in options) {
-    //     plugins.postcss.plugins.push(['autoprefixer', options.autoprefixer]);
-    //   }
-    //   // Don't configure if no version set
-    //   if (!isNullOrUndefined(version) || plugins.postcss.plugins.length > 0) {
-    //     mergePlugin(plugins.postcss.plugins, ['autoprefixer', { browsers: targetEnvs.browsers }]);
-    //   }
-    //   if (compress) {
-    //     mergePlugin(plugins.postcss.plugins, POSTCSS_PLUGINS_COMPRESS);
-    //   }
-    // }
-    // if (type !== 'css') {
-    //   mergePlugin(plugins.babel.presets, [
-    //     'babel-preset-env',
-    //     Object.assign({}, DEFAULT_BABEL_ENV_OPTIONS, { targets: targetEnvs })
-    //   ]);
-    //   mergePlugin(plugins.babel.plugins, BABEL_PLUGINS_DEFAULT);
-    //   if (compress) {
-    //     mergePlugin(plugins.babel.plugins, BABEL_PLUGINS_COMPRESS);
-    //   }
-    // }
-
-    // return plugins;
   },
 
   loadPlugins() {}
@@ -292,6 +266,7 @@ function mergeOptions(
           mergePlugin(buildOptions.babelESM, key, plugin);
         }
       });
+    } else if (key === 'autoprefixer') {
     }
   }
 }
@@ -299,6 +274,8 @@ function mergeOptions(
 function mergePlugin(options: {}, key: string, plugin: string | [string, {}]) {
   if (!isArray(plugin)) {
     plugin = [plugin, {}];
+  } else {
+    // TODO: verify format is string or tuple
   }
 
   let [pluginName, pluginOptions] = plugin;

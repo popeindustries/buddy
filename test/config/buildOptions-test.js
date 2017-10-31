@@ -207,6 +207,14 @@ describe.only('buildOptions', () => {
         expect(options.postcss.plugins[0][1].browsers).to.eql(['> 5%']);
         expect(options.postcss.plugins[0][1].add).to.eql(false);
       });
+      it('should configure autoprefixer postcss plugin with options', () => {
+        const options = parse('> 5%', { autoprefixer: { add: false } });
+
+        expect(options.postcss.plugins).to.have.length(1);
+        expect(options.postcss.plugins[0][0]).to.eql('autoprefixer');
+        expect(options.postcss.plugins[0][1].browsers).to.eql(['> 5%']);
+        expect(options.postcss.plugins[0][1].add).to.eql(false);
+      });
     });
   });
 
