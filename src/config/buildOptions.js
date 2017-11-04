@@ -25,13 +25,7 @@ type Version =
   | { node: number | string | true, buddy: Array<string> };
 
 const { isArray, isFilledArray, isNullOrUndefined, isNumber, isObject, isString } = require('../utils/is');
-const { strong, warn } = require('../utils/cnsl');
-const babelEnv = require('babel-preset-env').default;
 const browserslist = require('browserslist');
-const dependencies = require('./dependencies');
-const merge = require('lodash/merge');
-const md5 = require('md5');
-const unique = require('lodash/uniq');
 
 const ES_TO_BROWSERS = {
   es5: 'ie 8',
@@ -64,11 +58,9 @@ const DEFAULT_BABEL_ENV_OPTIONS = {
   exclude: ['transform-regenerator'],
   loose: true
 };
-const OPTIONS_WHITELIST = ['autoprefixer', 'babel', 'cssnano', 'postcss'];
 // const POSTCSS_PLUGINS_COMPRESS = [['cssnano', {}]];
 const RE_BABEL_PREFIX = /babel-preset-|babel-plugin-/;
 const RE_BROWSERSLIST_QUERY = /last|unreleased|not|extends|%|>=?|<=?/i;
-const RE_BUDDY_PREFIX = /buddy-plugin-/;
 const RE_ES_TARGET = /^es/i;
 const RE_NODE_TARGET = /^node|^server/i;
 const VALID_BROWSERS = [...Object.keys(browserslist.data), ...Object.keys(browserslist.aliases)];
@@ -76,16 +68,6 @@ const VALID_BROWSERS = [...Object.keys(browserslist.data), ...Object.keys(browse
 module.exports = {
   isBrowserEnvironment,
   parseVersion,
-
-  /**
-   * Add 'preset' definition for 'type'
-   */
-  addPreset(type: string, name: string, preset: Array<string>) {
-    if (isNullOrUndefined(allPlugins[type])) {
-      allPlugins[type] = {};
-    }
-    allPlugins[type][name] = preset;
-  },
 
   /**
    * Parse 'version' and 'options'

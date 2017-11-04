@@ -12,5 +12,24 @@
   "javascript.validate.enable": false,
   "flow.useNPMPackagedFlow": true,
   "prettier.parser": "flow",
-  "editor.codeLens": false
+  "editor.codeLens": false,
+  "cSpell.enabledLanguageIds": [
+    "c",
+    "cpp",
+    "csharp",
+    "go",
+    "handlebars",
+    "javascriptreact",
+    "json",
+    "latex",
+    "markdown",
+    "php",
+    "plaintext",
+    "python",
+    "restructuredtext",
+    "text",
+    "typescript",
+    "typescriptreact",
+    "yml"
+  ]
 }
