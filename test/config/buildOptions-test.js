@@ -3,7 +3,7 @@
 const { expect } = require('chai');
 const { isBrowserEnvironment, parse, parseVersion } = require('../../lib/config/buildOptions');
 
-describe.only('buildOptions', () => {
+describe('buildOptions', () => {
   describe('isBrowserEnvironment()', () => {
     it('should return "false" for server version', () => {
       expect(isBrowserEnvironment('node')).to.equal(false);
@@ -66,7 +66,7 @@ describe.only('buildOptions', () => {
     });
   });
 
-  describe.only('parse', () => {
+  describe('parse', () => {
     describe('js', () => {
       it('should configure default babel plugins', () => {
         const options = parse();

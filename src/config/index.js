@@ -16,7 +16,7 @@ type BuildOptions = {
   bundle: boolean,
   compress: boolean,
   helpers: boolean,
-  ignoredFiles: Array<string>,
+  // ignoredFiles: Array<string>,
   importBoilerplate: boolean,
   watchOnly: boolean
 };

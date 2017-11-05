@@ -21,8 +21,7 @@ const DEFAULT_PLUGINS = [
   require('../plugins/html'),
   require('../plugins/img'),
   require('../plugins/js'),
-  require('../plugins/json'),
-  require('../plugins/uglify')
+  require('../plugins/json')
 ];
 const DEFAULT_PLUGINS_DIR = 'buddy-plugins';
 const RE_JS_FILE = /\.js$/;
