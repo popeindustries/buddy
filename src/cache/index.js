@@ -2,68 +2,44 @@
 
 'use strict';
 
-type Caches = {
-  fileCache: FileCache,
-  resolverCache: ResolverCache
-};
-
 const { FSWatcher } = require('chokidar');
 const debounce = require('lodash/debounce');
 const Emitter = require('events');
 const FileCache = require('./FileCache');
 const ResolverCache = require('./ResolverCache');
 
-class Cache extends Emitter {
-  fileCaches: Set<FileCache>;
-  resolverCaches: Set<ResolverCache>;
-  createCaches: boolean => Caches;
-  clear: () => void;
-  debouncedEmit: Function;
-  _fileWatcher: FSWatcher;
+const fileWatcher = new FSWatcher({
+  ignored: /[\/\\]\./,
+  persistent: true
+});
 
-  constructor() {
+module.exports = class Cache extends Emitter {
+  fileCache: FileCache;
+  resolverCache: ResolverCache;
+  clear: () => void;
+  _debouncedEmit: Function;
+
+  constructor(watch: boolean) {
     super();
 
-    this.fileCaches = new Set();
-    this.resolverCaches = new Set();
-    this._fileWatcher = new FSWatcher({
-      ignored: /[\/\\]\./,
-      persistent: true
-    });
+    this.fileCache = new FileCache(watch ? fileWatcher : undefined);
+    this.resolverCache = new ResolverCache();
 
-    this._fileWatcher.on('change', this.onWatchChange.bind(this));
-    this._fileWatcher.on('unlink', this.onWatchDelete.bind(this));
-    this._fileWatcher.on('error', this.onWatchError.bind(this));
-    this.createCaches = this.createCaches.bind(this);
     this.clear = this.clear.bind(this);
-    this.debouncedEmit = debounce(this.emit, 100, { trailing: true });
+    this._debouncedEmit = debounce(this.emit, 100, { trailing: true });
+    if (watch) {
+      fileWatcher.on('change', this.onWatchChange.bind(this));
+      fileWatcher.on('unlink', this.onWatchDelete.bind(this));
+      fileWatcher.on('error', this.onWatchError.bind(this));
+    }
   }
 
   /**
-   * FileCache/ResolverCache instance factory
-   */
-  createCaches(watch: boolean): Caches {
-    const fileCache = new FileCache(watch ? this._fileWatcher : undefined);
-    const resolverCache = new ResolverCache();
-
-    this.fileCaches.add(fileCache);
-    this.resolverCaches.add(resolverCache);
-
-    return { fileCache, resolverCache };
-  }
-
-  /**
-   * Clear all caches
+   * Clear caches
    */
   clear() {
-    for (const fileCache of this.fileCaches) {
-      fileCache.clear();
-    }
-    for (const resolverCache of this.resolverCaches) {
-      resolverCache.clear();
-    }
-    this.fileCaches.clear();
-    this.resolverCaches.clear();
+    this.fileCache.clear();
+    this.resolverCache.clear();
     this.removeAllListeners();
   }
 
@@ -73,18 +49,16 @@ class Cache extends Emitter {
   onWatchChange(filepath: string) {
     let changed = false;
 
-    for (const fileCache of this.fileCaches) {
-      const file = fileCache.getFile(filepath);
+    const file = this.fileCache.getFile(filepath);
 
-      if (file) {
-        changed = true;
-        // Hard reset
-        file.reset(true);
-      }
+    if (file) {
+      changed = true;
+      // Hard reset
+      file.reset(true);
     }
 
     if (changed) {
-      this.debouncedEmit('change', filepath);
+      this._debouncedEmit('change', filepath);
     }
   }
 
@@ -94,19 +68,17 @@ class Cache extends Emitter {
   onWatchDelete(filepath: string) {
     let changed = false;
 
-    for (const fileCache of this.fileCaches) {
-      const file = fileCache.getFile(filepath);
+    const file = this.fileCache.getFile(filepath);
 
-      // Destroy
-      if (file != null) {
-        changed = true;
-        file.destroy();
-        fileCache.removeFile(file);
-      }
+    // Destroy
+    if (file != null) {
+      changed = true;
+      file.destroy();
+      this.fileCache.removeFile(file);
     }
 
     if (changed) {
-      this.debouncedEmit('change', filepath);
+      this._debouncedEmit('change', filepath);
     }
   }
 
@@ -116,6 +88,4 @@ class Cache extends Emitter {
   onWatchError(err: Error) {
     this.emit('error', err);
   }
-}
-
-module.exports = new Cache();
+};
