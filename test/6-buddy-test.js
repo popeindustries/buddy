@@ -686,7 +686,7 @@ describe('Buddy', () => {
             expect(fs.existsSync(filepaths[0])).to.be(true);
             const content = fs.readFileSync(filepaths[0], 'utf8');
 
-            expect(content).to.contain("/*== node_modules/react/index.js ==*/");
+            expect(content).to.contain('/*== node_modules/react/index.js ==*/');
             expect(content).to.contain("var React = $m['react'].exports;");
             expect(content).to.contain('React.createElement(');
             done();
@@ -940,7 +940,7 @@ describe('Buddy', () => {
             expect(content).to.contain("$m['js-directory/flat");
             if (name == 'foo.js')
               expect(content).to.contain(
-                "/*== js-directory/flat/foo.js ==*/\n$m[\'js-directory/flat/foo\'] = { exports: {} };\nif (\'test\' == \'production\') console.log(\'foo\');\n/*≠≠ js-directory/flat/foo.js ≠≠*/"
+                "/*== js-directory/flat/foo.js ==*/\n$m['js-directory/flat/foo'] = { exports: {} };\nif ('test' == 'production') console.log('foo');\n/*≠≠ js-directory/flat/foo.js ≠≠*/"
               );
           });
           done();
@@ -950,6 +950,26 @@ describe('Buddy', () => {
         buddy = buddyFactory({
           input: 'js-directory/flat',
           output: 'output',
+          bundle: false
+        });
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(3);
+          filepaths.forEach(filepath => {
+            const content = fs.readFileSync(filepath, 'utf8');
+            const name = path.basename(filepath);
+
+            expect(fs.existsSync(filepath)).to.be(true);
+            expect(fs.readFileSync(filepath, 'utf8')).to.not.contain('$m[');
+            if (name == 'foo.js') expect(content).to.contain("if ('test' == 'production')");
+          });
+          done();
+        });
+      });
+      it('should build a directory of 3 unwrapped server js files if "bundle" is false', done => {
+        buddy = buddyFactory({
+          input: 'js-directory/flat',
+          output: 'output',
+          version: 'node',
           bundle: false
         });
         buddy.build((err, filepaths) => {
