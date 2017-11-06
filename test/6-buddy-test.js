@@ -391,7 +391,7 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.equal(
-            '"use strict";if(void 0===self)var self=this;if(void 0===global)var global=self;var $m=self.$m=self.$m||{},$req;if(void 0===process)var process={browser:!0,env:{NODE_ENV:"test"}};self.require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports},function(){$m.foo={exports:{}},$m.foo.exports="foo",$m.bar={exports:{}};var e=$m.foo.exports;$m.bar.exports=e}();//# sourceMappingURL=bar.js.map'
+            '"use strict";if(void 0===self)var self=this;if(void 0===global)var global=self;var $req,$m=self.$m=self.$m||{};if(void 0===process)var process={browser:!0,env:{NODE_ENV:"test"}};self.require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports},function(){$m.foo={exports:{}},$m.foo.exports="foo",$m.bar={exports:{}};var e=$m.foo.exports;$m.bar.exports=e}();//# sourceMappingURL=bar.js.map'
           );
           done();
         });
@@ -815,7 +815,7 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain(
-            ':-webkit-full-screen a {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}'
+            ':-webkit-full-screen a {\n  display: -webkit-box;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n}'
           );
           done();
         });
@@ -832,7 +832,7 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain(
-            ':-webkit-full-screen a {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n}'
+            ':-webkit-full-screen a {\n  display: -webkit-box;\n  display: flex;\n}\n:-moz-full-screen a {\n  display: flex;\n}\n:-ms-fullscreen a {\n  display: -ms-flexbox;\n  display: flex;\n}\n:fullscreen a {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n}'
           );
           done();
         });
