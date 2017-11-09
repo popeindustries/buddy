@@ -3,13 +3,9 @@
   "description": "Buddy plugin for nunjucks source transforms (via nunjucks)",
   "version": "3.0.1",
   "author": "popeindustries <alex@pope-industries.com>",
-  "keywords": [
-    "buddy",
-    "compile",
-    "nunjucks"
-  ],
+  "keywords": ["buddy", "compile", "nunjucks"],
   "dependencies": {
-    "async": "2.5.0",
+    "async": "2.6.0",
     "nunjucks": "3.0.1"
   },
   "peerDependencies": {
