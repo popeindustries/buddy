@@ -179,7 +179,7 @@ describe('Buddy', () => {
           const content = fs.readFileSync(filepaths[0], 'utf8');
 
           expect(content).to.contain(
-            "$m['es6'] = { exports: {} };\n$m['es6'].exports.__esModule = true;\n\n$m['es6'].exports.default = function () {\n  console.log(es6__foo);\n  console.log(es6___bar2.default);\n  console.log(es6__fModule.default, es6__fModule.bat);\n};\n\nvar es6___foo = $m['foo'].exports;\n\nvar es6__foo = babelHelpers.interopRequireWildcard(es6___foo);\n\nvar es6___bar = $m['bar'].exports;\n\nvar es6___bar2 = babelHelpers.interopRequireDefault(es6___bar);\n\nvar es6___f = $m['f'].exports;\n\nvar es6__fModule = babelHelpers.interopRequireWildcard(es6___f);"
+            "$m['es6'] = { exports: {} };\n$m['es6'].exports.__esModule = true;\n\n$m['es6'].exports.default = function () {\n  console.log(es6__importedFoo);\n  console.log(es6__foo);\n  console.log(es6___bar2.default);\n  console.log(es6__fModule.default, es6__fModule.bat);\n};\n\nvar es6___foo = $m['foo'].exports;\n\nvar es6__foo = babelHelpers.interopRequireWildcard(es6___foo);\n\nvar es6___bar = $m['bar'].exports;\n\nvar es6___bar2 = babelHelpers.interopRequireDefault(es6___bar);\n\nvar es6___f = $m['f'].exports;\n\nvar es6__fModule = babelHelpers.interopRequireWildcard(es6___f);\n\n\nconst es6__importedFoo = es6__foo;"
           );
           done();
         });
@@ -392,6 +392,25 @@ describe('Buddy', () => {
 
           expect(content).to.equal(
             '"use strict";if(void 0===self)var self=this;if(void 0===global)var global=self;var $req,$m=self.$m=self.$m||{};if(void 0===process)var process={browser:!0,env:{NODE_ENV:"test"}};self.require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports},function(){$m.foo={exports:{}},$m.foo.exports="foo",$m.bar={exports:{}};var e=$m.foo.exports;$m.bar.exports=e}();//# sourceMappingURL=bar.js.map'
+          );
+          done();
+        });
+      });
+      it('should build a minified es5+ js file if "compress" is true', done => {
+        buddy = buddyFactory(
+          {
+            input: 'es6.js',
+            output: 'output'
+          },
+          { compress: true, maps: true }
+        );
+        buddy.build((err, filepaths) => {
+          expect(filepaths).to.have.length(1);
+          expect(fs.existsSync(filepaths[0])).to.be(true);
+          const content = fs.readFileSync(filepaths[0], 'utf8');
+
+          expect(content).to.equal(
+            '"use strict";if(void 0===self)var self=this;if(void 0===global)var global=self;var $req,$m=self.$m=self.$m||{};if(void 0===process)var process={browser:!0,env:{NODE_ENV:"test"}};self.require=self.require||function(e){if($m[e])return"function"==typeof $m[e]&&$m[e](),$m[e].exports},function(e){var o=e.babelHelpers;o||(o=e.babelHelpers={}),o.interopRequireDefault=function(e){return e&&e.__esModule?e:{default:e}},o.interopRequireWildcard=function(e){if(e&&e.__esModule)return e;var o={};if(null!=e)for(var r in e)Object.prototype.hasOwnProperty.call(e,r)&&(o[r]=e[r]);return o.default=e,o}}(void 0===global?self:global),function(){$m.foo={exports:{}},$m.foo.exports="foo",$m.f={exports:{}};$m.bar={exports:{}};var e=$m.foo.exports;$m.bar.exports=e,$m.es6={exports:{}},$m.es6.exports.__esModule=!0,$m.es6.exports.default=function(){console.log(i),console.log(r),console.log(t.default),console.log(f.default,f.bat)};var o=$m.foo.exports,r=babelHelpers.interopRequireWildcard(o),l=$m.bar.exports,t=babelHelpers.interopRequireDefault(l),s=$m.f.exports,f=babelHelpers.interopRequireWildcard(s);const i=r}();//# sourceMappingURL=es6.js.map'
           );
           done();
         });

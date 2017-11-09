@@ -3,15 +3,25 @@
   "description": "A fast, simple build tool for web projects.",
   "version": "6.14.6",
   "author": "popeindustries <alex@pope-industries.com>",
-  "keywords": ["build", "buildtool", "bundle", "bundler", "modules", "javascript", "js", "css", "html"],
+  "keywords": [
+    "build",
+    "buildtool",
+    "bundle",
+    "bundler",
+    "modules",
+    "javascript",
+    "js",
+    "css",
+    "html"
+  ],
   "dependencies": {
-    "async": "2.5.0",
+    "async": "2.6.0",
     "autoprefixer": "7.1.6",
     "babel-core": "6.26.0",
     "babel-plugin-external-helpers": "6.22.0",
     "babel-plugin-minify-dead-code-elimination": "0.2.0",
     "babel-plugin-transform-es2015-modules-commonjs": "6.26.0",
-    "browserslist": "2.7.0",
+    "browserslist": "2.8.0",
     "buddy-cli": "6.1.0",
     "chalk": "2.3.0",
     "chokidar": "1.7.0",
@@ -26,7 +36,8 @@
     "pretty-bytes": "4.0.2",
     "recur-fs": "2.2.4",
     "source-map": "0.6.1",
-    "uglify-js": "3.1.6"
+    "uglify-es": "3.1.8",
+    "uglify-js": "3.1.8"
   },
   "devDependencies": {
     "babel-plugin-inferno": "3.3.0",
@@ -38,7 +49,7 @@
     "babel-plugin-transform-react-jsx": "6.24.1",
     "babel-preset-env": "1.6.1",
     "expect.js": "*",
-    "mocha": "*",
+    "mocha": "^4.0.1",
     "postcss-calc": "^6.0.1",
     "postcss-custom-properties": "^6.2.0",
     "rimraf": "2.6.2"
@@ -52,8 +63,7 @@
     "install:packages": "./bin/packages install",
     "outdated:packages": "./bin/packages outdated",
     "copy": "cp ./node_modules/babel-preset-env/data/plugins.json ./lib/config/babel-plugins.json",
-    "test:all":
-      "NODE_ENV=test mocha \"./packages/buddy-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
+    "test:all": "NODE_ENV=test mocha \"./packages/buddy-*/test/test.js\" \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
     "test": "NODE_ENV=test mocha \"./test/*-test.js\" --reporter spec --timeout 20000 --bail",
     "test:windows": "set NODE_ENV=test&&node.exe ./node_modules/mocha/bin/mocha --reporter spec -t 20000 --bail",
     "perf:build": "NODE_ENV=test node perf/build.js",
